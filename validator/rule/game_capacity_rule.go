@@ -1,0 +1,14 @@
+package rule
+
+import (
+	"github.com/go-playground/validator/v10"
+
+	"uwwolf/config"
+)
+
+const GameCapacityRule = "game_capacity"
+
+func GameCapacityValidate(fl validator.FieldLevel) bool {
+	return fl.Field().Uint() <= config.MaximumGameCapacity &&
+		fl.Field().Uint() >= config.MinimumGameCapacity
+}
