@@ -1,4 +1,4 @@
-package contract
+package typ
 
 type GameInstanceInit struct {
 	GameId             string `validate:"required,len=20,alphanum"`

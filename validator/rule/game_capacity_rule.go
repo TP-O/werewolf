@@ -9,6 +9,6 @@ import (
 const GameCapacityRule = "game_capacity"
 
 func GameCapacityValidate(fl validator.FieldLevel) bool {
-	return fl.Field().Uint() <= config.MaximumGameCapacity &&
-		fl.Field().Uint() >= config.MinimumGameCapacity
+	return fl.Field().Uint() <= uint64(config.Game.MaxCapacity) &&
+		fl.Field().Uint() >= uint64(config.Game.MinCapacity)
 }

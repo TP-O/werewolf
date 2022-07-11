@@ -1,26 +1,26 @@
 package factory
 
 import (
-	"uwwolf/game/contract"
-	"uwwolf/game/enum"
+	"uwwolf/contract/itf"
+	"uwwolf/enum"
 	"uwwolf/game/role"
 )
 
 type roleFactory struct {
-	roles map[uint]contract.Role
+	roles map[uint]itf.IRole
 }
 
 var roleFactoryInstance roleFactory
 
 func init() {
-	roleFactoryInstance = roleFactory{make(map[uint]contract.Role)}
+	roleFactoryInstance = roleFactory{make(map[uint]itf.IRole)}
 }
 
 func GetRoleFactory() *roleFactory {
 	return &roleFactoryInstance
 }
 
-func (f *roleFactory) Create(key uint) contract.Role {
+func (f *roleFactory) Create(key uint) itf.IRole {
 	if val, ok := f.roles[key]; ok {
 		return val
 	}
@@ -42,7 +42,7 @@ func (f *roleFactory) Create(key uint) contract.Role {
 		f.roles[key] = role.NewVillagerRole()
 
 	case enum.AlphaWerewolfRole:
-		f.roles[key] = role.NewWerewolfRole()
+		f.roles[key] = role.NewAlphaWerewolfRole()
 
 	default:
 		return nil

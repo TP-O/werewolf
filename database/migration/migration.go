@@ -3,7 +3,7 @@ package migration
 import (
 	"gorm.io/gorm"
 
-	"uwwolf/model"
+	"uwwolf/app/model"
 )
 
 func Migrate(db *gorm.DB) {

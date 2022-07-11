@@ -3,10 +3,11 @@ package action
 import (
 	"fmt"
 
-	"uwwolf/game/contract"
+	"uwwolf/contract/itf"
+	"uwwolf/contract/typ"
 )
 
-func NewVoteAction() contract.Action {
+func NewVoteAction() itf.IAction {
 	return &action{
 		name: "Vote",
 		kit: actionKit{
@@ -17,18 +18,18 @@ func NewVoteAction() contract.Action {
 	}
 }
 
-func validateVote(instruction contract.ActionInstruction) bool {
+func validateVote(instruction *typ.ActionInstruction) bool {
 	return instruction.Skipped ||
 		(!instruction.Skipped && len(instruction.Targets) == 1)
 }
 
-func executeVote(instruction contract.ActionInstruction) bool {
+func executeVote(instruction *typ.ActionInstruction) bool {
 	fmt.Println(instruction.Actor + " voted " + instruction.Targets[0])
 
 	return true
 }
 
-func skipVote(instruction contract.ActionInstruction) bool {
+func skipVote(instruction *typ.ActionInstruction) bool {
 	fmt.Println(instruction.Actor + " skipped")
 
 	return true

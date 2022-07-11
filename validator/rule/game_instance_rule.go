@@ -2,9 +2,9 @@ package rule
 
 import (
 	"math"
+	"uwwolf/app/model"
+	"uwwolf/contract/typ"
 	"uwwolf/database"
-	"uwwolf/game/contract"
-	"uwwolf/model"
 
 	"github.com/go-playground/validator/v10"
 )
@@ -15,7 +15,7 @@ const (
 )
 
 func GameInstanceInitValidate(sl validator.StructLevel) {
-	input := sl.Current().Interface().(contract.GameInstanceInit)
+	input := sl.Current().Interface().(typ.GameInstanceInit)
 
 	roleIdsValidate(sl, input.RolePool)
 	numberOfWerewolvesValidate(sl, input.Capacity, input.NumberOfWerewolves)

@@ -3,18 +3,26 @@ package main
 import (
 	"fmt"
 	"log"
-	"uwwolf/game"
-	"uwwolf/game/contract"
 
-	"github.com/joho/godotenv"
+	"uwwolf/config"
+	"uwwolf/contract/typ"
+	"uwwolf/database"
+	"uwwolf/game"
+	"uwwolf/validator"
 )
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		log.Fatal("Error loading .env file")
+	if err := config.LoadConfigs(); err != nil {
+		log.Fatal("Error loading config: ", err)
 	}
 
-	if instance, err := game.NewGameInstance(&contract.GameInstanceInit{
+	if err := database.LoadDatabase(); err != nil {
+		log.Fatal("Error coneect to dabase: ", err)
+	}
+
+	validator.LoadValidator()
+
+	if instance, err := game.NewGameInstance(&typ.GameInstanceInit{
 		GameId:             "11111111111111111111",
 		Capacity:           5,
 		NumberOfWerewolves: 1,

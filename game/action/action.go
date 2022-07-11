@@ -1,14 +1,14 @@
 package action
 
 import (
-	"uwwolf/game/contract"
+	"uwwolf/contract/typ"
 	"uwwolf/validator"
 )
 
 type actionKit struct {
-	validate func(contract.ActionInstruction) bool
-	execute  func(contract.ActionInstruction) bool
-	skip     func(contract.ActionInstruction) bool
+	validate func(*typ.ActionInstruction) bool
+	execute  func(*typ.ActionInstruction) bool
+	skip     func(*typ.ActionInstruction) bool
 }
 
 type action struct {
@@ -20,7 +20,7 @@ func (a *action) GetName() string {
 	return a.name
 }
 
-func (a *action) Perform(instruction contract.ActionInstruction) bool {
+func (a *action) Perform(instruction *typ.ActionInstruction) bool {
 	if !validator.ValidateStruct(instruction) || !a.kit.validate(instruction) {
 		return false
 	}

@@ -1,23 +1,24 @@
 package role
 
 import (
+	"uwwolf/contract/itf"
+	"uwwolf/contract/typ"
 	"uwwolf/game/action"
-	"uwwolf/game/contract"
 )
 
 func NewHunterRole() *role {
 	return &role{
 		name: "Hunter",
-		skill: &contract.Skill{
+		skill: &itf.Skill{
 			Action: action.NewShootingAction(),
-			Turn: &contract.SkillTurn{
+			Turn: &typ.SkillTurn{
 				StartFrom:    2,
 				NumberOfUses: -1,
 			},
 		},
-		passive: &contract.Passive{
+		passive: &itf.Passive{
 			Action: action.NewShootingAction(),
-			Event: &contract.PassiveEvent{
+			Event: &typ.PassiveEvent{
 				AfterDeath: true,
 			},
 		},

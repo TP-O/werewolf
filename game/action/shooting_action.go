@@ -3,10 +3,11 @@ package action
 import (
 	"fmt"
 
-	"uwwolf/game/contract"
+	"uwwolf/contract/itf"
+	"uwwolf/contract/typ"
 )
 
-func NewShootingAction() contract.Action {
+func NewShootingAction() itf.IAction {
 	return &action{
 		name: "Shooting",
 		kit: actionKit{
@@ -17,18 +18,18 @@ func NewShootingAction() contract.Action {
 	}
 }
 
-func validateShooting(instruction contract.ActionInstruction) bool {
+func validateShooting(instruction *typ.ActionInstruction) bool {
 	return instruction.Skipped ||
 		(!instruction.Skipped && len(instruction.Targets) == 1)
 }
 
-func executeShooting(instruction contract.ActionInstruction) bool {
+func executeShooting(instruction *typ.ActionInstruction) bool {
 	fmt.Println(instruction.Actor + " shot " + instruction.Targets[0])
 
 	return true
 }
 
-func skipShooting(instruction contract.ActionInstruction) bool {
+func skipShooting(instruction *typ.ActionInstruction) bool {
 	fmt.Println(instruction.Actor + " skipped")
 
 	return true

@@ -3,8 +3,8 @@ package seeder
 import (
 	"gorm.io/gorm"
 
-	"uwwolf/game/enum"
-	"uwwolf/model"
+	"uwwolf/app/model"
+	"uwwolf/enum"
 )
 
 func seedTeams(db *gorm.DB) {

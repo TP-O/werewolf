@@ -5,10 +5,10 @@ import (
 	"math/rand"
 	"time"
 
+	"uwwolf/app/model"
+	"uwwolf/contract/typ"
 	"uwwolf/database"
-	"uwwolf/game/contract"
-	"uwwolf/game/enum"
-	"uwwolf/model"
+	"uwwolf/enum"
 	"uwwolf/validator"
 )
 
@@ -23,7 +23,7 @@ type instance struct {
 	rolePool           []uint
 }
 
-func NewGameInstance(input *contract.GameInstanceInit) (*instance, error) {
+func NewGameInstance(input *typ.GameInstanceInit) (*instance, error) {
 	if !validator.ValidateStruct(input) {
 		return nil, errors.New("Invalid game instance!")
 	}

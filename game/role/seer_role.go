@@ -1,16 +1,17 @@
 package role
 
 import (
+	"uwwolf/contract/itf"
+	"uwwolf/contract/typ"
 	"uwwolf/game/action"
-	"uwwolf/game/contract"
 )
 
 func NewSeerRole() *role {
 	return &role{
 		name: "Seer",
-		skill: &contract.Skill{
+		skill: &itf.Skill{
 			Action: action.NewProphecyAction(),
-			Turn: &contract.SkillTurn{
+			Turn: &typ.SkillTurn{
 				StartFrom:    2,
 				NumberOfUses: -1,
 			},
