@@ -7,7 +7,8 @@ import (
 )
 
 func Seed(db *gorm.DB) {
-	seedTeams(db)
+	seedFactions(db)
+	seedPhases(db)
 	seedRoles(db)
 }
 

@@ -7,11 +7,11 @@ import (
 	"uwwolf/enum"
 )
 
-func seedTeams(db *gorm.DB) {
+func seedFactions(db *gorm.DB) {
 	insert(
 		db,
-		&model.Team{},
-		[]model.Team{
+		&model.Faction{},
+		[]model.Faction{
 			{
 				Model: gorm.Model{
 					ID: enum.VillageFaction,

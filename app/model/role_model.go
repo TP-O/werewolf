@@ -4,12 +4,15 @@ import "gorm.io/gorm"
 
 type Role struct {
 	gorm.Model
-	TeamID      uint
+	FactionID   uint
+	PhaseID     uint
 	Name        string `gorm:"unique"`
-	Score       int    `gorm:"default:1;check:score > 0"`
+	Priority    uint   `gorm:"check:priority > 0"`
+	Score       int    `gorm:"default:1"`
 	Quantity    int    `gorm:"default:1;check:score > 0"`
 	Image       string `gorm:"type:text;default:''"`
 	Description string `gorm:"type:text"`
 
-	Team Team `gorm:"constraint:OnUpdate:SET NULL,OnDelete:SET NULL"`
+	Faction Faction `gorm:"constraint:OnUpdate:SET NULL,OnDelete:SET NULL"`
+	Phase   Phase   `gorm:"constraint:OnUpdate:SET NULL,OnDelete:SET NULL"`
 }

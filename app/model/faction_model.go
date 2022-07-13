@@ -2,7 +2,7 @@ package model
 
 import "gorm.io/gorm"
 
-type Team struct {
+type Faction struct {
 	gorm.Model
 	Name string `gorm:"unique"`
 

@@ -7,46 +7,36 @@ import (
 )
 
 type roleFactory struct {
-	roles map[uint]itf.IRole
+	//
 }
 
-var roleFactoryInstance roleFactory
+var roleFactoryInstance itf.IFactory[uint, itf.IRole]
 
-func init() {
-	roleFactoryInstance = roleFactory{make(map[uint]itf.IRole)}
-}
-
-func GetRoleFactory() *roleFactory {
-	return &roleFactoryInstance
+func GetRoleFactory() itf.IFactory[uint, itf.IRole] {
+	return roleFactoryInstance
 }
 
 func (f *roleFactory) Create(key uint) itf.IRole {
-	if val, ok := f.roles[key]; ok {
-		return val
-	}
-
 	switch key {
 	case enum.VillagerRole:
-		f.roles[key] = role.NewVillagerRole()
+		return role.NewVillagerRole()
 
 	case enum.WerewolfRole:
-		f.roles[key] = role.NewWerewolfRole()
+		return role.NewWerewolfRole()
 
 	case enum.HunterRole:
-		f.roles[key] = role.NewHunterRole()
+		return role.NewHunterRole()
 
 	case enum.SeerRole:
-		f.roles[key] = role.NewSeerRole()
+		return role.NewSeerRole()
 
 	case enum.TwoSistersRole:
-		f.roles[key] = role.NewVillagerRole()
+		return role.NewVillagerRole()
 
-	case enum.AlphaWerewolfRole:
-		f.roles[key] = role.NewAlphaWerewolfRole()
+	case enum.AlphaWolfRole:
+		return role.NewAlphaWolfRole()
 
 	default:
 		return nil
 	}
-
-	return f.roles[key]
 }

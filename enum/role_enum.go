@@ -6,5 +6,5 @@ const (
 	HunterRole
 	SeerRole
 	TwoSistersRole
-	AlphaWerewolfRole
+	AlphaWolfRole
 )
