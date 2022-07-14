@@ -7,6 +7,7 @@ import (
 	"uwwolf/config"
 	"uwwolf/contract/typ"
 	"uwwolf/database"
+	"uwwolf/enum"
 	"uwwolf/game"
 	"uwwolf/game/factory"
 	"uwwolf/validator"
@@ -26,9 +27,9 @@ func main() {
 
 	if instance, err := game.NewGameInstance(&typ.GameInstanceInit{
 		GameId:             "11111111111111111111",
-		Capacity:           7,
-		NumberOfWerewolves: 1,
-		RolePool:           []uint{3, 4, 6},
+		Capacity:           10,
+		NumberOfWerewolves: 2,
+		RolePool:           []uint{enum.HunterRole},
 	}); err == nil {
 		instance.AddPlayers(
 			[]string{
@@ -36,11 +37,14 @@ func main() {
 				"11111111111111111112",
 				"11111111111111111113",
 				"11111111111111111114",
+				"11111111111111111115",
 				"11111111111111111116",
 				"11111111111111111117",
 				"11111111111111111118",
+				"11111111111111111119",
+				"11111111111111111110",
 			},
-			[]uint{1, 2, 3, 4, 5, 6, 7},
+			[]uint{1, 2, 3, 4, 5, 6, 7, 8, 9, 10},
 		)
 
 		fmt.Println(instance.Start())

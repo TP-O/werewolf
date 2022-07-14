@@ -13,6 +13,8 @@ import (
 	"uwwolf/game/factory"
 	"uwwolf/util"
 	"uwwolf/validator"
+
+	"golang.org/x/exp/slices"
 )
 
 type turn struct {
@@ -109,26 +111,36 @@ func (i *instance) assignRoles() {
 	var specialRoles []model.Role
 	database.DB().Find(&specialRoles, i.rolePool)
 
-	randomRoleIds, randomRoles := i.preprocessRoles(specialRoles)
+	randomRoles := i.pickUpRoles(specialRoles)
+	cloneRandomRoles := slices.Clone(randomRoles)
 
-	for _, playerId := range i.socketId2playerId {
-		randIndex := util.Intn(len(randomRoleIds))
-		i.playerId2RoleId[playerId] = randomRoleIds[randIndex]
-		i.roleId2SocketIds[randomRoleIds[randIndex]] = append(i.roleId2SocketIds[randomRoleIds[randIndex]], i.playerId2SocketId[playerId])
+	for socketId, playerId := range i.socketId2playerId {
+		randIndex := util.Intn(len(randomRoles))
+		randomRole := randomRoles[randIndex]
 
-		randomRoleIds = append(randomRoleIds[:randIndex], randomRoleIds[randIndex+1:]...)
+		i.playerId2RoleId[playerId] = randomRole.ID
+		i.roleId2SocketIds[randomRole.ID] = append(i.roleId2SocketIds[randomRole.ID], socketId)
+
+		if randomRole.ID != enum.VillagerRole {
+			i.roleId2SocketIds[enum.VillagerRole] = append(i.roleId2SocketIds[enum.VillagerRole], i.playerId2SocketId[playerId])
+		}
+
+		if randomRole.ID != enum.WerewolfRole && randomRole.FactionID == enum.WerewolfFaction {
+			i.roleId2SocketIds[enum.WerewolfRole] = append(i.roleId2SocketIds[enum.WerewolfRole], i.playerId2SocketId[playerId])
+		}
+
+		randomRoles = append(randomRoles[:randIndex], randomRoles[randIndex+1:]...)
 	}
 
-	i.setUpTurns(randomRoles)
+	i.setUpTurns(cloneRandomRoles)
 }
 
 // Pick up number of roles corresponding to game capacity randomly
-func (i *instance) preprocessRoles(roles []model.Role) ([]uint, []model.Role) {
+func (i *instance) pickUpRoles(roles []model.Role) []model.Role {
 	var defaultRoles []model.Role
 	database.DB().Find(&defaultRoles, []uint{enum.VillagerRole, enum.WerewolfRole})
 
-	randomRoleIds := make([]uint, i.capacity)
-	randomRoles := []model.Role{}
+	randomRoles := make([]model.Role, i.capacity)
 
 	werewolfRoles, remainingRoles := i.classifyRoles(roles)
 
@@ -144,28 +156,16 @@ func (i *instance) preprocessRoles(roles []model.Role) ([]uint, []model.Role) {
 		// Fill in with default role if all special roles are taken
 		if len(*currentRoles) == 0 {
 			if currentRoles == &werewolfRoles {
-				randomRoleIds[j] = enum.WerewolfRole
-
-				if !util.DeepFind(randomRoles, defaultRoles[1]) {
-					randomRoles = append(randomRoles, defaultRoles[1])
-				}
+				randomRoles[j] = defaultRoles[1]
 			} else {
-				randomRoleIds[j] = enum.VillagerRole
-
-				if !util.DeepFind(randomRoles, defaultRoles[0]) {
-					randomRoles = append(randomRoles, defaultRoles[0])
-				}
+				randomRoles[j] = defaultRoles[0]
 			}
 
 			continue
 		}
 
 		randIndex := util.Intn(len(*currentRoles))
-		randomRoleIds[j] = (*currentRoles)[randIndex].ID
-
-		if !util.DeepFind(randomRoles, (*currentRoles)[randIndex]) {
-			randomRoles = append(randomRoles, (*currentRoles)[randIndex])
-		}
+		randomRoles[j] = (*currentRoles)[randIndex]
 
 		(*currentRoles)[randIndex].Quantity--
 
@@ -175,7 +175,7 @@ func (i *instance) preprocessRoles(roles []model.Role) ([]uint, []model.Role) {
 		}
 	}
 
-	return randomRoleIds, randomRoles
+	return randomRoles
 }
 
 // Classify roles into 2 factions
@@ -205,6 +205,7 @@ func (i *instance) resetPlayers() {
 // Prepare turn for special roles
 func (i *instance) setUpTurns(roles []model.Role) {
 	roleFactory := factory.GetRoleFactory()
+	roles = util.RemoveDuplicate(roles)
 
 	// Order by priority
 	sort.Slice(roles, func(i, j int) bool {
@@ -216,8 +217,14 @@ func (i *instance) setUpTurns(roles []model.Role) {
 			players: i.roleId2SocketIds[role.ID],
 			role:    roleFactory.Create(role.ID),
 		})
+	}
 
-		fmt.Println(role.Name)
+	for i, phases := range i.turns {
+		fmt.Println("Phase: ", i)
+
+		for _, turn := range phases {
+			fmt.Println(turn.players)
+		}
 	}
 
 	i.nextTurn = i.turns[i.currentPhase][0]

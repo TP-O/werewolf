@@ -17,3 +17,15 @@ func DeepFind[T any](collection []T, foundItem T) bool {
 
 	return ok
 }
+
+func RemoveDuplicate[T any](collection []T) []T {
+	newCollection := make([]T, 0)
+
+	for _, e := range collection {
+		if !DeepFind(newCollection, e) {
+			newCollection = append(newCollection, e)
+		}
+	}
+
+	return newCollection
+}
