@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"sort"
 
+	"golang.org/x/exp/slices"
+
 	"uwwolf/app/model"
 	"uwwolf/contract/itf"
 	"uwwolf/contract/typ"
@@ -13,8 +15,6 @@ import (
 	"uwwolf/game/factory"
 	"uwwolf/util"
 	"uwwolf/validator"
-
-	"golang.org/x/exp/slices"
 )
 
 type turn struct {
@@ -102,8 +102,18 @@ func (i *instance) RemovePlayer(socketId string) bool {
 	return true
 }
 
-func (i *instance) Do(instruction typ.ActionInstruction) {
-	//
+func (i *instance) Do(instruction *typ.ActionInstruction) bool {
+	if !slices.Contains(i.nextTurn.players, instruction.Actor) {
+		return false
+	}
+
+	i.nextTurn.role.UseSkill(instruction)
+
+	return true
+}
+
+func (i *instance) NextTurn() {
+	fmt.Println("Next turn!!!!!!!!!!!")
 }
 
 // Assign roles to players randomly
@@ -215,9 +225,12 @@ func (i *instance) setUpTurns(roles []model.Role) {
 	for _, role := range roles {
 		i.turns[role.PhaseID] = append(i.turns[role.PhaseID], &turn{
 			players: i.roleId2SocketIds[role.ID],
-			role:    roleFactory.Create(role.ID),
+			role:    roleFactory.Create(role.ID, i),
 		})
 	}
+
+	// Test
+	i.turns[enum.NightPhase][0].players = append(i.turns[enum.NightPhase][0].players, "11111111111111111111", "11111111111111111113")
 
 	for i, phases := range i.turns {
 		fmt.Println("Phase: ", i)

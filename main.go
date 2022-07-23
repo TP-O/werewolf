@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"time"
 
 	"uwwolf/config"
 	"uwwolf/contract/typ"
@@ -48,6 +49,27 @@ func main() {
 		)
 
 		fmt.Println(instance.Start())
+		fmt.Println("======================")
+
+		instance.Do(&typ.ActionInstruction{
+			GameId:  "11111111111111111111",
+			Actor:   "11111111111111111111",
+			Targets: []string{"11111111111111111112"},
+			Skipped: false,
+			Payload: []byte{},
+		})
+
+		time.Sleep(5 * time.Second)
+
+		instance.Do(&typ.ActionInstruction{
+			GameId:  "11111111111111111111",
+			Actor:   "11111111111111111113",
+			Targets: []string{"11111111111111111112"},
+			Skipped: false,
+			Payload: []byte{},
+		})
+
+		time.Sleep(5 * time.Second)
 	} else {
 		fmt.Println(err)
 	}

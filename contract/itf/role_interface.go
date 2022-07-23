@@ -14,6 +14,6 @@ type Passive struct {
 
 type IRole interface {
 	GetName() string
-	GetSkill() *Skill
-	GetPassive() *Passive
+	UseSkill(instruction *typ.ActionInstruction) bool
+	ActivatePassive(instruction *typ.ActionInstruction) bool
 }

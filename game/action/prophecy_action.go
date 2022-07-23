@@ -7,10 +7,12 @@ import (
 	"uwwolf/contract/typ"
 )
 
+const ProphecyAction = "Prophecy"
+
 func NewProphecyAction() itf.IAction {
-	return &action{
-		name: "Prophecy",
-		kit: actionKit{
+	return &action[uint]{
+		name: ProphecyAction,
+		kit: actionKit[uint]{
 			validate: validateProphecy,
 			execute:  executeProphecy,
 			skip:     skipProphecy,
@@ -23,13 +25,13 @@ func validateProphecy(instruction *typ.ActionInstruction) bool {
 		(!instruction.Skipped && len(instruction.Targets) == 1)
 }
 
-func executeProphecy(instruction *typ.ActionInstruction) bool {
+func executeProphecy(_ itf.IGame, instruction *typ.ActionInstruction, _ *uint) bool {
 	fmt.Println(instruction.Actor + " pophesied " + instruction.Targets[0] + " is werewolf")
 
 	return true
 }
 
-func skipProphecy(instruction *typ.ActionInstruction) bool {
+func skipProphecy(_ itf.IGame, instruction *typ.ActionInstruction, _ *uint) bool {
 	fmt.Println(instruction.Actor + " skipped")
 
 	return true

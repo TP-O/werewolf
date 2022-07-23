@@ -10,31 +10,31 @@ type roleFactory struct {
 	//
 }
 
-var roleFactoryInstance itf.IFactory[uint, itf.IRole]
+var roleFactoryInstance itf.IFactory[uint, itf.IGame, itf.IRole]
 
-func GetRoleFactory() itf.IFactory[uint, itf.IRole] {
+func GetRoleFactory() itf.IFactory[uint, itf.IGame, itf.IRole] {
 	return roleFactoryInstance
 }
 
-func (f *roleFactory) Create(key uint) itf.IRole {
+func (f *roleFactory) Create(key uint, game itf.IGame) itf.IRole {
 	switch key {
 	case enum.VillagerRole:
-		return role.NewVillagerRole()
+		return role.NewVillagerRole(game)
 
 	case enum.WerewolfRole:
-		return role.NewWerewolfRole()
+		return role.NewWerewolfRole(game)
 
 	case enum.HunterRole:
-		return role.NewHunterRole()
+		return role.NewHunterRole(game)
 
 	case enum.SeerRole:
-		return role.NewSeerRole()
+		return role.NewSeerRole(game)
 
 	case enum.TwoSistersRole:
-		return role.NewVillagerRole()
+		return role.NewVillagerRole(game)
 
 	case enum.AlphaWolfRole:
-		return role.NewAlphaWolfRole()
+		return role.NewAlphaWolfRole(game)
 
 	default:
 		return nil

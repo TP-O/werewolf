@@ -4,5 +4,5 @@ import "uwwolf/contract/typ"
 
 type IAction interface {
 	GetName() string
-	Perform(instruction *typ.ActionInstruction) bool
+	Perform(game IGame, instruction *typ.ActionInstruction) bool
 }

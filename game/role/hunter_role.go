@@ -6,9 +6,10 @@ import (
 	"uwwolf/game/action"
 )
 
-func NewHunterRole() *role {
+func NewHunterRole(game itf.IGame) *role {
 	return &role{
 		name: "Hunter",
+		game: game,
 		skill: &itf.Skill{
 			Action: action.NewShootingAction(),
 			Turn: &typ.SkillTurn{

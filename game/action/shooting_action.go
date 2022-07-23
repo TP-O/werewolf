@@ -7,10 +7,12 @@ import (
 	"uwwolf/contract/typ"
 )
 
+const ShootingAction = "Shooting"
+
 func NewShootingAction() itf.IAction {
-	return &action{
+	return &action[uint]{
 		name: "Shooting",
-		kit: actionKit{
+		kit: actionKit[uint]{
 			validate: validateShooting,
 			execute:  executeShooting,
 			skip:     skipShooting,
@@ -23,13 +25,13 @@ func validateShooting(instruction *typ.ActionInstruction) bool {
 		(!instruction.Skipped && len(instruction.Targets) == 1)
 }
 
-func executeShooting(instruction *typ.ActionInstruction) bool {
+func executeShooting(_ itf.IGame, instruction *typ.ActionInstruction, _ *uint) bool {
 	fmt.Println(instruction.Actor + " shot " + instruction.Targets[0])
 
 	return true
 }
 
-func skipShooting(instruction *typ.ActionInstruction) bool {
+func skipShooting(_ itf.IGame, instruction *typ.ActionInstruction, _ *uint) bool {
 	fmt.Println(instruction.Actor + " skipped")
 
 	return true
