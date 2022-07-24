@@ -1,8 +1,6 @@
 package action
 
 import (
-	"fmt"
-
 	"uwwolf/contract/itf"
 	"uwwolf/contract/typ"
 )
@@ -26,13 +24,13 @@ func validateShooting(instruction *typ.ActionInstruction) bool {
 }
 
 func executeShooting(_ itf.IGame, instruction *typ.ActionInstruction, _ uint) bool {
-	fmt.Println(instruction.Actor + " shot " + instruction.Targets[0])
+	// fmt.Println(instruction.Actor + " shot " + instruction.Targets[0])
 
 	return true
 }
 
 func skipShooting(_ itf.IGame, instruction *typ.ActionInstruction, _ uint) bool {
-	fmt.Println(instruction.Actor + " skipped")
+	// fmt.Println(instruction.Actor + " skipped")
 
 	return true
 }

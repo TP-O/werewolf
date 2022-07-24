@@ -30,19 +30,14 @@ func validateVote(instruction *typ.ActionInstruction) bool {
 }
 
 func executeVote(game itf.IGame, instruction *typ.ActionInstruction, poll *stuff.Poll) bool {
-	if !poll.IsVoting() {
-		poll.Start()
-	}
-
-	poll.Vote(1, 2)
+	poll.Start()
+	poll.Vote(instruction.Actor, instruction.Targets[0])
 
 	return true
 }
 
 func skipVote(game itf.IGame, instruction *typ.ActionInstruction, poll *stuff.Poll) bool {
-	if !poll.IsVoting() {
-		poll.Start()
-	}
+	poll.Start()
 
 	return true
 }

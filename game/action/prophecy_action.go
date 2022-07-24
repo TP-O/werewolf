@@ -1,8 +1,6 @@
 package action
 
 import (
-	"fmt"
-
 	"uwwolf/contract/itf"
 	"uwwolf/contract/typ"
 )
@@ -26,13 +24,13 @@ func validateProphecy(instruction *typ.ActionInstruction) bool {
 }
 
 func executeProphecy(_ itf.IGame, instruction *typ.ActionInstruction, _ uint) bool {
-	fmt.Println(instruction.Actor + " pophesied " + instruction.Targets[0] + " is werewolf")
+	// fmt.Println(instruction.Actor + " pophesied " + instruction.Targets[0] + " is werewolf")
 
 	return true
 }
 
 func skipProphecy(_ itf.IGame, instruction *typ.ActionInstruction, _ uint) bool {
-	fmt.Println(instruction.Actor + " skipped")
+	// fmt.Println(instruction.Actor + " skipped")
 
 	return true
 }

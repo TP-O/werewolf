@@ -14,27 +14,37 @@ type turn struct {
 }
 
 type Phase struct {
-	currentPhaseIndex uint8
-	currentTurnIndex  uint8
-	phases            map[uint8][]*turn
+	currentPhaseId   uint8
+	currentTurnIndex uint8
+	phases           map[uint8][]*turn
 }
 
 func (p *Phase) Init() {
-	p.currentPhaseIndex = enum.NightPhase
+	p.currentPhaseId = enum.NightPhase
 	p.phases = make(map[uint8][]*turn)
 }
 
-func (p *Phase) AddTurn(phase uint8, role itf.IRole, playerIds []uint) {
-	p.phases[phase] = append(p.phases[phase], &turn{
+func (p *Phase) Data() map[uint8][]*turn {
+	return p.phases
+}
+
+func (p *Phase) AddTurn(phaseId uint8, role itf.IRole, playerIds []uint) bool {
+	if phaseId >= enum.EndPhase {
+		return false
+	}
+
+	p.phases[phaseId] = append(p.phases[phaseId], &turn{
 		role:      role,
 		playerIds: playerIds,
 	})
+
+	return true
 }
 
-func (p *Phase) RemoveTurn(phase uint8, roleName string) bool {
-	for i := 0; i < len(p.phases[phase]); i++ {
-		if p.phases[phase][i].role.GetName() == roleName {
-			slices.Delete(p.phases[phase], i, i+1)
+func (p *Phase) RemoveTurn(phaseId uint8, roleName string) bool {
+	for i := 0; i < len(p.phases[phaseId]); i++ {
+		if p.phases[phaseId][i].role.GetName() == roleName {
+			slices.Delete(p.phases[phaseId], i, i+1)
 
 			return true
 		}
@@ -44,18 +54,18 @@ func (p *Phase) RemoveTurn(phase uint8, roleName string) bool {
 }
 
 func (p *Phase) GetTurn() *turn {
-	return p.phases[p.currentPhaseIndex][p.currentTurnIndex]
+	return p.phases[p.currentPhaseId][p.currentTurnIndex]
 }
 
 func (p *Phase) NextTurn() *turn {
-	if int(p.currentTurnIndex) < len(p.phases[p.currentPhaseIndex]) {
+	if int(p.currentTurnIndex) < len(p.phases[p.currentPhaseId]) {
 		p.currentTurnIndex++
 	} else {
 		p.currentTurnIndex = 0
-		p.currentPhaseIndex = (p.currentPhaseIndex + 1) % enum.EndPhase
+		p.currentPhaseId = (p.currentPhaseId + 1) % enum.EndPhase
 
-		if p.currentPhaseIndex == 0 {
-			p.currentPhaseIndex = 1
+		if p.currentPhaseId == 0 {
+			p.currentPhaseId = 1
 		}
 	}
 
@@ -64,6 +74,16 @@ func (p *Phase) NextTurn() *turn {
 	}
 
 	return p.GetTurn()
+}
+
+func (p *Phase) AddPlayer(phaseId uint8, turnIndex uint8, playerIds ...uint) bool {
+	if phaseId >= enum.EndPhase || p.phases[phaseId][turnIndex] == nil {
+		return false
+	}
+
+	p.phases[phaseId][turnIndex].playerIds = append(p.phases[phaseId][turnIndex].playerIds, playerIds...)
+
+	return true
 }
 
 func (p *Phase) RemovePlayer(playerId uint) {

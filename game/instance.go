@@ -2,6 +2,7 @@ package game
 
 import (
 	"errors"
+	"fmt"
 	"sort"
 
 	"golang.org/x/exp/slices"
@@ -24,6 +25,7 @@ type instance struct {
 	playerId2SocketId  map[uint]string
 	playerId2RoleId    map[uint]uint
 	roleId2SocketIds   map[uint][]string
+	roleId2PlayerIds   map[uint][]uint
 	isStarted          bool
 	rolePool           []uint
 	phase              *stuff.Phase
@@ -121,13 +123,16 @@ func (i *instance) assignRoles() {
 
 		i.playerId2RoleId[playerId] = randomRole.ID
 		i.roleId2SocketIds[randomRole.ID] = append(i.roleId2SocketIds[randomRole.ID], socketId)
+		i.roleId2PlayerIds[randomRole.ID] = append(i.roleId2PlayerIds[randomRole.ID], playerId)
 
 		if randomRole.ID != enum.VillagerRole {
-			i.roleId2SocketIds[enum.VillagerRole] = append(i.roleId2SocketIds[enum.VillagerRole], i.playerId2SocketId[playerId])
+			i.roleId2SocketIds[enum.VillagerRole] = append(i.roleId2SocketIds[enum.VillagerRole], socketId)
+			i.roleId2PlayerIds[enum.VillagerRole] = append(i.roleId2PlayerIds[enum.VillagerRole], playerId)
 		}
 
 		if randomRole.ID != enum.WerewolfRole && randomRole.FactionID == enum.WerewolfFaction {
-			i.roleId2SocketIds[enum.WerewolfRole] = append(i.roleId2SocketIds[enum.WerewolfRole], i.playerId2SocketId[playerId])
+			i.roleId2SocketIds[enum.WerewolfRole] = append(i.roleId2SocketIds[enum.WerewolfRole], socketId)
+			i.roleId2PlayerIds[enum.WerewolfRole] = append(i.roleId2PlayerIds[enum.WerewolfRole], playerId)
 		}
 
 		randomRoles = append(randomRoles[:randIndex], randomRoles[randIndex+1:]...)
@@ -201,6 +206,7 @@ func (i *instance) resetPlayers() {
 	i.playerId2SocketId = make(map[uint]string)
 	i.playerId2RoleId = make(map[uint]uint)
 	i.roleId2SocketIds = make(map[uint][]string)
+	i.roleId2PlayerIds = make(map[uint][]uint)
 }
 
 // Prepare turn for special roles
@@ -214,17 +220,17 @@ func (i *instance) setUpTurns(roles []model.Role) {
 	})
 
 	for _, role := range roles {
-		i.phase.AddTurn(role.PhaseID, roleFactory.Create(role.ID, i), []uint{1})
+		i.phase.AddTurn(role.PhaseID, roleFactory.Create(role.ID, i), i.roleId2PlayerIds[role.ID])
 	}
 
 	// Test
-	// i.turns[enum.NightPhase][0].players = append(i.turns[enum.NightPhase][0].players, "11111111111111111111", "11111111111111111113")
+	i.phase.AddPlayer(enum.NightPhase, 0, 1, 3)
 
-	// for i, phases := range i.turns {
-	// 	fmt.Println("Phase: ", i)
+	for i, phases := range i.phase.Data() {
+		fmt.Println("Phase: ", i)
 
-	// 	for _, turn := range phases {
-	// 		fmt.Println(turn.players)
-	// 	}
-	// }
+		for _, turn := range phases {
+			fmt.Println(turn)
+		}
+	}
 }
