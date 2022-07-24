@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"sort"
+	"time"
 
 	"golang.org/x/exp/slices"
 
@@ -225,7 +226,12 @@ func (i *instance) setUpTurns(roles []model.Role) {
 	})
 
 	for _, role := range roles {
-		i.phase.AddTurn(role.PhaseID, roleFactory.Create(role.ID, i), i.roleId2PlayerIds[role.ID])
+		i.phase.AddTurn(
+			role.PhaseID,
+			2*time.Second,
+			roleFactory.Create(role.ID, i),
+			i.roleId2PlayerIds[role.ID],
+		)
 	}
 
 	// Test

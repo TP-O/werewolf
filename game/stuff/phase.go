@@ -48,13 +48,14 @@ func (p *Phase) NextTurn() {
 	p.nextTurnSignal <- true
 }
 
-func (p *Phase) AddTurn(phaseId uint8, role itf.IRole, playerIds []uint) bool {
+func (p *Phase) AddTurn(phaseId uint8, timeout time.Duration, role itf.IRole, playerIds []uint) bool {
 	if phaseId >= enum.EndPhase {
 		return false
 	}
 
 	p.phases[phaseId] = append(p.phases[phaseId], &turn{
 		role:      role,
+		timeout:   timeout,
 		playerIds: playerIds,
 	})
 
@@ -107,7 +108,7 @@ func (p *Phase) UseSkill(instruction *typ.ActionInstruction) bool {
 	return p.GetTurn().role.UseSkill(instruction)
 }
 
-func (p *Phase) nextTurn() *turn {
+func (p *Phase) nextTurn() {
 	if int(p.currentTurnIndex) < len(p.phases[p.currentPhaseId])-1 {
 		p.currentTurnIndex++
 	} else {
@@ -119,9 +120,7 @@ func (p *Phase) nextTurn() *turn {
 		}
 	}
 
-	if p.GetTurn() == nil {
-		return p.nextTurn()
+	if len(p.phases[p.currentPhaseId]) == 0 {
+		p.nextTurn()
 	}
-
-	return p.GetTurn()
 }

@@ -51,23 +51,23 @@ func main() {
 		fmt.Println(instance.Start())
 		fmt.Println("======================")
 
-		instance.Do(&typ.ActionInstruction{
-			GameId:  "11111111111111111111",
-			Actor:   1,
-			Targets: []uint{2},
-			Skipped: false,
-			Payload: []byte{},
-		})
+		// instance.Do(&typ.ActionInstruction{
+		// 	GameId:  "11111111111111111111",
+		// 	Actor:   1,
+		// 	Targets: []uint{2},
+		// 	Skipped: false,
+		// 	Payload: []byte{},
+		// })
 
 		time.Sleep(5 * time.Second)
 
-		instance.Do(&typ.ActionInstruction{
-			GameId:  "11111111111111111111",
-			Actor:   3,
-			Targets: []uint{2},
-			Skipped: false,
-			Payload: []byte{},
-		})
+		// instance.Do(&typ.ActionInstruction{
+		// 	GameId:  "11111111111111111111",
+		// 	Actor:   3,
+		// 	Targets: []uint{2},
+		// 	Skipped: false,
+		// 	Payload: []byte{},
+		// })
 
 		time.Sleep(5 * time.Second)
 	} else {
