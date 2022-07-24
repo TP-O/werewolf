@@ -1,6 +1,8 @@
 package stuff
 
 import (
+	"time"
+
 	"golang.org/x/exp/slices"
 
 	"uwwolf/contract/itf"
@@ -10,13 +12,19 @@ import (
 
 type turn struct {
 	playerIds []uint
+	timeout   time.Duration
 	role      itf.IRole
 }
 
 type Phase struct {
 	currentPhaseId   uint8
 	currentTurnIndex uint8
+	nextTurnSignal   chan bool
 	phases           map[uint8][]*turn
+}
+
+func (p *Phase) Data() map[uint8][]*turn {
+	return p.phases
 }
 
 func (p *Phase) Init() {
@@ -24,8 +32,20 @@ func (p *Phase) Init() {
 	p.phases = make(map[uint8][]*turn)
 }
 
-func (p *Phase) Data() map[uint8][]*turn {
-	return p.phases
+func (p *Phase) Start() {
+	for {
+		// Wait until time out or turn over
+		select {
+		case <-p.nextTurnSignal:
+		case <-time.After(p.GetTurn().timeout):
+		}
+
+		p.nextTurn()
+	}
+}
+
+func (p *Phase) NextTurn() {
+	p.nextTurnSignal <- true
 }
 
 func (p *Phase) AddTurn(phaseId uint8, role itf.IRole, playerIds []uint) bool {
@@ -57,25 +77,6 @@ func (p *Phase) GetTurn() *turn {
 	return p.phases[p.currentPhaseId][p.currentTurnIndex]
 }
 
-func (p *Phase) NextTurn() *turn {
-	if int(p.currentTurnIndex) < len(p.phases[p.currentPhaseId])-1 {
-		p.currentTurnIndex++
-	} else {
-		p.currentTurnIndex = 0
-		p.currentPhaseId = (p.currentPhaseId + 1) % enum.EndPhase
-
-		if p.currentPhaseId == 0 {
-			p.currentPhaseId = 1
-		}
-	}
-
-	if p.GetTurn() == nil {
-		return p.NextTurn()
-	}
-
-	return p.GetTurn()
-}
-
 func (p *Phase) AddPlayer(phaseId uint8, turnIndex uint8, playerIds ...uint) bool {
 	if phaseId >= enum.EndPhase || p.phases[phaseId][turnIndex] == nil {
 		return false
@@ -104,4 +105,23 @@ func (p *Phase) IsValidPlayer(playerId uint) bool {
 
 func (p *Phase) UseSkill(instruction *typ.ActionInstruction) bool {
 	return p.GetTurn().role.UseSkill(instruction)
+}
+
+func (p *Phase) nextTurn() *turn {
+	if int(p.currentTurnIndex) < len(p.phases[p.currentPhaseId])-1 {
+		p.currentTurnIndex++
+	} else {
+		p.currentTurnIndex = 0
+		p.currentPhaseId = (p.currentPhaseId + 1) % enum.EndPhase
+
+		if p.currentPhaseId == 0 {
+			p.currentPhaseId = 1
+		}
+	}
+
+	if p.GetTurn() == nil {
+		return p.nextTurn()
+	}
+
+	return p.GetTurn()
 }

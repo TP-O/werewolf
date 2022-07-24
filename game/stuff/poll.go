@@ -21,8 +21,9 @@ type Poll struct {
 }
 
 func (p *Poll) Init(game itf.IGame, timeout time.Duration) {
-	p.timeout = timeout
 	p.game = game
+	p.timeout = timeout
+	p.result = make(map[uint]uint)
 }
 
 func (p *Poll) Start() bool {

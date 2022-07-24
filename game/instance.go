@@ -50,15 +50,20 @@ func NewGameInstance(input *typ.GameInstanceInit) (*instance, error) {
 	return &gameInstance, nil
 }
 
+func (i *instance) IsStarted() bool {
+	return i.isStarted
+}
+
 // Start game instance
 func (i *instance) Start() bool {
 	if i.isStarted || len(i.socketId2playerId) != int(i.capacity) {
-		return i.isStarted
+		return false
 	}
 
-	i.assignRoles()
-
 	i.isStarted = true
+
+	i.assignRoles()
+	go i.phase.Start()
 
 	return i.isStarted
 }
@@ -97,16 +102,16 @@ func (i *instance) RemovePlayer(socketId string) bool {
 	return true
 }
 
+func (i *instance) NextTurn() {
+	i.phase.NextTurn()
+}
+
 func (i *instance) Do(instruction *typ.ActionInstruction) bool {
 	if !i.phase.IsValidPlayer(instruction.Actor) {
 		return false
 	}
 
 	return i.phase.UseSkill(instruction)
-}
-
-func (i *instance) NextTurn() {
-	i.phase.NextTurn()
 }
 
 // Assign roles to players randomly
