@@ -58,7 +58,7 @@ func (p *Phase) GetTurn() *turn {
 }
 
 func (p *Phase) NextTurn() *turn {
-	if int(p.currentTurnIndex) < len(p.phases[p.currentPhaseId]) {
+	if int(p.currentTurnIndex) < len(p.phases[p.currentPhaseId])-1 {
 		p.currentTurnIndex++
 	} else {
 		p.currentTurnIndex = 0

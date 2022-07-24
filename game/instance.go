@@ -98,7 +98,7 @@ func (i *instance) RemovePlayer(socketId string) bool {
 }
 
 func (i *instance) Do(instruction *typ.ActionInstruction) bool {
-	if i.phase.IsValidPlayer(1) {
+	if !i.phase.IsValidPlayer(instruction.Actor) {
 		return false
 	}
 

@@ -12,7 +12,7 @@ func NewVillagerRole(game itf.IGame) *role {
 		name: "Villager",
 		game: game,
 		skill: &itf.Skill{
-			Action: action.NewVoteAction(2 * time.Second),
+			Action: action.NewVoteAction(game, 2*time.Second),
 			Turn: &typ.SkillTurn{
 				StartFrom:    2,
 				NumberOfUses: -1,
