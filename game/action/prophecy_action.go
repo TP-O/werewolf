@@ -25,13 +25,13 @@ func validateProphecy(instruction *typ.ActionInstruction) bool {
 		(!instruction.Skipped && len(instruction.Targets) == 1)
 }
 
-func executeProphecy(_ itf.IGame, instruction *typ.ActionInstruction, _ *uint) bool {
+func executeProphecy(_ itf.IGame, instruction *typ.ActionInstruction, _ uint) bool {
 	fmt.Println(instruction.Actor + " pophesied " + instruction.Targets[0] + " is werewolf")
 
 	return true
 }
 
-func skipProphecy(_ itf.IGame, instruction *typ.ActionInstruction, _ *uint) bool {
+func skipProphecy(_ itf.IGame, instruction *typ.ActionInstruction, _ uint) bool {
 	fmt.Println(instruction.Actor + " skipped")
 
 	return true

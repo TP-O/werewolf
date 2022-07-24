@@ -2,25 +2,19 @@ package game
 
 import (
 	"errors"
-	"fmt"
 	"sort"
 
 	"golang.org/x/exp/slices"
 
 	"uwwolf/app/model"
-	"uwwolf/contract/itf"
 	"uwwolf/contract/typ"
 	"uwwolf/database"
 	"uwwolf/enum"
 	"uwwolf/game/factory"
+	"uwwolf/game/stuff"
 	"uwwolf/util"
 	"uwwolf/validator"
 )
-
-type turn struct {
-	players []string
-	role    itf.IRole
-}
 
 type instance struct {
 	gameId             string
@@ -32,9 +26,7 @@ type instance struct {
 	roleId2SocketIds   map[uint][]string
 	isStarted          bool
 	rolePool           []uint
-	currentPhase       uint
-	nextTurn           *turn
-	turns              map[uint][]*turn
+	phase              *stuff.Phase
 }
 
 func NewGameInstance(input *typ.GameInstanceInit) (*instance, error) {
@@ -48,9 +40,10 @@ func NewGameInstance(input *typ.GameInstanceInit) (*instance, error) {
 		numberOfWerewolves: input.NumberOfWerewolves,
 		isStarted:          false,
 		rolePool:           input.RolePool,
-		currentPhase:       enum.NightPhase,
-		turns:              make(map[uint][]*turn),
+		phase:              &stuff.Phase{},
 	}
+
+	gameInstance.phase.Init()
 
 	return &gameInstance, nil
 }
@@ -103,17 +96,15 @@ func (i *instance) RemovePlayer(socketId string) bool {
 }
 
 func (i *instance) Do(instruction *typ.ActionInstruction) bool {
-	if !slices.Contains(i.nextTurn.players, instruction.Actor) {
+	if i.phase.IsValidPlayer(1) {
 		return false
 	}
 
-	i.nextTurn.role.UseSkill(instruction)
-
-	return true
+	return i.phase.UseSkill(instruction)
 }
 
 func (i *instance) NextTurn() {
-	fmt.Println("Next turn!!!!!!!!!!!")
+	i.phase.NextTurn()
 }
 
 // Assign roles to players randomly
@@ -223,22 +214,17 @@ func (i *instance) setUpTurns(roles []model.Role) {
 	})
 
 	for _, role := range roles {
-		i.turns[role.PhaseID] = append(i.turns[role.PhaseID], &turn{
-			players: i.roleId2SocketIds[role.ID],
-			role:    roleFactory.Create(role.ID, i),
-		})
+		i.phase.AddTurn(role.PhaseID, roleFactory.Create(role.ID, i), []uint{1})
 	}
 
 	// Test
-	i.turns[enum.NightPhase][0].players = append(i.turns[enum.NightPhase][0].players, "11111111111111111111", "11111111111111111113")
+	// i.turns[enum.NightPhase][0].players = append(i.turns[enum.NightPhase][0].players, "11111111111111111111", "11111111111111111113")
 
-	for i, phases := range i.turns {
-		fmt.Println("Phase: ", i)
+	// for i, phases := range i.turns {
+	// 	fmt.Println("Phase: ", i)
 
-		for _, turn := range phases {
-			fmt.Println(turn.players)
-		}
-	}
-
-	i.nextTurn = i.turns[i.currentPhase][0]
+	// 	for _, turn := range phases {
+	// 		fmt.Println(turn.players)
+	// 	}
+	// }
 }
