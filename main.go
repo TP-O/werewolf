@@ -58,6 +58,13 @@ func main() {
 			Skipped: false,
 			Payload: []byte{},
 		})
+		// instance.Do(&typ.ActionInstruction{
+		// 	GameId:  "11111111111111111111",
+		// 	Actor:   3,
+		// 	Targets: []uint{2},
+		// 	Skipped: false,
+		// 	Payload: []byte{},
+		// })
 
 		time.Sleep(3 * time.Second)
 

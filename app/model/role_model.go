@@ -4,10 +4,10 @@ import "gorm.io/gorm"
 
 type Role struct {
 	gorm.Model
-	FactionID   uint8
-	PhaseID     uint8
+	FactionID   uint
+	PhaseID     uint
 	Name        string `gorm:"unique"`
-	Priority    uint8  `gorm:"check:priority > 0"`
+	Priority    uint   `gorm:"check:priority > 0"`
 	Score       int    `gorm:"default:1"`
 	Quantity    int    `gorm:"default:1;check:score > 0"`
 	Image       string `gorm:"type:text;default:''"`

@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"time"
 	"uwwolf/contract/itf"
+	"uwwolf/enum"
 	"uwwolf/util"
 )
 
@@ -20,14 +21,22 @@ type Poll struct {
 	result   map[uint]uint
 	game     itf.IGame
 	pub      chan string
+	capacity uint
+	total    uint
 }
 
-func (p *Poll) Init(game itf.IGame, timeout time.Duration) {
+func (p *Poll) Init(game itf.IGame, factionId uint, timeout time.Duration) {
 	p.game = game
 	p.timeout = timeout
 	p.result = make(map[uint]uint)
 
 	game.Pipe(&p.pub)
+
+	if factionId == enum.VillageFaction {
+		p.capacity = p.game.NumberOfVillagers()
+	} else if factionId == enum.WerewolfFaction {
+		p.capacity = p.game.NumberOfWerewolves()
+	}
 }
 
 func (p *Poll) Start() bool {
@@ -36,10 +45,13 @@ func (p *Poll) Start() bool {
 	}
 
 	p.isVoting = true
+	p.total = 0
 	p.box = make(chan *vote)
 
 	time.AfterFunc(p.timeout, func() {
-		close(p.box)
+		if !util.IsClosed(p.box) {
+			close(p.box)
+		}
 	})
 
 	go p.handleVotes()
@@ -49,6 +61,8 @@ func (p *Poll) Start() bool {
 
 func (p *Poll) Vote(elector uint, target uint) {
 	if !util.IsClosed(p.box) {
+		p.total++
+
 		p.box <- &vote{
 			elector: elector,
 			target:  target,
@@ -63,6 +77,10 @@ func (p *Poll) IsVoting() bool {
 func (p *Poll) handleVotes() {
 	for vote := range p.box {
 		p.pub <- strconv.Itoa(int(vote.elector)) + " voted " + strconv.Itoa(int(vote.target))
+
+		if p.total == p.capacity {
+			close(p.box)
+		}
 	}
 
 	p.isVoting = false

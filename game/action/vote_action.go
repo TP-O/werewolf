@@ -9,9 +9,9 @@ import (
 
 const VoteAction = "Vote"
 
-func NewVoteAction(game itf.IGame, timeout time.Duration) itf.IAction {
+func NewVoteAction(game itf.IGame, factionId uint, timeout time.Duration) itf.IAction {
 	poll := &stuff.Poll{}
-	poll.Init(game, timeout)
+	poll.Init(game, factionId, timeout)
 
 	return &action[*stuff.Poll]{
 		name:  VoteAction,

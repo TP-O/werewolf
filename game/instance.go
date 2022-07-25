@@ -61,6 +61,14 @@ func (i *instance) IsStarted() bool {
 	return i.isStarted
 }
 
+func (i *instance) NumberOfVillagers() uint {
+	return i.remaining
+}
+
+func (i *instance) NumberOfWerewolves() uint {
+	return i.remainingWerewolves
+}
+
 // Start game instance
 func (i *instance) Start() bool {
 	if i.isStarted || len(i.socketId2playerId) != int(i.capacity) {
@@ -111,7 +119,7 @@ func (i *instance) RemovePlayer(socketId string) bool {
 }
 
 func (i *instance) NextTurn() {
-	i.phase.NextTurn()
+	go i.phase.NextTurn()
 }
 
 func (i *instance) Pipe(pub *chan string) {
