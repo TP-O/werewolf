@@ -2,27 +2,23 @@ package util
 
 import (
 	"reflect"
-
-	"github.com/samber/lo"
 )
 
-func Find[T comparable](collection []T, foundItem T) bool {
-	_, ok := lo.Find(collection, func(item T) bool { return item == foundItem })
+func ExistElement[T any](arr []T, value T) bool {
+	for _, el := range arr {
+		if reflect.DeepEqual(el, value) {
+			return true
+		}
+	}
 
-	return ok
+	return false
 }
 
-func DeepFind[T any](collection []T, foundItem T) bool {
-	_, ok := lo.Find(collection, func(item T) bool { return reflect.DeepEqual(item, foundItem) })
-
-	return ok
-}
-
-func RemoveDuplicate[T any](collection []T) []T {
+func RemoveDuplicateElement[T any](collection []T) []T {
 	newCollection := make([]T, 0)
 
 	for _, e := range collection {
-		if !DeepFind(newCollection, e) {
+		if !ExistElement(newCollection, e) {
 			newCollection = append(newCollection, e)
 		}
 	}

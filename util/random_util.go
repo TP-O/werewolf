@@ -5,10 +5,16 @@ import (
 	"time"
 )
 
-func Intn(n int) int {
+func RandomInRange(max int, min int) int {
 	seed()
 
-	return rand.Intn(n)
+	return rand.Intn(max-min+1) + min
+}
+
+func RandomIndex[T any](arr []T) int {
+	seed()
+
+	return rand.Intn(len(arr))
 }
 
 func seed() {

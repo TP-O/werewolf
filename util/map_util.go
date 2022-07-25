@@ -1,11 +1,17 @@
 package util
 
-import "github.com/samber/lo"
+func ExistKeyInMap[K comparable, V any](m map[K]V, key K) bool {
+	_, ok := m[key]
 
-func FindKey[K comparable, V any](mapping map[K]V, foundKey K) bool {
-	return Find(lo.Keys(mapping), foundKey)
+	return ok
 }
 
-func FindValue[K comparable, V comparable](mapping map[K]V, foundValue V) bool {
-	return Find(lo.Values(mapping), foundValue)
+func ExistValueInMap[K comparable, V comparable](m map[K]V, value V) bool {
+	for _, v := range m {
+		if v == value {
+			return true
+		}
+	}
+
+	return false
 }
