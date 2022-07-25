@@ -19,17 +19,20 @@ import (
 )
 
 type instance struct {
-	gameId             string
-	capacity           uint
-	numberOfWerewolves uint
-	socketId2playerId  map[string]uint
-	playerId2SocketId  map[uint]string
-	playerId2RoleId    map[uint]uint
-	roleId2SocketIds   map[uint][]string
-	roleId2PlayerIds   map[uint][]uint
-	isStarted          bool
-	rolePool           []uint
-	phase              *stuff.Phase
+	gameId              string
+	capacity            uint
+	numberOfWerewolves  uint
+	remaining           uint
+	remainingWerewolves uint
+	socketId2playerId   map[string]uint
+	playerId2SocketId   map[uint]string
+	playerId2RoleId     map[uint]uint
+	roleId2SocketIds    map[uint][]string
+	roleId2PlayerIds    map[uint][]uint
+	isStarted           bool
+	rolePool            []uint
+	data                chan string
+	phase               *stuff.Phase
 }
 
 func NewGameInstance(input *typ.GameInstanceInit) (*instance, error) {
@@ -38,12 +41,15 @@ func NewGameInstance(input *typ.GameInstanceInit) (*instance, error) {
 	}
 
 	gameInstance := instance{
-		gameId:             input.GameId,
-		capacity:           input.Capacity,
-		numberOfWerewolves: input.NumberOfWerewolves,
-		isStarted:          false,
-		rolePool:           input.RolePool,
-		phase:              &stuff.Phase{},
+		gameId:              input.GameId,
+		capacity:            input.Capacity,
+		numberOfWerewolves:  input.NumberOfWerewolves,
+		remaining:           input.Capacity,
+		remainingWerewolves: input.NumberOfWerewolves,
+		isStarted:           false,
+		rolePool:            input.RolePool,
+		phase:               &stuff.Phase{},
+		data:                make(chan string),
 	}
 
 	gameInstance.phase.Init()
@@ -64,6 +70,7 @@ func (i *instance) Start() bool {
 	i.isStarted = true
 
 	i.assignRoles()
+	go i.listen()
 	go i.phase.Start()
 
 	return i.isStarted
@@ -107,12 +114,22 @@ func (i *instance) NextTurn() {
 	i.phase.NextTurn()
 }
 
+func (i *instance) Pipe(pub *chan string) {
+	*pub = i.data
+}
+
 func (i *instance) Do(instruction *typ.ActionInstruction) bool {
 	if !i.phase.IsValidPlayer(instruction.Actor) {
 		return false
 	}
 
 	return i.phase.UseSkill(instruction)
+}
+
+func (i *instance) listen() {
+	for d := range i.data {
+		fmt.Println(d)
+	}
 }
 
 // Assign roles to players randomly

@@ -2,6 +2,7 @@ package stuff
 
 import (
 	"fmt"
+	"strconv"
 	"time"
 	"uwwolf/contract/itf"
 	"uwwolf/util"
@@ -18,12 +19,15 @@ type Poll struct {
 	timeout  time.Duration
 	result   map[uint]uint
 	game     itf.IGame
+	pub      chan string
 }
 
 func (p *Poll) Init(game itf.IGame, timeout time.Duration) {
 	p.game = game
 	p.timeout = timeout
 	p.result = make(map[uint]uint)
+
+	game.Pipe(&p.pub)
 }
 
 func (p *Poll) Start() bool {
@@ -58,10 +62,11 @@ func (p *Poll) IsVoting() bool {
 
 func (p *Poll) handleVotes() {
 	for vote := range p.box {
-		fmt.Println(vote.elector, " voted ", vote.target)
+		p.pub <- strconv.Itoa(int(vote.elector)) + " voted " + strconv.Itoa(int(vote.target))
 	}
 
 	p.isVoting = false
+
 	p.game.NextTurn()
 
 	fmt.Println("End voting!")
