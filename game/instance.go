@@ -149,7 +149,7 @@ func (i *instance) assignRoles() {
 	cloneRandomRoles := slices.Clone(randomRoles)
 
 	for socketId, playerId := range i.socketId2playerId {
-		randIndex := util.Intn(len(randomRoles))
+		randIndex := util.RandomIndex(randomRoles)
 		randomRole := randomRoles[randIndex]
 
 		i.playerId2RoleId[playerId] = randomRole.ID
@@ -201,7 +201,7 @@ func (i *instance) pickUpRoles(roles []model.Role) []model.Role {
 			continue
 		}
 
-		randIndex := util.Intn(len(*currentRoles))
+		randIndex := util.RandomIndex(*currentRoles)
 		randomRoles[j] = (*currentRoles)[randIndex]
 
 		(*currentRoles)[randIndex].Quantity--

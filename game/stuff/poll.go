@@ -49,7 +49,7 @@ func (p *Poll) Start() bool {
 	p.box = make(chan *vote)
 
 	time.AfterFunc(p.timeout, func() {
-		if !util.IsClosed(p.box) {
+		if util.IsChannelNotClosed(p.box) {
 			close(p.box)
 		}
 	})
@@ -60,7 +60,7 @@ func (p *Poll) Start() bool {
 }
 
 func (p *Poll) Vote(elector uint, target uint) {
-	if !util.IsClosed(p.box) {
+	if util.IsChannelNotClosed(p.box) {
 		p.total++
 
 		p.box <- &vote{

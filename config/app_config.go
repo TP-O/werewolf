@@ -10,12 +10,10 @@ type appConfig struct {
 	Debug bool `mapstructure:"DEBUG"`
 }
 
-var App *appConfig
-
-func loadAppConfig() {
+func (c *appConfig) load() {
 	util.LoadDefaultConfigValues(map[string]interface{}{
 		"DEBUG": false,
 	})
 
-	viper.Unmarshal(&App)
+	viper.Unmarshal(&c)
 }

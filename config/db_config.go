@@ -6,17 +6,15 @@ import (
 	"github.com/spf13/viper"
 )
 
-type databaseConfig struct {
+type dbConfig struct {
 	Host     string `mapstructure:"DB_HOST"`
-	Port     uint   `mapstructure:"DB_PORT"`
+	Port     int    `mapstructure:"DB_PORT"`
 	Username string `mapstructure:"DB_USERNAME"`
 	Password string `mapstructure:"DB_PASSWORD"`
 	Name     string `mapstructure:"DB_NAME"`
 }
 
-var Database *databaseConfig
-
-func loadDatabaseConfig() {
+func (c *dbConfig) load() {
 	util.LoadDefaultConfigValues(map[string]interface{}{
 		"DB_HOST":     "postgres",
 		"DB_PORT":     5432,
@@ -25,5 +23,5 @@ func loadDatabaseConfig() {
 		"DB_NAME":     "db",
 	})
 
-	viper.Unmarshal(&Database)
+	viper.Unmarshal(&c)
 }
