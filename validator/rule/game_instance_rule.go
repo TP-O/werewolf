@@ -2,43 +2,39 @@ package rule
 
 import (
 	"math"
-	"uwwolf/app/model"
-	"uwwolf/contract/typ"
-	"uwwolf/database"
+	"strconv"
+	"uwwolf/module/game/types"
 
+	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
 )
 
-const (
-	InvalidRoleIds            = "role_ids"
-	InvalidNumberOfWerewolves = "number_of_werewolves"
-)
+const NumberOfWerewolvesTag = "number_of_werewolves"
 
 func GameInstanceInitValidate(sl validator.StructLevel) {
-	input := sl.Current().Interface().(typ.GameInstanceInit)
+	strt := sl.Current().Interface().(types.GameInstanceInit)
 
-	roleIdsValidate(sl, input.RolePool)
-	numberOfWerewolvesValidate(sl, input.Capacity, input.NumberOfWerewolves)
-}
+	maxNumberOfWerewolves := int(math.Round(float64(strt.Capacity)/2)) - 2
 
-func roleIdsValidate(sl validator.StructLevel, rolePool []uint) {
-	var counter int64
-	database.DB().
-		Model(&model.Role{}).
-		Where("id IN (?)", rolePool).
-		Count(&counter)
-
-	if int(counter) != len(rolePool) {
-		sl.ReportError(nil, "RolePool", "RolePool", InvalidRoleIds, "")
+	if strt.NumberOfWerewolves > maxNumberOfWerewolves {
+		sl.ReportError(
+			nil,
+			"NumberOfWerewolves",
+			"NumberOfWerewolves",
+			NumberOfWerewolvesTag,
+			strconv.Itoa(strt.NumberOfWerewolves),
+		)
 	}
 }
 
-func numberOfWerewolvesValidate(sl validator.StructLevel, capacity uint, numberOfWerewolves uint) {
-	maxNumberOfWerewolves := uint(math.Round(float64(capacity)/2)) - 2
+func AddNumberOfWerewolvesTag(ut ut.Translator) error {
+	message := "{0} is too large for capacity game"
 
-	if numberOfWerewolves > maxNumberOfWerewolves {
-		sl.ReportError(nil, "NumberOfWerewolves", "NumberOfWerewolves", InvalidNumberOfWerewolves, "")
+	return ut.Add(GameCapacityTag, message, true)
+}
 
-		return
-	}
+func RegisterNumberOfWerewolvesTagMessage(ut ut.Translator, fe validator.FieldError) string {
+	t, _ := ut.T(GameCapacityTag, fe.Field())
+
+	return t
 }
