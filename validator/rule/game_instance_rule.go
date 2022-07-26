@@ -3,16 +3,17 @@ package rule
 import (
 	"math"
 	"strconv"
-	"uwwolf/module/game/types"
 
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
+
+	"uwwolf/types"
 )
 
 const NumberOfWerewolvesTag = "number_of_werewolves"
 
 func GameInstanceInitValidate(sl validator.StructLevel) {
-	strt := sl.Current().Interface().(types.GameInstanceInit)
+	strt := sl.Current().Interface().(types.GameInstance)
 
 	maxNumberOfWerewolves := int(math.Round(float64(strt.Capacity)/2)) - 2
 
