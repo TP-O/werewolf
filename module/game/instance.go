@@ -35,11 +35,12 @@ type game struct {
 	phase               *stuff.Phase
 }
 
-type IGame interface {
+type Game interface {
 	NextTurn()
 	Pipe(pub *chan string)
 	NumberOfVillagers() int
 	NumberOfWerewolves() int
+	GetFactionOfPlayer(player int) int
 }
 
 func NewGameInstance(input *typ.GameInstanceInit) (*instance, error) {

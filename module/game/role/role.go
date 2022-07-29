@@ -22,7 +22,7 @@ type Passive struct {
 	Event  *typ.PassiveEvent
 }
 
-type IRole interface {
+type Role interface {
 	GetName() string
 	UseSkill(instruction *typ.ActionInstruction) bool
 	ActivatePassive(instruction *typ.ActionInstruction) bool

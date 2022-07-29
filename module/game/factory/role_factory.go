@@ -10,7 +10,7 @@ type roleFactory struct {
 	//
 }
 
-func (f *roleFactory) Create(key types.Role, game game.IGame) role.IRole {
+func (f *roleFactory) Create(key types.Role, game game.Game) role.Role {
 	switch key {
 	case types.VillagerRole:
 		return role.NewVillagerRole(game)

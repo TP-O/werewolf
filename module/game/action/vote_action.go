@@ -1,42 +1,43 @@
 package action
 
 import (
-	"time"
-
 	"uwwolf/module/game"
-	"uwwolf/module/game/stuff"
+	"uwwolf/module/game/state"
 	"uwwolf/types"
 )
 
 const VoteAction = "Vote"
 
-func NewVoteAction(game game.IGame, factionId int, timeout time.Duration) Action {
-	poll := &stuff.Poll{}
-	poll.Init(game, factionId, timeout)
+type voteAction struct {
+	action[state.Poll]
+}
 
-	return &action[*stuff.Poll]{
-		name:     VoteAction,
-		state:    poll,
-		validate: validateVote,
-		execute:  executeVote,
-		skip:     skipVote,
+func NewVoteAction(game game.Game) Action[state.Poll] {
+	voteAction := voteAction{
+		action: action[state.Poll]{
+			name:  ShootingAction,
+			state: state.NewPoll([]types.PlayerId{1}),
+			game:  game,
+		},
 	}
+
+	voteAction.action.receiveKit(&voteAction)
+
+	return &voteAction
 }
 
-func validateVote(data *types.ActionData) bool {
-	return data.Skipped ||
-		(!data.Skipped && len(data.Targets) == 1)
+func (v *voteAction) validate(data *types.ActionData) (bool, error) {
+	return true, nil
 }
 
-func executeVote(game game.IGame, data *types.ActionData, poll *stuff.Poll) bool {
-	poll.Start()
-	poll.Vote(data.Actor, data.Targets[0])
+func (v *voteAction) execute(data *types.ActionData) (bool, error) {
+	v.state.Vote(types.PlayerId(data.Actor), types.PlayerId(data.Targets[0]), 1)
 
-	return true
+	return true, nil
 }
 
-func skipVote(game game.IGame, data *types.ActionData, poll *stuff.Poll) bool {
-	poll.Start()
+func (v *voteAction) skip(data *types.ActionData) (bool, error) {
+	v.state.Vote(types.PlayerId(data.Actor), 0, 0)
 
-	return true
+	return true, nil
 }

@@ -1,34 +1,48 @@
 package action
 
 import (
+	"errors"
 	"uwwolf/module/game"
+	"uwwolf/module/game/state"
 	"uwwolf/types"
 )
 
 const ShootingAction = "Shooting"
 
-func NewShootingAction() Action {
-	return &action[int]{
-		name:     ShootingAction,
-		validate: validateShooting,
-		execute:  executeShooting,
-		skip:     skipShooting,
+type shootingAction struct {
+	action[state.Shotgun]
+}
+
+func NewShootingAction(game game.Game) Action[state.Shotgun] {
+	shootingAction := shootingAction{
+		action: action[state.Shotgun]{
+			name:  ShootingAction,
+			state: state.NewShotgun(),
+			game:  game,
+		},
 	}
+
+	shootingAction.action.receiveKit(&shootingAction)
+
+	return &shootingAction
 }
 
-func validateShooting(data *types.ActionData) bool {
-	return data.Skipped ||
-		(!data.Skipped && len(data.Targets) == 1)
+func (s *shootingAction) validate(data *types.ActionData) (bool, error) {
+	if s.state.IsShot() {
+		return false, errors.New("Already shoot!")
+	}
+
+	return true, nil
 }
 
-func executeShooting(_ game.IGame, data *types.ActionData, _ int) bool {
-	// fmt.Println(data.Actor + " shot " + data.Targets[0])
+func (s *shootingAction) execute(data *types.ActionData) (bool, error) {
+	// Check target in game
 
-	return true
+	s.state.Shoot(types.PlayerId(data.Targets[0]))
+
+	return true, nil
 }
 
-func skipShooting(_ game.IGame, data *types.ActionData, _ int) bool {
-	// fmt.Println(data.Actor + " skipped")
-
-	return true
+func (s *shootingAction) skip(data *types.ActionData) (bool, error) {
+	return true, nil
 }

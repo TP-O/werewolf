@@ -3,7 +3,8 @@ package types
 type Role int
 
 const (
-	VillagerRole Role = iota + 1
+	UnkownRole Role = iota
+	VillagerRole
 	WerewolfRole
 	HunterRole
 	SeerRole

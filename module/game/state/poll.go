@@ -1,52 +1,54 @@
 package state
 
 import (
+	"uwwolf/types"
+
 	"golang.org/x/exp/slices"
 )
 
 type pollStatistics map[int]*candidateStatistics
 
 type vote struct {
-	elector int
-	target  int
+	elector types.PlayerId
+	target  types.PlayerId
 	value   uint
 }
 
 type candidateStatistics struct {
-	electors []int
+	electors []types.PlayerId
 	votes    uint
 }
 
 type electionResult struct {
-	loser int
+	loser types.PlayerId
 	stats pollStatistics
 }
 
-type poll struct {
+type Poll struct {
 	stageId       int
 	isVoting      bool
-	electors      []int
-	votedElectors []int
+	electors      []types.PlayerId
+	votedElectors []types.PlayerId
 	history       map[int]pollStatistics
 }
 
-func NewPoll(electors []int) *poll {
-	return &poll{
+func NewPoll(electors []types.PlayerId) Poll {
+	return Poll{
 		electors:      electors,
-		votedElectors: make([]int, 0),
+		votedElectors: make([]types.PlayerId, 0),
 		history:       make(map[int]pollStatistics, 0),
 	}
 }
 
-func (p *poll) IsVoting() bool {
+func (p *Poll) IsVoting() bool {
 	return p.isVoting
 }
 
-func (p *poll) History() map[int]pollStatistics {
+func (p *Poll) History() map[int]pollStatistics {
 	return p.history
 }
 
-func (p *poll) Start() bool {
+func (p *Poll) Start() bool {
 	if p.isVoting {
 		return false
 	}
@@ -57,7 +59,7 @@ func (p *poll) Start() bool {
 	return true
 }
 
-func (p *poll) Vote(elector int, target int, value uint) bool {
+func (p *Poll) Vote(elector types.PlayerId, target types.PlayerId, value uint) bool {
 	if !p.IsVoting() ||
 		len(p.votedElectors) >= len(p.electors) ||
 		slices.Contains(p.votedElectors, elector) {
@@ -65,20 +67,23 @@ func (p *poll) Vote(elector int, target int, value uint) bool {
 		return false
 	}
 
-	p.history[p.stageId][target].votes += value
-	p.history[p.stageId][target].electors = append(p.history[p.stageId][target].electors, elector)
+	p.history[p.stageId][int(target)].votes += value
+	p.history[p.stageId][int(target)].electors = append(
+		p.history[p.stageId][int(target)].electors,
+		elector,
+	)
 	p.votedElectors = append(p.votedElectors, elector)
 
 	return true
 }
 
-func (p *poll) Clear() {
+func (p *Poll) Clear() {
 	p.isVoting = false
-	p.votedElectors = make([]int, 0)
+	p.votedElectors = make([]types.PlayerId, 0)
 	p.history[p.stageId] = make(pollStatistics)
 }
 
-func (p *poll) Close() *electionResult {
+func (p *Poll) Close() *electionResult {
 	if !p.IsVoting() {
 		return nil
 	}
@@ -94,7 +99,7 @@ func (p *poll) Close() *electionResult {
 	return &result
 }
 
-func (p *poll) eliminateLoser(stats pollStatistics) int {
+func (p *Poll) eliminateLoser(stats pollStatistics) types.PlayerId {
 	loser := 0
 	totalVotes := uint(0)
 
@@ -107,7 +112,7 @@ func (p *poll) eliminateLoser(stats pollStatistics) int {
 	}
 
 	if stats[loser].votes > totalVotes/2 {
-		return loser
+		return types.PlayerId(loser)
 	}
 
 	return 0

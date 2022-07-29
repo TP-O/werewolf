@@ -3,7 +3,8 @@ package types
 type Faction int
 
 const (
-	VillageFaction Faction = iota + 1
+	UnknownFaction Faction = iota
+	VillageFaction
 	WerewolfFaction
 	IndependentFaction
 )
