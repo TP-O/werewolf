@@ -1,10 +1,17 @@
 package role
 
-import "uwwolf/contract/itf"
+import (
+	"uwwolf/module/game/core"
+	"uwwolf/types"
+)
 
-func NewAlphaWolfRole(game itf.IGame) *role {
+const AlphaWolfRoleName = "AlphaWolf"
+
+func NewAlphaWolfRole(game core.Game) *role {
 	return &role{
-		name: "Alpha Wolf",
-		game: game,
+		id:      types.AlphaWolfRole,
+		phaseId: types.NightPhase,
+		name:    AlphaWolfRoleName,
+		game:    game,
 	}
 }

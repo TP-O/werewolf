@@ -1,23 +1,23 @@
 package role
 
 import (
-	"time"
-	"uwwolf/contract/itf"
-	"uwwolf/contract/typ"
-	"uwwolf/enum"
-	"uwwolf/game/action"
+	"uwwolf/module/game/action"
+	"uwwolf/module/game/core"
+	"uwwolf/types"
 )
 
-func NewVillagerRole(game itf.IGame) *role {
+const VillagerRoleName = "Villager"
+
+func NewVillagerRole(game core.Game) Role {
 	return &role{
-		name: "Villager",
-		game: game,
-		skill: &itf.Skill{
-			Action: action.NewVoteAction(game, enum.VillageFaction, 2*time.Second),
-			Turn: &typ.SkillTurn{
-				StartFrom:    2,
-				NumberOfUses: -1,
-			},
+		id:      types.VillagerRole,
+		phaseId: types.DayPhase,
+		name:    VillagerRoleName,
+		game:    game,
+		activeSkill: &activeSkill{
+			action:       action.NewVoteAction(game),
+			numberOfUses: types.UnlimitedUse,
+			startRound:   types.FirstRound,
 		},
 	}
 }

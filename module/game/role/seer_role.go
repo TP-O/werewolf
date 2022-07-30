@@ -1,21 +1,23 @@
 package role
 
 import (
-	"uwwolf/contract/itf"
-	"uwwolf/contract/typ"
-	"uwwolf/game/action"
+	"uwwolf/module/game/action"
+	"uwwolf/module/game/core"
+	"uwwolf/types"
 )
 
-func NewSeerRole(game itf.IGame) *role {
+const SeerRoleName = "Seer"
+
+func NewSeerRole(game core.Game) *role {
 	return &role{
-		name: "Seer",
-		game: game,
-		skill: &itf.Skill{
-			Action: action.NewProphecyAction(),
-			Turn: &typ.SkillTurn{
-				StartFrom:    2,
-				NumberOfUses: -1,
-			},
+		id:      types.SeerRole,
+		phaseId: types.NightPhase,
+		name:    SeerRoleName,
+		game:    game,
+		activeSkill: &activeSkill{
+			action:       action.NewProphecyAction(game),
+			numberOfUses: types.UnlimitedUse,
+			startRound:   types.FirstRound,
 		},
 	}
 }

@@ -2,27 +2,26 @@ package action
 
 import (
 	"errors"
-	"uwwolf/module/game"
+
+	"uwwolf/module/game/core"
 	"uwwolf/module/game/state"
 	"uwwolf/types"
 )
 
-const ShootingAction = "Shooting"
+const ShootingActionName = "Shooting"
 
 type shootingAction struct {
 	action[state.Shotgun]
 }
 
-func NewShootingAction(game game.Game) Action[state.Shotgun] {
+func NewShootingAction(game core.Game) Action {
 	shootingAction := shootingAction{
 		action: action[state.Shotgun]{
-			name:  ShootingAction,
+			name:  ShootingActionName,
 			state: state.NewShotgun(),
 			game:  game,
 		},
 	}
-
-	shootingAction.action.receiveKit(&shootingAction)
 
 	return &shootingAction
 }
@@ -36,13 +35,7 @@ func (s *shootingAction) validate(data *types.ActionData) (bool, error) {
 }
 
 func (s *shootingAction) execute(data *types.ActionData) (bool, error) {
-	// Check target in game
-
 	s.state.Shoot(types.PlayerId(data.Targets[0]))
 
-	return true, nil
-}
-
-func (s *shootingAction) skip(data *types.ActionData) (bool, error) {
 	return true, nil
 }

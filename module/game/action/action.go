@@ -1,68 +1,98 @@
 package action
 
 import (
+	"encoding/json"
 	"errors"
-	"uwwolf/module/game"
+
+	"uwwolf/module/game/core"
 	"uwwolf/types"
 	"uwwolf/validator"
 )
 
 type action[S any] struct {
-	name     string
-	state    S
-	game     game.Game
-	validate func(*types.ActionData) (bool, error)
-	execute  func(*types.ActionData) (bool, error)
-	skip     func(*types.ActionData) (bool, error)
+	name  string
+	state *S
+	game  core.Game
 }
 
-type Action[S any] interface {
+type Action interface {
+	// Get action's name.
 	GetName() string
-	GetState() S
-	GetJson() string
+
+	// Export action's state  as JSON string.
+	JsonState() string
+
+	// Set action's state. Return false if type conversion is failed.
+	SetState(state any) bool
+
+	// Validate action's input first, then execute it if the
+	// validation is successful. Only supposed to fail if
+	// and only if an error message is returned.
 	Perform(data *types.ActionData) (bool, error)
+
+	// Validate the action's input. Each action has different rules
+	// for data validation.
+	validate(data *types.ActionData) (bool, error)
+
+	// Execute the action with receied data. Return the result of execution
+	// and error message, if any. The execution is only supposed to fail if
+	// and only if an error message is returned. The first response arg is
+	// just a status of the execution, so its meaning depends on contenxt.
+	execute(data *types.ActionData) (bool, error)
 }
 
-type actionKit interface {
-	validate(*types.ActionData) (bool, error)
-	execute(*types.ActionData) (bool, error)
-	skip(*types.ActionData) (bool, error)
-}
-
+// Get action's name.
 func (a *action[S]) GetName() string {
 	return a.name
 }
 
-func (a *action[S]) GetState() S {
-	return a.state
+// Export action's state  as JSON string.
+func (a *action[S]) JsonState() string {
+	if bytes, err := json.Marshal(a.state); err != nil {
+		return "{}"
+	} else {
+		return string(bytes)
+	}
 }
 
-func (a *action[S]) GetJson() string {
-	return ""
+// Set action's state. Return false if type conversion is failed.
+func (a *action[S]) SetState(state any) (ok bool) {
+	defer func() {
+		if recover() != nil {
+			ok = false
+		}
+	}()
+
+	a.state = state.(*S)
+
+	return true
 }
 
-func (a *action[S]) Perform(data *types.ActionData) (bool, error) {
+// A template for embedding struct to reuse the Perform method logic.
+func (a *action[S]) overridePerform(action Action, data *types.ActionData) (bool, error) {
 	if !validator.SimpleValidateStruct(data) {
 		return false, errors.New("Invalid action!")
 	}
 
 	// Validate for each specific action
-	if _, err := a.validate(data); err != nil {
+	if _, err := action.validate(data); err != nil {
 		return false, err
 	}
 
-	if data.Skipped {
-		return a.skip(data)
-	}
-
-	return a.execute(data)
+	return action.execute(data)
 }
 
-// Assign 3 handle methods from embedding struct to this action,
-// therefore; embedding struct can reuse method Perform of this action,
-// but still keep pointer receiver to it.
-func (a *action[S]) receiveKit(otherAction actionKit) {
-	a.validate = otherAction.validate
-	a.execute = otherAction.execute
-	a.skip = otherAction.skip
-}
+// Validate action's input first, then execute it if the
+// validation is successful. Only supposed to fail if
+// and only if an error message is returned.
+func (a *action[S]) Perform(data *types.ActionData) (bool, error)
+
+// Validate the action's input. Each action has different rules
+// for data validation.
+func (a *action[S]) validate(data *types.ActionData) (bool, error)
+
+// Execute the action with receied data. Return the result of execution
+// and error message, if any. The execution is only supposed to fail if
+// and only if an error message is returned. The first response arg is
+// just a status of the execution, so its meaning depends on contenxt.
+func (a *action[S]) execute(data *types.ActionData) (bool, error)

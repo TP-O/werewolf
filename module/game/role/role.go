@@ -1,41 +1,99 @@
 package role
 
 import (
-	"uwwolf/contract/itf"
-	"uwwolf/contract/typ"
+	"errors"
+
+	"uwwolf/module/game/action"
+	"uwwolf/module/game/core"
+	"uwwolf/types"
 )
 
 type role struct {
-	name    string
-	skill   *itf.Skill
-	passive *itf.Passive
-	game    itf.IGame
-}
-
-type Skill struct {
-	Action IAction
-	Turn   *typ.SkillTurn
-}
-
-type Passive struct {
-	Action IAction
-	Event  *typ.PassiveEvent
+	id           types.RoleId
+	name         string
+	game         core.Game
+	phaseId      types.PhaseId
+	activeSkill  *activeSkill
+	passiveSkill *passiveSkill
 }
 
 type Role interface {
+	// Get roles' name.
 	GetName() string
-	UseSkill(instruction *typ.ActionInstruction) bool
-	ActivatePassive(instruction *typ.ActionInstruction) bool
+
+	// Check if role has after-death passive skill.
+	HasAfterDeathSkill() bool
+
+	// Check if role has before-death passive skill.
+	HasBeforeDeathSkill() bool
+
+	// Check condition is satisfied then perform an action corresponding
+	// to this role if pass.
+	UseSkill(data *types.ActionData) (bool, error)
+
+	// Activate a passive skill corresponding to this roles.
+	UsePassiveSkill(data *types.ActionData) (bool, error)
 }
 
+// Skill is used proactively.
+type activeSkill struct {
+	action       action.Action
+	numberOfUses types.NumberOfUses
+	startRound   types.Round
+}
+
+// Skill is used based on event.
+type passiveSkill struct {
+	action      action.Action
+	afterDeath  bool
+	beforeDeath bool
+}
+
+// Get roles' name.
 func (r *role) GetName() string {
 	return r.name
 }
 
-func (r *role) UseSkill(instruction *typ.ActionInstruction) bool {
-	return r.skill.Action.Perform(r.game, instruction)
+// Check if role has after-death passive skill.
+func (r *role) HasAfterDeathSkill() bool {
+	if r.passiveSkill == nil {
+		return false
+	}
+
+	return r.passiveSkill.afterDeath
 }
 
-func (r *role) ActivatePassive(instruction *typ.ActionInstruction) bool {
-	return r.passive.Action.Perform(r.game, instruction)
+// Check if role has before-death passive skill.
+func (r *role) HasBeforeDeathSkill() bool {
+	if r.passiveSkill == nil {
+		return false
+	}
+
+	return r.passiveSkill.beforeDeath
+}
+
+// Check condition is satisfied then perform an action corresponding
+// to this role if pass.
+func (r *role) UseSkill(data *types.ActionData) (bool, error) {
+	if r.activeSkill == nil ||
+		r.game.GetCurrentPhaseId() != r.phaseId ||
+		r.game.GetCurrentRound() < r.activeSkill.startRound ||
+		r.game.GetCurrentRoleId() != r.id ||
+		r.activeSkill.numberOfUses == 0 {
+
+		return false, errors.New("Unable to use skill!")
+	}
+
+	if res, err := r.activeSkill.action.Perform(data); err != nil {
+		return false, err
+	} else {
+		r.activeSkill.numberOfUses--
+
+		return res, nil
+	}
+}
+
+// Activate a passive skill corresponding to this roles.
+func (r *role) UsePassiveSkill(data *types.ActionData) (bool, error) {
+	return r.passiveSkill.action.Perform(data)
 }

@@ -1,27 +1,22 @@
 package role
 
 import (
-	"uwwolf/contract/itf"
-	"uwwolf/contract/typ"
-	"uwwolf/game/action"
+	"uwwolf/module/game/action"
+	"uwwolf/module/game/core"
+	"uwwolf/types"
 )
 
-func NewHunterRole(game itf.IGame) *role {
+const HunterRoleName = "Hunter"
+
+func NewHunterRole(game core.Game) *role {
 	return &role{
-		name: "Hunter",
-		game: game,
-		skill: &itf.Skill{
-			Action: action.NewShootingAction(),
-			Turn: &typ.SkillTurn{
-				StartFrom:    2,
-				NumberOfUses: -1,
-			},
-		},
-		passive: &itf.Passive{
-			Action: action.NewShootingAction(),
-			Event: &typ.PassiveEvent{
-				AfterDeath: true,
-			},
+		id:      types.HunterRole,
+		phaseId: types.DayPhase,
+		name:    HunterRoleName,
+		game:    game,
+		passiveSkill: &passiveSkill{
+			action:     action.NewShootingAction(game),
+			afterDeath: true,
 		},
 	}
 }

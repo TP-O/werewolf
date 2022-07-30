@@ -2,29 +2,32 @@ package action
 
 import (
 	"errors"
-	"uwwolf/module/game"
+
+	"uwwolf/module/game/core"
 	"uwwolf/module/game/state"
 	"uwwolf/types"
 )
 
-const ProphecyAction = "Prophecy"
+const ProphecyActionName = "Prophecy"
 
 type prophecyAction struct {
 	action[state.Prediction]
 }
 
-func NewProphecyAction(game game.Game) Action[state.Prediction] {
+func NewProphecyAction(game core.Game) Action {
 	prophecyAction := prophecyAction{
 		action: action[state.Prediction]{
-			name:  ProphecyAction,
+			name:  ProphecyActionName,
 			state: state.NewPrediction(),
 			game:  game,
 		},
 	}
 
-	prophecyAction.action.receiveKit(&prophecyAction)
-
 	return &prophecyAction
+}
+
+func (p *prophecyAction) Perform(data *types.ActionData) (bool, error) {
+	return p.action.overridePerform(p, data)
 }
 
 func (p *prophecyAction) validate(data *types.ActionData) (bool, error) {
@@ -54,8 +57,4 @@ func (p *prophecyAction) execute(data *types.ActionData) (bool, error) {
 	p.state.Add(types.VillageFaction, data.Targets[0])
 
 	return false, nil
-}
-
-func (p *prophecyAction) skip(data *types.ActionData) (bool, error) {
-	return true, nil
 }
