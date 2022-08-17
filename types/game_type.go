@@ -1,8 +1,46 @@
 package types
 
-type GameInstance struct {
-	GameId             string `validate:"required,len=20,alphanum"`
-	Capacity           int    `validate:"required,game_capacity"`
-	NumberOfWerewolves int    `validate:"required,min=1"`
-	RolePool           []int  `validate:"required,unique,dive,min=3"`
+import "time"
+
+type GameId string
+
+type RoundId uint
+
+const (
+	FirstRound RoundId = 1
+)
+
+type PhaseId uint
+
+const (
+	UnknownPhase PhaseId = iota
+	NightPhase
+	DayPhase
+	DuskPhase
+)
+
+type TurnPosition int
+
+const (
+	NextTurnPosition TurnPosition = iota - 2
+	LastTurnPosition
+	FirstTurnPosition
+)
+
+type GameData struct {
+	Id                 GameId
+	Capacity           uint
+	NumberOfWerewolves uint
+	TimeForTurn        time.Duration
+	TimeForDiscussion  time.Duration
+	RolePool           []RoleId
+	SocketId2PlayerId  map[SocketId]PlayerId
+}
+
+type TurnData struct {
+	PhaseId   PhaseId
+	RoleId    RoleId
+	PlayerIds []PlayerId
+	Times     NumberOfTimes
+	Position  TurnPosition
 }

@@ -1,9 +1,17 @@
 package types
 
-type Role int
+type NumberOfTimes int
 
 const (
-	UnkownRole Role = iota
+	UnlimitedTimes NumberOfTimes = iota - 1
+	OutOfTimes
+	OneTimes
+)
+
+type RoleId uint
+
+const (
+	UnknownRole RoleId = iota
 	VillagerRole
 	WerewolfRole
 	HunterRole
@@ -11,14 +19,3 @@ const (
 	TwoSistersRole
 	AlphaWolfRole
 )
-
-type SkillTurn struct {
-	StartFrom    int
-	NumberOfUses int
-}
-
-type PassiveEvent struct {
-	BeforeDeath         bool
-	AfterDeath          bool
-	BeforeBeingExecuted bool
-}

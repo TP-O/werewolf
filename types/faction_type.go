@@ -1,9 +1,9 @@
 package types
 
-type Faction int
+type FactionId uint
 
 const (
-	UnknownFaction Faction = iota
+	UnknownFaction FactionId = iota
 	VillageFaction
 	WerewolfFaction
 	IndependentFaction
