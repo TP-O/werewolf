@@ -6,7 +6,6 @@ import (
 	"github.com/go-playground/validator/v10"
 	en_translations "github.com/go-playground/validator/v10/translations/en"
 
-	"uwwolf/types"
 	"uwwolf/validator/rule"
 )
 
@@ -29,7 +28,7 @@ func init() {
 	validate.RegisterValidation(rule.GameCapacityTag, rule.GameCapacityValidate)
 
 	// Customize rules for structs
-	validate.RegisterStructValidation(rule.GameInstanceInitValidate, types.GameInstance{})
+	// validate.RegisterStructValidation(rule.GameInstanceInitValidate, types.GameInstance{})
 
 	// Custom crror messages
 	validate.RegisterTranslation(

@@ -43,9 +43,9 @@ func (p *player) getRoleOfCurrentTurn() (contract.Role, *types.PerformResult) {
 	if !util.ExistKeyInMap(p.roles, roleId) {
 		return nil,
 			&types.PerformResult{
-				ErrorTag: types.UnauthorizedErrorTag,
+				ErrorTag: types.SystemErrorTag,
 				Errors: map[string]string{
-					types.AlertErrorPropery: "Not your turn!",
+					types.SystemErrorProperty: "Not your turn!",
 				},
 			}
 	}

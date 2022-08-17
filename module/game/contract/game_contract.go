@@ -15,5 +15,5 @@ type Game interface {
 
 	// RemovePlayer(playerId types.PlayerId) bool
 
-	PeformAction(playerId types.PlayerId) *types.PerformResult
+	RequestAction(playerId types.PlayerId, data *types.ActionData) *types.PerformResult
 }

@@ -1,31 +1,26 @@
 package rule
 
 import (
-	"math"
-	"strconv"
-
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
-
-	"uwwolf/types"
 )
 
 const NumberOfWerewolvesTag = "number_of_werewolves"
 
 func GameInstanceInitValidate(sl validator.StructLevel) {
-	strt := sl.Current().Interface().(types.GameInstance)
+	// strt := sl.Current().Interface().(types.GameInstance)
 
-	maxNumberOfWerewolves := int(math.Round(float64(strt.Capacity)/2)) - 2
+	// maxNumberOfWerewolves := int(math.Round(float64(strt.Capacity)/2)) - 2
 
-	if strt.NumberOfWerewolves > maxNumberOfWerewolves {
-		sl.ReportError(
-			nil,
-			"NumberOfWerewolves",
-			"NumberOfWerewolves",
-			NumberOfWerewolvesTag,
-			strconv.Itoa(strt.NumberOfWerewolves),
-		)
-	}
+	// if strt.NumberOfWerewolves > maxNumberOfWerewolves {
+	// 	sl.ReportError(
+	// 		nil,
+	// 		"NumberOfWerewolves",
+	// 		"NumberOfWerewolves",
+	// 		NumberOfWerewolvesTag,
+	// 		strconv.Itoa(strt.NumberOfWerewolves),
+	// 	)
+	// }
 }
 
 func AddNumberOfWerewolvesTag(ut ut.Translator) error {
