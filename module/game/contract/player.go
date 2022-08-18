@@ -7,5 +7,7 @@ type Player interface {
 
 	GetSId() types.SocketId
 
-	UseSkill(data *types.ActionData) *types.PerformResult
+	GetFactionId() types.FactionId
+
+	UseSkill(req *types.ActionRequest) *types.ActionResponse
 }

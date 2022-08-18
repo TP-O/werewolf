@@ -15,5 +15,5 @@ type Role interface {
 
 	// Check condition is satisfied then if pass, activate skill
 	// corresponding to this role based on game context.
-	ActivateSkill(data *types.ActionData) *types.PerformResult
+	ActivateSkill(req *types.ActionRequest) *types.ActionResponse
 }

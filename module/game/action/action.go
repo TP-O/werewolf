@@ -28,35 +28,23 @@ func (a *action[S]) JsonState() string {
 	}
 }
 
-// Set action's state. Return false if type conversion is failed.
-func (a *action[S]) SetState(state any) (ok bool) {
-	defer func() {
-		if recover() != nil {
-			ok = false
-		}
-	}()
-
-	a.state = state.(*S)
-
-	return true
-}
-
 // A template for embedding struct to reuse the Perform method logic.
-func (a *action[S]) overridePerform(action contract.Action, data *types.ActionData) *types.PerformResult {
-	if err := validator.ValidateStruct(data); err != nil {
-		return &types.PerformResult{
-			ErrorTag: types.InvalidInputErrorTag,
-			Errors:   err,
+func (a *action[S]) overridePerform(action contract.Action, req *types.ActionRequest) *types.ActionResponse {
+	err := validator.ValidateStruct(req)
+
+	// Apply specific validate if general validation is passed
+	if err == nil {
+		err = action.Validate(req)
+	}
+
+	if err != nil {
+		return &types.ActionResponse{
+			Error: &types.ErrorDetail{
+				Tag: types.InvalidInputErrorTag,
+				Msg: err,
+			},
 		}
 	}
 
-	// Validate for each specific action
-	if err := action.Validate(data); err != nil {
-		return &types.PerformResult{
-			ErrorTag: types.InvalidInputErrorTag,
-			Errors:   err,
-		}
-	}
-
-	return action.Execute(data)
+	return action.Execute(req)
 }

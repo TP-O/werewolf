@@ -32,8 +32,8 @@ type Poll struct {
 	history       map[int]pollStatistics
 }
 
-func NewPoll(electors []types.PlayerId) Poll {
-	return Poll{
+func NewPoll(electors []types.PlayerId) *Poll {
+	return &Poll{
 		electors:      electors,
 		votedElectors: make([]types.PlayerId, 0),
 		history:       make(map[int]pollStatistics, 0),
@@ -42,6 +42,10 @@ func NewPoll(electors []types.PlayerId) Poll {
 
 func (p *Poll) IsVoting() bool {
 	return p.isVoting
+}
+
+func (p *Poll) IsVoted(playerId types.PlayerId) bool {
+	//
 }
 
 func (p *Poll) History() map[int]pollStatistics {
@@ -59,7 +63,7 @@ func (p *Poll) Start() bool {
 	return true
 }
 
-func (p *Poll) Vote(elector types.PlayerId, target types.PlayerId, value uint) bool {
+func (p *Poll) Vote(elector types.PlayerId, target types.PlayerId) bool {
 	if !p.IsVoting() ||
 		len(p.votedElectors) >= len(p.electors) ||
 		slices.Contains(p.votedElectors, elector) {

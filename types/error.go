@@ -11,6 +11,5 @@ const (
 type ErrorProperty = string
 
 const (
-	SystemErrorProperty ErrorProperty = "system"
-	AlertErrorPropery   ErrorProperty = "alert"
+	AlertErrorField ErrorProperty = "ALERT_ERROR"
 )
