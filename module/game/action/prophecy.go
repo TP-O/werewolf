@@ -51,7 +51,7 @@ func (p *prophecy) Execute(req *types.ActionRequest) *types.ActionResponse {
 
 		return &types.ActionResponse{
 			Ok:   true,
-			Data: false,
+			Data: true,
 		}
 	}
 

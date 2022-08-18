@@ -2,7 +2,8 @@ package main
 
 import (
 	"fmt"
-	"uwwolf/config"
+	"uwwolf/module/game/state"
+	"uwwolf/types"
 )
 
 func main() {
@@ -17,7 +18,7 @@ func main() {
 	// 	GameId:             "11111111111111111111",
 	// 	Capacity:           10,
 	// 	NumberOfWerewolves: 2,
-	// 	RolePool:           []uint{enum.HunterRole},
+	// 	RolePool:           []int{enum.HunterRole},
 	// }); err == nil {
 	// 	instance.AddPlayers(
 	// 		[]string{
@@ -32,7 +33,7 @@ func main() {
 	// 			"11111111111111111119",
 	// 			"11111111111111111110",
 	// 		},
-	// 		[]uint{1, 2, 3, 4, 5, 6, 7, 8, 9, 10},
+	// 		[]int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10},
 	// 	)
 
 	// 	fmt.Println(instance.Start())
@@ -41,14 +42,14 @@ func main() {
 	// 	instance.Do(&typ.ActionInstruction{
 	// 		GameId:  "11111111111111111111",
 	// 		Actor:   1,
-	// 		Targets: []uint{2},
+	// 		Targets: []int{2},
 	// 		Skipped: false,
 	// 		Payload: []byte{},
 	// 	})
 	// 	// instance.Do(&typ.ActionInstruction{
 	// 	// 	GameId:  "11111111111111111111",
 	// 	// 	Actor:   3,
-	// 	// 	Targets: []uint{2},
+	// 	// 	Targets: []int{2},
 	// 	// 	Skipped: false,
 	// 	// 	Payload: []byte{},
 	// 	// })
@@ -58,7 +59,7 @@ func main() {
 	// 	instance.Do(&typ.ActionInstruction{
 	// 		GameId:  "11111111111111111111",
 	// 		Actor:   3,
-	// 		Targets: []uint{2},
+	// 		Targets: []int{2},
 	// 		Skipped: false,
 	// 		Payload: []byte{},
 	// 	})
@@ -68,5 +69,30 @@ func main() {
 	// 	fmt.Println(err)
 	// }
 
-	fmt.Println(config.DB.Host)
+	// add := Address{
+	// 	Email:  "Hehe",
+	// 	Street: "!!!!",
+	// }
+
+	// data := types.GameInstanceInit{
+	// 	Capacity:           10,
+	// 	NumberOfWerewolves: 1,
+	// }
+
+	// var g contract.Game = core.NewGame(&types.GameData{
+	// 	//
+	// })
+
+	// fmt.Println(g)
+
+	p := state.NewPoll([]types.PlayerId{1, 2, 3, 4})
+
+	p.Open()
+
+	p.Vote(1, 2)
+	p.Vote(1, 2)
+
+	p.Close()
+
+	fmt.Println(p.GetRecord()[2])
 }

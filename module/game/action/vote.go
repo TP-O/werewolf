@@ -31,7 +31,7 @@ func (v *vote) Perform(req *types.ActionRequest) *types.ActionResponse {
 }
 
 func (v *vote) Validate(req *types.ActionRequest) validator.ValidationErrorsTranslations {
-	if v.state.IsVoted(req.Actor) {
+	if !v.state.IsAllowed(req.Actor) {
 		return map[string]string{
 			types.AlertErrorField: "Already voted! Wait for next turn, OK?",
 		}

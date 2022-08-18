@@ -1,123 +1,114 @@
 package state
 
 import (
-	"uwwolf/types"
-
 	"golang.org/x/exp/slices"
+
+	"uwwolf/types"
 )
 
-type pollStatistics map[int]*candidateStatistics
-
-type vote struct {
-	elector types.PlayerId
-	target  types.PlayerId
-	value   uint
+type Poll struct {
+	recordId      uint
+	isVoting      bool
+	electors      []types.PlayerId
+	votedElectors []types.PlayerId
+	records       map[uint]map[types.PlayerId]*record
 }
 
-type candidateStatistics struct {
+type record = struct {
 	electors []types.PlayerId
 	votes    uint
 }
 
-type electionResult struct {
-	loser types.PlayerId
-	stats pollStatistics
-}
+// type vote struct {
+// 	elector types.PlayerId
+// 	target  types.PlayerId
+// 	weight  uint
+// }
 
-type Poll struct {
-	stageId       int
-	isVoting      bool
-	electors      []types.PlayerId
-	votedElectors []types.PlayerId
-	history       map[int]pollStatistics
-}
+// type electionResult struct {
+// 	loser types.PlayerId
+// 	stats pollStatistics
+// }
 
 func NewPoll(electors []types.PlayerId) *Poll {
 	return &Poll{
 		electors:      electors,
-		votedElectors: make([]types.PlayerId, 0),
-		history:       make(map[int]pollStatistics, 0),
+		votedElectors: make([]types.PlayerId, len(electors)),
+		records:       make(map[uint]map[types.PlayerId]*record),
 	}
 }
 
-func (p *Poll) IsVoting() bool {
+func (p *Poll) IsOpen() bool {
 	return p.isVoting
 }
 
-func (p *Poll) IsVoted(playerId types.PlayerId) bool {
-	//
+func (p *Poll) IsAllowed(playerId types.PlayerId) bool {
+	return slices.Contains(p.electors, playerId) &&
+		!slices.Contains(p.votedElectors, playerId)
 }
 
-func (p *Poll) History() map[int]pollStatistics {
-	return p.history
+func (p *Poll) GetRecord() map[types.PlayerId]*record {
+	return p.records[p.recordId]
 }
 
-func (p *Poll) Start() bool {
-	if p.isVoting {
+func (p *Poll) Open() bool {
+	if p.IsOpen() {
 		return false
 	}
 
 	p.isVoting = true
-	p.history[p.stageId] = make(pollStatistics)
+	p.recordId += 1
+	p.records[p.recordId] = make(map[types.PlayerId]*record)
+	p.votedElectors = make([]types.PlayerId, len(p.electors))
 
 	return true
 }
 
-func (p *Poll) Vote(elector types.PlayerId, target types.PlayerId) bool {
-	if !p.IsVoting() ||
-		len(p.votedElectors) >= len(p.electors) ||
-		slices.Contains(p.votedElectors, elector) {
-
-		return false
+func (p *Poll) Close() map[types.PlayerId]*record {
+	if !p.IsOpen() {
+		return p.records[p.recordId]
 	}
 
-	p.history[p.stageId][int(target)].votes += value
-	p.history[p.stageId][int(target)].electors = append(
-		p.history[p.stageId][int(target)].electors,
-		elector,
-	)
-	p.votedElectors = append(p.votedElectors, elector)
-
-	return true
-}
-
-func (p *Poll) Clear() {
 	p.isVoting = false
-	p.votedElectors = make([]types.PlayerId, 0)
-	p.history[p.stageId] = make(pollStatistics)
-}
+	p.records[p.recordId][types.UnknownPlayer] = &record{}
 
-func (p *Poll) Close() *electionResult {
-	if !p.IsVoting() {
-		return nil
-	}
-
-	result := electionResult{
-		stats: make(pollStatistics),
-		loser: p.eliminateLoser(p.history[p.stageId]),
-	}
-
-	p.stageId++
-	p.isVoting = false
-
-	return &result
-}
-
-func (p *Poll) eliminateLoser(stats pollStatistics) types.PlayerId {
-	loser := 0
-	totalVotes := uint(0)
-
-	for target, cdStats := range stats {
-		if cdStats.votes > stats[loser].votes {
-			loser = target
+	for _, elector := range p.electors {
+		if !slices.Contains(p.votedElectors, elector) {
+			p.records[p.recordId][types.UnknownPlayer].votes += 1
+			p.records[p.recordId][types.UnknownPlayer].electors = append(
+				p.records[p.recordId][types.UnknownPlayer].electors,
+				elector,
+			)
 		}
-
-		totalVotes += cdStats.votes
 	}
 
-	if stats[loser].votes > totalVotes/2 {
-		return types.PlayerId(loser)
+	return p.records[p.recordId]
+}
+
+func (p *Poll) Vote(playerId types.PlayerId, target types.PlayerId) {
+	if !p.IsAllowed(playerId) {
+		return
 	}
 
-	return 0
+	if p.records[p.recordId][target] == nil {
+		p.records[p.recordId][target] = &record{}
+	}
+
+	p.records[p.recordId][target].votes += 1
+	p.records[p.recordId][target].electors = append(
+		p.records[p.recordId][target].electors,
+		playerId,
+	)
+
+	p.votedElectors = append(p.votedElectors, playerId)
+}
+
+func (p *Poll) RemoveElector(playerId types.PlayerId) bool {
+	if i := slices.Index(p.electors, playerId); i == -1 {
+		return false
+	} else {
+		p.electors = slices.Delete(p.electors, i, 1)
+
+		return true
+	}
 }
