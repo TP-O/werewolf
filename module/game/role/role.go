@@ -20,7 +20,10 @@ type skill struct {
 	beginRoundId types.RoundId
 }
 
-// Get roles' name.
+func (r *role) GetId() types.RoleId {
+	return r.id
+}
+
 func (r *role) GetName() string {
 	return r.name
 }
@@ -37,7 +40,7 @@ func (r *role) AfterDeath() {
 }
 
 // Check condition is satisfied then if pass, activate skill
-// corresponding to this role based on game context.
+// corresponding to this role.
 func (r *role) ActivateSkill(req *types.ActionRequest) *types.ActionResponse {
 	if r.skill == nil ||
 		r.skill.numberOfUses == types.OutOfTimes {

@@ -16,7 +16,6 @@ type action[S any] struct {
 	game  contract.Game
 }
 
-// Get action's name.
 func (a *action[S]) GetName() string {
 	return a.name
 }

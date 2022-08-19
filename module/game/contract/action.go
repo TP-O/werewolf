@@ -7,7 +7,6 @@ import (
 )
 
 type Action interface {
-	// Get action's name.
 	GetName() string
 
 	// Export action's state  as JSON string.

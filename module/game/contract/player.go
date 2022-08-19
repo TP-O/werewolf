@@ -9,5 +9,8 @@ type Player interface {
 
 	GetFactionId() types.FactionId
 
+	AssignRoles(roles ...Role)
+
+	// Decide which skill to use based on game context.
 	UseSkill(req *types.ActionRequest) *types.ActionResponse
 }

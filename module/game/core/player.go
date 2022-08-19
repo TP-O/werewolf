@@ -7,17 +7,20 @@ import (
 )
 
 type player struct {
-	id    types.PlayerId
-	sId   types.SocketId
-	game  contract.Game
-	roles map[types.RoleId]contract.Role
+	id        types.PlayerId
+	sId       types.SocketId
+	factionId types.FactionId
+	game      contract.Game
+	roles     map[types.RoleId]contract.Role
 }
 
-func NewPlayer(sId types.SocketId, pId types.PlayerId, game contract.Game) contract.Player {
+func NewPlayer(game contract.Game, sId types.SocketId, pId types.PlayerId) contract.Player {
 	return &player{
-		id:   pId,
-		sId:  sId,
-		game: game,
+		id:        pId,
+		sId:       sId,
+		factionId: types.UnknownFaction,
+		game:      game,
+		roles:     make(map[types.RoleId]contract.Role),
 	}
 }
 
@@ -29,26 +32,31 @@ func (p *player) GetSId() types.SocketId {
 	return p.sId
 }
 
-func (p *player) UseSkill(data *types.ActionData) *types.PerformResult {
-	if role, errRes := p.getRoleOfCurrentTurn(); errRes != nil {
-		return errRes
-	} else {
-		return role.ActivateSkill(data)
+func (p *player) GetFactionId() types.FactionId {
+	return p.factionId
+}
+
+func (p *player) AssignRoles(roles ...contract.Role) {
+	for _, role := range roles {
+		if !util.ExistKeyInMap(p.roles, role.GetId()) {
+			p.roles[role.GetId()] = role
+
+			// Chage faction id...
+		}
 	}
 }
 
-func (p *player) getRoleOfCurrentTurn() (contract.Role, *types.PerformResult) {
-	roleId := p.game.GetCurrentRoleId()
-
-	if !util.ExistKeyInMap(p.roles, roleId) {
-		return nil,
-			&types.PerformResult{
-				ErrorTag: types.SystemErrorTag,
-				Errors: map[string]string{
-					types.SystemErrorProperty: "Not your turn!",
+func (p *player) UseSkill(req *types.ActionRequest) *types.ActionResponse {
+	if role := p.roles[p.game.GetCurrentRoleId()]; role != nil {
+		return role.ActivateSkill(req)
+	} else {
+		return &types.ActionResponse{
+			Error: &types.ErrorDetail{
+				Tag: types.UnauthorizedErrorTag,
+				Msg: map[string]string{
+					types.AlertErrorField: "Unable to activate skill!",
 				},
-			}
+			},
+		}
 	}
-
-	return p.roles[roleId], nil
 }
