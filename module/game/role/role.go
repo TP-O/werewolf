@@ -11,7 +11,7 @@ type role struct {
 	game    contract.Game
 	player  contract.Player
 	phaseId types.PhaseId
-	skills  []*skill
+	skill   *skill
 }
 
 type skill struct {
@@ -38,25 +38,25 @@ func (r *role) AfterDeath() {
 
 // Check condition is satisfied then if pass, activate skill
 // corresponding to this role based on game context.
-func (r *role) ActivateSkill(data *types.ActionData) *types.PerformResult {
-	for _, skill := range r.skills {
-		if skill.numberOfUses != types.OutOfTimes &&
-			skill.beginRoundId >= r.game.GetCurrentRoundId() {
+func (r *role) ActivateSkill(req *types.ActionRequest) *types.ActionResponse {
+	if r.skill == nil ||
+		r.skill.numberOfUses == types.OutOfTimes {
 
-			res := skill.action.Execute(data)
-
-			if res.Errors != nil && skill.numberOfUses != types.UnlimitedTimes {
-				skill.numberOfUses--
-			}
-
-			return res
+		return &types.ActionResponse{
+			Error: &types.ErrorDetail{
+				Tag: types.SystemErrorTag,
+				Msg: map[string]string{
+					types.AlertErrorField: "Unable to use skill!",
+				},
+			},
 		}
 	}
 
-	return &types.PerformResult{
-		ErrorTag: types.SystemErrorTag,
-		Errors: map[string]string{
-			types.SystemErrorProperty: "Skill is unavailable!",
-		},
+	res := r.skill.action.Execute(req)
+
+	if res.Error != nil && r.skill.numberOfUses != types.UnlimitedTimes {
+		r.skill.numberOfUses--
 	}
+
+	return res
 }
