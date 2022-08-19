@@ -2,8 +2,12 @@ package core
 
 import (
 	"time"
+
 	"uwwolf/module/game/contract"
+	"uwwolf/module/game/state"
 	"uwwolf/types"
+
+	"golang.org/x/exp/slices"
 )
 
 // import (
@@ -278,35 +282,36 @@ import (
 // }
 
 type game struct {
-	id                  types.GameId
-	capacity            uint
-	numberOfWerewolves  uint
-	remainingWerewolves uint
-	timeForTurn         time.Duration
-	timeForDiscussion   time.Duration
-	round               *round
-	rolePool            []types.RoleId
-	sId2pId             map[types.SocketId]types.PlayerId
-	players             map[types.PlayerId]contract.Player
+	id                 types.GameId
+	capacity           uint
+	numberOfWerewolves uint
+	timeForTurn        time.Duration
+	timeForDiscussion  time.Duration
+	rolePool           []types.RoleId
+	factions           map[types.FactionId][]types.PlayerId
+	players            map[types.PlayerId]contract.Player
+	deaths             []types.PlayerId
+	polls              map[string]*state.Poll
+	round              *state.Round
 }
 
-func NewGame(data *types.GameData) contract.Game {
-	players := make(map[types.PlayerId]contract.Player)
+func NewGame(setting *types.GameSetting) contract.Game {
 	game := game{
-		id:                  data.Id,
-		capacity:            data.Capacity,
-		numberOfWerewolves:  data.NumberOfWerewolves,
-		remainingWerewolves: data.NumberOfWerewolves,
-		timeForTurn:         data.TimeForTurn,
-		timeForDiscussion:   data.TimeForDiscussion,
-		rolePool:            data.RolePool,
-		sId2pId:             data.SocketId2PlayerId,
-		round:               NewRound(),
-		players:             players,
+		id:                 setting.Id,
+		capacity:           uint(len(setting.PlayerIds)),
+		numberOfWerewolves: setting.NumberOfWerewolves,
+		timeForTurn:        setting.TimeForTurn,
+		timeForDiscussion:  setting.TimeForDiscussion,
+		rolePool:           setting.RolePool,
+		factions:           make(map[types.FactionId][]types.PlayerId),
+		players:            make(map[types.PlayerId]contract.Player),
+		deaths:             make([]types.PlayerId, len(setting.PlayerIds)),
+		polls:              make(map[string]*state.Poll),
+		round:              state.NewRound(),
 	}
 
-	for sId, pId := range data.SocketId2PlayerId {
-		players[pId] = NewPlayer(sId, pId, &game)
+	for _, id := range setting.PlayerIds {
+		game.players[id] = NewPlayer(&game, id)
 	}
 
 	return &game
@@ -317,64 +322,41 @@ func (g *game) GetCurrentRoundId() types.RoundId {
 }
 
 func (g *game) GetCurrentRoleId() types.RoleId {
-	return g.round.GetTurn().roleId
+	return g.round.GetCurrentRoleId()
 }
 
-// func (g *game) GetCurrentPhaseId() types.PhaseId {
-// 	return g.round.GetPhaseId()
-// }
-
-// func (g *game) GetCurrentTurnIndex() int {
-// 	return g.round.GetTurnIndex()
-// }
+func (g *game) GetCurrentPhaseId() types.PhaseId {
+	return g.round.GetPhaseId()
+}
 
 func (g *game) GetPlayer(playerId types.PlayerId) contract.Player {
 	return g.players[playerId]
 }
 
-// func (g *game) RemovePlayer(playerId types.PlayerId) bool {
-// 	if !util.ExistKeyInMap(g.players, playerId) {
-// 		return false
-// 	}
+func (g *game) KillPlayer(playerId types.PlayerId) contract.Player {
+	if player := g.players[playerId]; player == nil {
+		return nil
+	} else {
+		g.deaths = append(g.deaths, playerId)
 
-// 	player := g.players[playerId]
+		return player
+	}
+}
 
-// 	if player.HasBeforeDeathSkill() {
-// 		g.round.AddTurn(&types.TurnData{
-// 			RoleId:    1,
-// 			PlayerIds: []types.PlayerId{playerId},
-// 			Times:     types.OneTimes,
-// 			Position:  types.NextTurnPosition,
-// 		})
+func (g *game) RequestAction(playerId types.PlayerId, req *types.ActionRequest) *types.ActionResponse {
+	if playerId != req.Actor ||
+		slices.Contains(g.deaths, playerId) ||
+		!g.round.IsAllowed(playerId) {
 
-// 		return true
-// 	}
-
-// 	delete(g.players, playerId)
-
-// 	if player.HasAfterDeathSkill() {
-// 		g.round.AddTurn(&types.TurnData{
-// 			RoleId:    1,
-// 			PlayerIds: []types.PlayerId{playerId},
-// 			Times:     types.OneTimes,
-// 			Position:  types.NextTurnPosition,
-// 		})
-// 	}
-
-// 	return true
-// }
-
-func (g *game) RequestAction(playerId types.PlayerId, data *types.ActionData) *types.PerformResult {
-	if !g.round.IsValidPlayer(playerId) {
-		return &types.PerformResult{
-			ErrorTag: types.UnauthorizedErrorTag,
-			Errors: map[string]string{
-				types.SystemErrorProperty: "Not your turn!",
+		return &types.ActionResponse{
+			Error: &types.ErrorDetail{
+				Tag: types.UnauthorizedErrorTag,
+				Msg: map[string]string{
+					types.AlertErrorField: "Not your turn or you're died!",
+				},
 			},
 		}
 	}
 
-	player := g.GetPlayer(playerId)
-
-	return player.UseSkill(data)
+	return g.GetPlayer(playerId).UseSkill(req)
 }

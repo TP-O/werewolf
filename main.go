@@ -1,10 +1,6 @@
 package main
 
-import (
-	"fmt"
-	"uwwolf/module/game/state"
-	"uwwolf/types"
-)
+import "golang.org/x/exp/slices"
 
 func main() {
 	// if err := database.LoadDatabase(); err != nil {
@@ -85,14 +81,7 @@ func main() {
 
 	// fmt.Println(g)
 
-	p := state.NewPoll([]types.PlayerId{1, 2, 3, 4})
+	p := []int{}
 
-	p.Open()
-
-	p.Vote(1, 2)
-	p.Vote(1, 2)
-
-	p.Close()
-
-	fmt.Println(p.GetRecord()[2])
+	slices.Delete(p, 1, 2)
 }

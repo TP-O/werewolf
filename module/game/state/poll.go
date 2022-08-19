@@ -107,7 +107,7 @@ func (p *Poll) RemoveElector(playerId types.PlayerId) bool {
 	if i := slices.Index(p.electors, playerId); i == -1 {
 		return false
 	} else {
-		p.electors = slices.Delete(p.electors, i, 1)
+		p.electors = slices.Delete(p.electors, i, i+1)
 
 		return true
 	}

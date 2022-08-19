@@ -7,13 +7,11 @@ type Game interface {
 
 	GetCurrentRoleId() types.RoleId
 
-	// GetCurrentPhaseId() types.PhaseId
-
-	// GetCurrentTurnIndex() int
+	GetCurrentPhaseId() types.PhaseId
 
 	GetPlayer(playerId types.PlayerId) Player
 
-	// RemovePlayer(playerId types.PlayerId) bool
+	KillPlayer(playerId types.PlayerId) Player
 
 	RequestAction(playerId types.PlayerId, req *types.ActionRequest) *types.ActionResponse
 }

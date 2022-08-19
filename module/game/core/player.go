@@ -8,16 +8,14 @@ import (
 
 type player struct {
 	id        types.PlayerId
-	sId       types.SocketId
 	factionId types.FactionId
 	game      contract.Game
 	roles     map[types.RoleId]contract.Role
 }
 
-func NewPlayer(game contract.Game, sId types.SocketId, pId types.PlayerId) contract.Player {
+func NewPlayer(game contract.Game, id types.PlayerId) contract.Player {
 	return &player{
-		id:        pId,
-		sId:       sId,
+		id:        id,
 		factionId: types.UnknownFaction,
 		game:      game,
 		roles:     make(map[types.RoleId]contract.Role),
@@ -26,10 +24,6 @@ func NewPlayer(game contract.Game, sId types.SocketId, pId types.PlayerId) contr
 
 func (p *player) GetId() types.PlayerId {
 	return p.id
-}
-
-func (p *player) GetSId() types.SocketId {
-	return p.sId
 }
 
 func (p *player) GetFactionId() types.FactionId {

@@ -27,17 +27,16 @@ const (
 	FirstTurnPosition
 )
 
-type GameData struct {
+type GameSetting struct {
 	Id                 GameId
-	Capacity           uint
 	NumberOfWerewolves uint
 	TimeForTurn        time.Duration
 	TimeForDiscussion  time.Duration
 	RolePool           []RoleId
-	SocketId2PlayerId  map[SocketId]PlayerId
+	PlayerIds          []PlayerId
 }
 
-type TurnData struct {
+type TurnSetting struct {
 	PhaseId   PhaseId
 	RoleId    RoleId
 	PlayerIds []PlayerId

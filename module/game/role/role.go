@@ -39,17 +39,19 @@ func (r *role) AfterDeath() {
 	//
 }
 
-// Check condition is satisfied then if pass, activate skill
+// Check condition is satisfied then if pass, perform action
 // corresponding to this role.
 func (r *role) ActivateSkill(req *types.ActionRequest) *types.ActionResponse {
 	if r.skill == nil ||
-		r.skill.numberOfUses == types.OutOfTimes {
+		r.skill.numberOfUses == types.OutOfTimes ||
+		r.skill.beginRoundId < r.game.GetCurrentRoundId() ||
+		r.phaseId != r.game.GetCurrentPhaseId() {
 
 		return &types.ActionResponse{
 			Error: &types.ErrorDetail{
-				Tag: types.SystemErrorTag,
+				Tag: types.UnauthorizedErrorTag,
 				Msg: map[string]string{
-					types.AlertErrorField: "Unable to use skill!",
+					types.AlertErrorField: "Unable to execute action!",
 				},
 			},
 		}
