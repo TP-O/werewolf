@@ -14,9 +14,11 @@ type Round struct {
 }
 
 type turn struct {
-	roleId    types.RoleId
-	playerIds []types.PlayerId
-	times     types.NumberOfTimes
+	roleId     types.RoleId
+	playerIds  []types.PlayerId
+	beginRound types.RoundId
+	priority   int
+	times      types.NumberOfTimes
 }
 
 func NewRound() *Round {
@@ -77,6 +79,11 @@ func (r *Round) NextTurn() bool {
 
 	if r.currentTurnIndex < len(r.GetCurrentPhase())-1 {
 		r.currentTurnIndex++
+
+		// Skip turn if not the time
+		if r.GetCurrentTurn().beginRound < r.id {
+			return r.NextTurn()
+		}
 	} else {
 		r.currentTurnIndex = 0
 		r.currentPhaseId = (r.currentPhaseId + 1) % (types.DuskPhase + 1)
@@ -98,7 +105,10 @@ func (r *Round) NextTurn() bool {
 func (r *Round) passCurrentTurn() {
 	currentTurn := r.GetCurrentTurn()
 
-	if currentTurn == nil && currentTurn.times != types.UnlimitedTimes {
+	if currentTurn == nil &&
+		currentTurn.beginRound <= r.id &&
+		currentTurn.times != types.UnlimitedTimes {
+
 		currentTurn.times--
 		r.removeTurnIfDone(r.currentPhaseId, currentTurn.roleId)
 	}
@@ -128,13 +138,13 @@ func (r *Round) RemoveTurn(phaseId types.PhaseId, roleId types.RoleId) bool {
 			r.phases[phaseId] = slices.Delete(r.phases[phaseId], index, index+1)
 
 			if phaseId == r.currentPhaseId &&
-				index == r.currentTurnIndex {
+				index <= r.currentTurnIndex {
 
 				r.currentTurnIndex--
 
 				// If current phase is empty, go back to the previous one
 				for r.currentTurnIndex == -1 && !r.IsEmpty() {
-					r.currentPhaseId = (r.currentPhaseId - 1) % (types.DuskPhase + 1)
+					r.currentPhaseId--
 
 					// Go back to previous round
 					if r.currentPhaseId == 0 {
@@ -163,79 +173,99 @@ func (r *Round) isValidPhaseId(phaseId types.PhaseId) bool {
 	return phaseId >= types.NightPhase && phaseId <= types.DuskPhase
 }
 
-// func (r *Round) AddTurn(setting *types.TurnSetting) bool {
-// 	if !r.isValidPhaseId(setting.PhaseId) ||
-// 		len(r.phases[setting.PhaseId]) < int(setting.Position) {
+func (r *Round) AddTurn(setting *types.TurnSetting) bool {
+	if !r.isValidPhaseId(setting.PhaseId) ||
+		int(setting.Position) > len(r.phases[setting.PhaseId])-1 {
 
-// 		return false
-// 	}
+		return false
+	}
 
-// 	newTurn := &turn{
-// 		roleId:    setting.RoleId,
-// 		playerIds: setting.PlayerIds,
-// 		times:     setting.Times,
-// 	}
+	var turnIndex int
 
-// 	if setting.Position == types.NextTurnPosition {
-// 		r.phases[r.currentPhaseId] = slices.Insert(
-// 			r.phases[r.currentPhaseId],
-// 			r.currentTurnIndex+1,
-// 			newTurn,
-// 		)
-// 	} else if setting.Position == types.LastTurnPosition {
-// 		r.phases[setting.PhaseId] = append(r.phases[setting.PhaseId], newTurn)
-// 	} else {
-// 		r.phases[setting.PhaseId] = slices.Insert(
-// 			r.phases[setting.PhaseId],
-// 			int(setting.Position),
-// 			newTurn,
-// 		)
-// 	}
+	if setting.Position == types.NextPosition {
+		turnIndex = r.currentTurnIndex + 1
+	} else if setting.Position == types.SortedPosition {
+		turnIndex = slices.IndexFunc(r.phases[setting.PhaseId], func(turn *turn) bool {
+			return turn.priority > setting.Priority
+		})
 
-// 	return true
-// }
+		if turnIndex == -1 {
+			turnIndex = len(r.phases[setting.PhaseId])
+		}
+	} else if setting.Position == types.LastPosition {
+		turnIndex = len(r.phases[setting.PhaseId])
+	} else {
+		turnIndex = int(setting.Position)
+	}
 
-// // Add players to sepicific turn.
-// func (r *Round) AddPlayers(phaseId types.PhaseId, turnId int, playerIds ...types.PlayerId) bool {
-// 	if !r.isValidPhaseId(phaseId) || r.phases[phaseId][turnId] == nil {
-// 		return false
-// 	}
+	// Check valid turn index
+	if turnIndex < 0 {
+		return false
+	} else if turnIndex <= r.currentTurnIndex {
+		// New turn's position is less than or equal to current turn index,
+		// so increase current turn index by 1
+		r.currentTurnIndex++
+	}
 
-// 	r.phases[phaseId][turnId].playerIds = append(
-// 		r.phases[phaseId][turnId].playerIds,
-// 		playerIds...,
-// 	)
+	r.phases[r.currentPhaseId] = slices.Insert(
+		r.phases[r.currentPhaseId],
+		turnIndex,
+		&turn{
+			roleId:     setting.RoleId,
+			playerIds:  setting.PlayerIds,
+			beginRound: setting.BeginRound,
+			priority:   setting.Priority,
+			times:      setting.Times,
+		},
+	)
 
-// 	return true
-// }
+	return true
+}
 
-// // Remove player from specific turn.
-// func (r *Round) RemovePlayer(phaseId types.PhaseId, turnId int, playerId types.PhaseId) bool {
-// 	if !r.isValidPhaseId(phaseId) || r.phases[phaseId][turnId] == nil {
-// 		return false
-// 	}
+func (r *Round) AddPlayer(playerId types.PlayerId, roleId types.RoleId) bool {
+	for _, phase := range r.phases {
+		for _, turn := range phase {
+			if turn.roleId == roleId {
+				turn.playerIds = append(turn.playerIds, playerId)
 
-// 	r.phases[phaseId][turnId].playerIds = slices.Delete(
-// 		r.phases[phaseId][turnId].playerIds,
-// 		turnId,
-// 		turnId+1,
-// 	)
+				return true
+			}
+		}
+	}
 
-// 	return true
-// }
+	return false
+}
 
-// func (r *Round) RemovePlayerFromAllTurns(playerId types.PlayerId) {
-// 	for _, phase := range r.phases {
-// 		for _, turn := range phase {
-// 			deletedIndex := slices.Index(turn.playerIds, playerId)
+func (r *Round) DeletePlayer(playerId types.PlayerId, roleId types.RoleId) bool {
+	for _, phase := range r.phases {
+		for index, turn := range phase {
+			if turn.roleId == roleId {
+				turn.playerIds = slices.Delete(
+					turn.playerIds,
+					index,
+					index+1,
+				)
 
-// 			if deletedIndex != -1 {
-// 				turn.playerIds = slices.Delete(
-// 					turn.playerIds,
-// 					deletedIndex,
-// 					deletedIndex+1,
-// 				)
-// 			}
-// 		}
-// 	}
-// }
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
+func (r *Round) DeletePlayerFromAllTurns(playerId types.PlayerId) {
+	for _, phase := range r.phases {
+		for _, turn := range phase {
+			deletedIndex := slices.Index(turn.playerIds, playerId)
+
+			if deletedIndex != -1 {
+				turn.playerIds = slices.Delete(
+					turn.playerIds,
+					deletedIndex,
+					deletedIndex+1,
+				)
+			}
+		}
+	}
+}

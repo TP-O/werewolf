@@ -22,9 +22,10 @@ const (
 type TurnPosition int
 
 const (
-	NextTurnPosition TurnPosition = iota - 2
-	LastTurnPosition
-	FirstTurnPosition
+	NextPosition TurnPosition = iota - 3
+	SortedPosition
+	LastPosition
+	FirstPosition
 )
 
 type GameSetting struct {
@@ -37,9 +38,11 @@ type GameSetting struct {
 }
 
 type TurnSetting struct {
-	PhaseId   PhaseId
-	RoleId    RoleId
-	PlayerIds []PlayerId
-	Times     NumberOfTimes
-	Position  TurnPosition
+	PhaseId    PhaseId
+	RoleId     RoleId
+	PlayerIds  []PlayerId
+	BeginRound RoundId
+	Priority   int
+	Times      NumberOfTimes
+	Position   TurnPosition
 }
