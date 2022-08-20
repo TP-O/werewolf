@@ -1,0 +1,29 @@
+version: "3.8"
+
+services:
+    postgres:
+        image: postgres:14.1-alpine3.15
+        ports:
+            - 5432:5432
+        environment:
+            - POSTGRES_DB=${DB_NAME}
+            - POSTGRES_USER=${DB_USERNAME}
+            - POSTGRES_PASSWORD=${DB_PASSWORD}
+        volumes:
+            - ./.docker/postgres/data:/var/lib/postgresql/data
+        networks:
+            - postgres-network
+        restart: unless-stopped
+
+    adminer:
+        image: dockette/adminer:pgsql
+        ports:
+        - 8081:80
+        networks:
+            - postgres-network
+        depends_on:
+            - postgres
+        restart: unless-stopped
+
+networks:
+    postgres-network:

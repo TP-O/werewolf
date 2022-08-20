@@ -3,9 +3,12 @@ package core
 import (
 	"time"
 
+	"uwwolf/app/model"
+	"uwwolf/database"
 	"uwwolf/module/game/contract"
 	"uwwolf/module/game/state"
 	"uwwolf/types"
+	"uwwolf/util"
 
 	"golang.org/x/exp/slices"
 )
@@ -283,6 +286,7 @@ import (
 
 type game struct {
 	id                 types.GameId
+	isStarted          bool
 	capacity           uint
 	numberOfWerewolves uint
 	timeForTurn        time.Duration
@@ -291,7 +295,7 @@ type game struct {
 	factions           map[types.FactionId][]types.PlayerId
 	players            map[types.PlayerId]contract.Player
 	deaths             []types.PlayerId
-	polls              map[string]*state.Poll
+	polls              map[types.FactionId]*state.Poll
 	round              *state.Round
 }
 
@@ -306,7 +310,7 @@ func NewGame(setting *types.GameSetting) contract.Game {
 		factions:           make(map[types.FactionId][]types.PlayerId),
 		players:            make(map[types.PlayerId]contract.Player),
 		deaths:             make([]types.PlayerId, len(setting.PlayerIds)),
-		polls:              make(map[string]*state.Poll),
+		polls:              make(map[types.FactionId]*state.Poll),
 		round:              state.NewRound(),
 	}
 
@@ -315,6 +319,10 @@ func NewGame(setting *types.GameSetting) contract.Game {
 	}
 
 	return &game
+}
+
+func (g *game) IsStarted() bool {
+	return g.isStarted
 }
 
 func (g *game) GetCurrentRoundId() types.RoundId {
@@ -331,6 +339,64 @@ func (g *game) GetCurrentPhaseId() types.PhaseId {
 
 func (g *game) GetPlayer(playerId types.PlayerId) contract.Player {
 	return g.players[playerId]
+}
+
+func (g *game) Start() bool {
+	if g.IsStarted() {
+		return false
+	}
+
+	// Pick roles
+
+	// Assign roles
+
+	// Init polls
+
+	// Start round
+
+	return true
+}
+
+func (g *game) pickUpRoles(roles []model.Role) []model.Role {
+	var defaultRoles []model.Role
+	database.DB().Find(&defaultRoles, []int{enum.VillagerRole, enum.WerewolfRole})
+
+	randomRoles := make([]model.Role, g.capacity)
+
+	werewolfRoles, remainingRoles := g.classifyRoles(roles)
+
+	for j := int(0); j < g.capacity; j++ {
+		var currentRoles *[]model.Role
+
+		if j < g.numberOfWerewolves {
+			currentRoles = &werewolfRoles
+		} else {
+			currentRoles = &remainingRoles
+		}
+
+		// Fill in with default role if all special roles are taken
+		if len(*currentRoles) == 0 {
+			if currentRoles == &werewolfRoles {
+				randomRoles[j] = defaultRoles[1]
+			} else {
+				randomRoles[j] = defaultRoles[0]
+			}
+
+			continue
+		}
+
+		randIndex := util.RandomIndex(*currentRoles)
+		randomRoles[j] = (*currentRoles)[randIndex]
+
+		(*currentRoles)[randIndex].Quantity--
+
+		// Delete role if its quantity runs out
+		if (*currentRoles)[randIndex].Quantity == 0 {
+			*currentRoles = append((*currentRoles)[:randIndex], (*currentRoles)[randIndex+1:]...)
+		}
+	}
+
+	return randomRoles
 }
 
 func (g *game) KillPlayer(playerId types.PlayerId) contract.Player {

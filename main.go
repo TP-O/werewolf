@@ -1,8 +1,18 @@
 package main
 
-import "golang.org/x/exp/slices"
+import (
+	"context"
+	"encoding/json"
+	"fmt"
+
+	"github.com/joho/godotenv"
+
+	"uwwolf/db"
+)
 
 func main() {
+	godotenv.Load()
+
 	// if err := database.LoadDatabase(); err != nil {
 	// 	log.Fatal("Error coneect to dabase: ", err)
 	// }
@@ -81,7 +91,27 @@ func main() {
 
 	// fmt.Println(g)
 
-	p := []int{}
+	client := db.NewClient()
 
-	slices.Delete(p, 1, 2)
+	client.Prisma.Connect()
+
+	defer func() {
+		if err := client.Prisma.Disconnect(); err != nil {
+			// panic(err)
+		}
+	}()
+
+	ctx := context.Background()
+
+	createdFaction, err := client.Faction.CreateOne(
+		db.Faction.Name.Set("Hi from Prisma!"),
+		db.Faction.Description.Set("Prisma is a database toolkit and makes databases easy."),
+	).Exec(ctx)
+
+	if err != nil {
+		panic(err)
+	}
+
+	result, _ := json.MarshalIndent(createdFaction, "", "  ")
+	fmt.Printf("created post: %s\n", result)
 }

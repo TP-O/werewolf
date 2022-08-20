@@ -7,12 +7,12 @@ import (
 )
 
 type appConfig struct {
-	Debug bool `mapstructure:"DEBUG"`
+	Debug bool `mapstructure:"APP_DEBUG"`
 }
 
 func (c *appConfig) load() {
 	util.LoadDefaultConfigValues(map[string]interface{}{
-		"DEBUG": false,
+		"APP_DEBUG": false,
 	})
 
 	viper.Unmarshal(&c)
