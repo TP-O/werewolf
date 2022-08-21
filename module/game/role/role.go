@@ -16,8 +16,8 @@ type role struct {
 
 type skill struct {
 	action       contract.Action
-	numberOfUses types.NumberOfTimes
 	beginRoundId types.RoundId
+	expiration   types.NumberOfTimes
 }
 
 func (r *role) GetId() types.RoleId {
@@ -43,7 +43,7 @@ func (r *role) AfterDeath() {
 // corresponding to this role.
 func (r *role) ActivateSkill(req *types.ActionRequest) *types.ActionResponse {
 	if r.skill == nil ||
-		r.skill.numberOfUses == types.OutOfTimes ||
+		r.skill.expiration == types.OutOfTimes ||
 		r.skill.beginRoundId < r.game.GetCurrentRoundId() ||
 		r.phaseId != r.game.GetCurrentPhaseId() {
 
@@ -59,8 +59,8 @@ func (r *role) ActivateSkill(req *types.ActionRequest) *types.ActionResponse {
 
 	res := r.skill.action.Execute(req)
 
-	if res.Error != nil && r.skill.numberOfUses != types.UnlimitedTimes {
-		r.skill.numberOfUses--
+	if res.Error != nil && r.skill.expiration != types.UnlimitedTimes {
+		r.skill.expiration--
 	}
 
 	return res

@@ -11,13 +11,13 @@ type alphaWolf struct {
 	role
 }
 
-func NewAlphaWolfRole(game contract.Game, playerId types.PlayerId) contract.Role {
+func NewAlphaWolfRole(game contract.Game, setting *types.RoleSetting) contract.Role {
 	return &role{
 		id:      types.AlphaWolfRole,
 		phaseId: types.NightPhase,
 		name:    AlphaWolfRoleName,
 		game:    game,
-		player:  game.GetPlayer(playerId),
+		player:  game.GetPlayer(setting.OwnerId),
 		skill:   nil,
 	}
 }

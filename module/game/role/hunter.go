@@ -8,17 +8,17 @@ import (
 
 const HunterRoleName = "Hunter"
 
-func NewHunterRole(game contract.Game, playerId types.PlayerId) contract.Role {
+func NewHunterRole(game contract.Game, setting *types.RoleSetting) contract.Role {
 	return &role{
 		id:      types.HunterRole,
 		phaseId: types.DayPhase,
 		name:    HunterRoleName,
 		game:    game,
-		player:  game.GetPlayer(playerId),
+		player:  game.GetPlayer(setting.OwnerId),
 		skill: &skill{
 			action:       action.NewShooting(game),
-			numberOfUses: types.OneTimes,
-			beginRoundId: 1,
+			beginRoundId: setting.BeginRound,
+			expiration:   setting.Expiration,
 		},
 	}
 }

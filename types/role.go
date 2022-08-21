@@ -19,3 +19,9 @@ const (
 	TwoSistersRole
 	AlphaWolfRole
 )
+
+type RoleSetting struct {
+	OwnerId    PlayerId
+	BeginRound RoundId
+	Expiration NumberOfTimes
+}

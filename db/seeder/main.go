@@ -1,20 +1,14 @@
-// package seeder
+package main
 
-// import (
-// 	"errors"
+import (
+	"uwwolf/db"
+	"uwwolf/db/seeder/seed"
+)
 
-// 	"gorm.io/gorm"
-// )
+func main() {
+	client := db.Client()
 
-// func Seed(db *gorm.DB) {
-// 	seedFactions(db)
-// 	seedPhases(db)
-// 	seedRoles(db)
-// }
-
-// func insert(db *gorm.DB, table interface{}, value interface{}) {
-// 	// Only insert if table is empty
-// 	if err := db.First(table).Error; errors.Is(err, gorm.ErrRecordNotFound) {
-// 		db.Create(value)
-// 	}
-// }
+	seed.SeedPhases(client)
+	seed.SeedFactions(client)
+	seed.SeedRoles(client)
+}

@@ -8,6 +8,6 @@ import (
 
 type Faction struct {
 	gorm.Model
-	ID   types.PhaseId `gorm:"primarykey"`
-	Name string        `gorm:"type:varchar(50);unique"`
+	ID   types.FactionId `gorm:"primarykey"`
+	Name string          `gorm:"type:varchar(50);unique"`
 }

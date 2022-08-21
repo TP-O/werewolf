@@ -31,13 +31,15 @@ import (
 
 type Role struct {
 	gorm.Model
-	ID        types.RoleId  `gorm:"primarykey"`
-	PhaseID   types.PhaseId `gorm:"uniqueIndex:idx_priority_in_phase"`
-	FactionID types.FactionId
-	Name      string `gorm:"type:varchar(50);unique"`
-	Priority  int    `gorm:"type:integer;uniqueIndex:idx_priority_in_phase;check:priority > 0"`
-	Weight    int    `gorm:"type:integer;default:0"`
-	Set       int    `gorm:"type:integer;default:1;check:set > -2 and set <> 0"`
+	ID         types.RoleId        `gorm:"primarykey"`
+	PhaseID    types.PhaseId       `gorm:"uniqueIndex:idx_priority_in_phase"`
+	FactionID  types.FactionId     `gorm:""`
+	Name       string              `gorm:"type:varchar(50);unique"`
+	Priority   int                 `gorm:"type:smallint;uniqueIndex:idx_priority_in_phase;check:priority >= 0"`
+	Weight     int                 `gorm:"type:smallint;default:1"`
+	Set        int                 `gorm:"type:smallint;default:1;check:set >= -1 and set <> 0"`
+	BeginRound types.RoundId       `gorm:"type:smallint;default:1;check:begin_round >= 1"`
+	Expiration types.NumberOfTimes `gorm:"type:smallint;default:1;check:set >= -1 and set <> 0"`
 
 	Phase   Phase   `gorm:""`
 	Faction Faction `gorm:""`
