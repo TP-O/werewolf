@@ -17,9 +17,5 @@ func SeedFactions(client *gorm.DB) {
 			ID:   types.WerewolfFaction,
 			Name: "Werewolf",
 		},
-		{
-			ID:   types.IndependentFaction,
-			Name: "Independent",
-		},
 	})
 }

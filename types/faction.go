@@ -6,5 +6,4 @@ const (
 	UnknownFaction FactionId = iota
 	VillageFaction
 	WerewolfFaction
-	IndependentFaction
 )

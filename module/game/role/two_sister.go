@@ -5,17 +5,17 @@ import (
 	"uwwolf/types"
 )
 
-const AlphaWolfRoleName = "Alpha Wolf"
+const TwoSistersRoleName = "Two Sisters"
 
-type alphaWolf struct {
+type twoSister struct {
 	role
 }
 
-func NewAlphaWolfRole(game contract.Game, setting *types.RoleSetting) contract.Role {
+func NewTwoSisterRole(game contract.Game, setting *types.RoleSetting) contract.Role {
 	return &role{
-		id:      types.AlphaWolfRole,
+		id:      types.TwoSistersRole,
 		phaseId: types.NightPhase,
-		name:    AlphaWolfRoleName,
+		name:    TwoSistersRoleName,
 		game:    game,
 		player:  game.GetPlayer(setting.OwnerId),
 		skill: &skill{

@@ -1,6 +1,8 @@
 package contract
 
-import "uwwolf/types"
+import (
+	"uwwolf/types"
+)
 
 type Game interface {
 	IsStarted() bool

@@ -1,5 +1,10 @@
 package main
 
+import (
+	"uwwolf/module/game/core"
+	"uwwolf/types"
+)
+
 func main() {
 	// if err := database.LoadDatabase(); err != nil {
 	// 	log.Fatal("Error coneect to dabase: ", err)
@@ -78,4 +83,14 @@ func main() {
 	// })
 
 	// fmt.Println(g)
+
+	core.NewGame(&types.GameSetting{
+		NumberOfWerewolves: 2,
+		RolePool: []types.RoleId{
+			1, 2, 3, 4, 5, 6,
+		},
+		PlayerIds: []types.PlayerId{
+			1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+		},
+	}).Start()
 }

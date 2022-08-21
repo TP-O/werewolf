@@ -1,11 +1,11 @@
 package core
 
-type gameManager struct {
-	instances []Game
-}
+// type gameManager struct {
+// 	instances []Game
+// }
 
-var GameManger *gameManager
+// var GameManger *gameManager
 
-func init() {
-	GameManger = &gameManager{}
-}
+// func init() {
+// 	GameManger = &gameManager{}
+// }

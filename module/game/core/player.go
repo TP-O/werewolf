@@ -1,6 +1,7 @@
 package core
 
 import (
+	"fmt"
 	"uwwolf/module/game/contract"
 	"uwwolf/types"
 	"uwwolf/util"
@@ -34,6 +35,9 @@ func (p *player) AssignRoles(roles ...contract.Role) {
 	for _, role := range roles {
 		if !util.ExistKeyInMap(p.roles, role.GetId()) {
 			p.roles[role.GetId()] = role
+
+			fmt.Println("Player: ", p.id, " - Role: ", role.GetName())
+			// fmt.Println(role.GetName())
 
 			// Chage faction id...
 		}

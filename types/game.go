@@ -30,7 +30,7 @@ const (
 
 type GameSetting struct {
 	Id                 GameId
-	NumberOfWerewolves uint
+	NumberOfWerewolves int
 	TimeForTurn        time.Duration
 	TimeForDiscussion  time.Duration
 	RolePool           []RoleId
