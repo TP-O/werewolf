@@ -89,20 +89,19 @@ func (g *game) Start() bool {
 		return false
 	}
 
-	roles := g.randomRoles(g.rolePool)
+	roleSplit := g.getRolesByIds(g.rolePool)
+	g.prepareRound(roleSplit)
 
+	roles := g.randomRoles(roleSplit)
 	g.assignRoles(roles)
 
 	g.polls[types.VillagerFaction] = state.NewPoll(g.factions[types.VillagerFaction])
 	g.polls[types.WerewolfFaction] = state.NewPoll(g.factions[types.WerewolfFaction])
 
-	// Start round
-
 	return true
 }
 
-func (g *game) randomRoles(ids []types.RoleId) []*model.Role {
-	roleSplit := g.getRolesByIds(ids)
+func (g *game) randomRoles(roleSplit *roleSplit) []*model.Role {
 	randomRoles := append(
 		g.pickUpRoles(
 			g.numberOfWerewolves,
@@ -195,6 +194,46 @@ func (g *game) getRolesByIds(ids []types.RoleId) *roleSplit {
 	}
 
 	return roleSplit
+}
+
+func (g *game) prepareRound(roleSplit *roleSplit) {
+	g.round.AddTurn(&types.TurnSetting{
+		PhaseId:    roleSplit.reserveWerewolf.PhaseID,
+		RoleId:     roleSplit.reserveWerewolf.ID,
+		BeginRound: roleSplit.reserveWerewolf.BeginRound,
+		Priority:   roleSplit.reserveWerewolf.Priority,
+		Times:      roleSplit.reserveWerewolf.Expiration,
+		Position:   types.SortedPosition,
+	})
+	g.round.AddTurn(&types.TurnSetting{
+		PhaseId:    roleSplit.reserveVillager.PhaseID,
+		RoleId:     roleSplit.reserveVillager.ID,
+		BeginRound: roleSplit.reserveVillager.BeginRound,
+		Priority:   roleSplit.reserveVillager.Priority,
+		Times:      roleSplit.reserveVillager.Expiration,
+		Position:   types.SortedPosition,
+	})
+
+	for _, role := range roleSplit.werewolf {
+		g.round.AddTurn(&types.TurnSetting{
+			PhaseId:    role.PhaseID,
+			RoleId:     role.ID,
+			BeginRound: role.BeginRound,
+			Priority:   role.Priority,
+			Times:      role.Expiration,
+			Position:   types.SortedPosition,
+		})
+	}
+	for _, role := range roleSplit.others {
+		g.round.AddTurn(&types.TurnSetting{
+			PhaseId:    role.PhaseID,
+			RoleId:     role.ID,
+			BeginRound: role.BeginRound,
+			Priority:   role.Priority,
+			Times:      role.Expiration,
+			Position:   types.SortedPosition,
+		})
+	}
 }
 
 func (g *game) assignRoles(roles []*model.Role) {
