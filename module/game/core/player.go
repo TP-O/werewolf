@@ -35,6 +35,7 @@ func (p *player) AssignRoles(roles ...contract.Role) {
 	for _, role := range roles {
 		if !util.ExistKeyInMap(p.roles, role.GetId()) {
 			p.roles[role.GetId()] = role
+			p.ModifyFaction(role.GetFactionId())
 
 			fmt.Println("Player: ", p.id, " - Role: ", role.GetName())
 			// fmt.Println(role.GetName())
@@ -42,6 +43,10 @@ func (p *player) AssignRoles(roles ...contract.Role) {
 			// Chage faction id...
 		}
 	}
+}
+
+func (p *player) ModifyFaction(factionId types.FactionId) {
+	//
 }
 
 func (p *player) UseSkill(req *types.ActionRequest) *types.ActionResponse {

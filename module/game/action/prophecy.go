@@ -55,7 +55,7 @@ func (p *prophecy) Execute(req *types.ActionRequest) *types.ActionResponse {
 		}
 	}
 
-	p.state.Add(types.VillageFaction, req.Targets[0])
+	p.state.Add(types.VillagerFaction, req.Targets[0])
 
 	return &types.ActionResponse{
 		Ok:   true,

@@ -4,6 +4,6 @@ type FactionId uint
 
 const (
 	UnknownFaction FactionId = iota
-	VillageFaction
+	VillagerFaction
 	WerewolfFaction
 )

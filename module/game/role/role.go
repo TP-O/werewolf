@@ -6,12 +6,13 @@ import (
 )
 
 type role struct {
-	id      types.RoleId
-	name    string
-	game    contract.Game
-	player  contract.Player
-	phaseId types.PhaseId
-	skill   *skill
+	id        types.RoleId
+	name      string
+	game      contract.Game
+	player    contract.Player
+	phaseId   types.PhaseId
+	factionId types.FactionId
+	skill     *skill
 }
 
 type skill struct {
@@ -22,6 +23,10 @@ type skill struct {
 
 func (r *role) GetId() types.RoleId {
 	return r.id
+}
+
+func (r *role) GetFactionId() types.FactionId {
+	return r.factionId
 }
 
 func (r *role) GetName() string {

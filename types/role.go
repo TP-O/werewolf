@@ -22,6 +22,7 @@ const (
 
 type RoleSetting struct {
 	OwnerId    PlayerId
+	FactionId  FactionId
 	BeginRound RoundId
 	Expiration NumberOfTimes
 }

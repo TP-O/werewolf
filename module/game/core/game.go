@@ -80,6 +80,10 @@ func (g *game) GetPlayer(playerId types.PlayerId) contract.Player {
 	return g.players[playerId]
 }
 
+func (g *game) GetPoll(factionId types.FactionId) *state.Poll {
+	return g.polls[factionId]
+}
+
 func (g *game) Start() bool {
 	if g.IsStarted() {
 		return false
@@ -89,7 +93,8 @@ func (g *game) Start() bool {
 
 	g.assignRoles(roles)
 
-	// Init polls
+	g.polls[types.VillagerFaction] = state.NewPoll(g.factions[types.VillagerFaction])
+	g.polls[types.WerewolfFaction] = state.NewPoll(g.factions[types.WerewolfFaction])
 
 	// Start round
 
@@ -199,22 +204,29 @@ func (g *game) assignRoles(roles []*model.Role) {
 		player.AssignRoles(
 			factory.Role(role.ID, g, &types.RoleSetting{
 				OwnerId:    player.GetId(),
+				FactionId:  role.FactionID,
 				BeginRound: role.BeginRound,
 				Expiration: role.Expiration,
 			}),
 			factory.Role(types.VillagerRole, g, &types.RoleSetting{
 				OwnerId:    player.GetId(),
+				FactionId:  types.VillagerFaction,
 				BeginRound: types.FirstRound,
 				Expiration: types.UnlimitedTimes,
 			}),
 		)
 
 		if role.FactionID == types.WerewolfFaction {
+			g.factions[types.WerewolfFaction] = append(g.factions[types.WerewolfFaction], player.GetId())
+
 			player.AssignRoles(factory.Role(types.WerewolfRole, g, &types.RoleSetting{
 				OwnerId:    player.GetId(),
+				FactionId:  types.WerewolfFaction,
 				BeginRound: types.FirstRound,
 				Expiration: types.UnlimitedTimes,
 			}))
+		} else {
+			g.factions[types.VillagerFaction] = append(g.factions[types.VillagerFaction], player.GetId())
 		}
 
 		roles = slices.Delete(roles, index, index+1)

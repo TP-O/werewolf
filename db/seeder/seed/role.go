@@ -13,7 +13,7 @@ func SeedRoles(client *gorm.DB) {
 			// Night
 			{
 				ID:         types.TwoSistersRole,
-				FactionID:  types.VillageFaction,
+				FactionID:  types.VillagerFaction,
 				PhaseID:    types.NightPhase,
 				Name:       "Two sisters",
 				Priority:   1,
@@ -24,7 +24,7 @@ func SeedRoles(client *gorm.DB) {
 			},
 			{
 				ID:         types.SeerRole,
-				FactionID:  types.VillageFaction,
+				FactionID:  types.VillagerFaction,
 				PhaseID:    types.NightPhase,
 				Name:       "Seer",
 				Priority:   2,
@@ -59,7 +59,7 @@ func SeedRoles(client *gorm.DB) {
 			// Day
 			{
 				ID:         types.HunterRole,
-				FactionID:  types.VillageFaction,
+				FactionID:  types.VillagerFaction,
 				PhaseID:    types.DayPhase,
 				Name:       "Hunter",
 				Priority:   0,
@@ -70,7 +70,7 @@ func SeedRoles(client *gorm.DB) {
 			},
 			{
 				ID:         types.VillagerRole,
-				FactionID:  types.VillageFaction,
+				FactionID:  types.VillagerFaction,
 				PhaseID:    types.DayPhase,
 				Name:       "Villager",
 				Priority:   1,

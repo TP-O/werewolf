@@ -14,11 +14,11 @@ type vote struct {
 	action[state.Poll]
 }
 
-func NewVote(game contract.Game, weight int) contract.Action {
+func NewVote(game contract.Game, factionId types.FactionId, weight int) contract.Action {
 	vote := vote{
 		action: action[state.Poll]{
 			name:  VoteActionName,
-			state: nil,
+			state: game.GetPoll(factionId),
 			game:  game,
 		},
 	}

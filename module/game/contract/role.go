@@ -5,6 +5,8 @@ import "uwwolf/types"
 type Role interface {
 	GetId() types.RoleId
 
+	GetFactionId() types.FactionId
+
 	GetName() string
 
 	// Do something after being voted. Return false if exonerated,

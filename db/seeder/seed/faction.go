@@ -10,8 +10,8 @@ import (
 func SeedFactions(client *gorm.DB) {
 	client.Create([]model.Faction{
 		{
-			ID:   types.VillageFaction,
-			Name: "Village",
+			ID:   types.VillagerFaction,
+			Name: "Villager",
 		},
 		{
 			ID:   types.WerewolfFaction,

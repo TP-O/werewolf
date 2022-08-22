@@ -13,11 +13,12 @@ type alphaWolf struct {
 
 func NewAlphaWolfRole(game contract.Game, setting *types.RoleSetting) contract.Role {
 	return &role{
-		id:      types.AlphaWolfRole,
-		phaseId: types.NightPhase,
-		name:    AlphaWolfRoleName,
-		game:    game,
-		player:  game.GetPlayer(setting.OwnerId),
+		id:        types.AlphaWolfRole,
+		factionId: setting.FactionId,
+		phaseId:   types.NightPhase,
+		name:      AlphaWolfRoleName,
+		game:      game,
+		player:    game.GetPlayer(setting.OwnerId),
 		skill: &skill{
 			action:       nil,
 			beginRoundId: setting.BeginRound,
