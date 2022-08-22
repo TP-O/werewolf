@@ -65,15 +65,15 @@ func (g *game) IsStarted() bool {
 }
 
 func (g *game) GetCurrentRoundId() types.RoundId {
-	return g.round.GetId()
+	return g.round.GetCurrentId()
 }
 
 func (g *game) GetCurrentRoleId() types.RoleId {
-	return g.round.GetCurrentRoleId()
+	return g.round.GetCurrentTurn().RoleId()
 }
 
 func (g *game) GetCurrentPhaseId() types.PhaseId {
-	return g.round.GetPhaseId()
+	return g.round.GetCurrentPhaseId()
 }
 
 func (g *game) GetPlayer(playerId types.PlayerId) contract.Player {
@@ -202,7 +202,7 @@ func (g *game) prepareRound(roleSplit *roleSplit) {
 		RoleId:     roleSplit.reserveWerewolf.ID,
 		BeginRound: roleSplit.reserveWerewolf.BeginRound,
 		Priority:   roleSplit.reserveWerewolf.Priority,
-		Times:      roleSplit.reserveWerewolf.Expiration,
+		Expiration: roleSplit.reserveWerewolf.Expiration,
 		Position:   types.SortedPosition,
 	})
 	g.round.AddTurn(&types.TurnSetting{
@@ -210,7 +210,7 @@ func (g *game) prepareRound(roleSplit *roleSplit) {
 		RoleId:     roleSplit.reserveVillager.ID,
 		BeginRound: roleSplit.reserveVillager.BeginRound,
 		Priority:   roleSplit.reserveVillager.Priority,
-		Times:      roleSplit.reserveVillager.Expiration,
+		Expiration: roleSplit.reserveVillager.Expiration,
 		Position:   types.SortedPosition,
 	})
 
@@ -220,7 +220,7 @@ func (g *game) prepareRound(roleSplit *roleSplit) {
 			RoleId:     role.ID,
 			BeginRound: role.BeginRound,
 			Priority:   role.Priority,
-			Times:      role.Expiration,
+			Expiration: role.Expiration,
 			Position:   types.SortedPosition,
 		})
 	}
@@ -230,7 +230,7 @@ func (g *game) prepareRound(roleSplit *roleSplit) {
 			RoleId:     role.ID,
 			BeginRound: role.BeginRound,
 			Priority:   role.Priority,
-			Times:      role.Expiration,
+			Expiration: role.Expiration,
 			Position:   types.SortedPosition,
 		})
 	}

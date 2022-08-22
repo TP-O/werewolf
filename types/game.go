@@ -43,6 +43,6 @@ type TurnSetting struct {
 	PlayerIds  []PlayerId
 	BeginRound RoundId
 	Priority   int
-	Times      NumberOfTimes
+	Expiration NumberOfTimes
 	Position   TurnPosition
 }

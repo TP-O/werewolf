@@ -15,7 +15,7 @@ func (s *Shotgun) IsShot() bool {
 }
 
 func (s *Shotgun) Shoot(target types.PlayerId) bool {
-	if target == 0 || s.target != 0 {
+	if target == 0 || s.IsShot() {
 		return false
 	}
 

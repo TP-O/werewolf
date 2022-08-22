@@ -11,14 +11,14 @@ import (
 const ProphecyActionName = "Prophecy"
 
 type prophecy struct {
-	action[state.Prediction]
+	action[state.Knowledge]
 }
 
 func NewProphecy(game contract.Game) contract.Action {
 	prophecy := prophecy{
-		action: action[state.Prediction]{
+		action: action[state.Knowledge]{
 			name:  ProphecyActionName,
-			state: state.NewPrediction(),
+			state: state.NewKnowledge(),
 			game:  game,
 		},
 	}
@@ -47,7 +47,7 @@ func (p *prophecy) Execute(req *types.ActionRequest) *types.ActionResponse {
 	factionId := p.game.GetPlayer(req.Targets[0]).GetFactionId()
 
 	if factionId == types.WerewolfFaction {
-		p.state.Add(types.WerewolfFaction, req.Targets[0])
+		p.state.Acquire(req.Targets[0], types.WerewolfFaction)
 
 		return &types.ActionResponse{
 			Ok:   true,
@@ -55,7 +55,7 @@ func (p *prophecy) Execute(req *types.ActionRequest) *types.ActionResponse {
 		}
 	}
 
-	p.state.Add(types.VillagerFaction, req.Targets[0])
+	p.state.Acquire(req.Targets[0], types.VillagerFaction)
 
 	return &types.ActionResponse{
 		Ok:   true,
