@@ -1,7 +1,6 @@
 package core
 
 import (
-	"fmt"
 	"uwwolf/module/game/contract"
 	"uwwolf/types"
 	"uwwolf/util"
@@ -36,17 +35,14 @@ func (p *player) AssignRoles(roles ...contract.Role) {
 		if !util.ExistKeyInMap(p.roles, role.GetId()) {
 			p.roles[role.GetId()] = role
 			p.ModifyFaction(role.GetFactionId())
-
-			fmt.Println("Player: ", p.id, " - Role: ", role.GetName())
-			// fmt.Println(role.GetName())
-
-			// Chage faction id...
 		}
 	}
 }
 
 func (p *player) ModifyFaction(factionId types.FactionId) {
-	//
+	if factionId > p.factionId {
+		p.factionId = factionId
+	}
 }
 
 func (p *player) UseSkill(req *types.ActionRequest) *types.ActionResponse {
