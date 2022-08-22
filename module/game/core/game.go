@@ -126,7 +126,7 @@ func (g *game) pickUpRoles(slots int, roles []*model.Role, reserveRole *model.Ro
 
 	// Pick roles randomly
 	for i := 0; i < slots; i++ {
-		role, index := util.RandomElement(roles)
+		index, role := util.RandomElement(roles)
 
 		if index == -1 {
 			break
@@ -138,7 +138,7 @@ func (g *game) pickUpRoles(slots int, roles []*model.Role, reserveRole *model.Ro
 
 	// Spread random roles based on Set property
 	for i := 0; i < slots; i++ {
-		role, index := util.RandomElement(pickedUpRoles)
+		index, role := util.RandomElement(pickedUpRoles)
 
 		if index == -1 {
 			randomRoles = append(randomRoles, reserveRole)
@@ -238,7 +238,7 @@ func (g *game) prepareRound(roleSplit *roleSplit) {
 
 func (g *game) assignRoles(roles []*model.Role) {
 	for _, player := range g.players {
-		role, index := util.RandomElement(roles)
+		index, role := util.RandomElement(roles)
 
 		player.AssignRoles(
 			factory.Role(role.ID, g, &types.RoleSetting{

@@ -1,9 +1,11 @@
-package util
+package util_test
 
 import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"uwwolf/util"
 )
 
 func TestExistKeyInMap(t *testing.T) {
@@ -13,8 +15,8 @@ func TestExistKeyInMap(t *testing.T) {
 		2: 3,
 	}
 
-	assert.True(t, ExistKeyInMap(m, 2))
-	assert.False(t, ExistKeyInMap(m, 5))
+	assert.True(t, util.ExistKeyInMap(m, 2))
+	assert.False(t, util.ExistKeyInMap(m, 5))
 }
 
 func TestExistValueInMap(t *testing.T) {
@@ -24,6 +26,6 @@ func TestExistValueInMap(t *testing.T) {
 		2: 3,
 	}
 
-	assert.True(t, ExistValueInMap(m, 2))
-	assert.False(t, ExistValueInMap(m, 5))
+	assert.True(t, util.ExistValueInMap(m, 2))
+	assert.False(t, util.ExistValueInMap(m, 5))
 }

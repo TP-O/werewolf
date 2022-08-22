@@ -1,18 +1,22 @@
-package util
+package util_test
 
 import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"uwwolf/util"
 )
 
 func TestExistElement(t *testing.T) {
+	//=============================================================
 	// Comparable type
 	arr1 := []int{1, 2, 3}
 
-	assert.True(t, ExistElement(arr1, 2))
-	assert.False(t, ExistElement(arr1, 5))
+	assert.True(t, util.ExistElement(arr1, 2))
+	assert.False(t, util.ExistElement(arr1, 5))
 
+	//=============================================================
 	// Uncomparable type
 	type uncomparableType struct {
 		val int
@@ -24,13 +28,13 @@ func TestExistElement(t *testing.T) {
 	el4 := uncomparableType{val: 4}
 	arr2 := []uncomparableType{el1, el2, el3}
 
-	assert.True(t, ExistElement(arr2, el2))
-	assert.False(t, ExistElement(arr2, el4))
+	assert.True(t, util.ExistElement(arr2, el2))
+	assert.False(t, util.ExistElement(arr2, el4))
 }
 
 func TestRemoveDuplicateElement(t *testing.T) {
 	arr := []int{1, -9, 2, 7, 3, 9, 6, 4, 9, 1}
-	newArr := RemoveDuplicateElement(arr)
+	newArr := util.RemoveDuplicateElement(arr)
 
 	for i := 0; i < len(newArr)-1; i++ {
 		for j := i + 1; j < len(newArr); j++ {
