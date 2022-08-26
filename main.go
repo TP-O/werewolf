@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"uwwolf/types"
+	"uwwolf/config"
 )
 
 func main() {
@@ -94,13 +94,5 @@ func main() {
 	// 	},
 	// }).Start()
 
-	a := types.PlayerId(1)
-
-	b := a
-
-	b--
-
-	fmt.Println(b)
-	fmt.Println(a)
-
+	fmt.Println(config.App.Debug)
 }

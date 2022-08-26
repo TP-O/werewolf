@@ -11,7 +11,7 @@ type appConfig struct {
 }
 
 func (c *appConfig) load() {
-	util.LoadDefaultConfigValues(map[string]interface{}{
+	util.LoadDefaultConfigValues(map[string]any{
 		"APP_DEBUG": false,
 	})
 

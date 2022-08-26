@@ -51,10 +51,8 @@ func (p *player) UseSkill(req *types.ActionRequest) *types.ActionResponse {
 	} else {
 		return &types.ActionResponse{
 			Error: &types.ErrorDetail{
-				Tag: types.UnauthorizedErrorTag,
-				Msg: map[string]string{
-					types.AlertErrorField: "Unable to activate skill!",
-				},
+				Tag:   types.UnauthorizedErrorTag,
+				Alert: "Unable to activate skill!",
 			},
 		}
 	}

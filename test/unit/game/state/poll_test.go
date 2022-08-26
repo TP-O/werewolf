@@ -2,14 +2,29 @@ package state_test
 
 import (
 	"testing"
-	"uwwolf/module/game/state"
-	"uwwolf/types"
 
 	"github.com/stretchr/testify/assert"
+
+	"uwwolf/module/game/state"
+	"uwwolf/types"
 )
 
 var electorIds = []types.PlayerId{
 	1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+}
+
+func TestNewPoll(t *testing.T) {
+	//=============================================================
+	// Too few electors
+	p := state.NewPoll([]types.PlayerId{1, 2})
+
+	assert.Nil(t, p)
+
+	//=============================================================
+	// Enough electors
+	p = state.NewPoll([]types.PlayerId{1, 2, 3})
+
+	assert.NotNil(t, p)
 }
 
 func TestIsOpen(t *testing.T) {
@@ -51,18 +66,31 @@ func TestPollIsAllowed(t *testing.T) {
 	assert.False(t, p.IsAllowed(electorIds[0]))
 }
 
-func TestGetGetCurrentResult(t *testing.T) {
+func TestGetCurrentRound(t *testing.T) {
 	p := state.NewPoll(electorIds)
 
 	//=============================================================
 	// Inital
-	assert.Nil(t, p.GetCurrentResult())
+	assert.Nil(t, p.GetCurrentRound())
 
 	//=============================================================
 	// Open poll
 	p.Open()
 
-	assert.NotNil(t, p.GetCurrentResult())
+	assert.NotNil(t, p.GetCurrentRound())
+}
+
+func TestSetWeight(t *testing.T) {
+	p := state.NewPoll(electorIds)
+
+	//=============================================================
+	// Valid elector id
+	assert.False(t, p.SetWeight(99, 1))
+
+	//=============================================================
+	// Valid elector id
+	p.SetWeight(electorIds[0], 2)
+	assert.Equal(t, uint(2), p.Weights[electorIds[0]])
 }
 
 func TestOpen(t *testing.T) {
@@ -83,24 +111,24 @@ func TestClose(t *testing.T) {
 
 	//=============================================================
 	// Close many time without opening new poll
-	result1 := p.Close()
-	result2 := p.Close()
+	round1 := p.Close()
+	round2 := p.Close()
 
-	assert.Nil(t, result1)
-	assert.Equal(t, result1, result2)
+	assert.Nil(t, round1)
+	assert.Equal(t, round1, round2)
 
 	//=============================================================
 	// Close many time with opening new poll
 	p.Open()
-	result3 := p.Close()
+	round3 := p.Close()
 
 	p.Open()
-	result4 := p.Close()
+	round4 := p.Close()
 
 	assert.False(t, p.IsOpen())
-	assert.False(t, &result3 == &result4)
-	assert.NotNil(t, result4[types.UnknownPlayer])
-	assert.Equal(t, len(electorIds), len(result4[types.UnknownPlayer].ElectorIds()))
+	assert.False(t, &round3 == &round4)
+	assert.NotNil(t, round4[types.UnknownPlayer])
+	assert.Equal(t, len(electorIds), len(round4[types.UnknownPlayer].ElectorIds))
 }
 
 func TestVote(t *testing.T) {
@@ -115,24 +143,42 @@ func TestVote(t *testing.T) {
 	assert.False(t, p.Vote(99, electorIds[0]))
 
 	//=============================================================
-	// Vote Successfully
+	// Successully voted
 	p.Open()
-	currentResult := p.GetCurrentResult()
+
+	currentRound := p.GetCurrentRound()
 
 	assert.True(t, p.Vote(electorIds[0], electorIds[1]))
-	assert.NotNil(t, currentResult[electorIds[1]])
-	assert.GreaterOrEqual(t, currentResult[electorIds[1]].Votes(), uint(1))
-	assert.Contains(t, currentResult[electorIds[1]].ElectorIds(), electorIds[0])
+	assert.NotNil(t, currentRound[electorIds[1]])
+	assert.Equal(t, currentRound[electorIds[1]].Votes, uint(1))
+	assert.Contains(t, currentRound[electorIds[1]].ElectorIds, electorIds[0])
+
+	p.Close()
+
+	//=============================================================
+	// Successully voted with large weight
+	p.Open()
+	p.SetWeight(electorIds[0], 2)
+
+	currentRound = p.GetCurrentRound()
+
+	assert.True(t, p.Vote(electorIds[0], electorIds[1]))
+	assert.NotNil(t, currentRound[electorIds[1]])
+	assert.Equal(t, currentRound[electorIds[1]].Votes, uint(2))
+	assert.Contains(t, currentRound[electorIds[1]].ElectorIds, electorIds[0])
 
 	p.Close()
 
 	//=============================================================
 	// Vote twice
 	p.Open()
+
+	currentRound = p.GetCurrentRound()
+
 	p.Vote(electorIds[0], electorIds[1])
 
 	assert.False(t, p.Vote(electorIds[0], electorIds[2]))
-	assert.Nil(t, currentResult[electorIds[2]])
+	assert.Nil(t, currentRound[electorIds[2]])
 
 	p.Close()
 
@@ -164,7 +210,7 @@ func TestGetLoser(t *testing.T) {
 	p.Close()
 
 	//=============================================================
-	// Get loser successfully - majority win
+	// Successully got loser - majority win
 	p.Open()
 	p.Vote(electorIds[0], electorIds[1])
 	p.Vote(electorIds[1], electorIds[2])
@@ -178,7 +224,7 @@ func TestGetLoser(t *testing.T) {
 	assert.Equal(t, electorIds[1], p.GetLoser())
 
 	//=============================================================
-	// Get loser successfully - 50/50
+	// Successully got loser - 50/50
 	p.Open()
 	p.Vote(electorIds[0], electorIds[1])
 	p.Vote(electorIds[1], electorIds[1])
@@ -201,7 +247,7 @@ func RemoveElector(t *testing.T) {
 	assert.False(t, p.RemoveElector(99))
 
 	//=============================================================
-	// Remove successully
+	// Successully removed
 	assert.True(t, p.RemoveElector(electorIds[0]))
 	assert.False(t, p.RemoveElector(electorIds[0]))
 }

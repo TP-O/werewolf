@@ -12,5 +12,5 @@ func main() {
 		log.Fatalf("Could not migrate: %v", err)
 	}
 
-	log.Printf("Migration did run successfully")
+	log.Printf("Migration has run successfully")
 }

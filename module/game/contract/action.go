@@ -1,29 +1,24 @@
 package contract
 
 import (
-	"github.com/go-playground/validator/v10"
-
 	"uwwolf/types"
 )
 
+// Action contains specific state and it's state will be modified
+// by calling Perform.
 type Action interface {
-	GetName() string
+	// Name returns action name.
+	Name() string
 
-	// Export action's state  as JSON string.
+	// State returns current action state.
+	State() any
+
+	// JsonState returns current action state, but in a JSON string.
 	JsonState() string
 
-	// Validate action's input first, then execute it if the
-	// validation is successful. Only supposed to fail if
-	// and only if an error message is returned.
+	// Perform makes some changes in state. First, it validates action request,
+	// then executes it if the validation is successful. Returning struct with Ok
+	// field is false means the request could not be fulfilled, otherwise execution
+	// is successful.
 	Perform(req *types.ActionRequest) *types.ActionResponse
-
-	// Validate the action's input. Each action has different rules
-	// for data validation.
-	Validate(req *types.ActionRequest) validator.ValidationErrorsTranslations
-
-	// Execute the action with receied data. Return the result of execution
-	// and error message, if any. The execution is only supposed to fail if
-	// and only if an error message is returned. The first response arg is
-	// just a status of the execution, so its meaning depends on contenxt.
-	Execute(req *types.ActionRequest) *types.ActionResponse
 }

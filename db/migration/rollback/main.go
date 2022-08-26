@@ -12,5 +12,5 @@ func main() {
 		log.Fatalf("Could not rollback: %v", err)
 	}
 
-	log.Printf("Rollbacked run successfully")
+	log.Printf("Rollback has run successfully")
 }

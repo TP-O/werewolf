@@ -2,7 +2,9 @@ package types
 
 type PlayerId uint
 
-type SocketId string
+func (pId PlayerId) IsUnknown() bool {
+	return pId == UnknownPlayer
+}
 
 const (
 	UnknownPlayer PlayerId = iota

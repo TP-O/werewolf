@@ -1,3 +1,4 @@
+//go:generate mockcompose -n testGame -c game -mock Start
 package core
 
 import (
@@ -289,10 +290,8 @@ func (g *game) RequestAction(playerId types.PlayerId, req *types.ActionRequest) 
 
 		return &types.ActionResponse{
 			Error: &types.ErrorDetail{
-				Tag: types.UnauthorizedErrorTag,
-				Msg: map[string]string{
-					types.AlertErrorField: "Not your turn or you're died!",
-				},
+				Tag:   types.UnauthorizedErrorTag,
+				Alert: "Not your turn or you're died!",
 			},
 		}
 	}

@@ -3,10 +3,10 @@ package state_test
 import (
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+
 	"uwwolf/module/game/state"
 	"uwwolf/types"
-
-	"github.com/stretchr/testify/assert"
 )
 
 var turnSettings []*types.TurnSetting = []*types.TurnSetting{
@@ -346,9 +346,9 @@ func TestAddTurn(t *testing.T) {
 	}
 
 	r.AddTurn(lastTurn)
-	currentTurn01 := r.GetCurrentTurn()
+	currentTurn := r.GetCurrentTurn()
 
-	assert.Equal(t, currentTurn01, r.GetCurrentTurn())
+	assert.Equal(t, currentTurn, r.GetCurrentTurn())
 
 	r.NextTurn()
 	r.NextTurn()
@@ -391,25 +391,25 @@ func TestAddTurn(t *testing.T) {
 	}
 
 	// Equal to current index
-	currentTurn02 := r.GetCurrentTurn()
+	currentTurn = r.GetCurrentTurn()
 
 	r.AddTurn(&types.TurnSetting{
 		PhaseId:  types.NightPhase,
 		Position: 0,
 	})
 
-	assert.Equal(t, currentTurn02, r.GetCurrentTurn())
+	assert.Equal(t, currentTurn, r.GetCurrentTurn())
 
 	// Less than current index
 	r.NextTurn()
-	currentTurn03 := r.GetCurrentTurn()
+	currentTurn = r.GetCurrentTurn()
 
 	r.AddTurn(&types.TurnSetting{
 		PhaseId:  types.NightPhase,
 		Position: 0,
 	})
 
-	assert.Equal(t, currentTurn03, r.GetCurrentTurn())
+	assert.Equal(t, currentTurn, r.GetCurrentTurn())
 
 	r.Reset()
 }
@@ -470,11 +470,11 @@ func TestRemoveTurn(t *testing.T) {
 	})
 	r.NextTurn()
 
-	currentTurn02 := r.GetCurrentTurn()
+	currentTurn := r.GetCurrentTurn()
 
 	r.RemoveTurn(turnSettings[0].RoleId)
 
-	assert.Equal(t, currentTurn02, r.GetCurrentTurn())
+	assert.Equal(t, currentTurn, r.GetCurrentTurn())
 
 	r.Reset()
 }
@@ -504,7 +504,7 @@ func TestAddPlayer(t *testing.T) {
 	r.Reset()
 
 	//=============================================================
-	// Add successully
+	// Successully added
 	for _, setting := range turnSettings {
 		r.AddTurn(setting)
 	}
@@ -529,7 +529,7 @@ func TestDeletePlayer(t *testing.T) {
 	r.Reset()
 
 	//=============================================================
-	// Delete successully
+	// Successully deleted
 	for _, setting := range turnSettings {
 		r.AddTurn(setting)
 	}
@@ -544,7 +544,7 @@ func TestDeletePlayerFromAllTurns(t *testing.T) {
 	r := state.NewRound()
 
 	//=============================================================
-	// Delete successfully
+	// Successfully delete
 	for _, setting := range turnSettings {
 		r.AddTurn(setting)
 	}

@@ -2,10 +2,11 @@ package state_test
 
 import (
 	"testing"
-	"uwwolf/module/game/state"
-	"uwwolf/types"
 
 	"github.com/stretchr/testify/assert"
+
+	"uwwolf/module/game/state"
+	"uwwolf/types"
 )
 
 func TestIdentify(t *testing.T) {

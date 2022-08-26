@@ -54,15 +54,13 @@ func (r *role) ActivateSkill(req *types.ActionRequest) *types.ActionResponse {
 
 		return &types.ActionResponse{
 			Error: &types.ErrorDetail{
-				Tag: types.UnauthorizedErrorTag,
-				Msg: map[string]string{
-					types.AlertErrorField: "Unable to execute action!",
-				},
+				Tag:   types.UnauthorizedErrorTag,
+				Alert: "Unable to execute action!",
 			},
 		}
 	}
 
-	res := r.skill.action.Execute(req)
+	res := r.skill.action.Perform(req)
 
 	if res.Error != nil && r.skill.expiration != types.UnlimitedTimes {
 		r.skill.expiration--

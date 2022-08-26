@@ -1,8 +1,6 @@
 package action
 
 import (
-	"github.com/go-playground/validator/v10"
-
 	"uwwolf/module/game/contract"
 	"uwwolf/module/game/state"
 	"uwwolf/types"
@@ -27,25 +25,23 @@ func NewProphecy(game contract.Game) contract.Action {
 }
 
 func (p *prophecy) Perform(req *types.ActionRequest) *types.ActionResponse {
-	return p.action.overridePerform(p, req)
+	return p.action.perform(p.validate, p.execute, req)
 }
 
-func (p *prophecy) Validate(req *types.ActionRequest) validator.ValidationErrorsTranslations {
-	isIdentified := p.state.Identify(req.Targets[0]) != types.UnknownFaction
-
-	if isIdentified {
-		return map[string]string{
-			types.AlertErrorField: "Already known identity!",
-		}
+func (p *prophecy) validate(req *types.ActionRequest) (alert string) {
+	if req.Actor == req.Targets[0] {
+		alert = "WTF! You don't know who are you?"
+	} else if p.state.Identify(req.Targets[0]) != types.UnknownFaction {
+		alert = "Already known identity!"
 	}
 
-	return nil
+	return
 }
 
-// Check if a player is werewolf or not
-func (p *prophecy) Execute(req *types.ActionRequest) *types.ActionResponse {
+func (p *prophecy) execute(req *types.ActionRequest) *types.ActionResponse {
 	factionId := p.game.GetPlayer(req.Targets[0]).GetFactionId()
 
+	// Check if a player is werewolf or not
 	if factionId == types.WerewolfFaction {
 		p.state.Acquire(req.Targets[0], types.WerewolfFaction)
 

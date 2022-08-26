@@ -9,15 +9,17 @@ import (
 const WerewolfRoleName = "Werewolf"
 
 func NewWerewolfRole(game contract.Game, setting *types.RoleSetting) contract.Role {
+	player := game.GetPlayer(setting.OwnerId)
+
 	return &role{
 		id:        types.WerewolfRole,
 		factionId: setting.FactionId,
 		phaseId:   types.NightPhase,
 		name:      WerewolfRoleName,
 		game:      game,
-		player:    game.GetPlayer(setting.OwnerId),
+		player:    player,
 		skill: &skill{
-			action:       action.NewVote(game, setting.FactionId, 1),
+			action:       action.NewVote(game, player, 1),
 			beginRoundId: setting.BeginRound,
 			expiration:   setting.Expiration,
 		},

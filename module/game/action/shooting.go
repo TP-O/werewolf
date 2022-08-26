@@ -1,8 +1,6 @@
 package action
 
 import (
-	"github.com/go-playground/validator/v10"
-
 	"uwwolf/module/game/contract"
 	"uwwolf/module/game/state"
 	"uwwolf/types"
@@ -27,23 +25,41 @@ func NewShooting(game contract.Game) contract.Action {
 }
 
 func (s *shooting) Perform(req *types.ActionRequest) *types.ActionResponse {
-	return s.action.overridePerform(s, req)
+	return s.action.perform(s.validate, s.execute, req)
 }
 
-func (s *shooting) Validate(req *types.ActionRequest) validator.ValidationErrorsTranslations {
-	if s.state.IsShot() {
-		return map[string]string{
-			types.AlertErrorField: "Already shoot!",
+func (s *shooting) validate(req *types.ActionRequest) (alert string) {
+	if !req.IsSkipped {
+		if !req.IsSkipped && req.Actor == req.Targets[0] {
+			alert = "Please don't commit suicide :("
+		} else if s.state.IsShot() {
+			alert = "Already shot!"
 		}
 	}
 
-	return nil
+	return
 }
 
-func (s *shooting) Execute(req *types.ActionRequest) *types.ActionResponse {
-	s.state.Shoot(req.Targets[0])
+func (s *shooting) execute(req *types.ActionRequest) *types.ActionResponse {
+	if req.IsSkipped {
+		return &types.ActionResponse{
+			Ok: true,
+		}
+	}
+
+	if !s.state.Shoot(req.Targets[0]) {
+		return &types.ActionResponse{
+			Error: &types.ErrorDetail{
+				Tag:   types.SystemErrorTag,
+				Alert: "Unknown error :(",
+			},
+		}
+	}
+
+	killedPlayer := s.game.KillPlayer(req.Targets[0])
 
 	return &types.ActionResponse{
-		Ok: true,
+		Ok:   true,
+		Data: killedPlayer.GetId(),
 	}
 }

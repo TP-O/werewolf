@@ -7,7 +7,6 @@ type ActionRequest struct {
 	Actor     PlayerId
 	Targets   []PlayerId
 	IsSkipped bool
-	Payload   any
 }
 
 type ActionResponse struct {
@@ -17,6 +16,7 @@ type ActionResponse struct {
 }
 
 type ErrorDetail struct {
-	Tag ErrorTag
-	Msg validator.ValidationErrorsTranslations
+	Tag   ErrorTag
+	Msg   validator.ValidationErrorsTranslations
+	Alert string
 }

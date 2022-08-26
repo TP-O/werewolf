@@ -2,6 +2,8 @@ package config
 
 import (
 	"log"
+	"path/filepath"
+	"runtime"
 
 	"github.com/spf13/viper"
 )
@@ -18,10 +20,15 @@ type configLoader interface {
 }
 
 func init() {
-	viper.SetConfigFile(".env")
+	_, filePath, _, _ := runtime.Caller(0)
+
+	// Current directory
+	rootPath := filepath.Dir(filePath)
+
+	viper.SetConfigFile(rootPath + "/../.env")
 
 	if err := viper.ReadInConfig(); err != nil {
-		log.Fatal("Loading environment variables is failed!")
+		log.Fatalln("Loading environment variables is failed!", err)
 	}
 
 	load(App, Game, DB, Cache)

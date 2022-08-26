@@ -1,9 +1,11 @@
 package state
 
-import "uwwolf/types"
+import (
+	"uwwolf/types"
+)
 
 type Shotgun struct {
-	target types.PlayerId
+	TargetId types.PlayerId `json:"target"`
 }
 
 func NewShotgun() *Shotgun {
@@ -11,15 +13,15 @@ func NewShotgun() *Shotgun {
 }
 
 func (s *Shotgun) IsShot() bool {
-	return s.target != 0
+	return s.TargetId != 0
 }
 
-func (s *Shotgun) Shoot(target types.PlayerId) bool {
-	if target == 0 || s.IsShot() {
+func (s *Shotgun) Shoot(targetId types.PlayerId) bool {
+	if targetId.IsUnknown() || s.IsShot() {
 		return false
 	}
 
-	s.target = target
+	s.TargetId = targetId
 
 	return true
 }

@@ -2,9 +2,10 @@ package state_test
 
 import (
 	"testing"
-	"uwwolf/module/game/state"
 
 	"github.com/stretchr/testify/assert"
+
+	"uwwolf/module/game/state"
 )
 
 func TestIsShot(t *testing.T) {

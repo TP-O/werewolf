@@ -7,22 +7,22 @@ import (
 
 type Knowledge struct {
 	// Map factions with their players
-	factions map[types.FactionId][]types.PlayerId
+	Factions map[types.FactionId][]types.PlayerId `json:"factions"`
 
 	// Map players with their faction
-	players map[types.PlayerId]types.FactionId
+	Players map[types.PlayerId]types.FactionId `json:"players"`
 }
 
 func NewKnowledge() *Knowledge {
 	return &Knowledge{
-		factions: make(map[types.FactionId][]types.PlayerId),
-		players:  make(map[types.PlayerId]types.FactionId),
+		Factions: make(map[types.FactionId][]types.PlayerId),
+		Players:  make(map[types.PlayerId]types.FactionId),
 	}
 }
 
 func (k *Knowledge) Identify(playerId types.PlayerId) types.FactionId {
-	if util.ExistKeyInMap(k.players, playerId) {
-		return k.players[playerId]
+	if util.ExistKeyInMap(k.Players, playerId) {
+		return k.Players[playerId]
 	}
 
 	return types.UnknownFaction
@@ -33,11 +33,11 @@ func (k *Knowledge) Acquire(playerId types.PlayerId, factionId types.FactionId) 
 		return false
 	}
 
-	k.factions[factionId] = append(
-		k.factions[factionId],
+	k.Factions[factionId] = append(
+		k.Factions[factionId],
 		playerId,
 	)
-	k.players[playerId] = factionId
+	k.Players[playerId] = factionId
 
 	return true
 }

@@ -7,9 +7,3 @@ const (
 	UnauthorizedErrorTag ErrorTag = "UNAUTHORIZED"
 	SystemErrorTag       ErrorTag = "SYSTEM_ERROR"
 )
-
-type ErrorProperty = string
-
-const (
-	AlertErrorField ErrorProperty = "ALERT_ERROR"
-)

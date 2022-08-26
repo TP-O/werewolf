@@ -1,8 +1,6 @@
 package action
 
 import (
-	"github.com/go-playground/validator/v10"
-
 	"uwwolf/module/game/contract"
 	"uwwolf/module/game/state"
 	"uwwolf/types"
@@ -14,36 +12,52 @@ type vote struct {
 	action[state.Poll]
 }
 
-func NewVote(game contract.Game, factionId types.FactionId, weight int) contract.Action {
+func NewVote(game contract.Game, player contract.Player, weight uint) contract.Action {
 	vote := vote{
 		action: action[state.Poll]{
 			name:  VoteActionName,
-			state: game.GetPoll(factionId),
+			state: game.GetPoll(player.GetFactionId()),
 			game:  game,
 		},
 	}
+
+	vote.state.SetWeight(player.GetId(), weight)
 
 	return &vote
 }
 
 func (v *vote) Perform(req *types.ActionRequest) *types.ActionResponse {
-	return v.action.overridePerform(v, req)
+	return v.action.perform(v.validate, v.execute, req)
 }
 
-func (v *vote) Validate(req *types.ActionRequest) validator.ValidationErrorsTranslations {
-	if !v.state.IsAllowed(req.Actor) {
-		return map[string]string{
-			types.AlertErrorField: "Already voted! Wait for next turn, OK?",
+func (v *vote) validate(req *types.ActionRequest) (alert string) {
+	if !req.IsSkipped {
+		if !v.state.IsAllowed(req.Actor) {
+			alert = "Already voted! Wait for next turn, OK?"
 		}
 	}
 
-	return nil
+	return
 }
 
-func (v *vote) Execute(req *types.ActionRequest) *types.ActionResponse {
-	v.state.Vote(req.Actor, req.Targets[0])
+func (v *vote) execute(req *types.ActionRequest) *types.ActionResponse {
+	poorPlayerId := types.UnknownPlayer
+
+	if !req.IsSkipped {
+		poorPlayerId = req.Targets[0]
+	}
+
+	if !v.state.Vote(req.Actor, poorPlayerId) {
+		return &types.ActionResponse{
+			Error: &types.ErrorDetail{
+				Tag:   types.SystemErrorTag,
+				Alert: "Unknown error :(",
+			},
+		}
+	}
 
 	return &types.ActionResponse{
-		Ok: true,
+		Ok:   true,
+		Data: poorPlayerId,
 	}
 }

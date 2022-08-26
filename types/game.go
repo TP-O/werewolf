@@ -2,7 +2,7 @@ package types
 
 import "time"
 
-type GameId string
+type GameId uint
 
 type RoundId uint
 

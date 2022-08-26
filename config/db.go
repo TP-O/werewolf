@@ -15,7 +15,7 @@ type dbConfig struct {
 }
 
 func (c *dbConfig) load() {
-	util.LoadDefaultConfigValues(map[string]interface{}{
+	util.LoadDefaultConfigValues(map[string]any{
 		"DB_HOST":     "postgres",
 		"DB_PORT":     5432,
 		"DB_USERNAME": "username",

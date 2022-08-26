@@ -45,19 +45,19 @@ func init() {
 	)
 }
 
-func SimpleValidateVar(data interface{}, tag string) bool {
+func SimpleValidateVar(data any, tag string) bool {
 	return validate.Var(data, tag) != nil
 }
 
-func SimpleValidateStruct(data interface{}, tag ...string) bool {
+func SimpleValidateStruct(data any) bool {
 	return validate.Struct(data) != nil
 }
 
-func ValidateVar(data interface{}, tag string) validator.ValidationErrorsTranslations {
+func ValidateVar(data any, tag string) validator.ValidationErrorsTranslations {
 	return handleError(validate.Var(data, tag))
 }
 
-func ValidateStruct(data interface{}, tag ...string) validator.ValidationErrorsTranslations {
+func ValidateStruct(data any) validator.ValidationErrorsTranslations {
 	return handleError(validate.Struct(data))
 }
 

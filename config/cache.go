@@ -11,7 +11,7 @@ type cacheConfig struct {
 }
 
 func (c *cacheConfig) load() {
-	util.LoadDefaultConfigValues(map[string]interface{}{
+	util.LoadDefaultConfigValues(map[string]any{
 		"LOCAL_CACHE_TTL": "60m",
 	})
 

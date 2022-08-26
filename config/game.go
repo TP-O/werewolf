@@ -12,7 +12,7 @@ type gameConfig struct {
 }
 
 func (c *gameConfig) load() {
-	util.LoadDefaultConfigValues(map[string]interface{}{
+	util.LoadDefaultConfigValues(map[string]any{
 		"GAME_MIN_CAPACITY": 5,
 		"GAME_MAX_CAPACITY": 20,
 	})
