@@ -21,36 +21,31 @@ type skill struct {
 	expiration   types.NumberOfTimes
 }
 
-func (r *role) GetId() types.RoleId {
+func (r *role) Id() types.RoleId {
 	return r.id
 }
 
-func (r *role) GetFactionId() types.FactionId {
+func (r *role) FactionId() types.FactionId {
 	return r.factionId
 }
 
-func (r *role) GetName() string {
+func (r *role) Name() string {
 	return r.name
 }
 
-// Do something after being voted. Return false if exonerated,
-// otherwise return true.
 func (r *role) AfterBeingVoted() bool {
 	return true
 }
 
-// Do something before death
 func (r *role) AfterDeath() {
 	//
 }
 
-// Check condition is satisfied then if pass, perform action
-// corresponding to this role.
 func (r *role) ActivateSkill(req *types.ActionRequest) *types.ActionResponse {
 	if r.skill == nil ||
 		r.skill.expiration == types.OutOfTimes ||
-		r.skill.beginRoundId < r.game.GetCurrentRoundId() ||
-		r.phaseId != r.game.GetCurrentPhaseId() {
+		r.skill.beginRoundId < r.game.Round().CurrentId() ||
+		r.phaseId != r.game.Round().CurrentPhaseId() {
 
 		return &types.ActionResponse{
 			Error: &types.ErrorDetail{

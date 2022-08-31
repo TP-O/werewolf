@@ -54,7 +54,7 @@ func TestShootingPerform(t *testing.T) {
 
 	mockPlayer.
 		EXPECT().
-		GetId().
+		Id().
 		Return(targetId)
 
 	//=============================================================

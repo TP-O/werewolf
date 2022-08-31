@@ -3,20 +3,26 @@ package contract
 import "uwwolf/types"
 
 type Role interface {
-	GetId() types.RoleId
+	// Id returns role's id.
+	Id() types.RoleId
 
-	GetFactionId() types.FactionId
+	// FactionId returns id of faction to which role belongs.
+	FactionId() types.FactionId
 
-	GetName() string
+	// Name returns role's name.
+	Name() string
 
-	// Do something after being voted. Return false if exonerated,
-	// otherwise return true.
+	// AfterBeingVoted is called after being voted. Return false
+	// if exonerated, otherwise return true. Do something before
+	// death.
 	AfterBeingVoted() bool
 
-	// Do something before death
+	// AfterDeath is called after player dies. Do something after it.
 	AfterDeath()
 
-	// Check condition is satisfied then if pass, activate skill
-	// corresponding to this role.
+	// ActivateSkill checks condition is satisfied then performs
+	// action corresponding to this role if everything is ok.
+	// Each time a skill is successfully activated, its expiration
+	// will be reduced by 1.
 	ActivateSkill(req *types.ActionRequest) *types.ActionResponse
 }

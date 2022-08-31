@@ -52,7 +52,7 @@ func TestProphecyPerform(t *testing.T) {
 
 	mockGame.
 		EXPECT().
-		GetPlayer(gomock.Any()).
+		Player(gomock.Any()).
 		Return(mockPlayer).
 		Times(2)
 
@@ -80,7 +80,7 @@ func TestProphecyPerform(t *testing.T) {
 	// Target is werewolf
 	mockPlayer.
 		EXPECT().
-		GetFactionId().
+		FactionId().
 		Return(types.WerewolfFaction)
 
 	res = p.Perform(&types.ActionRequest{
@@ -96,7 +96,7 @@ func TestProphecyPerform(t *testing.T) {
 	// Target is not werewolf
 	mockPlayer.
 		EXPECT().
-		GetFactionId().
+		FactionId().
 		Return(types.VillagerFaction)
 
 	res = p.Perform(&types.ActionRequest{

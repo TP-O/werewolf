@@ -16,12 +16,12 @@ func NewVote(game contract.Game, player contract.Player, weight uint) contract.A
 	vote := vote{
 		action: action[state.Poll]{
 			name:  VoteActionName,
-			state: game.GetPoll(player.GetFactionId()),
+			state: game.Poll(player.FactionId()),
 			game:  game,
 		},
 	}
 
-	vote.state.SetWeight(player.GetId(), weight)
+	vote.state.SetWeight(player.Id(), weight)
 
 	return &vote
 }

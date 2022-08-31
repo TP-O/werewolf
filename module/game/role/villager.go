@@ -9,7 +9,7 @@ import (
 const VillagerRoleName = "Villager"
 
 func NewVillagerRole(game contract.Game, setting *types.RoleSetting) contract.Role {
-	player := game.GetPlayer(setting.OwnerId)
+	player := game.Player(setting.OwnerId)
 
 	return &role{
 		id:        types.VillagerRole,

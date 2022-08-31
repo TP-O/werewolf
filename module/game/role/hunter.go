@@ -8,18 +8,24 @@ import (
 
 const HunterRoleName = "Hunter"
 
+type hunerRole struct {
+	role
+}
+
 func NewHunterRole(game contract.Game, setting *types.RoleSetting) contract.Role {
-	return &role{
-		id:        types.HunterRole,
-		factionId: setting.FactionId,
-		phaseId:   types.DayPhase,
-		name:      HunterRoleName,
-		game:      game,
-		player:    game.GetPlayer(setting.OwnerId),
-		skill: &skill{
-			action:       action.NewShooting(game),
-			beginRoundId: setting.BeginRound,
-			expiration:   setting.Expiration,
+	return &hunerRole{
+		role: role{
+			id:        types.HunterRole,
+			factionId: setting.FactionId,
+			phaseId:   types.DayPhase,
+			name:      HunterRoleName,
+			game:      game,
+			player:    game.Player(setting.OwnerId),
+			skill: &skill{
+				action:       action.NewShooting(game),
+				beginRoundId: setting.BeginRound,
+				expiration:   setting.Expiration,
+			},
 		},
 	}
 }

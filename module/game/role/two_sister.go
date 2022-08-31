@@ -1,15 +1,12 @@
 package role
 
 import (
+	"uwwolf/module/game/action"
 	"uwwolf/module/game/contract"
 	"uwwolf/types"
 )
 
 const TwoSistersRoleName = "Two Sisters"
-
-type twoSister struct {
-	role
-}
 
 func NewTwoSisterRole(game contract.Game, setting *types.RoleSetting) contract.Role {
 	return &role{
@@ -18,9 +15,9 @@ func NewTwoSisterRole(game contract.Game, setting *types.RoleSetting) contract.R
 		phaseId:   types.NightPhase,
 		name:      TwoSistersRoleName,
 		game:      game,
-		player:    game.GetPlayer(setting.OwnerId),
+		player:    game.Player(setting.OwnerId),
 		skill: &skill{
-			action:       nil,
+			action:       action.NewRecognition(game),
 			beginRoundId: setting.BeginRound,
 			expiration:   setting.Expiration,
 		},

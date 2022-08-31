@@ -39,7 +39,7 @@ func (p *prophecy) validate(req *types.ActionRequest) (alert string) {
 }
 
 func (p *prophecy) execute(req *types.ActionRequest) *types.ActionResponse {
-	factionId := p.game.GetPlayer(req.Targets[0]).GetFactionId()
+	factionId := p.game.Player(req.Targets[0]).FactionId()
 
 	// Check if a player is werewolf or not
 	if factionId == types.WerewolfFaction {

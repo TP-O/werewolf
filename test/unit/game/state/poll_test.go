@@ -66,18 +66,18 @@ func TestPollIsAllowed(t *testing.T) {
 	assert.False(t, p.IsAllowed(electorIds[0]))
 }
 
-func TestGetCurrentRound(t *testing.T) {
+func TestCurrentRound(t *testing.T) {
 	p := state.NewPoll(electorIds)
 
 	//=============================================================
 	// Inital
-	assert.Nil(t, p.GetCurrentRound())
+	assert.Nil(t, p.CurrentRound())
 
 	//=============================================================
 	// Open poll
 	p.Open()
 
-	assert.NotNil(t, p.GetCurrentRound())
+	assert.NotNil(t, p.CurrentRound())
 }
 
 func TestSetWeight(t *testing.T) {
@@ -146,7 +146,7 @@ func TestVote(t *testing.T) {
 	// Successully voted
 	p.Open()
 
-	currentRound := p.GetCurrentRound()
+	currentRound := p.CurrentRound()
 
 	assert.True(t, p.Vote(electorIds[0], electorIds[1]))
 	assert.NotNil(t, currentRound[electorIds[1]])
@@ -160,7 +160,7 @@ func TestVote(t *testing.T) {
 	p.Open()
 	p.SetWeight(electorIds[0], 2)
 
-	currentRound = p.GetCurrentRound()
+	currentRound = p.CurrentRound()
 
 	assert.True(t, p.Vote(electorIds[0], electorIds[1]))
 	assert.NotNil(t, currentRound[electorIds[1]])
@@ -173,7 +173,7 @@ func TestVote(t *testing.T) {
 	// Vote twice
 	p.Open()
 
-	currentRound = p.GetCurrentRound()
+	currentRound = p.CurrentRound()
 
 	p.Vote(electorIds[0], electorIds[1])
 

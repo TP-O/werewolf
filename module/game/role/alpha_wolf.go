@@ -7,10 +7,6 @@ import (
 
 const AlphaWolfRoleName = "Alpha Wolf"
 
-type alphaWolf struct {
-	role
-}
-
 func NewAlphaWolfRole(game contract.Game, setting *types.RoleSetting) contract.Role {
 	return &role{
 		id:        types.AlphaWolfRole,
@@ -18,7 +14,7 @@ func NewAlphaWolfRole(game contract.Game, setting *types.RoleSetting) contract.R
 		phaseId:   types.NightPhase,
 		name:      AlphaWolfRoleName,
 		game:      game,
-		player:    game.GetPlayer(setting.OwnerId),
+		player:    game.Player(setting.OwnerId),
 		skill: &skill{
 			action:       nil,
 			beginRoundId: setting.BeginRound,

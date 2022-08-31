@@ -60,6 +60,6 @@ func (s *shooting) execute(req *types.ActionRequest) *types.ActionResponse {
 
 	return &types.ActionResponse{
 		Ok:   true,
-		Data: killedPlayer.GetId(),
+		Data: killedPlayer.Id(),
 	}
 }

@@ -15,7 +15,7 @@ func NewSeerRole(game contract.Game, setting *types.RoleSetting) contract.Role {
 		phaseId:   types.NightPhase,
 		name:      SeerRoleName,
 		game:      game,
-		player:    game.GetPlayer(setting.OwnerId),
+		player:    game.Player(setting.OwnerId),
 		skill: &skill{
 			action:       action.NewProphecy(game),
 			beginRoundId: setting.BeginRound,

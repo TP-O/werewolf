@@ -9,7 +9,7 @@ import (
 const WerewolfRoleName = "Werewolf"
 
 func NewWerewolfRole(game contract.Game, setting *types.RoleSetting) contract.Role {
-	player := game.GetPlayer(setting.OwnerId)
+	player := game.Player(setting.OwnerId)
 
 	return &role{
 		id:        types.WerewolfRole,

@@ -22,16 +22,16 @@ func TestVoteName(t *testing.T) {
 
 	mockGame.
 		EXPECT().
-		GetPoll(types.VillagerFaction).
+		Poll(types.VillagerFaction).
 		Return(&state.Poll{})
 
 	mockPlayer.
 		EXPECT().
-		GetId().
+		Id().
 		Return(types.PlayerId(1))
 	mockPlayer.
 		EXPECT().
-		GetFactionId().
+		FactionId().
 		Return(types.VillagerFaction)
 
 	//=============================================================
@@ -53,16 +53,16 @@ func TestVoteState(t *testing.T) {
 
 	mockGame.
 		EXPECT().
-		GetPoll(gomock.Any()).
+		Poll(gomock.Any()).
 		Return(state.NewPoll([]types.PlayerId{playerId, 2, 3}))
 
 	mockPlayer.
 		EXPECT().
-		GetId().
+		Id().
 		Return(playerId)
 	mockPlayer.
 		EXPECT().
-		GetFactionId().
+		FactionId().
 		Return(types.VillagerFaction)
 
 	p := action.NewVote(mockGame, mockPlayer, 2)
@@ -87,16 +87,16 @@ func TestVoteJsonState(t *testing.T) {
 
 	mockGame.
 		EXPECT().
-		GetPoll(gomock.Any()).
+		Poll(gomock.Any()).
 		Return(&state.Poll{})
 
 	mockPlayer.
 		EXPECT().
-		GetId().
+		Id().
 		Return(playerId)
 	mockPlayer.
 		EXPECT().
-		GetFactionId().
+		FactionId().
 		Return(types.VillagerFaction)
 
 	p := action.NewVote(mockGame, mockPlayer, 1)
@@ -120,18 +120,18 @@ func TestVotePerform(t *testing.T) {
 
 	mockGame.
 		EXPECT().
-		GetPoll(gomock.Any()).
+		Poll(gomock.Any()).
 		Return(state.NewPoll([]types.PlayerId{playerId, 2, 3})).
 		AnyTimes()
 
 	mockPlayer.
 		EXPECT().
-		GetId().
+		Id().
 		Return(playerId).
 		AnyTimes()
 	mockPlayer.
 		EXPECT().
-		GetFactionId().
+		FactionId().
 		Return(types.VillagerFaction).
 		AnyTimes()
 

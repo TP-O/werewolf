@@ -44,7 +44,7 @@ func (p *Poll) IsAllowed(electorId types.PlayerId) bool {
 		!slices.Contains(p.VotedElectorIds, electorId)
 }
 
-func (p *Poll) GetCurrentRound() round {
+func (p *Poll) CurrentRound() round {
 	return p.Rounds[p.CurrentRoundId]
 }
 
@@ -72,7 +72,7 @@ func (p *Poll) Open() bool {
 }
 
 func (p *Poll) Close() map[types.PlayerId]*record {
-	currentRound := p.GetCurrentRound()
+	currentRound := p.CurrentRound()
 
 	if !p.IsOpen() {
 		return currentRound
@@ -93,7 +93,7 @@ func (p *Poll) Close() map[types.PlayerId]*record {
 		}
 	}
 
-	return p.GetCurrentRound()
+	return p.CurrentRound()
 }
 
 func (p *Poll) Vote(electorId types.PlayerId, targetId types.PlayerId) bool {
@@ -101,7 +101,7 @@ func (p *Poll) Vote(electorId types.PlayerId, targetId types.PlayerId) bool {
 		return false
 	}
 
-	currentRound := p.GetCurrentRound()
+	currentRound := p.CurrentRound()
 
 	if currentRound[targetId] == nil {
 		currentRound[targetId] = &record{}
@@ -134,7 +134,7 @@ func (p *Poll) GetLoser() types.PlayerId {
 	votes := -1
 	isFiftyFifty := false
 
-	for targetId, target := range p.GetCurrentRound() {
+	for targetId, target := range p.CurrentRound() {
 		if votes == int(target.Votes) {
 			isFiftyFifty = true
 		} else if votes < int(target.Votes) {

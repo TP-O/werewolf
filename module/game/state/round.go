@@ -38,32 +38,32 @@ func NewRound() *Round {
 	return round
 }
 
-func (r *Round) GetCurrentId() types.RoundId {
+func (r *Round) CurrentId() types.RoundId {
 	return r.id
 }
 
-func (r *Round) GetCurrentPhaseId() types.PhaseId {
+func (r *Round) CurrentPhaseId() types.PhaseId {
 	return r.currentPhaseId
 }
 
-func (r *Round) GetCurrentTurn() *turn {
-	if len(r.GetCurrentPhase()) == 0 || r.currentTurnIndex >= len(r.GetCurrentPhase()) {
+func (r *Round) CurrentTurn() *turn {
+	if len(r.CurrentPhase()) == 0 || r.currentTurnIndex >= len(r.CurrentPhase()) {
 		return nil
 	}
 
-	return r.GetCurrentPhase()[r.currentTurnIndex]
+	return r.CurrentPhase()[r.currentTurnIndex]
 }
 
-func (r *Round) GetCurrentPhase() []*turn {
+func (r *Round) CurrentPhase() []*turn {
 	return r.phases[r.currentPhaseId]
 }
 
 func (r *Round) IsAllowed(playerId types.PlayerId) bool {
-	if r.GetCurrentTurn() == nil {
+	if r.CurrentTurn() == nil {
 		return false
 	}
 
-	return slices.Contains(r.GetCurrentTurn().playerIds, playerId)
+	return slices.Contains(r.CurrentTurn().playerIds, playerId)
 }
 
 func (r *Round) IsEmpty() bool {
@@ -93,11 +93,11 @@ func (r *Round) NextTurn() bool {
 
 	r.passCurrentTurn()
 
-	if r.currentTurnIndex < len(r.GetCurrentPhase())-1 {
+	if r.currentTurnIndex < len(r.CurrentPhase())-1 {
 		r.currentTurnIndex++
 
 		// Skip turn if not the time
-		if r.GetCurrentTurn().beginRound > r.id {
+		if r.CurrentTurn().beginRound > r.id {
 			return r.NextTurn()
 		}
 	} else {
@@ -110,7 +110,7 @@ func (r *Round) NextTurn() bool {
 			r.id++
 		}
 
-		if r.GetCurrentTurn() == nil {
+		if r.CurrentTurn() == nil {
 			return r.NextTurn()
 		}
 	}
@@ -119,7 +119,7 @@ func (r *Round) NextTurn() bool {
 }
 
 func (r *Round) passCurrentTurn() {
-	currentTurn := r.GetCurrentTurn()
+	currentTurn := r.CurrentTurn()
 
 	if currentTurn != nil &&
 		currentTurn.beginRound <= r.id &&
@@ -132,7 +132,7 @@ func (r *Round) passCurrentTurn() {
 
 // Remove a turn if it's times is out.
 func (r *Round) removeTurnIfDone(roleId types.RoleId) bool {
-	currentTurn := r.GetCurrentTurn()
+	currentTurn := r.CurrentTurn()
 
 	if currentTurn == nil || currentTurn.expiration != types.OutOfTimes {
 		return false
@@ -165,7 +165,7 @@ func (r *Round) RemoveTurn(roleId types.RoleId) bool {
 							r.id--
 						}
 
-						r.currentTurnIndex = len(r.GetCurrentPhase()) - 1
+						r.currentTurnIndex = len(r.CurrentPhase()) - 1
 					}
 
 					// Reset if current turn index is still -1
@@ -200,7 +200,7 @@ func (r *Round) AddTurn(setting *types.TurnSetting) bool {
 
 	// New turn's position is less than or equal to current turn index,
 	// so increase current turn index by 1
-	if r.GetCurrentTurn() != nil &&
+	if r.CurrentTurn() != nil &&
 		turnIndex <= r.currentTurnIndex &&
 		(setting.PhaseId == r.currentPhaseId ||
 			setting.Position == types.NextPosition) {
@@ -244,7 +244,7 @@ func (r *Round) handleTurnSetting(setting *types.TurnSetting) (types.PhaseId, in
 	if setting.Position == types.NextPosition {
 		phaseId = r.currentPhaseId
 
-		if len(r.GetCurrentPhase()) != 0 {
+		if len(r.CurrentPhase()) != 0 {
 			turnIndex = r.currentTurnIndex + 1
 		} else {
 			turnIndex = 0

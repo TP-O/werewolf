@@ -36,12 +36,12 @@ var turnSettings []*types.TurnSetting = []*types.TurnSetting{
 	},
 }
 
-func TestGetCurrentTurn(t *testing.T) {
+func TestCurrentTurn(t *testing.T) {
 	r := state.NewRound()
 
 	//=============================================================
 	// Empty round
-	assert.Nil(t, r.GetCurrentTurn())
+	assert.Nil(t, r.CurrentTurn())
 
 	//=============================================================
 	// Non-empty round
@@ -49,15 +49,15 @@ func TestGetCurrentTurn(t *testing.T) {
 		r.AddTurn(setting)
 	}
 
-	assert.Equal(t, turnSettings[0].RoleId, r.GetCurrentTurn().RoleId())
+	assert.Equal(t, turnSettings[0].RoleId, r.CurrentTurn().RoleId())
 
 	r.NextTurn()
 
-	assert.Equal(t, turnSettings[1].RoleId, r.GetCurrentTurn().RoleId())
+	assert.Equal(t, turnSettings[1].RoleId, r.CurrentTurn().RoleId())
 
 	r.NextTurn()
 
-	assert.Equal(t, turnSettings[2].RoleId, r.GetCurrentTurn().RoleId())
+	assert.Equal(t, turnSettings[2].RoleId, r.CurrentTurn().RoleId())
 }
 
 func TestReset(t *testing.T) {
@@ -69,9 +69,9 @@ func TestReset(t *testing.T) {
 
 	r.Reset()
 
-	assert.Equal(t, types.RoundId(1), r.GetCurrentId())
-	assert.Equal(t, 0, len(r.GetCurrentPhase()))
-	assert.Nil(t, r.GetCurrentTurn())
+	assert.Equal(t, types.RoundId(1), r.CurrentId())
+	assert.Equal(t, 0, len(r.CurrentPhase()))
+	assert.Nil(t, r.CurrentTurn())
 	assert.True(t, r.IsEmpty())
 }
 
@@ -141,9 +141,9 @@ func TestNextTurn(t *testing.T) {
 		r.AddTurn(setting)
 	}
 
-	firstPhase := r.GetCurrentPhase()
+	firstPhase := r.CurrentPhase()
 	r.NextTurn()
-	secondPhase := r.GetCurrentPhase()
+	secondPhase := r.CurrentPhase()
 
 	assert.NotEqual(t, firstPhase, secondPhase)
 
@@ -160,10 +160,10 @@ func TestNextTurn(t *testing.T) {
 		Position: types.LastPosition,
 	})
 
-	unchagedPhase := r.GetCurrentPhase()
+	unchagedPhase := r.CurrentPhase()
 	r.NextTurn()
 
-	assert.Equal(t, unchagedPhase, r.GetCurrentPhase())
+	assert.Equal(t, unchagedPhase, r.CurrentPhase())
 
 	r.Reset()
 
@@ -184,15 +184,15 @@ func TestNextTurn(t *testing.T) {
 
 	r.NextTurn()
 
-	assert.Equal(t, oneTimesTurnSetting.RoleId, r.GetCurrentTurn().RoleId())
+	assert.Equal(t, oneTimesTurnSetting.RoleId, r.CurrentTurn().RoleId())
 
 	r.NextTurn()
 	r.NextTurn()
 	r.NextTurn()
 	r.NextTurn()
 
-	assert.Equal(t, turnSettings[1].RoleId, r.GetCurrentTurn().RoleId())
-	assert.NotEqual(t, oneTimesTurnSetting.RoleId, r.GetCurrentTurn().RoleId())
+	assert.Equal(t, turnSettings[1].RoleId, r.CurrentTurn().RoleId())
+	assert.NotEqual(t, oneTimesTurnSetting.RoleId, r.CurrentTurn().RoleId())
 
 	r.Reset()
 }
@@ -245,19 +245,19 @@ func TestAddTurn(t *testing.T) {
 		assert.True(t, r.AddTurn(setting))
 	}
 
-	firstPhase := r.GetCurrentPhase()
+	firstPhase := r.CurrentPhase()
 
 	assert.Equal(t, 1, len(firstPhase))
 	assert.False(t, r.IsEmpty())
 
 	r.NextTurn()
-	secondPhase := r.GetCurrentPhase()
+	secondPhase := r.CurrentPhase()
 
 	assert.Equal(t, 1, len(secondPhase))
 	assert.NotEqual(t, firstPhase, secondPhase)
 
 	r.NextTurn()
-	thirdPhase := r.GetCurrentPhase()
+	thirdPhase := r.CurrentPhase()
 
 	assert.Equal(t, 1, len(thirdPhase))
 	assert.NotEqual(t, firstPhase, thirdPhase)
@@ -280,7 +280,7 @@ func TestAddTurn(t *testing.T) {
 	r.AddTurn(nextTurn)
 	r.NextTurn()
 
-	assert.Equal(t, nextTurn.RoleId, r.GetCurrentTurn().RoleId())
+	assert.Equal(t, nextTurn.RoleId, r.CurrentTurn().RoleId())
 
 	r.Reset()
 
@@ -315,15 +315,15 @@ func TestAddTurn(t *testing.T) {
 
 	r.NextTurn()
 
-	assert.Equal(t, sortedTurn1.RoleId, r.GetCurrentTurn().RoleId())
+	assert.Equal(t, sortedTurn1.RoleId, r.CurrentTurn().RoleId())
 
 	r.NextTurn()
 
-	assert.Equal(t, sortedTurn2.RoleId, r.GetCurrentTurn().RoleId())
+	assert.Equal(t, sortedTurn2.RoleId, r.CurrentTurn().RoleId())
 
 	r.NextTurn()
 
-	assert.Equal(t, sortedTurn3.RoleId, r.GetCurrentTurn().RoleId())
+	assert.Equal(t, sortedTurn3.RoleId, r.CurrentTurn().RoleId())
 
 	r.Reset()
 
@@ -346,14 +346,14 @@ func TestAddTurn(t *testing.T) {
 	}
 
 	r.AddTurn(lastTurn)
-	currentTurn := r.GetCurrentTurn()
+	currentTurn := r.CurrentTurn()
 
-	assert.Equal(t, currentTurn, r.GetCurrentTurn())
+	assert.Equal(t, currentTurn, r.CurrentTurn())
 
 	r.NextTurn()
 	r.NextTurn()
 
-	assert.Equal(t, lastTurn.RoleId, r.GetCurrentTurn().RoleId())
+	assert.Equal(t, lastTurn.RoleId, r.CurrentTurn().RoleId())
 
 	r.Reset()
 
@@ -379,7 +379,7 @@ func TestAddTurn(t *testing.T) {
 
 	r.NextTurn()
 
-	assert.Equal(t, otherTurn.RoleId, r.GetCurrentTurn().RoleId())
+	assert.Equal(t, otherTurn.RoleId, r.CurrentTurn().RoleId())
 
 	r.Reset()
 
@@ -391,25 +391,25 @@ func TestAddTurn(t *testing.T) {
 	}
 
 	// Equal to current index
-	currentTurn = r.GetCurrentTurn()
+	currentTurn = r.CurrentTurn()
 
 	r.AddTurn(&types.TurnSetting{
 		PhaseId:  types.NightPhase,
 		Position: 0,
 	})
 
-	assert.Equal(t, currentTurn, r.GetCurrentTurn())
+	assert.Equal(t, currentTurn, r.CurrentTurn())
 
 	// Less than current index
 	r.NextTurn()
-	currentTurn = r.GetCurrentTurn()
+	currentTurn = r.CurrentTurn()
 
 	r.AddTurn(&types.TurnSetting{
 		PhaseId:  types.NightPhase,
 		Position: 0,
 	})
 
-	assert.Equal(t, currentTurn, r.GetCurrentTurn())
+	assert.Equal(t, currentTurn, r.CurrentTurn())
 
 	r.Reset()
 }
@@ -429,7 +429,7 @@ func TestRemoveTurn(t *testing.T) {
 		r.AddTurn(setting)
 	}
 
-	currentPhase01 := r.GetCurrentPhase()
+	currentPhase01 := r.CurrentPhase()
 	removedTurnSetting := &types.TurnSetting{
 		RoleId:   99,
 		PhaseId:  types.NightPhase,
@@ -440,7 +440,7 @@ func TestRemoveTurn(t *testing.T) {
 	r.NextTurn()
 
 	assert.True(t, r.RemoveTurn(removedTurnSetting.RoleId))
-	assert.Equal(t, currentPhase01, r.GetCurrentPhase())
+	assert.Equal(t, currentPhase01, r.CurrentPhase())
 
 	r.Reset()
 
@@ -450,11 +450,11 @@ func TestRemoveTurn(t *testing.T) {
 		r.AddTurn(setting)
 	}
 
-	currentTurn01 := r.GetCurrentTurn()
+	currentTurn01 := r.CurrentTurn()
 	r.RemoveTurn(turnSettings[0].RoleId)
 
-	assert.NotEqual(t, currentTurn01, r.GetCurrentTurn())
-	assert.Equal(t, turnSettings[2].RoleId, r.GetCurrentTurn().RoleId())
+	assert.NotEqual(t, currentTurn01, r.CurrentTurn())
+	assert.Equal(t, turnSettings[2].RoleId, r.CurrentTurn().RoleId())
 
 	r.Reset()
 
@@ -470,11 +470,11 @@ func TestRemoveTurn(t *testing.T) {
 	})
 	r.NextTurn()
 
-	currentTurn := r.GetCurrentTurn()
+	currentTurn := r.CurrentTurn()
 
 	r.RemoveTurn(turnSettings[0].RoleId)
 
-	assert.Equal(t, currentTurn, r.GetCurrentTurn())
+	assert.Equal(t, currentTurn, r.CurrentTurn())
 
 	r.Reset()
 }
@@ -499,7 +499,7 @@ func TestAddPlayer(t *testing.T) {
 	}
 
 	assert.False(t, r.AddPlayer(turnSettings[0].PlayerIds[0], turnSettings[0].RoleId))
-	assert.Len(t, r.GetCurrentTurn().PlayerIds(), 1)
+	assert.Len(t, r.CurrentTurn().PlayerIds(), 1)
 
 	r.Reset()
 
@@ -510,7 +510,7 @@ func TestAddPlayer(t *testing.T) {
 	}
 
 	assert.True(t, r.AddPlayer(types.PlayerId(2), turnSettings[0].RoleId))
-	assert.Contains(t, r.GetCurrentTurn().PlayerIds(), types.PlayerId(2))
+	assert.Contains(t, r.CurrentTurn().PlayerIds(), types.PlayerId(2))
 
 	r.Reset()
 }
@@ -535,7 +535,7 @@ func TestDeletePlayer(t *testing.T) {
 	}
 
 	assert.True(t, r.DeletePlayer(types.PlayerId(1), turnSettings[0].RoleId))
-	assert.NotContains(t, r.GetCurrentTurn().PlayerIds(), types.PlayerId(1))
+	assert.NotContains(t, r.CurrentTurn().PlayerIds(), types.PlayerId(1))
 
 	r.Reset()
 }
@@ -557,11 +557,11 @@ func TestDeletePlayerFromAllTurns(t *testing.T) {
 
 	r.DeletePlayerFromAllTurns(types.PlayerId(1))
 
-	assert.NotContains(t, r.GetCurrentTurn().PlayerIds(), types.PlayerId(1))
+	assert.NotContains(t, r.CurrentTurn().PlayerIds(), types.PlayerId(1))
 
 	r.NextTurn()
 
-	assert.NotContains(t, r.GetCurrentTurn().PlayerIds(), types.PlayerId(1))
+	assert.NotContains(t, r.CurrentTurn().PlayerIds(), types.PlayerId(1))
 
 	r.Reset()
 }
