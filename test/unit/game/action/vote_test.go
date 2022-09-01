@@ -74,39 +74,6 @@ func TestVoteState(t *testing.T) {
 	assert.Equal(t, state.Weights[playerId], uint(2))
 }
 
-func TestVoteJsonState(t *testing.T) {
-	//========================MOCK================================
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	mockGame := game.NewMockGame(ctrl)
-	mockPlayer := game.NewMockPlayer(ctrl)
-
-	//=============================================================
-	playerId := types.PlayerId(1)
-
-	mockGame.
-		EXPECT().
-		Poll(gomock.Any()).
-		Return(&state.Poll{})
-
-	mockPlayer.
-		EXPECT().
-		Id().
-		Return(playerId)
-	mockPlayer.
-		EXPECT().
-		FactionId().
-		Return(types.VillagerFaction)
-
-	p := action.NewVote(mockGame, mockPlayer, 1)
-	voteState := p.JsonState()
-
-	//=============================================================
-	// Non-empty json
-	assert.NotEqual(t, "{}", voteState)
-}
-
 func TestVotePerform(t *testing.T) {
 	//========================MOCK================================
 	ctrl := gomock.NewController(t)

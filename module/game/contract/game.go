@@ -24,7 +24,7 @@ type Game interface {
 	Player(playerId types.PlayerId) Player
 
 	// PlayersWithRole return all players in a role.
-	PlayersWithRole(roleId types.RoleId) []Player
+	PlayerIdsWithRole(roleId types.RoleId) []types.PlayerId
 
 	// KillPlayer marks the player as died then does something based on
 	// he/she roles, if any.

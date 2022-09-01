@@ -1,8 +1,6 @@
 package action
 
 import (
-	"encoding/json"
-
 	"uwwolf/module/game/contract"
 	"uwwolf/types"
 )
@@ -25,13 +23,13 @@ func (a *action[S]) State() any {
 	return a.state
 }
 
-func (a *action[S]) JsonState() string {
-	if bytes, err := json.Marshal(a.state); err != nil {
-		return "{}"
-	} else {
-		return string(bytes)
-	}
-}
+// func (a *action[S]) JsonState() string {
+// 	if bytes, err := json.Marshal(a.state); err != nil {
+// 		return "{}"
+// 	} else {
+// 		return string(bytes)
+// 	}
+// }
 
 func (a *action[S]) Perform(req *types.ActionRequest) *types.ActionResponse {
 	return a.perform(a.validate, a.execute, req)

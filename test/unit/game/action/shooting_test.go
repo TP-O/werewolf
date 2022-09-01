@@ -7,7 +7,6 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"uwwolf/module/game/action"
-	"uwwolf/module/game/state"
 	"uwwolf/test/mock/game"
 	"uwwolf/types"
 )
@@ -20,16 +19,8 @@ func TestShootingName(t *testing.T) {
 
 func TestShootingState(t *testing.T) {
 	p := action.NewShooting(nil)
-	_, ok := p.State().(*state.Shotgun)
 
-	assert.True(t, ok)
-}
-
-func TestShootingJsonState(t *testing.T) {
-	p := action.NewShooting(nil)
-	state := p.JsonState()
-
-	assert.NotEqual(t, "{}", state)
+	assert.Nil(t, p.State())
 }
 
 func TestShootingPerform(t *testing.T) {
@@ -41,24 +32,25 @@ func TestShootingPerform(t *testing.T) {
 	mockPlayer := game.NewMockPlayer(ctrl)
 
 	//=============================================================
-	p := action.NewShooting(mockGame)
-	state := p.State().(*state.Shotgun)
-
 	hunterId := types.PlayerId(1)
 	targetId := types.PlayerId(2)
 
 	mockGame.
 		EXPECT().
 		KillPlayer(gomock.Any()).
-		Return(mockPlayer)
+		Return(mockPlayer).
+		Times(2)
 
 	mockPlayer.
 		EXPECT().
 		Id().
-		Return(targetId)
+		Return(targetId).
+		Times(2)
 
 	//=============================================================
 	// Actor and target is the same
+	p := action.NewShooting(mockGame)
+
 	res := p.Perform(&types.ActionRequest{
 		GameId:  1,
 		Actor:   hunterId,
@@ -69,7 +61,14 @@ func TestShootingPerform(t *testing.T) {
 
 	//=============================================================
 	// Already shot
-	state.Shoot(targetId)
+	p = action.NewShooting(mockGame)
+
+	p.Perform(&types.ActionRequest{
+		GameId:  1,
+		Actor:   hunterId,
+		Targets: []types.PlayerId{targetId},
+	})
+
 	res = p.Perform(&types.ActionRequest{
 		GameId:  1,
 		Actor:   hunterId,

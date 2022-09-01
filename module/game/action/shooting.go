@@ -2,21 +2,20 @@ package action
 
 import (
 	"uwwolf/module/game/contract"
-	"uwwolf/module/game/state"
 	"uwwolf/types"
 )
 
 const ShootingActionName = "Shooting"
 
 type shooting struct {
-	action[state.Shotgun]
+	action[types.PlayerId]
 }
 
 func NewShooting(game contract.Game) contract.Action {
 	shootingAction := shooting{
-		action: action[state.Shotgun]{
+		action: action[types.PlayerId]{
 			name:  ShootingActionName,
-			state: state.NewShotgun(),
+			state: nil,
 			game:  game,
 		},
 	}
@@ -32,7 +31,7 @@ func (s *shooting) validate(req *types.ActionRequest) (alert string) {
 	if !req.IsSkipped {
 		if !req.IsSkipped && req.Actor == req.Targets[0] {
 			alert = "Please don't commit suicide :("
-		} else if s.state.IsShot() {
+		} else if s.state != nil {
 			alert = "Already shot!"
 		}
 	}
@@ -47,7 +46,9 @@ func (s *shooting) execute(req *types.ActionRequest) *types.ActionResponse {
 		}
 	}
 
-	if !s.state.Shoot(req.Targets[0]) {
+	s.state = &req.Targets[0]
+
+	if s.state.IsUnknown() {
 		return &types.ActionResponse{
 			Error: &types.ErrorDetail{
 				Tag:   types.SystemErrorTag,
@@ -56,7 +57,7 @@ func (s *shooting) execute(req *types.ActionRequest) *types.ActionResponse {
 		}
 	}
 
-	killedPlayer := s.game.KillPlayer(req.Targets[0])
+	killedPlayer := s.game.KillPlayer(*s.state)
 
 	return &types.ActionResponse{
 		Ok:   true,

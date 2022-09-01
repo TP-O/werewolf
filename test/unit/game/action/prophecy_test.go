@@ -25,13 +25,6 @@ func TestProphecyState(t *testing.T) {
 	assert.True(t, ok)
 }
 
-func TestProphecyJsonState(t *testing.T) {
-	p := action.NewProphecy(nil)
-	state := p.JsonState()
-
-	assert.NotEqual(t, "{}", state)
-}
-
 func TestProphecyPerform(t *testing.T) {
 	//========================MOCK================================
 	ctrl := gomock.NewController(t)

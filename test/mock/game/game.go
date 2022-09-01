@@ -78,18 +78,18 @@ func (mr *MockGameMockRecorder) Player(playerId interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Player", reflect.TypeOf((*MockGame)(nil).Player), playerId)
 }
 
-// PlayersWithRole mocks base method.
-func (m *MockGame) PlayersWithRole(roleId types.RoleId) []contract.Player {
+// PlayerIdsWithRole mocks base method.
+func (m *MockGame) PlayerIdsWithRole(roleId types.RoleId) []types.PlayerId {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "PlayersWithRole", roleId)
-	ret0, _ := ret[0].([]contract.Player)
+	ret := m.ctrl.Call(m, "PlayerIdsWithRole", roleId)
+	ret0, _ := ret[0].([]types.PlayerId)
 	return ret0
 }
 
-// PlayersWithRole indicates an expected call of PlayersWithRole.
-func (mr *MockGameMockRecorder) PlayersWithRole(roleId interface{}) *gomock.Call {
+// PlayerIdsWithRole indicates an expected call of PlayerIdsWithRole.
+func (mr *MockGameMockRecorder) PlayerIdsWithRole(roleId interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PlayersWithRole", reflect.TypeOf((*MockGame)(nil).PlayersWithRole), roleId)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PlayerIdsWithRole", reflect.TypeOf((*MockGame)(nil).PlayerIdsWithRole), roleId)
 }
 
 // Poll mocks base method.

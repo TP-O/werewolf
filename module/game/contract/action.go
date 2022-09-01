@@ -13,8 +13,8 @@ type Action interface {
 	// State returns current action state.
 	State() any
 
-	// JsonState returns current action state, but in a JSON string.
-	JsonState() string
+	// // JsonState returns current action state, but in a JSON string.
+	// JsonState() string
 
 	// Perform makes some changes in state. First, it validates action request,
 	// then executes it if the validation is successful. Returning struct with Ok
