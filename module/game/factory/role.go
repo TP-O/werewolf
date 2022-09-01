@@ -27,9 +27,6 @@ func (f *roleFactory) Create(id types.RoleId, game contract.Game, setting *types
 	case types.TwoSistersRole:
 		return role.NewTwoSisterRole(game, setting)
 
-	case types.AlphaWolfRole:
-		return role.NewAlphaWolfRole(game, setting)
-
 	default:
 		return nil
 	}

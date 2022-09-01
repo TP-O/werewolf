@@ -17,7 +17,6 @@ const (
 	HunterRole
 	SeerRole
 	TwoSistersRole
-	AlphaWolfRole
 )
 
 type RoleSetting struct {
