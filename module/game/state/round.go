@@ -235,7 +235,7 @@ func (r *Round) existRole(roleId types.RoleId) bool {
 	return false
 }
 
-// Decide which phase and turn contain new turn. Return -1 in second parameter
+// Decide which phase and turn index contain new turn. Return -1 in second parameter
 // if failed.
 func (r *Round) handleTurnSetting(setting *types.TurnSetting) (types.PhaseId, int) {
 	turnIndex := -1

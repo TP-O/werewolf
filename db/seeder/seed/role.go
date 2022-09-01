@@ -44,17 +44,6 @@ func SeedRoles(client *gorm.DB) {
 				BeginRound: 1,
 				Expiration: types.UnlimitedTimes,
 			},
-			{
-				ID:         types.AlphaWolfRole,
-				FactionID:  types.WerewolfFaction,
-				PhaseID:    types.NightPhase,
-				Name:       "Alpha Wolf",
-				Priority:   4,
-				Weight:     1,
-				Set:        1,
-				BeginRound: 2,
-				Expiration: types.UnlimitedTimes,
-			},
 
 			// Day
 			{

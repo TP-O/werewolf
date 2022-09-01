@@ -1,6 +1,7 @@
 package role
 
 import (
+	"uwwolf/module/game/action"
 	"uwwolf/module/game/contract"
 	"uwwolf/types"
 )
@@ -16,6 +17,7 @@ func NewTwoSisterRole(game contract.Game, setting *types.RoleSetting) contract.R
 		game:      game,
 		player:    game.Player(setting.OwnerId),
 		skill: &skill{
+			action:       action.NewRecognition(game, types.TwoSistersRole),
 			beginRoundId: setting.BeginRound,
 			expiration:   setting.Expiration,
 		},
