@@ -6,18 +6,15 @@ import (
 	"uwwolf/types"
 )
 
-const TwoSistersRoleName = "Two Sisters"
-
 func NewTwoSisterRole(game contract.Game, setting *types.RoleSetting) contract.Role {
 	return &role{
-		id:        types.TwoSistersRole,
+		id:        setting.Id,
 		factionId: setting.FactionId,
-		phaseId:   types.NightPhase,
-		name:      TwoSistersRoleName,
+		phaseId:   setting.PhaseId,
 		game:      game,
 		player:    game.Player(setting.OwnerId),
 		skill: &skill{
-			action:       action.NewRecognition(game, types.TwoSistersRole),
+			action:       action.NewRecognition(game, setting.Id),
 			beginRoundId: setting.BeginRound,
 			expiration:   setting.Expiration,
 		},

@@ -7,7 +7,6 @@ import (
 
 type role struct {
 	id        types.RoleId
-	name      string
 	game      contract.Game
 	player    contract.Player
 	phaseId   types.PhaseId
@@ -27,10 +26,6 @@ func (r *role) Id() types.RoleId {
 
 func (r *role) FactionId() types.FactionId {
 	return r.factionId
-}
-
-func (r *role) Name() string {
-	return r.name
 }
 
 func (r *role) AfterBeingVoted() bool {

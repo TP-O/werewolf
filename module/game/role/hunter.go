@@ -6,8 +6,6 @@ import (
 	"uwwolf/types"
 )
 
-const HunterRoleName = "Hunter"
-
 type hunerRole struct {
 	role
 }
@@ -15,10 +13,9 @@ type hunerRole struct {
 func NewHunterRole(game contract.Game, setting *types.RoleSetting) contract.Role {
 	return &hunerRole{
 		role: role{
-			id:        types.HunterRole,
+			id:        setting.Id,
 			factionId: setting.FactionId,
-			phaseId:   types.DayPhase,
-			name:      HunterRoleName,
+			phaseId:   setting.PhaseId,
 			game:      game,
 			player:    game.Player(setting.OwnerId),
 			skill: &skill{

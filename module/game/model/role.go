@@ -34,7 +34,7 @@ type Role struct {
 	ID         types.RoleId        `gorm:"primarykey"`
 	PhaseID    types.PhaseId       `gorm:"uniqueIndex:idx_priority_in_phase"`
 	FactionID  types.FactionId     `gorm:""`
-	Name       string              `gorm:"type:varchar(50);unique"`
+	IsDefault  bool                `gorm:"type:boolean;default=false"`
 	Priority   int                 `gorm:"type:smallint;uniqueIndex:idx_priority_in_phase;check:priority >= 0"`
 	Weight     int                 `gorm:"type:smallint;default:1"`
 	Set        int                 `gorm:"type:smallint;default:1;check:set >= -1 and set <> 0"`

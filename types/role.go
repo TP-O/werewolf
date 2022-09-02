@@ -20,8 +20,10 @@ const (
 )
 
 type RoleSetting struct {
+	Id         RoleId
 	OwnerId    PlayerId
 	FactionId  FactionId
+	PhaseId    PhaseId
 	BeginRound RoundId
 	Expiration NumberOfTimes
 }

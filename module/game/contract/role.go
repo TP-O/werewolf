@@ -9,9 +9,6 @@ type Role interface {
 	// FactionId returns id of faction to which role belongs.
 	FactionId() types.FactionId
 
-	// Name returns role's name.
-	Name() string
-
 	// AfterBeingVoted is called after being voted. Return false
 	// if exonerated, otherwise return true. Do something before
 	// death.

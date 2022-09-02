@@ -6,16 +6,13 @@ import (
 	"uwwolf/types"
 )
 
-const WerewolfRoleName = "Werewolf"
-
 func NewWerewolfRole(game contract.Game, setting *types.RoleSetting) contract.Role {
 	player := game.Player(setting.OwnerId)
 
 	return &role{
-		id:        types.WerewolfRole,
+		id:        setting.Id,
 		factionId: setting.FactionId,
-		phaseId:   types.NightPhase,
-		name:      WerewolfRoleName,
+		phaseId:   setting.PhaseId,
 		game:      game,
 		player:    player,
 		skill: &skill{
