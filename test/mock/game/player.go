@@ -79,6 +79,20 @@ func (mr *MockPlayerMockRecorder) Id() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Id", reflect.TypeOf((*MockPlayer)(nil).Id))
 }
 
+// RoleIds mocks base method.
+func (m *MockPlayer) RoleIds() []types.RoleId {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RoleIds")
+	ret0, _ := ret[0].([]types.RoleId)
+	return ret0
+}
+
+// RoleIds indicates an expected call of RoleIds.
+func (mr *MockPlayerMockRecorder) RoleIds() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RoleIds", reflect.TypeOf((*MockPlayer)(nil).RoleIds))
+}
+
 // UseSkill mocks base method.
 func (m *MockPlayer) UseSkill(req *types.ActionRequest) *types.ActionResponse {
 	m.ctrl.T.Helper()

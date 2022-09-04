@@ -89,18 +89,18 @@ func TestVotePerform(t *testing.T) {
 		EXPECT().
 		Poll(gomock.Any()).
 		Return(state.NewPoll([]types.PlayerId{playerId, 2, 3})).
-		AnyTimes()
+		Times(1)
 
 	mockPlayer.
 		EXPECT().
 		Id().
 		Return(playerId).
-		AnyTimes()
+		Times(1)
 	mockPlayer.
 		EXPECT().
 		FactionId().
 		Return(types.VillagerFaction).
-		AnyTimes()
+		Times(1)
 
 	p := action.NewVote(mockGame, mockPlayer, 1)
 	p.State().(*state.Poll).Open()

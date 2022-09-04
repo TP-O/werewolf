@@ -1,6 +1,8 @@
 package core
 
 import (
+	"golang.org/x/exp/maps"
+
 	"uwwolf/module/game/contract"
 	"uwwolf/types"
 	"uwwolf/util"
@@ -22,31 +24,35 @@ func NewPlayer(game contract.Game, id types.PlayerId) contract.Player {
 	}
 }
 
-func (p *player) GetId() types.PlayerId {
+func (p *player) Id() types.PlayerId {
 	return p.id
 }
 
-func (p *player) GetFactionId() types.FactionId {
+func (p *player) RoleIds() []types.RoleId {
+	return maps.Keys(p.roles)
+}
+
+func (p *player) FactionId() types.FactionId {
 	return p.factionId
 }
 
 func (p *player) AssignRoles(roles ...contract.Role) {
 	for _, role := range roles {
-		if !util.ExistKeyInMap(p.roles, role.GetId()) {
-			p.roles[role.GetId()] = role
-			p.ModifyFaction(role.GetFactionId())
+		if !util.ExistKeyInMap(p.roles, role.Id()) {
+			p.roles[role.Id()] = role
+			p.modifyFaction(role.FactionId())
 		}
 	}
 }
 
-func (p *player) ModifyFaction(factionId types.FactionId) {
+func (p *player) modifyFaction(factionId types.FactionId) {
 	if factionId > p.factionId {
 		p.factionId = factionId
 	}
 }
 
 func (p *player) UseSkill(req *types.ActionRequest) *types.ActionResponse {
-	if role := p.roles[p.game.GetCurrentRoleId()]; role != nil {
+	if role := p.roles[p.game.Round().CurrentTurn().RoleId()]; role != nil {
 		return role.ActivateSkill(req)
 	} else {
 		return &types.ActionResponse{

@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"uwwolf/config"
 )
 
 func main() {
@@ -94,5 +93,16 @@ func main() {
 	// 	},
 	// }).Start()
 
-	fmt.Println(config.App.Debug)
+	m := make(map[int]bool)
+
+	m[1] = true
+	m[2] = false
+	m[3] = false
+	m[9] = false
+	m[6] = false
+	m[5] = true
+
+	for k, _ := range m {
+		fmt.Println(k)
+	}
 }
