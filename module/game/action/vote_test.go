@@ -6,9 +6,9 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 
+	"uwwolf/mock/game"
 	"uwwolf/module/game/action"
 	"uwwolf/module/game/state"
-	"uwwolf/test/mock/game"
 	"uwwolf/types"
 )
 

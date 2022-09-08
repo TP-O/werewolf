@@ -2,9 +2,9 @@ package role_test
 
 import (
 	"testing"
+	"uwwolf/mock/game"
 	"uwwolf/module/game/role"
 	"uwwolf/module/game/state"
-	"uwwolf/test/mock/game"
 	"uwwolf/types"
 
 	"github.com/golang/mock/gomock"
