@@ -1,6 +1,8 @@
 package core
 
 import (
+	"context"
+	"fmt"
 	"time"
 
 	"github.com/jellydator/ttlcache/v3"
@@ -22,6 +24,7 @@ type game struct {
 	isStarted          bool
 	capacity           int
 	numberOfWerewolves int
+	switchTurnSignal   chan bool
 	turnDuration       time.Duration
 	discussionDuration time.Duration
 	round              *state.Round
@@ -45,6 +48,7 @@ func NewGame(setting *types.GameSetting) contract.Game {
 		id:                 setting.Id,
 		capacity:           len(setting.PlayerIds),
 		numberOfWerewolves: setting.NumberOfWerewolves,
+		switchTurnSignal:   make(chan bool),
 		turnDuration:       setting.TurnDuration,
 		discussionDuration: setting.DiscussionDuration,
 		rolePool:           setting.RolePool,
@@ -106,6 +110,8 @@ func (g *game) Start() bool {
 	g.polls[types.VillagerFaction].AddElectors(g.fId2pIds[types.VillagerFaction])
 	g.polls[types.VillagerFaction].AddElectors(g.fId2pIds[types.WerewolfFaction])
 	g.polls[types.WerewolfFaction].AddElectors(g.fId2pIds[types.WerewolfFaction])
+
+	go g.listenTurnSwitching()
 
 	g.isStarted = true
 
@@ -298,6 +304,41 @@ func (g *game) assignRoles(roles []*model.Role) {
 	}
 }
 
+func (g *game) listenTurnSwitching() {
+	for {
+		func() {
+			var duration time.Duration
+
+			if g.Round().CurrentTurn().RoleId() == types.VillagerRole {
+				duration = g.discussionDuration
+
+				g.Poll(types.VillagerFaction).Open()
+				defer g.Poll(types.VillagerFaction).Close()
+			} else {
+				duration = g.turnDuration
+
+				if g.Round().CurrentTurn().RoleId() == types.WerewolfRole {
+					g.Poll(types.WerewolfFaction).Open()
+					defer g.Poll(types.WerewolfFaction).Close()
+				}
+			}
+
+			ctx, cancel := context.WithTimeout(context.Background(), duration)
+			defer cancel()
+
+			select {
+			case <-g.switchTurnSignal:
+				fmt.Println("next turn!")
+
+			case <-ctx.Done():
+				fmt.Println("timeout!")
+			}
+
+			g.Round().NextTurn()
+		}()
+	}
+}
+
 func (g *game) KillPlayer(playerId types.PlayerId) contract.Player {
 	if player := g.players[playerId]; player == nil {
 		return nil
@@ -332,5 +373,11 @@ func (g *game) RequestAction(req *types.ActionRequest) *types.ActionResponse {
 		}
 	}
 
-	return g.Player(req.ActorId).UseSkill(req)
+	res := g.Player(req.ActorId).UseSkill(req)
+
+	if res.Ok {
+		g.switchTurnSignal <- true
+	}
+
+	return res
 }

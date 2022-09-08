@@ -1,7 +1,9 @@
 package main
 
 import (
-	"fmt"
+	"time"
+	"uwwolf/module/game/core"
+	"uwwolf/types"
 )
 
 func main() {
@@ -83,26 +85,17 @@ func main() {
 
 	// fmt.Println(g)
 
-	// core.NewGame(&types.GameSetting{
-	// 	NumberOfWerewolves: 2,
-	// 	RolePool: []types.RoleId{
-	// 		1, 2, 3, 4, 5, 6,
-	// 	},
-	// 	PlayerIds: []types.PlayerId{
-	// 		1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
-	// 	},
-	// }).Start()
+	core.NewGame(&types.GameSetting{
+		NumberOfWerewolves: 2,
+		RolePool: []types.RoleId{
+			3, 4,
+		},
+		PlayerIds: []types.PlayerId{
+			1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+		},
+		TurnDuration:       2 * time.Second,
+		DiscussionDuration: 5 * time.Second,
+	}).Start()
 
-	m := make(map[int]bool)
-
-	m[1] = true
-	m[2] = false
-	m[3] = false
-	m[9] = false
-	m[6] = false
-	m[5] = true
-
-	for k, _ := range m {
-		fmt.Println(k)
-	}
+	time.Sleep(10 * time.Second)
 }
