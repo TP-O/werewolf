@@ -2,14 +2,15 @@ package core_test
 
 import (
 	"testing"
+
+	"github.com/golang/mock/gomock"
+	"github.com/stretchr/testify/assert"
+
 	"uwwolf/module/game/core"
 	"uwwolf/module/game/role"
 	"uwwolf/module/game/state"
 	"uwwolf/test/mock/game"
 	"uwwolf/types"
-
-	"github.com/golang/mock/gomock"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestPlayerId(t *testing.T) {

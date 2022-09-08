@@ -50,11 +50,11 @@ func TestProphecyPerform(t *testing.T) {
 		Times(2)
 
 	//=============================================================
-	// Actor and target is the same
+	// ActorId and target is the same
 	res := p.Perform(&types.ActionRequest{
-		GameId:  1,
-		Actor:   seerId,
-		Targets: []types.PlayerId{seerId},
+		GameId:    1,
+		ActorId:   seerId,
+		TargetIds: []types.PlayerId{seerId},
 	})
 
 	assert.False(t, res.Ok)
@@ -62,9 +62,9 @@ func TestProphecyPerform(t *testing.T) {
 	//=============================================================
 	// Already known target faction
 	res = p.Perform(&types.ActionRequest{
-		GameId:  1,
-		Actor:   seerId,
-		Targets: []types.PlayerId{werewolfId},
+		GameId:    1,
+		ActorId:   seerId,
+		TargetIds: []types.PlayerId{werewolfId},
 	})
 
 	assert.False(t, res.Ok)
@@ -77,9 +77,9 @@ func TestProphecyPerform(t *testing.T) {
 		Return(types.WerewolfFaction)
 
 	res = p.Perform(&types.ActionRequest{
-		GameId:  1,
-		Actor:   seerId,
-		Targets: []types.PlayerId{99},
+		GameId:    1,
+		ActorId:   seerId,
+		TargetIds: []types.PlayerId{99},
 	})
 
 	assert.True(t, res.Ok)
@@ -93,9 +93,9 @@ func TestProphecyPerform(t *testing.T) {
 		Return(types.VillagerFaction)
 
 	res = p.Perform(&types.ActionRequest{
-		GameId:  1,
-		Actor:   seerId,
-		Targets: []types.PlayerId{100},
+		GameId:    1,
+		ActorId:   seerId,
+		TargetIds: []types.PlayerId{100},
 	})
 
 	assert.True(t, res.Ok)

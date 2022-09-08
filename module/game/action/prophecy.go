@@ -29,9 +29,9 @@ func (p *prophecy) Perform(req *types.ActionRequest) *types.ActionResponse {
 }
 
 func (p *prophecy) validate(req *types.ActionRequest) (alert string) {
-	if req.Actor == req.Targets[0] {
+	if req.ActorId == req.TargetIds[0] {
 		alert = "WTF! You don't know who are you?"
-	} else if p.state.Identify(req.Targets[0]) != types.UnknownFaction {
+	} else if p.state.Identify(req.TargetIds[0]) != types.UnknownFaction {
 		alert = "Already known identity!"
 	}
 
@@ -39,11 +39,11 @@ func (p *prophecy) validate(req *types.ActionRequest) (alert string) {
 }
 
 func (p *prophecy) execute(req *types.ActionRequest) *types.ActionResponse {
-	factionId := p.game.Player(req.Targets[0]).FactionId()
+	factionId := p.game.Player(req.TargetIds[0]).FactionId()
 
 	// Check if a player is werewolf or not
 	if factionId == types.WerewolfFaction {
-		p.state.Acquire(req.Targets[0], types.WerewolfFaction)
+		p.state.Acquire(req.TargetIds[0], types.WerewolfFaction)
 
 		return &types.ActionResponse{
 			Ok:   true,
@@ -51,7 +51,7 @@ func (p *prophecy) execute(req *types.ActionRequest) *types.ActionResponse {
 		}
 	}
 
-	p.state.Acquire(req.Targets[0], types.VillagerFaction)
+	p.state.Acquire(req.TargetIds[0], types.VillagerFaction)
 
 	return &types.ActionResponse{
 		Ok:   true,

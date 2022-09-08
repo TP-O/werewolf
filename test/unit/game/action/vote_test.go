@@ -18,24 +18,16 @@ func TestVoteName(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockGame := game.NewMockGame(ctrl)
-	mockPlayer := game.NewMockPlayer(ctrl)
 
 	mockGame.
 		EXPECT().
 		Poll(types.VillagerFaction).
 		Return(&state.Poll{})
 
-	mockPlayer.
-		EXPECT().
-		Id().
-		Return(types.PlayerId(1))
-	mockPlayer.
-		EXPECT().
-		FactionId().
-		Return(types.VillagerFaction)
-
 	//=============================================================
-	p := action.NewVote(mockGame, mockPlayer, 1)
+	playerId := types.PlayerId(1)
+	factionId := types.VillagerFaction
+	p := action.NewVote(mockGame, factionId, playerId, 1)
 
 	assert.Equal(t, action.VoteActionName, p.Name())
 }
@@ -46,30 +38,22 @@ func TestVoteState(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockGame := game.NewMockGame(ctrl)
-	mockPlayer := game.NewMockPlayer(ctrl)
 
 	//=============================================================
 	playerId := types.PlayerId(1)
+	poll := state.NewPoll()
+	poll.AddElectors([]types.PlayerId{playerId, 2, 3})
 
 	mockGame.
 		EXPECT().
 		Poll(gomock.Any()).
-		Return(state.NewPoll([]types.PlayerId{playerId, 2, 3}))
-
-	mockPlayer.
-		EXPECT().
-		Id().
-		Return(playerId)
-	mockPlayer.
-		EXPECT().
-		FactionId().
-		Return(types.VillagerFaction)
-
-	p := action.NewVote(mockGame, mockPlayer, 2)
-	state, ok := p.State().(*state.Poll)
+		Return(poll)
 
 	//=============================================================
 	// Perfect init
+	p := action.NewVote(mockGame, types.VillagerFaction, playerId, 2)
+	state, ok := p.State().(*state.Poll)
+
 	assert.True(t, ok)
 	assert.Equal(t, state.Weights[playerId], uint(2))
 }
@@ -80,37 +64,27 @@ func TestVotePerform(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockGame := game.NewMockGame(ctrl)
-	mockPlayer := game.NewMockPlayer(ctrl)
 
 	//=============================================================
 	playerId := types.PlayerId(1)
+	poll := state.NewPoll()
+	poll.AddElectors([]types.PlayerId{playerId, 2, 3})
 
 	mockGame.
 		EXPECT().
 		Poll(gomock.Any()).
-		Return(state.NewPoll([]types.PlayerId{playerId, 2, 3})).
+		Return(poll).
 		Times(1)
 
-	mockPlayer.
-		EXPECT().
-		Id().
-		Return(playerId).
-		Times(1)
-	mockPlayer.
-		EXPECT().
-		FactionId().
-		Return(types.VillagerFaction).
-		Times(1)
-
-	p := action.NewVote(mockGame, mockPlayer, 1)
+	p := action.NewVote(mockGame, types.VillagerFaction, playerId, 1)
 	p.State().(*state.Poll).Open()
 
 	//=============================================================
 	// Not allowed elector id
 	res := p.Perform(&types.ActionRequest{
-		GameId:  1,
-		Actor:   99,
-		Targets: []types.PlayerId{playerId},
+		GameId:    1,
+		ActorId:   99,
+		TargetIds: []types.PlayerId{playerId},
 	})
 
 	assert.False(t, res.Ok)
@@ -119,7 +93,7 @@ func TestVotePerform(t *testing.T) {
 	// Skip vote
 	res = p.Perform(&types.ActionRequest{
 		GameId:    1,
-		Actor:     types.PlayerId(2),
+		ActorId:   types.PlayerId(2),
 		IsSkipped: true,
 	})
 
@@ -131,9 +105,9 @@ func TestVotePerform(t *testing.T) {
 	votedPlayer := types.PlayerId(2)
 
 	res = p.Perform(&types.ActionRequest{
-		GameId:  1,
-		Actor:   playerId,
-		Targets: []types.PlayerId{votedPlayer},
+		GameId:    1,
+		ActorId:   playerId,
+		TargetIds: []types.PlayerId{votedPlayer},
 	})
 
 	assert.True(t, res.Ok)

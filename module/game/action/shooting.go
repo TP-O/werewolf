@@ -29,7 +29,7 @@ func (s *shooting) Perform(req *types.ActionRequest) *types.ActionResponse {
 
 func (s *shooting) validate(req *types.ActionRequest) (alert string) {
 	if !req.IsSkipped {
-		if !req.IsSkipped && req.Actor == req.Targets[0] {
+		if !req.IsSkipped && req.ActorId == req.TargetIds[0] {
 			alert = "Please don't commit suicide :("
 		} else if s.state != nil {
 			alert = "Already shot!"
@@ -46,7 +46,7 @@ func (s *shooting) execute(req *types.ActionRequest) *types.ActionResponse {
 		}
 	}
 
-	s.state = &req.Targets[0]
+	s.state = &req.TargetIds[0]
 
 	if s.state.IsUnknown() {
 		return &types.ActionResponse{

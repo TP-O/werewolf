@@ -14,21 +14,15 @@ var electorIds = []types.PlayerId{
 }
 
 func TestNewPoll(t *testing.T) {
-	//=============================================================
-	// Too few electors
-	p := state.NewPoll([]types.PlayerId{1, 2})
+	p := state.NewPoll()
 
-	assert.Nil(t, p)
-
-	//=============================================================
-	// Enough electors
-	p = state.NewPoll([]types.PlayerId{1, 2, 3})
-
-	assert.NotNil(t, p)
+	assert.NotNil(t, p.Weights)
+	assert.NotNil(t, p.Rounds)
 }
 
 func TestIsOpen(t *testing.T) {
-	p := state.NewPoll(electorIds)
+	p := state.NewPoll()
+	p.AddElectors(electorIds)
 
 	//=============================================================
 	// Initial
@@ -47,8 +41,25 @@ func TestIsOpen(t *testing.T) {
 	assert.False(t, p.IsOpen())
 }
 
+func TestPollIsVoted(t *testing.T) {
+	p := state.NewPoll()
+	p.AddElectors(electorIds)
+	p.Open()
+
+	//=============================================================
+	// Is an elector who didn't vote yet
+	assert.False(t, p.IsVoted(electorIds[0]))
+
+	//=============================================================
+	// Is an elector who voted
+	p.Vote(electorIds[0], electorIds[1])
+
+	assert.True(t, p.IsVoted(electorIds[0]))
+}
+
 func TestPollIsAllowed(t *testing.T) {
-	p := state.NewPoll(electorIds)
+	p := state.NewPoll()
+	p.AddElectors(electorIds)
 
 	//=============================================================
 	// Not an elector
@@ -57,17 +68,11 @@ func TestPollIsAllowed(t *testing.T) {
 	//=============================================================
 	// Is an elector
 	assert.True(t, p.IsAllowed(electorIds[0]))
-
-	//=============================================================
-	// Is an elector who voted
-	p.Open()
-	p.Vote(electorIds[0], electorIds[1])
-
-	assert.False(t, p.IsAllowed(electorIds[0]))
 }
 
 func TestCurrentRound(t *testing.T) {
-	p := state.NewPoll(electorIds)
+	p := state.NewPoll()
+	p.AddElectors(electorIds)
 
 	//=============================================================
 	// Inital
@@ -80,8 +85,21 @@ func TestCurrentRound(t *testing.T) {
 	assert.NotNil(t, p.CurrentRound())
 }
 
+func TestAddElectors(t *testing.T) {
+	p := state.NewPoll()
+	p.AddElectors(electorIds)
+	p.AddElectors([]types.PlayerId{99})
+
+	for _, eId := range electorIds {
+		assert.Contains(t, p.ElectorIds, eId)
+	}
+
+	assert.Contains(t, p.ElectorIds, types.PlayerId(99))
+}
+
 func TestSetWeight(t *testing.T) {
-	p := state.NewPoll(electorIds)
+	p := state.NewPoll()
+	p.AddElectors(electorIds)
 
 	//=============================================================
 	// Valid elector id
@@ -94,7 +112,8 @@ func TestSetWeight(t *testing.T) {
 }
 
 func TestOpen(t *testing.T) {
-	p := state.NewPoll(electorIds)
+	p := state.NewPoll()
+	p.AddElectors(electorIds)
 
 	//=============================================================
 	// Open for the first time
@@ -107,7 +126,8 @@ func TestOpen(t *testing.T) {
 }
 
 func TestClose(t *testing.T) {
-	p := state.NewPoll(electorIds)
+	p := state.NewPoll()
+	p.AddElectors(electorIds)
 
 	//=============================================================
 	// Close many time without opening new poll
@@ -132,7 +152,8 @@ func TestClose(t *testing.T) {
 }
 
 func TestVote(t *testing.T) {
-	p := state.NewPoll(electorIds)
+	p := state.NewPoll()
+	p.AddElectors(electorIds)
 
 	//=============================================================
 	// Vote before opening poll
@@ -194,18 +215,19 @@ func TestVote(t *testing.T) {
 	p.Close()
 }
 
-func TestGetLoser(t *testing.T) {
-	p := state.NewPoll(electorIds)
+func TestWinner(t *testing.T) {
+	p := state.NewPoll()
+	p.AddElectors(electorIds)
 
 	//=============================================================
 	// Get loser before open first poll
-	assert.Equal(t, types.UnknownPlayer, p.GetLoser())
+	assert.Equal(t, types.UnknownPlayer, p.Winner())
 
 	//=============================================================
 	// Get loser when poll is opening
 	p.Open()
 
-	assert.Equal(t, types.UnknownPlayer, p.GetLoser())
+	assert.Equal(t, types.UnknownPlayer, p.Winner())
 
 	p.Close()
 
@@ -221,7 +243,7 @@ func TestGetLoser(t *testing.T) {
 	p.Vote(electorIds[6], electorIds[1])
 	p.Close()
 
-	assert.Equal(t, electorIds[1], p.GetLoser())
+	assert.Equal(t, electorIds[1], p.Winner())
 
 	//=============================================================
 	// Successully got loser - 50/50
@@ -236,11 +258,12 @@ func TestGetLoser(t *testing.T) {
 	p.Vote(electorIds[7], electorIds[2])
 	p.Close()
 
-	assert.Equal(t, types.UnknownPlayer, p.GetLoser())
+	assert.Equal(t, types.UnknownPlayer, p.Winner())
 }
 
 func RemoveElector(t *testing.T) {
-	p := state.NewPoll(electorIds)
+	p := state.NewPoll()
+	p.AddElectors(electorIds)
 
 	//=============================================================
 	// Remove non-exist elector

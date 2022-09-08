@@ -22,16 +22,10 @@ type record struct {
 	Votes      uint             `json:"votes"`
 }
 
-func NewPoll(electorIds []types.PlayerId) *Poll {
-	if len(electorIds) < 3 {
-		return nil
-	}
-
+func NewPoll() *Poll {
 	return &Poll{
-		ElectorIds:      electorIds,
-		VotedElectorIds: make([]types.PlayerId, len(electorIds)),
-		Weights:         make(map[types.PlayerId]uint),
-		Rounds:          make(map[uint]round),
+		Weights: make(map[types.PlayerId]uint),
+		Rounds:  make(map[uint]round),
 	}
 }
 
@@ -39,13 +33,20 @@ func (p *Poll) IsOpen() bool {
 	return p.IsVoting
 }
 
+func (p *Poll) IsVoted(electorId types.PlayerId) bool {
+	return slices.Contains(p.VotedElectorIds, electorId)
+}
+
 func (p *Poll) IsAllowed(electorId types.PlayerId) bool {
-	return slices.Contains(p.ElectorIds, electorId) &&
-		!slices.Contains(p.VotedElectorIds, electorId)
+	return slices.Contains(p.ElectorIds, electorId)
 }
 
 func (p *Poll) CurrentRound() round {
 	return p.Rounds[p.CurrentRoundId]
+}
+
+func (p *Poll) AddElectors(electorIds []types.PlayerId) {
+	p.ElectorIds = append(p.ElectorIds, electorIds...)
 }
 
 func (p *Poll) SetWeight(electorId types.PlayerId, weight uint) bool {
@@ -59,7 +60,7 @@ func (p *Poll) SetWeight(electorId types.PlayerId, weight uint) bool {
 }
 
 func (p *Poll) Open() bool {
-	if p.IsOpen() {
+	if p.IsOpen() || len(p.ElectorIds) <= 2 {
 		return false
 	}
 
@@ -97,7 +98,7 @@ func (p *Poll) Close() map[types.PlayerId]*record {
 }
 
 func (p *Poll) Vote(electorId types.PlayerId, targetId types.PlayerId) bool {
-	if !p.IsOpen() || !p.IsAllowed(electorId) {
+	if !p.IsOpen() || !p.IsAllowed(electorId) || p.IsVoted(electorId) {
 		return false
 	}
 
@@ -125,7 +126,7 @@ func (p *Poll) Vote(electorId types.PlayerId, targetId types.PlayerId) bool {
 	return true
 }
 
-func (p *Poll) GetLoser() types.PlayerId {
+func (p *Poll) Winner() types.PlayerId {
 	if p.IsOpen() || p.CurrentRoundId == 0 {
 		return types.UnknownPlayer
 	}

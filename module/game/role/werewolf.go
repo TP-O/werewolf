@@ -16,7 +16,7 @@ func NewWerewolfRole(game contract.Game, setting *types.RoleSetting) contract.Ro
 		game:      game,
 		player:    player,
 		skill: &skill{
-			action:       action.NewVote(game, player, 1),
+			action:       action.NewVote(game, types.WerewolfFaction, player.Id(), 1),
 			beginRoundId: setting.BeginRound,
 			expiration:   setting.Expiration,
 		},

@@ -14,6 +14,7 @@ import (
 	"uwwolf/module/game/state"
 	"uwwolf/types"
 	"uwwolf/util"
+	"uwwolf/validator"
 )
 
 type game struct {
@@ -21,8 +22,8 @@ type game struct {
 	isStarted          bool
 	capacity           int
 	numberOfWerewolves int
-	turnTime           time.Duration
-	discussionTime     time.Duration
+	turnDuration       time.Duration
+	discussionDuration time.Duration
 	round              *state.Round
 	rolePool           []types.RoleId
 	deadPlayerIds      []types.PlayerId
@@ -44,8 +45,8 @@ func NewGame(setting *types.GameSetting) contract.Game {
 		id:                 setting.Id,
 		capacity:           len(setting.PlayerIds),
 		numberOfWerewolves: setting.NumberOfWerewolves,
-		turnTime:           setting.TimeForTurn,
-		discussionTime:     setting.TimeForDiscussion,
+		turnDuration:       setting.TurnDuration,
+		discussionDuration: setting.DiscussionDuration,
 		rolePool:           setting.RolePool,
 		round:              state.NewRound(),
 		deadPlayerIds:      make([]types.PlayerId, len(setting.PlayerIds)),
@@ -58,6 +59,10 @@ func NewGame(setting *types.GameSetting) contract.Game {
 	for _, id := range setting.PlayerIds {
 		game.players[id] = NewPlayer(&game, id)
 	}
+
+	// Create polls for villagers and werewolves
+	game.polls[types.VillagerFaction] = state.NewPoll()
+	game.polls[types.WerewolfFaction] = state.NewPoll()
 
 	return &game
 }
@@ -72,6 +77,10 @@ func (g *game) Player(playerId types.PlayerId) contract.Player {
 
 func (g *game) PlayerIdsWithRole(roleId types.RoleId) []types.PlayerId {
 	return g.rId2pIds[roleId]
+}
+
+func (g *game) PlayerIdsWithFaction(factionId types.FactionId) []types.PlayerId {
+	return g.fId2pIds[factionId]
 }
 
 func (g *game) Round() *state.Round {
@@ -94,8 +103,9 @@ func (g *game) Start() bool {
 	g.assignRoles(roles)
 
 	// Create polls for villagers and werewolves
-	g.polls[types.VillagerFaction] = state.NewPoll(g.fId2pIds[types.VillagerFaction])
-	g.polls[types.WerewolfFaction] = state.NewPoll(g.fId2pIds[types.WerewolfFaction])
+	g.polls[types.VillagerFaction].AddElectors(g.fId2pIds[types.VillagerFaction])
+	g.polls[types.VillagerFaction].AddElectors(g.fId2pIds[types.WerewolfFaction])
+	g.polls[types.WerewolfFaction].AddElectors(g.fId2pIds[types.WerewolfFaction])
 
 	g.isStarted = true
 
@@ -241,26 +251,41 @@ func (g *game) assignRoles(roles []*model.Role) {
 	for _, player := range g.players {
 		index, role := util.RandomElement(roles)
 
+		g.rId2pIds[types.VillagerRole] = append(g.rId2pIds[types.VillagerRole], player.Id())
+		g.rId2pIds[role.ID] = append(g.rId2pIds[role.ID], player.Id())
+
 		player.AssignRoles(
 			factory.Role(role.ID, g, &types.RoleSetting{
+				Id:         role.ID,
 				OwnerId:    player.Id(),
+				PhaseId:    role.PhaseID,
 				FactionId:  role.FactionID,
 				BeginRound: role.BeginRound,
 				Expiration: role.Expiration,
 			}),
 			factory.Role(types.VillagerRole, g, &types.RoleSetting{
+				Id:         types.VillagerRole,
 				OwnerId:    player.Id(),
+				PhaseId:    types.DayPhase,
 				FactionId:  types.VillagerFaction,
 				BeginRound: types.FirstRound,
 				Expiration: types.UnlimitedTimes,
 			}),
 		)
 
+		g.round.AddPlayer(player.Id(), role.ID)
+		g.round.AddPlayer(player.Id(), types.VillagerRole)
+
 		if role.FactionID == types.WerewolfFaction {
+			g.rId2pIds[types.WerewolfRole] = append(g.rId2pIds[types.WerewolfRole], player.Id())
 			g.fId2pIds[types.WerewolfFaction] = append(g.fId2pIds[types.WerewolfFaction], player.Id())
 
+			g.round.AddPlayer(player.Id(), types.WerewolfRole)
+
 			player.AssignRoles(factory.Role(types.WerewolfRole, g, &types.RoleSetting{
+				Id:         types.WerewolfRole,
 				OwnerId:    player.Id(),
+				PhaseId:    types.NightPhase,
 				FactionId:  types.WerewolfFaction,
 				BeginRound: types.FirstRound,
 				Expiration: types.UnlimitedTimes,
@@ -277,16 +302,27 @@ func (g *game) KillPlayer(playerId types.PlayerId) contract.Player {
 	if player := g.players[playerId]; player == nil {
 		return nil
 	} else {
+		g.Round().DeletePlayerFromAllTurns(player.Id())
+		g.polls[types.VillagerFaction].RemoveElector(player.Id())
+		g.polls[types.WerewolfFaction].RemoveElector(player.Id())
 		g.deadPlayerIds = append(g.deadPlayerIds, playerId)
 
 		return player
 	}
 }
 
-func (g *game) RequestAction(playerId types.PlayerId, req *types.ActionRequest) *types.ActionResponse {
-	if playerId != req.Actor ||
-		slices.Contains(g.deadPlayerIds, playerId) ||
-		!g.round.IsAllowed(playerId) {
+func (g *game) RequestAction(req *types.ActionRequest) *types.ActionResponse {
+	if errs := validator.ValidateStruct(req); errs != nil {
+		return &types.ActionResponse{
+			Error: &types.ErrorDetail{
+				Tag: types.InvalidInputErrorTag,
+				Msg: errs,
+			},
+		}
+	}
+
+	if slices.Contains(g.deadPlayerIds, req.ActorId) ||
+		!g.round.IsAllowed(req.ActorId) {
 
 		return &types.ActionResponse{
 			Error: &types.ErrorDetail{
@@ -296,5 +332,5 @@ func (g *game) RequestAction(playerId types.PlayerId, req *types.ActionRequest) 
 		}
 	}
 
-	return g.Player(playerId).UseSkill(req)
+	return g.Player(req.ActorId).UseSkill(req)
 }

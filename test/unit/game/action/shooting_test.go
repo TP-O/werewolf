@@ -48,13 +48,13 @@ func TestShootingPerform(t *testing.T) {
 		Times(2)
 
 	//=============================================================
-	// Actor and target is the same
+	// ActorId and target is the same
 	p := action.NewShooting(mockGame)
 
 	res := p.Perform(&types.ActionRequest{
-		GameId:  1,
-		Actor:   hunterId,
-		Targets: []types.PlayerId{hunterId},
+		GameId:    1,
+		ActorId:   hunterId,
+		TargetIds: []types.PlayerId{hunterId},
 	})
 
 	assert.False(t, res.Ok)
@@ -64,15 +64,15 @@ func TestShootingPerform(t *testing.T) {
 	p = action.NewShooting(mockGame)
 
 	p.Perform(&types.ActionRequest{
-		GameId:  1,
-		Actor:   hunterId,
-		Targets: []types.PlayerId{targetId},
+		GameId:    1,
+		ActorId:   hunterId,
+		TargetIds: []types.PlayerId{targetId},
 	})
 
 	res = p.Perform(&types.ActionRequest{
-		GameId:  1,
-		Actor:   hunterId,
-		Targets: []types.PlayerId{targetId},
+		GameId:    1,
+		ActorId:   hunterId,
+		TargetIds: []types.PlayerId{targetId},
 	})
 
 	assert.False(t, res.Ok)
@@ -83,7 +83,7 @@ func TestShootingPerform(t *testing.T) {
 
 	res = p.Perform(&types.ActionRequest{
 		GameId:    1,
-		Actor:     hunterId,
+		ActorId:   hunterId,
 		IsSkipped: true,
 	})
 
@@ -92,9 +92,9 @@ func TestShootingPerform(t *testing.T) {
 	//=============================================================
 	// Successfully shot
 	res = p.Perform(&types.ActionRequest{
-		GameId:  1,
-		Actor:   hunterId,
-		Targets: []types.PlayerId{targetId},
+		GameId:    1,
+		ActorId:   hunterId,
+		TargetIds: []types.PlayerId{targetId},
 	})
 
 	assert.True(t, res.Ok)

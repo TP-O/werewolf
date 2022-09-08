@@ -31,8 +31,8 @@ const (
 type GameSetting struct {
 	Id                 GameId
 	NumberOfWerewolves int
-	TimeForTurn        time.Duration
-	TimeForDiscussion  time.Duration
+	TurnDuration       time.Duration
+	DiscussionDuration time.Duration
 	RolePool           []RoleId
 	PlayerIds          []PlayerId
 }

@@ -78,6 +78,20 @@ func (mr *MockGameMockRecorder) Player(playerId interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Player", reflect.TypeOf((*MockGame)(nil).Player), playerId)
 }
 
+// PlayerIdsWithFaction mocks base method.
+func (m *MockGame) PlayerIdsWithFaction(factionId types.FactionId) []types.PlayerId {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "PlayerIdsWithFaction", factionId)
+	ret0, _ := ret[0].([]types.PlayerId)
+	return ret0
+}
+
+// PlayerIdsWithFaction indicates an expected call of PlayerIdsWithFaction.
+func (mr *MockGameMockRecorder) PlayerIdsWithFaction(factionId interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PlayerIdsWithFaction", reflect.TypeOf((*MockGame)(nil).PlayerIdsWithFaction), factionId)
+}
+
 // PlayerIdsWithRole mocks base method.
 func (m *MockGame) PlayerIdsWithRole(roleId types.RoleId) []types.PlayerId {
 	m.ctrl.T.Helper()
@@ -107,17 +121,17 @@ func (mr *MockGameMockRecorder) Poll(factionId interface{}) *gomock.Call {
 }
 
 // RequestAction mocks base method.
-func (m *MockGame) RequestAction(playerId types.PlayerId, req *types.ActionRequest) *types.ActionResponse {
+func (m *MockGame) RequestAction(req *types.ActionRequest) *types.ActionResponse {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RequestAction", playerId, req)
+	ret := m.ctrl.Call(m, "RequestAction", req)
 	ret0, _ := ret[0].(*types.ActionResponse)
 	return ret0
 }
 
 // RequestAction indicates an expected call of RequestAction.
-func (mr *MockGameMockRecorder) RequestAction(playerId, req interface{}) *gomock.Call {
+func (mr *MockGameMockRecorder) RequestAction(req interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RequestAction", reflect.TypeOf((*MockGame)(nil).RequestAction), playerId, req)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RequestAction", reflect.TypeOf((*MockGame)(nil).RequestAction), req)
 }
 
 // Round mocks base method.

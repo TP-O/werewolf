@@ -26,11 +26,14 @@ type Game interface {
 	// PlayersWithRole return all players in a role.
 	PlayerIdsWithRole(roleId types.RoleId) []types.PlayerId
 
+	// PlayersWithFaction return all players in a faction.
+	PlayerIdsWithFaction(factionId types.FactionId) []types.PlayerId
+
 	// KillPlayer marks the player as died then does something based on
 	// he/she roles, if any.
 	KillPlayer(playerId types.PlayerId) Player
 
-	// RequestAction validates the request with its actor then executes action
+	// RequestAction validates the request with its actor and then executes action
 	// if everything is ok.
-	RequestAction(playerId types.PlayerId, req *types.ActionRequest) *types.ActionResponse
+	RequestAction(req *types.ActionRequest) *types.ActionResponse
 }
