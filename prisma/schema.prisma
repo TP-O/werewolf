@@ -7,8 +7,23 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 model User {
-  id    Int     @default(autoincrement()) @id
-  email String  @unique
+  id  Int    @id @default(autoincrement())
+  fid String @unique
+
+  acceptedFriends FriendRelationship[] @relation("inviter_fk")
+  invitedFriends  FriendRelationship[] @relation("acceptor_fk")
+
+  @@map("users")
+}
+
+model FriendRelationship {
+  inviterId  Int @map("inviter_id")
+  acceptorId Int @map("acceptor_id")
+
+  inviter  User @relation(name: "inviter_fk", fields: [inviterId], references: [id])
+  acceptor User @relation(name: "acceptor_fk", fields: [acceptorId], references: [id])
+
+  @@unique([inviterId, acceptorId])
+  @@map("friend_relationships")
 }
