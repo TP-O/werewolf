@@ -4,6 +4,7 @@ import { TextChatGateway } from './chat/text/text-chat.gateway';
 import { PrismaService } from './chat/prisma.service';
 import { AuthService } from './chat/auth.service';
 import { UserService } from './chat/user.service';
+import { MessageService } from './chat/message.service';
 
 @Module({
   imports: [],
@@ -13,6 +14,7 @@ import { UserService } from './chat/user.service';
     ConnectionService,
     AuthService,
     UserService,
+    MessageService,
     TextChatGateway,
   ],
 })

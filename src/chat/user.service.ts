@@ -12,20 +12,6 @@ export class UserService {
 
   constructor(private prismaService: PrismaService) {}
 
-  async getBySocketId(socketId: string) {
-    const userId = await this.redis.get(`${CacheNamespace.SId2UId}${socketId}`);
-
-    if (userId == null) {
-      return null;
-    }
-
-    const user = await this.prismaService.user.findUnique({
-      where: { id: parseInt(userId, 10) },
-    });
-
-    return user;
-  }
-
   async connect(user: User, socketId: string) {
     await this.redis
       .pipeline()
@@ -66,6 +52,36 @@ export class UserService {
     });
   }
 
+  async getById(userId: number) {
+    const user = await this.prismaService.user.findUnique({
+      where: { id: userId },
+    });
+
+    return user;
+  }
+
+  async getBySocketId(socketId: string) {
+    const userId = await this.redis.get(`${CacheNamespace.SId2UId}${socketId}`);
+
+    if (userId == null) {
+      return null;
+    }
+
+    const user = await this.getById(parseInt(userId, 10));
+
+    return user;
+  }
+
+  async getSocketIds(userId: number) {
+    const sIds = await this.redis.lrange(
+      `${CacheNamespace.UId2SIds}${userId}`,
+      0,
+      -1,
+    );
+
+    return sIds;
+  }
+
   async getOnlineFriendSocketIds(userId: number) {
     const sIds: string[] = [];
     const onlineFriends = await this.prismaService.user.findMany({
@@ -93,5 +109,18 @@ export class UserService {
     onlineFriends.forEach((friend) => sIds.push(...(friend.sids as string[])));
 
     return sIds;
+  }
+
+  async areFriends(stUserId: number, ndUserId: number) {
+    const relationship = await this.prismaService.friendRelationship.findFirst({
+      where: {
+        OR: [
+          { inviterId: stUserId, acceptorId: ndUserId },
+          { inviterId: ndUserId, acceptorId: stUserId },
+        ],
+      },
+    });
+
+    return relationship != null;
   }
 }
