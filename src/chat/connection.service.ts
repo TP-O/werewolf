@@ -1,75 +1,56 @@
-import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { WsException } from '@nestjs/websockets';
-import { Cache } from 'cache-manager';
-import { Socket } from 'socket.io';
+import { User } from '@prisma/client';
+import { Server, Socket } from 'socket.io';
 import { AppConfig } from 'src/config/app.config';
-import { CacheNamespace } from 'src/enum/cache.enum';
+import { UserId } from 'src/enum/user.enum';
 import { AuthService } from './auth.service';
+import { UserService } from './user.service';
 
 @Injectable()
 export class ConnectionService {
   constructor(
     private authService: AuthService,
-    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    private userService: UserService,
   ) {}
 
-  private async parseUserId(headerAuthorization: string) {
+  private async validateAuthorization(headerAuthorization: string) {
     const token = String(headerAuthorization).replace('Bearer ', '');
-    const userId = await this.authService.getUserId(token);
+    const user = await this.authService.getUser(token);
 
-    return userId;
+    return user;
   }
 
-  private async isDuplicateConnection(userId: string) {
-    const socketId = await this.cacheManager.get<string>(
-      `${CacheNamespace.UId2SId}${userId}`,
+  private async forceDisconnect(server: Server, user: User) {
+    (user.sids as string[]).forEach((sid) =>
+      server.sockets.sockets.get(sid).disconnect(),
     );
 
-    return socketId != null;
+    await this.userService.disconnect(user);
+
+    throw new WsException('Your account is in use. Please connect again!');
   }
 
-  async validateConnection(client: Socket) {
-    const userId = await this.parseUserId(
+  async validateConnection(server: Server, client: Socket) {
+    const user = await this.validateAuthorization(
       client.handshake.headers.authorization,
     );
 
-    if (userId === '') {
+    if (user.id === UserId.NonExist) {
       throw new WsException('Invalid access token!');
     }
 
+    if (user.id === UserId.Asynchronous) {
+      throw new WsException('Please connect again after a while!');
+    }
+
     if (
-      !AppConfig.allowDuplicateSignIn &&
-      (await this.isDuplicateConnection(userId))
+      (user.sids as string[]).length !== 0 &&
+      !AppConfig.allowDuplicateSignIn
     ) {
-      throw new WsException('Your account is being used elsewhere!');
+      await this.forceDisconnect(server, user);
     }
 
-    return userId;
-  }
-
-  async connect(client: Socket, userId: string) {
-    await this.cacheManager.set(
-      `${CacheNamespace.UId2SId}${userId}`,
-      client.id,
-    );
-    await this.cacheManager.set(
-      `${CacheNamespace.SId2UId}${client.id}`,
-      userId,
-    );
-
-    console.log('connected!');
-  }
-
-  async disconnect(client: Socket) {
-    const userId = this.cacheManager.get<string>(
-      `${CacheNamespace.SId2UId}${client.id}`,
-    );
-
-    if (userId !== null) {
-      await this.cacheManager.del(`${CacheNamespace.SId2UId}${client.id}`);
-      await this.cacheManager.del(`${CacheNamespace.UId2SId}${userId}`);
-    }
-
-    console.log('disconnected');
+    return user;
   }
 }

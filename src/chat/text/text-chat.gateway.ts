@@ -6,13 +6,17 @@ import {
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
-  WsException,
 } from '@nestjs/websockets';
+import Redis from 'ioredis';
 import { Server, Socket } from 'socket.io';
 import { ValidationConfig } from 'src/config/validation.config';
+import { RedisClient } from 'src/decorator/redis.decorator';
+import { CacheNamespace } from 'src/enum/cache.enum';
 import { EmitedEvent, ListenedEvent } from 'src/enum/event.enum';
 import { AllExceptionsFilter } from 'src/filter/all-exceptions.filter';
 import { ConnectionService } from '../connection.service';
+import { PrismaService } from '../prisma.service';
+import { UserService } from '../user.service';
 
 @UseFilters(new AllExceptionsFilter())
 @UsePipes(new ValidationPipe(ValidationConfig))
@@ -30,17 +34,33 @@ export class TextChatGateway
   @WebSocketServer()
   private readonly server: Server;
 
-  constructor(private connectionService: ConnectionService) {}
+  @RedisClient()
+  private readonly redis: Redis;
+
+  constructor(
+    private userService: UserService,
+    private prismaService: PrismaService,
+    private connectionService: ConnectionService,
+  ) {}
 
   async handleConnection(client: Socket) {
     try {
-      const userId = await this.connectionService.validateConnection(client);
+      const user = await this.connectionService.validateConnection(
+        this.server,
+        client,
+      );
+      await this.userService.connect(user, client.id);
+      const sIds = await this.userService.getOnlineFriendSocketIds(user.id);
 
-      await this.connectionService.connect(client, userId);
-    } catch (error) {
+      this.server.to(sIds).emit(EmitedEvent.FriendStatus, {
+        data: {
+          id: user.id,
+        },
+      });
+    } catch (error: any) {
       client.emit(EmitedEvent.Error, {
         event: ListenedEvent.Connect,
-        error: (error as WsException).getError(),
+        error: error.message,
       });
 
       client.disconnect();
@@ -48,7 +68,11 @@ export class TextChatGateway
   }
 
   async handleDisconnect(client: Socket) {
-    await this.connectionService.disconnect(client);
+    const user = await this.userService.getBySocketId(client.id);
+
+    if (user != null) {
+      await this.userService.disconnect(user, client.id);
+    }
   }
 
   @SubscribeMessage(ListenedEvent.PrivateMessage)

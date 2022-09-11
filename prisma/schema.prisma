@@ -8,21 +8,20 @@ datasource db {
 }
 
 model User {
-  id  Int    @id @default(autoincrement())
-  fid String @unique
-
-  acceptedFriends FriendRelationship[] @relation("inviter_fk")
-  invitedFriends  FriendRelationship[] @relation("acceptor_fk")
+  id              Int                  @id @default(autoincrement())
+  fid             String               @unique @db.VarChar(28)
+  sids            Json                 @default("[]")
+  acceptedFriends FriendRelationship[] @relation("inviter")
+  invitedFriends  FriendRelationship[] @relation("acceptor")
 
   @@map("users")
 }
 
 model FriendRelationship {
-  inviterId  Int @map("inviter_id")
-  acceptorId Int @map("acceptor_id")
-
-  inviter  User @relation(name: "inviter_fk", fields: [inviterId], references: [id])
-  acceptor User @relation(name: "acceptor_fk", fields: [acceptorId], references: [id])
+  inviterId  Int  @map("inviter_id")
+  acceptorId Int  @map("acceptor_id")
+  inviter    User @relation(name: "inviter", fields: [inviterId], references: [id])
+  acceptor   User @relation(name: "acceptor", fields: [acceptorId], references: [id])
 
   @@unique([inviterId, acceptorId])
   @@map("friend_relationships")

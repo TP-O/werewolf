@@ -1,13 +1,19 @@
-import { CacheModule, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ConnectionService } from './chat/connection.service';
 import { TextChatGateway } from './chat/text/text-chat.gateway';
-import { CacheConfig } from './config/cache.config';
 import { PrismaService } from './chat/prisma.service';
 import { AuthService } from './chat/auth.service';
+import { UserService } from './chat/user.service';
 
 @Module({
-  imports: [CacheModule.register(CacheConfig)],
+  imports: [],
   controllers: [],
-  providers: [PrismaService, ConnectionService, AuthService, TextChatGateway],
+  providers: [
+    PrismaService,
+    ConnectionService,
+    AuthService,
+    UserService,
+    TextChatGateway,
+  ],
 })
 export class AppModule {}

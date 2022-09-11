@@ -1,40 +1,51 @@
 import { Injectable } from '@nestjs/common';
-import { cert, getApp, getApps, initializeApp } from 'firebase-admin/app';
-import { Auth, getAuth } from 'firebase-admin/auth';
-import { env } from 'process';
+import { User } from '@prisma/client';
+import { Auth } from 'firebase-admin/auth';
+import { FirebaseAuth } from 'src/decorator/firebase-auth.decorator';
+import { UserId } from 'src/enum/user.enum';
+import { PrismaService } from './prisma.service';
 
 @Injectable()
 export class AuthService {
-  private app: Auth;
+  @FirebaseAuth()
+  private readonly auth: Auth;
 
-  constructor() {
-    if (getApps().length === 0) {
-      initializeApp({
-        credential: cert({
-          projectId: env.FIREBASE_PRODUCT_ID,
-          privateKey: String(process.env.FIREBASE_PRIVATE_KEY).replace(
-            /\\n/g,
-            '\n',
-          ),
-          clientEmail: env.FIREBASE_CLIENT_EMAIL,
-        }),
-        databaseURL: `https://${env.FIREBASE_PRODUCT_ID}.firebaseio.com`,
-      });
-    }
+  constructor(private prismaService: PrismaService) {}
 
-    this.app = getAuth(getApp());
-  }
-
-  async getUserId(token: string) {
+  private async getFirebaseId(token: string) {
     let userId: string;
 
     try {
-      const decodedToken = await this.app.verifyIdToken(token);
+      const decodedToken = await this.auth.verifyIdToken(token);
       userId = decodedToken.uid;
     } catch {
       userId = '';
     }
 
     return userId;
+  }
+
+  private generateEmptyUser(id: number): User {
+    return {
+      id,
+      fid: '',
+      sids: [],
+    };
+  }
+
+  async getUser(token: string) {
+    const fid = await this.getFirebaseId(token);
+
+    if (fid === '') {
+      return this.generateEmptyUser(UserId.NonExist);
+    }
+
+    const user = await this.prismaService.user.findUnique({
+      where: {
+        fid,
+      },
+    });
+
+    return user ?? this.generateEmptyUser(UserId.Asynchronous);
   }
 }
