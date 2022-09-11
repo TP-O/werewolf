@@ -11,7 +11,6 @@ import Redis from 'ioredis';
 import { Server, Socket } from 'socket.io';
 import { ValidationConfig } from 'src/config/validation.config';
 import { RedisClient } from 'src/decorator/redis.decorator';
-import { CacheNamespace } from 'src/enum/cache.enum';
 import { EmitedEvent, ListenedEvent } from 'src/enum/event.enum';
 import { AllExceptionsFilter } from 'src/filter/all-exceptions.filter';
 import { ConnectionService } from '../connection.service';
@@ -55,6 +54,7 @@ export class TextChatGateway
       this.server.to(sIds).emit(EmitedEvent.FriendStatus, {
         data: {
           id: user.id,
+          online: true,
         },
       });
     } catch (error: any) {
@@ -72,6 +72,15 @@ export class TextChatGateway
 
     if (user != null) {
       await this.userService.disconnect(user, client.id);
+
+      const sIds = await this.userService.getOnlineFriendSocketIds(user.id);
+
+      this.server.to(sIds).emit(EmitedEvent.FriendStatus, {
+        data: {
+          id: user.id,
+          online: false,
+        },
+      });
     }
   }
 
