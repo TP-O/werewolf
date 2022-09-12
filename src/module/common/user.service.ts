@@ -72,6 +72,12 @@ export class UserService {
     return user;
   }
 
+  async getId(socketId: string) {
+    const userId = await this.redis.get(`${CacheNamespace.SId2UId}${socketId}`);
+
+    return parseInt(userId, 10);
+  }
+
   async getSocketIds(userId: number) {
     const sIds = await this.redis.lrange(
       `${CacheNamespace.UId2SIds}${userId}`,

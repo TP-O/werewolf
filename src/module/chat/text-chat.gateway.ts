@@ -1,4 +1,9 @@
-import { UseFilters, UsePipes, ValidationPipe } from '@nestjs/common';
+import {
+  UseFilters,
+  UseInterceptors,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
 import {
   ConnectedSocket,
   GatewayMetadata,
@@ -14,10 +19,11 @@ import { Server, Socket } from 'socket.io';
 import { ValidationConfig } from 'src/config/validation.config';
 import { EmitedEvent, ListenedEvent } from 'src/enum/event.enum';
 import { AllExceptionsFilter } from 'src/filter/all-exceptions.filter';
-import { ConnectionService } from '../connection.service';
-import { PrismaService } from '../prisma.service';
-import { UserService } from '../user.service';
+import { UserService } from 'src/module/common/user.service';
+import { ConnectionService } from './connection.service';
+import { MessageService } from './message.service';
 import { SendPrivateMessageDto } from './dto/send-private-message.dto';
+import { SocketUserIdBindingInterceptor } from 'src/interceptor/socket-user-id-binding.interceptor';
 
 @UseFilters(new AllExceptionsFilter())
 @UsePipes(new ValidationPipe(ValidationConfig))
@@ -37,8 +43,8 @@ export class TextChatGateway
 
   constructor(
     private userService: UserService,
-    private prismaService: PrismaService,
     private connectionService: ConnectionService,
+    private messageService: MessageService,
   ) {}
 
   async handleConnection(client: Socket) {
@@ -83,22 +89,24 @@ export class TextChatGateway
     }
   }
 
+  @UseInterceptors(SocketUserIdBindingInterceptor)
   @SubscribeMessage(ListenedEvent.PrivateMessage)
   async handleMessage(
     @ConnectedSocket() client: Socket,
     @MessageBody() payload: SendPrivateMessageDto,
   ) {
-    const user = await this.userService.getBySocketId(client.id);
-
-    if (!(await this.userService.areFriends(user.id, payload.receivedId))) {
+    if (
+      !(await this.userService.areFriends(client.userId, payload.receiverId))
+    ) {
       throw new WsException('Only friends can send messages to each other!');
     }
 
-    const sids = await this.userService.getSocketIds(payload.receivedId);
+    await this.messageService.createPrivateMessage(client.userId, payload);
+    const sids = await this.userService.getSocketIds(payload.receiverId);
 
     this.server.to(sids as string[]).emit(EmitedEvent.PrivateMessage, {
       data: {
-        senderId: user.id,
+        senderId: client.userId,
         ...payload,
       },
     });

@@ -4,8 +4,8 @@ import { User } from '@prisma/client';
 import { Server, Socket } from 'socket.io';
 import { AppConfig } from 'src/config/app.config';
 import { UserId } from 'src/enum/user.enum';
-import { AuthService } from './auth.service';
-import { UserService } from './user.service';
+import { AuthService } from '../common/auth.service';
+import { UserService } from '../common/user.service';
 
 @Injectable()
 export class ConnectionService {
@@ -52,5 +52,11 @@ export class ConnectionService {
     }
 
     return user;
+
+    // return {
+    //   id: 1,
+    //   fid: '',
+    //   sids: [],
+    // };
   }
 }

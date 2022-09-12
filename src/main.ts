@@ -7,7 +7,7 @@ import { RedisIoAdapter } from './adapter/redis.adapter';
 import { AppModule } from './app.module';
 import { AppConfig } from './config/app.config';
 import { RolesGuard } from './guard/roles.guard';
-import { PrismaService } from './chat/prisma.service';
+import { PrismaService } from './module/common/prisma.service';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
