@@ -14,4 +14,5 @@ export enum EmitedEvent {
   PrivateMessage = 'RECEIVE_PRIVATE_MESSAGE',
   GroupMessage = 'RECEIVE_GROUP_MESSAGE',
   GroupMemeber = 'UPDATE_GROUP_MEMBER',
+  CreateRoom = 'CREATE_ROOM',
 }

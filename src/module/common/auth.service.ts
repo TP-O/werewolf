@@ -28,9 +28,7 @@ export class AuthService {
   private generateEmptyUser(id: number): User {
     return {
       id,
-      fid: '',
-      sids: [],
-    };
+    } as User;
   }
 
   async getUser(token: string) {

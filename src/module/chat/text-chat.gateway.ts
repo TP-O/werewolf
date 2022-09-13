@@ -24,6 +24,8 @@ import { ConnectionService } from './connection.service';
 import { MessageService } from './message.service';
 import { SendPrivateMessageDto } from './dto/send-private-message.dto';
 import { SocketUserIdBindingInterceptor } from 'src/interceptor/socket-user-id-binding.interceptor';
+import { RoomService } from './room.service';
+import { JoinRoomDto } from './dto/join-room.dto';
 
 @UseFilters(new AllExceptionsFilter())
 @UsePipes(new ValidationPipe(ValidationConfig))
@@ -45,6 +47,7 @@ export class TextChatGateway
     private userService: UserService,
     private connectionService: ConnectionService,
     private messageService: MessageService,
+    private roomService: RoomService,
   ) {}
 
   async handleConnection(client: Socket) {
@@ -54,9 +57,12 @@ export class TextChatGateway
         client,
       );
       await this.userService.connect(user, client.id);
-      const sIds = await this.userService.getOnlineFriendSocketIds(user.id);
+      const friendsSids = await this.userService.getOnlineFriendsSocketIds(
+        user.id,
+      );
 
-      this.server.to(sIds).emit(EmitedEvent.FriendStatus, {
+      friendsSids.forEach((sids) => client.to(sids));
+      client.emit(EmitedEvent.FriendStatus, {
         data: {
           id: user.id,
           online: true,
@@ -78,9 +84,12 @@ export class TextChatGateway
     if (user != null) {
       await this.userService.disconnect(user, client.id);
 
-      const sIds = await this.userService.getOnlineFriendSocketIds(user.id);
+      const friendsSids = await this.userService.getOnlineFriendsSocketIds(
+        user.id,
+      );
 
-      this.server.to(sIds).emit(EmitedEvent.FriendStatus, {
+      friendsSids.forEach((sids) => client.to(sids));
+      client.emit(EmitedEvent.FriendStatus, {
         data: {
           id: user.id,
           online: false,
@@ -91,7 +100,7 @@ export class TextChatGateway
 
   @UseInterceptors(SocketUserIdBindingInterceptor)
   @SubscribeMessage(ListenedEvent.PrivateMessage)
-  async handleMessage(
+  async sendPrivateMessage(
     @ConnectedSocket() client: Socket,
     @MessageBody() payload: SendPrivateMessageDto,
   ) {
@@ -109,6 +118,33 @@ export class TextChatGateway
         senderId: client.userId,
         ...payload,
       },
+    });
+  }
+
+  @UseInterceptors(SocketUserIdBindingInterceptor)
+  @SubscribeMessage(ListenedEvent.CreateRoom)
+  async handleCreateRoom(@ConnectedSocket() client: Socket) {
+    const room = await this.roomService.bookRoom(client.userId);
+
+    client.join(room.id);
+
+    client.emit(EmitedEvent.CreateRoom, {
+      data: room,
+    });
+  }
+
+  @UseInterceptors(SocketUserIdBindingInterceptor)
+  @SubscribeMessage(ListenedEvent.JoinRoom)
+  async handleJoinRoom(
+    @ConnectedSocket() client: Socket,
+    payload: JoinRoomDto,
+  ) {
+    const room = await this.roomService.joinRoom(payload.id, client.userId);
+
+    client.join(payload.id);
+
+    client.to(payload.id).emit(EmitedEvent.GroupMemeber, {
+      data: room,
     });
   }
 }

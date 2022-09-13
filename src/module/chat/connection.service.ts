@@ -22,10 +22,7 @@ export class ConnectionService {
   }
 
   private async forceDisconnect(server: Server, user: User) {
-    (user.sids as string[]).forEach((sid) =>
-      server.sockets.sockets.get(sid).disconnect(),
-    );
-
+    user.sids.forEach((id) => server.sockets.sockets.get(id).disconnect());
     await this.userService.disconnect(user);
 
     throw new WsException('Your account is in use. Please connect again!');
@@ -44,19 +41,10 @@ export class ConnectionService {
       throw new WsException('Please connect again after a while!');
     }
 
-    if (
-      (user.sids as string[]).length !== 0 &&
-      !AppConfig.allowDuplicateSignIn
-    ) {
+    if (user.sids.length !== 0 && !AppConfig.allowDuplicateSignIn) {
       await this.forceDisconnect(server, user);
     }
 
     return user;
-
-    // return {
-    //   id: 1,
-    //   fid: '',
-    //   sids: [],
-    // };
   }
 }

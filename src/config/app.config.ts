@@ -11,7 +11,8 @@ export const AppConfig = Object.freeze(
         : AppEnv.Development,
       debug: env.APP_DEBUG === 'true',
       port: parsedPort >= 0 && parsedPort < 65536 ? parsedPort : 3000,
-      allowDuplicateSignIn: env.APP_DUPLICATE_SIGN_IN === 'true',
+      allowDuplicateSignIn: false,
+      allowJoinMultipleRooms: false,
     };
   })(),
 );

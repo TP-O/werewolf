@@ -3,6 +3,7 @@ import { User } from '@prisma/client';
 import Redis from 'ioredis';
 import { RedisClient } from 'src/decorator/redis.decorator';
 import { CacheNamespace } from 'src/enum/cache.enum';
+import { ActiveStatus } from 'src/enum/user.enum';
 import { PrismaService } from './prisma.service';
 
 @Injectable()
@@ -13,39 +14,40 @@ export class UserService {
   constructor(private prismaService: PrismaService) {}
 
   async connect(user: User, socketId: string) {
-    await this.redis
-      .pipeline()
-      .set(`${CacheNamespace.SId2UId}${socketId}`, user.id)
-      .lpush(`${CacheNamespace.UId2SIds}${user.id}`, socketId)
-      .exec();
+    user.sids.push(socketId);
+
+    // Change status to online if user is offline
+    if (user.statusId === null) {
+      user.statusId = ActiveStatus.Online;
+    }
 
     await this.prismaService.user.update({
-      data: {
-        sids: [...(user.sids as string[]), socketId],
-      },
+      data: user,
       where: {
         id: user.id,
       },
     });
+    await this.redis.set(`${CacheNamespace.SId2UId}${socketId}`, user.id);
+
+    return user;
   }
 
-  async disconnect(user: User, socketId?: string) {
-    const sIds =
-      socketId == undefined
-        ? []
-        : (user.sids as string[]).filter((sid) => sid !== socketId);
+  async disconnect(user: User, ...socketIds: string[]) {
+    const redisPipe = this.redis.pipeline();
+    const removedSocketIds = socketIds.length === 0 ? user.sids : socketIds;
 
-    await this.redis
-      .pipeline()
-      .del(`${CacheNamespace.SId2UId}${socketId}`)
-      .del(`${CacheNamespace.UId2SIds}${user.id}`)
-      .lpush(`${CacheNamespace.UId2SIds}${user.id}`, ...sIds)
-      .exec();
+    removedSocketIds.forEach((sid) => {
+      redisPipe.del(`${CacheNamespace.SId2UId}${sid}`);
+    });
 
+    // Change status to offline if there are no sockets is connected
+    if (removedSocketIds.length === user.sids.length) {
+      user.statusId = null;
+    }
+
+    await redisPipe.exec();
     await this.prismaService.user.update({
-      data: {
-        sids: sIds,
-      },
+      data: user,
       where: {
         id: user.id,
       },
@@ -79,25 +81,27 @@ export class UserService {
   }
 
   async getSocketIds(userId: number) {
-    const sIds = await this.redis.lrange(
-      `${CacheNamespace.UId2SIds}${userId}`,
-      0,
-      -1,
-    );
+    const user = await this.prismaService.user.findUnique({
+      select: {
+        sids: true,
+      },
+      where: {
+        id: userId,
+      },
+    });
 
-    return sIds;
+    return user.sids;
   }
 
-  async getOnlineFriendSocketIds(userId: number) {
-    const sIds: string[] = [];
+  async getOnlineFriendsSocketIds(userId: number) {
     const onlineFriends = await this.prismaService.user.findMany({
       where: {
-        acceptedFriends: {
-          every: {
-            inviterId: userId,
+        OR: {
+          acceptedFriends: {
+            every: {
+              inviterId: userId,
+            },
           },
-        },
-        AND: {
           invitedFriends: {
             every: {
               acceptorId: userId,
@@ -105,16 +109,13 @@ export class UserService {
           },
         },
         NOT: {
-          sids: {
-            equals: [],
-          },
+          statusId: null,
         },
       },
     });
+    const onlineFriendsSids = onlineFriends.map((friend) => friend.sids);
 
-    onlineFriends.forEach((friend) => sIds.push(...(friend.sids as string[])));
-
-    return sIds;
+    return onlineFriendsSids;
   }
 
   async areFriends(stUserId: number, ndUserId: number) {

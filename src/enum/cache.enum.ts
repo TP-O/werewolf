@@ -1,4 +1,5 @@
 export enum CacheNamespace {
-  UId2SIds = 'uid_to_sids:',
   SId2UId = 'sid_to_uid:',
+  UId2RIds = 'uid_to_rids:',
+  Room = 'room:',
 }
