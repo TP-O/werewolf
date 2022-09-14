@@ -14,6 +14,12 @@ export class ConnectionService {
     private userService: UserService,
   ) {}
 
+  /**
+   * Verify token.
+   *
+   * @param headerAuthorization
+   * @returns user record.
+   */
   private async validateAuthorization(headerAuthorization: string) {
     const token = String(headerAuthorization).replace('Bearer ', '');
     const user = await this.authService.getUser(token);
@@ -21,13 +27,27 @@ export class ConnectionService {
     return user;
   }
 
+  /**
+   * Disconnect an user.
+   *
+   * @param server websocket server.
+   * @param user
+   */
   private async forceDisconnect(server: Server, user: User) {
-    user.sids.forEach((id) => server.sockets.sockets.get(id).disconnect());
     await this.userService.disconnect(user);
+    user.sids.forEach((id) => server.sockets.sockets.get(id).disconnect());
 
     throw new WsException('Your account is in use. Please connect again!');
   }
 
+  /**
+   * Check if the connection satisfies some sepecific conditions
+   * before allowing the connection.
+   *
+   * @param server websocket server.
+   * @param client socket client.
+   * @returns user record.
+   */
   async validateConnection(server: Server, client: Socket) {
     const user = await this.validateAuthorization(
       client.handshake.headers.authorization,

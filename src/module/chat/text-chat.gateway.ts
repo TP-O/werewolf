@@ -26,6 +26,7 @@ import { SendPrivateMessageDto } from './dto/send-private-message.dto';
 import { SocketUserIdBindingInterceptor } from 'src/interceptor/socket-user-id-binding.interceptor';
 import { RoomService } from './room.service';
 import { JoinRoomDto } from './dto/join-room.dto';
+import { LeaveRoomDto } from './dto/leave-room.dto';
 
 @UseFilters(new AllExceptionsFilter())
 @UsePipes(new ValidationPipe(ValidationConfig))
@@ -50,6 +51,11 @@ export class TextChatGateway
     private roomService: RoomService,
   ) {}
 
+  /**
+   * Store user state before connection.
+   *
+   * @param client socket client.
+   */
   async handleConnection(client: Socket) {
     try {
       const user = await this.connectionService.validateConnection(
@@ -78,6 +84,11 @@ export class TextChatGateway
     }
   }
 
+  /**
+   * Remove user state after disconnection.
+   *
+   * @param client socket client.
+   */
   async handleDisconnect(client: Socket) {
     const user = await this.userService.getBySocketId(client.id);
 
@@ -98,6 +109,12 @@ export class TextChatGateway
     }
   }
 
+  /**
+   * Send private message and notify receiver.
+   *
+   * @param client socket client.
+   * @param payload
+   */
   @UseInterceptors(SocketUserIdBindingInterceptor)
   @SubscribeMessage(ListenedEvent.PrivateMessage)
   async sendPrivateMessage(
@@ -121,11 +138,15 @@ export class TextChatGateway
     });
   }
 
+  /**
+   * Create a new room.
+   *
+   * @param client socket client.
+   */
   @UseInterceptors(SocketUserIdBindingInterceptor)
   @SubscribeMessage(ListenedEvent.CreateRoom)
   async handleCreateRoom(@ConnectedSocket() client: Socket) {
     const room = await this.roomService.bookRoom(client.userId);
-
     client.join(room.id);
 
     client.emit(EmitedEvent.CreateRoom, {
@@ -133,6 +154,12 @@ export class TextChatGateway
     });
   }
 
+  /**
+   * Join to a new room.
+   *
+   * @param client socket client.
+   * @param payload
+   */
   @UseInterceptors(SocketUserIdBindingInterceptor)
   @SubscribeMessage(ListenedEvent.JoinRoom)
   async handleJoinRoom(
@@ -140,8 +167,27 @@ export class TextChatGateway
     payload: JoinRoomDto,
   ) {
     const room = await this.roomService.joinRoom(payload.id, client.userId);
-
     client.join(payload.id);
+
+    client.to(payload.id).emit(EmitedEvent.GroupMemeber, {
+      data: room,
+    });
+  }
+
+  /**
+   * Leave the room.
+   *
+   * @param client socket client.
+   * @param payload
+   */
+  @UseInterceptors(SocketUserIdBindingInterceptor)
+  @SubscribeMessage(ListenedEvent.JoinRoom)
+  async handleLeaveRoom(
+    @ConnectedSocket() client: Socket,
+    payload: LeaveRoomDto,
+  ) {
+    const room = await this.roomService.leaveRoom(payload.id, client.userId);
+    client.leave(payload.id);
 
     client.to(payload.id).emit(EmitedEvent.GroupMemeber, {
       data: room,

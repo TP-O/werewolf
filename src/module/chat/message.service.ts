@@ -6,6 +6,13 @@ import { SendPrivateMessageDto } from './dto/send-private-message.dto';
 export class MessageService {
   constructor(private prismaService: PrismaService) {}
 
+  /**
+   * Store new private message.
+   *
+   * @param senderId
+   * @param privateMessageDto
+   * @returns
+   */
   createPrivateMessage(
     senderId: number,
     privateMessageDto: SendPrivateMessageDto,

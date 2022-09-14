@@ -11,6 +11,12 @@ export class RoomService {
   @RedisClient()
   private readonly redis: Redis;
 
+  /**
+   * Check if user is in any room.
+   *
+   * @param memberId
+   * @returns
+   */
   private async isMemeber(memberId: number) {
     const roomIds = await this.redis.llen(
       `${CacheNamespace.UId2RIds}${memberId}`,
@@ -19,6 +25,14 @@ export class RoomService {
     return roomIds > 0;
   }
 
+  /**
+   * Create a room and add the booker to its member list.
+   * If multi-room join is disabled, the booker must not
+   * enter any room before creating the room.
+   *
+   * @param ownerId
+   * @returns room value.
+   */
   async bookRoom(ownerId: number) {
     if (!AppConfig.allowJoinMultipleRooms && (await this.isMemeber(ownerId))) {
       throw new WsException(
@@ -41,6 +55,12 @@ export class RoomService {
     return room;
   }
 
+  /**
+   * Get room by id.
+   *
+   * @param id
+   * @returns
+   */
   async getRoom(id: string) {
     const roomJson = await this.redis.get(`${CacheNamespace.Room}${id}`);
 
@@ -53,6 +73,15 @@ export class RoomService {
     return room;
   }
 
+  /**
+   * Join to a new room. If multi-room join is disabled,
+   * the booker must not enter any room before creating
+   * the room.
+   *
+   * @param id room id.
+   * @param joinerId
+   * @returns updated room value.
+   */
   async joinRoom(id: string, joinerId: number) {
     if (!AppConfig.allowJoinMultipleRooms && (await this.isMemeber(joinerId))) {
       throw new WsException(
@@ -72,12 +101,21 @@ export class RoomService {
     return room;
   }
 
+  /**
+   * Leave the room. Delete the room if it is empty.
+   *
+   * @param id room id.
+   * @param leaverId
+   * @returns updated room value.
+   */
   async leaveRoom(id: string, leaverId: number) {
     const room = await this.getRoom(id);
     const deletedMemeberIndex = room.memberIds.indexOf(leaverId);
 
     if (deletedMemeberIndex === -1) {
-      throw new WsException('Join before leaving a room!');
+      throw new WsException('You are not in this room!');
+    } else {
+      room.memberIds.splice(deletedMemeberIndex, 1);
     }
 
     const redisPipe = this.redis.pipeline();
@@ -86,10 +124,11 @@ export class RoomService {
     if (room.memberIds.length === 0) {
       redisPipe.del(`${CacheNamespace.Room}${id}`);
     } else {
-      room.memberIds = room.memberIds.filter((id) => id !== leaverId);
       redisPipe.set(`${CacheNamespace.Room}${id}`, JSON.stringify(room));
     }
 
     await redisPipe.lrem(`${CacheNamespace.UId2RIds}`, 1, id).exec();
+
+    return room;
   }
 }
