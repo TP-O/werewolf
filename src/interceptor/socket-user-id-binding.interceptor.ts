@@ -6,8 +6,9 @@ import {
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { Socket } from 'socket.io';
-import { EmitedEvent } from 'src/enum/event.enum';
+import { EmitEvent } from 'src/enum/event.enum';
 import { UserService } from 'src/module/common/user.service';
+import { EmitEvents } from 'src/type/event.type';
 
 @Injectable()
 export class SocketUserIdBindingInterceptor implements NestInterceptor {
@@ -17,13 +18,13 @@ export class SocketUserIdBindingInterceptor implements NestInterceptor {
     context: ExecutionContext,
     next: CallHandler,
   ): Promise<Observable<any>> {
-    const client = context.switchToWs().getClient() as Socket;
+    const client = context.switchToWs().getClient() as Socket<null, EmitEvents>;
     const userId = await this.userService.getId(client.id);
 
     if (!(userId > 0)) {
-      client.emit(EmitedEvent.Error, {
-        event: null,
-        error: 'Something went wrong. Please try to login again!',
+      client.emit(EmitEvent.Error, {
+        event: client.eventName,
+        message: 'Something went wrong. Please try to login again!',
       });
 
       client.disconnect();

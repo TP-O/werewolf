@@ -17,7 +17,6 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { ValidationConfig } from 'src/config/validation.config';
-import { EmitedEvent, ListenedEvent } from 'src/enum/event.enum';
 import { AllExceptionsFilter } from 'src/filter/all-exceptions.filter';
 import { UserService } from 'src/module/common/user.service';
 import { ConnectionService } from './connection.service';
@@ -27,6 +26,10 @@ import { SocketUserIdBindingInterceptor } from 'src/interceptor/socket-user-id-b
 import { RoomService } from './room.service';
 import { JoinRoomDto } from './dto/join-room.dto';
 import { LeaveRoomDto } from './dto/leave-room.dto';
+import { EventNameBindingInterceptor } from 'src/interceptor/event-name-binding.interceptor';
+import { EmitEvent, ListenEvent } from 'src/enum/event.enum';
+import { EmitEvents } from 'src/type/event.type';
+import { ActiveStatus } from 'src/enum/user.enum';
 
 @UseFilters(new AllExceptionsFilter())
 @UsePipes(new ValidationPipe(ValidationConfig))
@@ -42,7 +45,7 @@ export class TextChatGateway
   implements OnGatewayConnection, OnGatewayDisconnect
 {
   @WebSocketServer()
-  private readonly server: Server;
+  private readonly server: Server<null, EmitEvents>;
 
   constructor(
     private userService: UserService,
@@ -56,28 +59,26 @@ export class TextChatGateway
    *
    * @param client socket client.
    */
-  async handleConnection(client: Socket) {
+  async handleConnection(client: Socket<null, EmitEvents>) {
     try {
       const user = await this.connectionService.validateConnection(
         this.server,
         client,
       );
       await this.userService.connect(user, client.id);
+
       const friendsSids = await this.userService.getOnlineFriendsSocketIds(
         user.id,
       );
-
       friendsSids.forEach((sids) => client.to(sids));
-      client.emit(EmitedEvent.FriendStatus, {
-        data: {
-          id: user.id,
-          online: true,
-        },
+      client.emit(EmitEvent.UpdateFriendStatus, {
+        id: user.id,
+        status: ActiveStatus.Online,
       });
     } catch (error: any) {
-      client.emit(EmitedEvent.Error, {
-        event: ListenedEvent.Connect,
-        error: error.message,
+      client.emit(EmitEvent.Error, {
+        event: ListenEvent.Connect,
+        message: error.message,
       });
 
       client.disconnect();
@@ -89,7 +90,7 @@ export class TextChatGateway
    *
    * @param client socket client.
    */
-  async handleDisconnect(client: Socket) {
+  async handleDisconnect(client: Socket<null, EmitEvents>) {
     const user = await this.userService.getBySocketId(client.id);
 
     if (user != null) {
@@ -100,11 +101,9 @@ export class TextChatGateway
       );
 
       friendsSids.forEach((sids) => client.to(sids));
-      client.emit(EmitedEvent.FriendStatus, {
-        data: {
-          id: user.id,
-          online: false,
-        },
+      client.emit(EmitEvent.UpdateFriendStatus, {
+        id: user.id,
+        status: null,
       });
     }
   }
@@ -115,10 +114,13 @@ export class TextChatGateway
    * @param client socket client.
    * @param payload
    */
-  @UseInterceptors(SocketUserIdBindingInterceptor)
-  @SubscribeMessage(ListenedEvent.PrivateMessage)
+  @UseInterceptors(
+    new EventNameBindingInterceptor(ListenEvent.SendPrivateMessage),
+    SocketUserIdBindingInterceptor,
+  )
+  @SubscribeMessage(ListenEvent.SendPrivateMessage)
   async sendPrivateMessage(
-    @ConnectedSocket() client: Socket,
+    @ConnectedSocket() client: Socket<null, EmitEvents>,
     @MessageBody() payload: SendPrivateMessageDto,
   ) {
     if (
@@ -130,11 +132,9 @@ export class TextChatGateway
     await this.messageService.createPrivateMessage(client.userId, payload);
     const sids = await this.userService.getSocketIds(payload.receiverId);
 
-    this.server.to(sids as string[]).emit(EmitedEvent.PrivateMessage, {
-      data: {
-        senderId: client.userId,
-        ...payload,
-      },
+    this.server.to(sids as string[]).emit(EmitEvent.ReceivePrivateMessage, {
+      senderId: client.userId,
+      ...payload,
     });
   }
 
@@ -143,14 +143,18 @@ export class TextChatGateway
    *
    * @param client socket client.
    */
-  @UseInterceptors(SocketUserIdBindingInterceptor)
-  @SubscribeMessage(ListenedEvent.CreateRoom)
-  async handleCreateRoom(@ConnectedSocket() client: Socket) {
+  @UseInterceptors(
+    new EventNameBindingInterceptor(ListenEvent.CreateRoom),
+    SocketUserIdBindingInterceptor,
+  )
+  @SubscribeMessage(ListenEvent.CreateRoom)
+  async handleCreateRoom(@ConnectedSocket() client: Socket<null, EmitEvents>) {
     const room = await this.roomService.bookRoom(client.userId);
     client.join(room.id);
 
-    client.emit(EmitedEvent.CreateRoom, {
-      data: room,
+    client.emit(EmitEvent.ReceiveRoomChanges, {
+      roomId: room.id,
+      memberIds: room.memberIds,
     });
   }
 
@@ -160,17 +164,21 @@ export class TextChatGateway
    * @param client socket client.
    * @param payload
    */
-  @UseInterceptors(SocketUserIdBindingInterceptor)
-  @SubscribeMessage(ListenedEvent.JoinRoom)
+  @UseInterceptors(
+    new EventNameBindingInterceptor(ListenEvent.JoinToRoom),
+    SocketUserIdBindingInterceptor,
+  )
+  @SubscribeMessage(ListenEvent.JoinToRoom)
   async handleJoinRoom(
-    @ConnectedSocket() client: Socket,
+    @ConnectedSocket() client: Socket<null, EmitEvents>,
     payload: JoinRoomDto,
   ) {
     const room = await this.roomService.joinRoom(payload.id, client.userId);
     client.join(payload.id);
 
-    client.to(payload.id).emit(EmitedEvent.GroupMemeber, {
-      data: room,
+    client.to(payload.id).emit(EmitEvent.ReceiveRoomChanges, {
+      roomId: room.id,
+      memberIds: room.memberIds,
     });
   }
 
@@ -180,17 +188,21 @@ export class TextChatGateway
    * @param client socket client.
    * @param payload
    */
-  @UseInterceptors(SocketUserIdBindingInterceptor)
-  @SubscribeMessage(ListenedEvent.JoinRoom)
+  @UseInterceptors(
+    new EventNameBindingInterceptor(ListenEvent.LeaveRoom),
+    SocketUserIdBindingInterceptor,
+  )
+  @SubscribeMessage(ListenEvent.LeaveRoom)
   async handleLeaveRoom(
-    @ConnectedSocket() client: Socket,
+    @ConnectedSocket() client: Socket<null, EmitEvents>,
     payload: LeaveRoomDto,
   ) {
     const room = await this.roomService.leaveRoom(payload.id, client.userId);
     client.leave(payload.id);
 
-    client.to(payload.id).emit(EmitedEvent.GroupMemeber, {
-      data: room,
+    client.to(payload.id).emit(EmitEvent.ReceiveRoomChanges, {
+      roomId: room.id,
+      memberIds: room.memberIds,
     });
   }
 }
