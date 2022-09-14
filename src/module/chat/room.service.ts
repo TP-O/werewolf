@@ -43,6 +43,7 @@ export class RoomService {
     const id = String(Date.now());
     const room: Room = {
       id,
+      ownerId,
       memberIds: [ownerId],
     };
 
@@ -128,6 +129,38 @@ export class RoomService {
     }
 
     await redisPipe.lrem(`${CacheNamespace.UId2RIds}`, 1, id).exec();
+
+    return room;
+  }
+
+  /**
+   * Kick memeber out of room.
+   *
+   * @param id room id.
+   * @param kickerId
+   * @param memberId
+   * @returns updated room value.
+   */
+  async kickMember(id: string, kickerId: number, memberId: number) {
+    const room = await this.getRoom(id);
+
+    if (room.ownerId !== kickerId) {
+      throw new WsException('You are not owner of this room!');
+    }
+
+    const deletedMemeberIndex = room.memberIds.indexOf(memberId);
+
+    if (deletedMemeberIndex === -1) {
+      throw new WsException('You are not in this room!');
+    }
+
+    room.memberIds.splice(deletedMemeberIndex, 1);
+
+    await this.redis
+      .pipeline()
+      .set(`${CacheNamespace.Room}${id}`, JSON.stringify(room))
+      .lrem(`${CacheNamespace.UId2RIds}`, 1, id)
+      .exec();
 
     return room;
   }

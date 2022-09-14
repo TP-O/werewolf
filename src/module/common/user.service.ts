@@ -63,7 +63,7 @@ export class UserService {
 
   /**
    * Remove disconnected socket ids from the user record.
-   * Update the user status to offline and leave all joined
+   * Change the user status to offline and leave all joined
    * rooms if socket id list is empty.
    *
    * @param user user record.

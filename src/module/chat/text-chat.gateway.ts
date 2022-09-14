@@ -30,6 +30,8 @@ import { EventNameBindingInterceptor } from 'src/interceptor/event-name-binding.
 import { EmitEvent, ListenEvent } from 'src/enum/event.enum';
 import { EmitEvents } from 'src/type/event.type';
 import { ActiveStatus } from 'src/enum/user.enum';
+import { KickOutOfRoomDto } from './dto/kick-out-of-room.dto';
+import { RoomChange } from 'src/enum/room.enum';
 
 @UseFilters(new AllExceptionsFilter())
 @UsePipes(new ValidationPipe(ValidationConfig))
@@ -155,6 +157,10 @@ export class TextChatGateway
     client.emit(EmitEvent.ReceiveRoomChanges, {
       roomId: room.id,
       memberIds: room.memberIds,
+      change: {
+        type: RoomChange.Join,
+        memeberId: client.userId,
+      },
     });
   }
 
@@ -174,11 +180,15 @@ export class TextChatGateway
     payload: JoinRoomDto,
   ) {
     const room = await this.roomService.joinRoom(payload.id, client.userId);
-    client.join(payload.id);
+    client.join(room.id);
 
-    client.to(payload.id).emit(EmitEvent.ReceiveRoomChanges, {
+    this.server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
       roomId: room.id,
       memberIds: room.memberIds,
+      change: {
+        type: RoomChange.Join,
+        memeberId: client.userId,
+      },
     });
   }
 
@@ -198,11 +208,48 @@ export class TextChatGateway
     payload: LeaveRoomDto,
   ) {
     const room = await this.roomService.leaveRoom(payload.id, client.userId);
-    client.leave(payload.id);
+    client.leave(room.id);
 
-    client.to(payload.id).emit(EmitEvent.ReceiveRoomChanges, {
+    client.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
       roomId: room.id,
       memberIds: room.memberIds,
+      change: {
+        type: RoomChange.Leave,
+        memeberId: client.userId,
+      },
     });
+  }
+
+  /**
+   * Kick member out or room.
+   *
+   * @param client socket client.
+   * @param payload
+   */
+  @UseInterceptors(
+    new EventNameBindingInterceptor(ListenEvent.KickOutOfRoom),
+    SocketUserIdBindingInterceptor,
+  )
+  @SubscribeMessage(ListenEvent.KickOutOfRoom)
+  async handleKickOutOfRoom(
+    @ConnectedSocket() client: Socket<null, EmitEvents>,
+    payload: KickOutOfRoomDto,
+  ) {
+    const room = await this.roomService.kickMember(
+      payload.id,
+      client.userId,
+      payload.memberId,
+    );
+
+    this.server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
+      roomId: room.id,
+      memberIds: room.memberIds,
+      change: {
+        type: RoomChange.Kick,
+        memeberId: payload.memberId,
+      },
+    });
+
+    client.leave(room.id);
   }
 }

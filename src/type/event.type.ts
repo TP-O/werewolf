@@ -1,4 +1,5 @@
 import { EmitEvent } from 'src/enum/event.enum';
+import { RoomChange } from 'src/enum/room.enum';
 import { ActiveStatus } from 'src/enum/user.enum';
 import { WsErrorResponse } from './error.type';
 
@@ -25,6 +26,10 @@ type ReceiveGroupMessageData = {
 type ReceiveRoomChangesData = {
   roomId: string;
   memberIds: number[];
+  change: {
+    type: RoomChange;
+    memeberId: number;
+  };
 };
 
 type ReceiveRoomInvitationData = {
