@@ -34,6 +34,7 @@ import { KickOutOfRoomDto } from './dto/kick-out-of-room.dto';
 import { RoomChange } from 'src/enum/room.enum';
 import { SendGroupMessageDto } from './dto/send-group-message.dto';
 import { TransferOwnershipDto } from './dto/transer-ownership.dto';
+import { InviteToRoomDto } from './dto/invite-to-room.dto';
 
 @UseFilters(new AllExceptionsFilter())
 @UsePipes(new ValidationPipe(ValidationConfig))
@@ -283,7 +284,7 @@ export class TextChatGateway
   }
 
   /**
-   * Send group message.
+   * Transfer ownership to a member in room.
    *
    * @param client socket client.
    * @param payload
@@ -293,7 +294,7 @@ export class TextChatGateway
     SocketUserIdBindingInterceptor,
   )
   @SubscribeMessage(ListenEvent.TranserOwnership)
-  async handle(
+  async handleTransferOwnership(
     @ConnectedSocket() client: Socket<null, EmitEvents>,
     payload: TransferOwnershipDto,
   ) {
@@ -310,6 +311,39 @@ export class TextChatGateway
         type: RoomChange.Owner,
         memeberId: room.ownerId,
       },
+    });
+  }
+
+  /**
+   * Invite a member to room.
+   *
+   * @param client socket client.
+   * @param payload
+   */
+  @UseInterceptors(
+    new EventNameBindingInterceptor(ListenEvent.InviteToRoom),
+    SocketUserIdBindingInterceptor,
+  )
+  @SubscribeMessage(ListenEvent.InviteToRoom)
+  async handleInviteToRoom(
+    @ConnectedSocket() client: Socket<null, EmitEvents>,
+    payload: InviteToRoomDto,
+  ) {
+    const room = await this.roomService.getRoom(payload.roomId);
+
+    if (!room.memberIds.includes(client.userId)) {
+      throw new WsException('You must be in this room!');
+    }
+
+    if (room.memberIds.includes(payload.memberId)) {
+      throw new WsException('Member is already in this room!');
+    }
+
+    const memberSids = await this.userService.getSocketIds(payload.memberId);
+
+    client.to(memberSids).emit(EmitEvent.ReceiveRoomInvitation, {
+      roomId: room.id,
+      inviterId: client.userId,
     });
   }
 }
