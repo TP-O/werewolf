@@ -175,4 +175,29 @@ export class RoomService {
 
     return room;
   }
+
+  async transferOwnership(
+    id: string,
+    transfererId: number,
+    candidateId: number,
+  ) {
+    const room = await this.getRoom(id);
+
+    if (room.ownerId !== transfererId) {
+      throw new WsException('You are not owner of this room!');
+    }
+
+    if (!room.memberIds.includes(candidateId)) {
+      throw new WsException('New owner must in the room!');
+    }
+
+    room.ownerId = candidateId;
+
+    await this.redis.set(
+      `${CacheNamespace.Room}${room.id}`,
+      JSON.stringify(room),
+    );
+
+    return room;
+  }
 }

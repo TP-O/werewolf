@@ -7,6 +7,7 @@ export enum ListenEvent {
   LeaveRoom = 'leave_room',
   InviteToRoom = 'invite_to_room',
   KickOutOfRoom = 'kick_out_of_room',
+  TranserOwnership = 'transfer_owner_ship',
 }
 
 export enum EmitEvent {

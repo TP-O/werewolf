@@ -33,6 +33,7 @@ import { ActiveStatus } from 'src/enum/user.enum';
 import { KickOutOfRoomDto } from './dto/kick-out-of-room.dto';
 import { RoomChange } from 'src/enum/room.enum';
 import { SendGroupMessageDto } from './dto/send-group-message.dto';
+import { TransferOwnershipDto } from './dto/transer-ownership.dto';
 
 @UseFilters(new AllExceptionsFilter())
 @UsePipes(new ValidationPipe(ValidationConfig))
@@ -278,6 +279,37 @@ export class TextChatGateway
     client.to(payload.roomId).emit(EmitEvent.ReceiveGroupMessage, {
       ...payload,
       senderId: client.userId,
+    });
+  }
+
+  /**
+   * Send group message.
+   *
+   * @param client socket client.
+   * @param payload
+   */
+  @UseInterceptors(
+    new EventNameBindingInterceptor(ListenEvent.TranserOwnership),
+    SocketUserIdBindingInterceptor,
+  )
+  @SubscribeMessage(ListenEvent.TranserOwnership)
+  async handle(
+    @ConnectedSocket() client: Socket<null, EmitEvents>,
+    payload: TransferOwnershipDto,
+  ) {
+    const room = await this.roomService.transferOwnership(
+      payload.roomId,
+      client.userId,
+      payload.candidateId,
+    );
+
+    this.server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
+      roomId: room.id,
+      memberIds: room.memberIds,
+      change: {
+        type: RoomChange.Owner,
+        memeberId: room.ownerId,
+      },
     });
   }
 }
