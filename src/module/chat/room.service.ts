@@ -131,6 +131,11 @@ export class RoomService {
     if (room.memberIds.length === 0) {
       redisPipe.del(`${CacheNamespace.Room}${id}`);
     } else {
+      // Assign owner to the first member
+      if (leaverId === room.ownerId) {
+        room.ownerId = room.memberIds[0];
+      }
+
       redisPipe.set(`${CacheNamespace.Room}${id}`, JSON.stringify(room));
     }
 
