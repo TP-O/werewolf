@@ -17,7 +17,7 @@ export class RoomService {
    * @param memberId
    * @returns
    */
-  private async isMemeber(memberId: number) {
+  private async isMemeberOfAnyRoom(memberId: number) {
     const roomIds = await this.redis.llen(
       `${CacheNamespace.UId2RIds}${memberId}`,
     );
@@ -34,7 +34,10 @@ export class RoomService {
    * @returns room value.
    */
   async bookRoom(ownerId: number) {
-    if (!AppConfig.allowJoinMultipleRooms && (await this.isMemeber(ownerId))) {
+    if (
+      !AppConfig.allowJoinMultipleRooms &&
+      (await this.isMemeberOfAnyRoom(ownerId))
+    ) {
       throw new WsException(
         'Please leave current room before creating a new one',
       );
@@ -84,7 +87,10 @@ export class RoomService {
    * @returns updated room value.
    */
   async joinRoom(id: string, joinerId: number) {
-    if (!AppConfig.allowJoinMultipleRooms && (await this.isMemeber(joinerId))) {
+    if (
+      !AppConfig.allowJoinMultipleRooms &&
+      (await this.isMemeberOfAnyRoom(joinerId))
+    ) {
       throw new WsException(
         'Please leave current room before joining another one!',
       );

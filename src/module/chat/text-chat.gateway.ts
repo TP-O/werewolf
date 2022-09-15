@@ -32,6 +32,7 @@ import { EmitEvents } from 'src/type/event.type';
 import { ActiveStatus } from 'src/enum/user.enum';
 import { KickOutOfRoomDto } from './dto/kick-out-of-room.dto';
 import { RoomChange } from 'src/enum/room.enum';
+import { SendGroupMessageDto } from './dto/send-group-message.dto';
 
 @UseFilters(new AllExceptionsFilter())
 @UsePipes(new ValidationPipe(ValidationConfig))
@@ -111,7 +112,7 @@ export class TextChatGateway
   }
 
   /**
-   * Send private message and notify receiver.
+   * Send private message.
    *
    * @param client socket client.
    * @param payload
@@ -251,5 +252,32 @@ export class TextChatGateway
     });
 
     client.leave(room.id);
+  }
+
+  /**
+   * Send group message.
+   *
+   * @param client socket client.
+   * @param payload
+   */
+  @UseInterceptors(
+    new EventNameBindingInterceptor(ListenEvent.SendGroupMessage),
+    SocketUserIdBindingInterceptor,
+  )
+  @SubscribeMessage(ListenEvent.SendGroupMessage)
+  async handleSendGroupMessage(
+    @ConnectedSocket() client: Socket<null, EmitEvents>,
+    payload: SendGroupMessageDto,
+  ) {
+    const room = await this.roomService.getRoom(payload.roomId);
+
+    if (!room.memberIds.includes(client.userId)) {
+      throw new WsException('You are not in this room!');
+    }
+
+    client.to(payload.roomId).emit(EmitEvent.ReceiveGroupMessage, {
+      ...payload,
+      senderId: client.userId,
+    });
   }
 }
