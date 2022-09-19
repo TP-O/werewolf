@@ -7,5 +7,5 @@ export class InviteToRoomDto {
 
   @IsInt()
   @Min(1)
-  memberId: number;
+  guestId: number;
 }

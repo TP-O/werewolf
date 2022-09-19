@@ -154,7 +154,7 @@ export class TextChatGateway
   )
   @SubscribeMessage(ListenEvent.CreateRoom)
   async handleCreateRoom(@ConnectedSocket() client: Socket<null, EmitEvents>) {
-    const room = await this.roomService.bookRoom(client.userId);
+    const room = await this.roomService.book(client.userId);
     client.join(room.id);
 
     client.emit(EmitEvent.ReceiveRoomChanges, {
@@ -182,7 +182,7 @@ export class TextChatGateway
     @ConnectedSocket() client: Socket<null, EmitEvents>,
     payload: JoinRoomDto,
   ) {
-    const room = await this.roomService.joinRoom(payload.id, client.userId);
+    const room = await this.roomService.join(payload.id, client.userId);
     client.join(room.id);
 
     this.server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
@@ -210,7 +210,7 @@ export class TextChatGateway
     @ConnectedSocket() client: Socket<null, EmitEvents>,
     payload: LeaveRoomDto,
   ) {
-    const room = await this.roomService.leaveRoom(payload.id, client.userId);
+    const room = await this.roomService.leave(payload.id, client.userId);
     client.leave(room.id);
 
     client.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
@@ -238,7 +238,7 @@ export class TextChatGateway
     @ConnectedSocket() client: Socket<null, EmitEvents>,
     payload: KickOutOfRoomDto,
   ) {
-    const room = await this.roomService.kickMember(
+    const room = await this.roomService.kick(
       payload.id,
       client.userId,
       payload.memberId,
@@ -271,7 +271,7 @@ export class TextChatGateway
     @ConnectedSocket() client: Socket<null, EmitEvents>,
     payload: SendGroupMessageDto,
   ) {
-    const room = await this.roomService.getRoom(payload.roomId);
+    const room = await this.roomService.get(payload.roomId);
 
     if (!room.memberIds.includes(client.userId)) {
       throw new WsException('You are not in this room!');
@@ -329,19 +329,21 @@ export class TextChatGateway
     @ConnectedSocket() client: Socket<null, EmitEvents>,
     payload: InviteToRoomDto,
   ) {
-    const room = await this.roomService.getRoom(payload.roomId);
+    const { room, guestSIds } = await this.roomService.invite(
+      payload.roomId,
+      client.userId,
+      payload.guestId,
+    );
 
-    if (!room.memberIds.includes(client.userId)) {
-      throw new WsException('You must be in this room!');
-    }
-
-    if (room.memberIds.includes(payload.memberId)) {
-      throw new WsException('Member is already in this room!');
-    }
-
-    const memberSids = await this.userService.getSocketIds(payload.memberId);
-
-    client.to(memberSids).emit(EmitEvent.ReceiveRoomInvitation, {
+    client.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
+      roomId: room.id,
+      memberIds: room.memberIds,
+      change: {
+        type: RoomChange.Join,
+        memeberId: payload.guestId,
+      },
+    });
+    client.to(guestSIds).emit(EmitEvent.ReceiveRoomInvitation, {
       roomId: room.id,
       inviterId: client.userId,
     });
