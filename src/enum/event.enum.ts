@@ -6,6 +6,7 @@ export enum ListenEvent {
   JoinToRoom = 'join_to_room',
   LeaveRoom = 'leave_room',
   InviteToRoom = 'invite_to_room',
+  ReplyInvitation = 'reply_invitation',
   KickOutOfRoom = 'kick_out_of_room',
   TranserOwnership = 'transfer_owner_ship',
 }

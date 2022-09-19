@@ -35,6 +35,7 @@ import { RoomChange } from 'src/enum/room.enum';
 import { SendGroupMessageDto } from './dto/send-group-message.dto';
 import { TransferOwnershipDto } from './dto/transer-ownership.dto';
 import { InviteToRoomDto } from './dto/invite-to-room.dto';
+import { ReplyInvitationDto } from './dto/reply-invitation.dto';
 
 @UseFilters(new AllExceptionsFilter())
 @UsePipes(new ValidationPipe(ValidationConfig))
@@ -346,6 +347,41 @@ export class TextChatGateway
     client.to(guestSIds).emit(EmitEvent.ReceiveRoomInvitation, {
       roomId: room.id,
       inviterId: client.userId,
+    });
+  }
+
+  /**
+   * Reply invitation.
+   *
+   * @param client socket client.
+   * @param payload
+   */
+  @UseInterceptors(
+    new EventNameBindingInterceptor(ListenEvent.ReplyInvitation),
+    SocketUserIdBindingInterceptor,
+  )
+  @SubscribeMessage(ListenEvent.ReplyInvitation)
+  async handleReplyInvitation(
+    @ConnectedSocket() client: Socket<null, EmitEvents>,
+    payload: ReplyInvitationDto,
+  ) {
+    const room = await this.roomService.replyInvitation(
+      payload.roomId,
+      client.userId,
+      payload.isAccpeted,
+    );
+
+    if (payload.isAccpeted) {
+      client.join(room.id);
+    }
+
+    client.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
+      roomId: room.id,
+      memberIds: room.memberIds,
+      change: {
+        type: RoomChange.Join,
+        memeberId: client.userId,
+      },
     });
   }
 }

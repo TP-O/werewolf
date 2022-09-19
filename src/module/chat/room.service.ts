@@ -249,4 +249,35 @@ export class RoomService {
 
     return { room, guestSIds };
   }
+
+  /**
+   *
+   * @param roomId
+   * @param guestId
+   * @param isAccpeted
+   * @returns
+   */
+  async replyInvitation(roomId: string, guestId: number, isAccpeted: boolean) {
+    const room = await this.get(roomId);
+    const deletedWaitingIndex = room.waitingIds.indexOf(guestId);
+
+    if (deletedWaitingIndex === -1) {
+      throw new WsException('You are not invited to this room!');
+    }
+
+    room.waitingIds.splice(deletedWaitingIndex, 1);
+
+    if (isAccpeted) {
+      room.memberIds.push(guestId);
+    } else {
+      room.rejectedIds.push(guestId);
+    }
+
+    await this.redis.set(
+      `${CacheNamespace.Room}${room.id}`,
+      JSON.stringify(room),
+    );
+
+    return room;
+  }
 }
