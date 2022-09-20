@@ -181,7 +181,7 @@ export class TextChatGateway
     @ConnectedSocket() client: Socket<null, EmitEvents>,
     payload: JoinRoomDto,
   ) {
-    const room = await this.roomService.join(payload.roomId, client.userId);
+    const room = await this.roomService.join(client.userId, payload.roomId);
     client.join(room.id);
 
     this.server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
@@ -211,7 +211,7 @@ export class TextChatGateway
     @ConnectedSocket() client: Socket<null, EmitEvents>,
     payload: LeaveRoomDto,
   ) {
-    const room = await this.roomService.leave(payload.roomId, client.userId);
+    const room = await this.roomService.leave(client.userId, payload.roomId);
     client.leave(room.id);
 
     this.server
@@ -243,9 +243,9 @@ export class TextChatGateway
     payload: KickOutOfRoomDto,
   ) {
     const room = await this.roomService.kick(
-      payload.roomId,
       client.userId,
       payload.memberId,
+      payload.roomId,
     );
     client.leave(room.id);
 
@@ -305,9 +305,9 @@ export class TextChatGateway
     payload: TransferOwnershipDto,
   ) {
     const room = await this.roomService.transferOwnership(
-      payload.roomId,
       client.userId,
       payload.candidateId,
+      payload.roomId,
     );
 
     this.server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
@@ -336,9 +336,9 @@ export class TextChatGateway
     payload: InviteToRoomDto,
   ) {
     const { room, guestSIds } = await this.roomService.invite(
-      payload.roomId,
       client.userId,
       payload.guestId,
+      payload.roomId,
     );
 
     this.server.to(guestSIds).emit(EmitEvent.ReceiveRoomInvitation, {
@@ -371,9 +371,9 @@ export class TextChatGateway
     payload: RespondInvitationDto,
   ) {
     const room = await this.roomService.respondInvitation(
-      payload.roomId,
       client.userId,
       payload.isAccpeted,
+      payload.roomId,
     );
 
     if (payload.isAccpeted) {

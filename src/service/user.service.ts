@@ -82,7 +82,7 @@ export class UserService {
     // if there are no sockets is connected.
     if (removedSocketIds.length === user.sids.length) {
       const roomIds = await this.getJoinedRoomIds(user.id);
-      roomIds.forEach((rid) => this.roomService.leave(rid, user.id));
+      roomIds.forEach((rid) => this.roomService.leave(user.id, rid));
 
       user.statusId = null;
     }

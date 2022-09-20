@@ -80,15 +80,35 @@ export class RoomService {
   }
 
   /**
+   * Get rooms by ids.
+   *
+   * @param roomIds
+   * @returns
+   */
+  async getMany(roomIds: string[]) {
+    const rooms: Room[] = [];
+    const redisPipe = this.redis.pipeline();
+    roomIds.forEach((rId) => redisPipe.get(`${CacheNamespace.Room}${rId}`));
+
+    (await redisPipe.exec()).forEach((val) => {
+      if (typeof val[1] === 'string') {
+        rooms.push(JSON.parse(val[1] as string));
+      }
+    });
+
+    return rooms;
+  }
+
+  /**
    * Join to a new room. If multi-room join is disabled,
    * the booker must not enter any room before creating
    * the room.
    *
-   * @param roomId
    * @param joinerId
+   * @param roomId
    * @returns updated room.
    */
-  async join(roomId: string, joinerId: number) {
+  async join(joinerId: number, roomId: string) {
     if (
       !AppConfig.allowJoinMultipleRooms &&
       (await this.isMemberOfAny(joinerId))
@@ -114,11 +134,11 @@ export class RoomService {
    * Leave the room. Transfer ownership for to a member
    * in room if leaver is owner. Empty room will be deleted.
    *
-   * @param roomId
    * @param leaverId
+   * @param roomId
    * @returns updated room.
    */
-  async leave(roomId: string, leaverId: number) {
+  async leave(leaverId: number, roomId: string) {
     const room = await this.get(roomId);
     const deletedMemberIndex = room.memberIds.indexOf(leaverId);
 
@@ -149,16 +169,62 @@ export class RoomService {
   }
 
   /**
+   * Leave many rooms. Logic is the same as `leave` method.
+   *
+   * @param leaverId
+   * @param roomIds empty if leaving all rooms.
+   * @returns updated rooms.
+   */
+  async leaveMany(leaverId: number, ...roomIds: string[]) {
+    if (roomIds.length === 0) {
+      roomIds = await this.redis.lrange(
+        `${CacheNamespace.UId2RIds}${leaverId}`,
+        0,
+        -1,
+      );
+    }
+
+    const rooms = await this.getMany(roomIds);
+    const redisPipe = this.redis.pipeline();
+
+    rooms.map((room) => {
+      const deletedMemberIndex = room.memberIds.indexOf(leaverId);
+      room.memberIds.splice(deletedMemberIndex, 1);
+      room.refusedIds.push(leaverId);
+
+      // Delete room if all members have left
+      if (room.memberIds.length === 0) {
+        redisPipe.del(`${CacheNamespace.Room}${room.id}`);
+      } else {
+        // Assign owner to the first member
+        if (leaverId === room.ownerId) {
+          room.ownerId = room.memberIds[0];
+        }
+
+        redisPipe.set(`${CacheNamespace.Room}${room.id}`, JSON.stringify(room));
+      }
+
+      redisPipe.lrem(`${CacheNamespace.UId2RIds}`, 1, room.id).exec();
+
+      return room;
+    });
+
+    await redisPipe.exec();
+
+    return rooms;
+  }
+
+  /**
    * Kick member out of room. Kicker must be the owner
    * and member must be in the room, otherwise the action
    * is declined.
    *
-   * @param roomId
    * @param kickerId
    * @param memberId
+   * @param roomId
    * @returns updated room.
    */
-  async kick(roomId: string, kickerId: number, memberId: number) {
+  async kick(kickerId: number, memberId: number, roomId: string) {
     const room = await this.get(roomId);
 
     if (room.ownerId !== kickerId) {
@@ -188,15 +254,15 @@ export class RoomService {
    * if room is empty, actor is not owner, or choosed member
    * does not exist in the room.
    *
-   * @param roomId
    * @param transfererId
    * @param candidateId
+   * @param roomId
    * @returns update room.
    */
   async transferOwnership(
-    roomId: string,
     transfererId: number,
     candidateId: number,
+    roomId: string,
   ) {
     const room = await this.get(roomId);
 
@@ -226,12 +292,12 @@ export class RoomService {
    * Invite a guest into room. Only invite online user and
    * non-exist in room user.
    *
-   * @param roomId
    * @param inviter
    * @param guestId
+   * @param roomId
    * @returns updated room.
    */
-  async invite(roomId: string, inviter: number, guestId: number) {
+  async invite(inviter: number, guestId: number, roomId: string) {
     const [[, roomJson], [, guestSIds]] = (await this.redis
       .pipeline()
       .get(`${CacheNamespace.Room}${roomId}`)
@@ -263,18 +329,19 @@ export class RoomService {
   }
 
   /**
-   * Respond to room invitation. Two options are
-   * accept and refuse.
+   * Respond to room invitation. There are 2 options:
+   * accept and refuse. Leave the current room after
+   * accepting if multi-room join is disabled.
    *
-   * @param roomId
    * @param guestId
    * @param isAccpeted
+   * @param roomId
    * @returns update room.
    */
   async respondInvitation(
-    roomId: string,
     guestId: number,
     isAccpeted: boolean,
+    roomId: string,
   ) {
     const room = await this.get(roomId);
     const deletedWaitingIndex = room.waitingIds.indexOf(guestId);
@@ -286,6 +353,14 @@ export class RoomService {
     room.waitingIds.splice(deletedWaitingIndex, 1);
 
     if (isAccpeted) {
+      // Leave all current rooms if multi-room join is disabled
+      if (
+        !AppConfig.allowJoinMultipleRooms &&
+        (await this.isMemberOfAny(guestId))
+      ) {
+        await this.leaveMany(guestId);
+      }
+
       room.memberIds.push(guestId);
     } else {
       room.refusedIds.push(guestId);
