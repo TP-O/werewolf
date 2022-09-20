@@ -1,10 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { User } from '@prisma/client';
 import Redis from 'ioredis';
-import { RedisClient } from 'src/decorator/redis.decorator';
-import { CacheNamespace } from 'src/enum/cache.enum';
-import { ActiveStatus } from 'src/enum/user.enum';
-import { RoomService } from '../chat/room.service';
+import { RedisClient } from 'src/decorator';
+import { ActiveStatus, CacheNamespace } from 'src/enum';
+import { RoomService } from 'src/module/chat/service/room.service';
 import { PrismaService } from './prisma.service';
 
 @Injectable()
@@ -83,7 +82,7 @@ export class UserService {
     // if there are no sockets is connected.
     if (removedSocketIds.length === user.sids.length) {
       const roomIds = await this.getJoinedRoomIds(user.id);
-      roomIds.forEach((rid) => this.roomService.leaveRoom(rid, user.id));
+      roomIds.forEach((rid) => this.roomService.leave(rid, user.id));
 
       user.statusId = null;
     }

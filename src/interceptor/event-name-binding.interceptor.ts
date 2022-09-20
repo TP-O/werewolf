@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { Socket } from 'socket.io';
-import { ListenEvent } from 'src/enum/event.enum';
+import { ListenEvent } from 'src/enum';
 
 @Injectable()
 export class EventNameBindingInterceptor implements NestInterceptor {

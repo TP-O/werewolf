@@ -1,5 +1,5 @@
 import { env } from 'process';
-import { AppEnv } from 'src/enum/app.enum';
+import { AppEnv } from 'src/enum';
 
 export const AppConfig = Object.freeze(
   (() => {

@@ -6,9 +6,9 @@ import {
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { Socket } from 'socket.io';
-import { EmitEvent } from 'src/enum/event.enum';
-import { UserService } from 'src/module/common/user.service';
-import { EmitEvents } from 'src/type/event.type';
+import { EmitEvent } from 'src/enum';
+import { UserService } from 'src/service/user.service';
+import { EmitEvents } from 'src/type';
 
 @Injectable()
 export class SocketUserIdBindingInterceptor implements NestInterceptor {

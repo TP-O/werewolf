@@ -3,5 +3,5 @@ export type Room = {
   ownerId: number;
   memberIds: number[];
   waitingIds: number[];
-  rejectedIds: number[];
+  refusedIds: number[];
 };

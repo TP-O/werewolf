@@ -3,4 +3,5 @@ export enum Time {
   Miniute = 60 * Second,
   Hour = 60 * Miniute,
   Day = 24 * Hour,
+  Forever = 0,
 }

@@ -3,7 +3,7 @@ import { IsInt, IsString, Min, MinLength } from 'class-validator';
 export class KickOutOfRoomDto {
   @IsString()
   @MinLength(13)
-  id: string;
+  roomId: string;
 
   @IsInt()
   @Min(1)

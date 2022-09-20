@@ -15,37 +15,36 @@ import {
   WebSocketServer,
   WsException,
 } from '@nestjs/websockets';
+import { instanceToPlain } from 'class-transformer';
 import { Server, Socket } from 'socket.io';
-import { ValidationConfig } from 'src/config/validation.config';
-import { AllExceptionsFilter } from 'src/filter/all-exceptions.filter';
-import { UserService } from 'src/module/common/user.service';
-import { ConnectionService } from './connection.service';
-import { MessageService } from './message.service';
-import { SendPrivateMessageDto } from './dto/send-private-message.dto';
-import { SocketUserIdBindingInterceptor } from 'src/interceptor/socket-user-id-binding.interceptor';
-import { RoomService } from './room.service';
-import { JoinRoomDto } from './dto/join-room.dto';
-import { LeaveRoomDto } from './dto/leave-room.dto';
-import { EventNameBindingInterceptor } from 'src/interceptor/event-name-binding.interceptor';
-import { EmitEvent, ListenEvent } from 'src/enum/event.enum';
-import { EmitEvents } from 'src/type/event.type';
-import { ActiveStatus } from 'src/enum/user.enum';
-import { KickOutOfRoomDto } from './dto/kick-out-of-room.dto';
-import { RoomChange } from 'src/enum/room.enum';
-import { SendGroupMessageDto } from './dto/send-group-message.dto';
-import { TransferOwnershipDto } from './dto/transer-ownership.dto';
-import { InviteToRoomDto } from './dto/invite-to-room.dto';
-import { ReplyInvitationDto } from './dto/reply-invitation.dto';
+import { CORSConfig, ValidationConfig } from 'src/config';
+import { ActiveStatus, EmitEvent, ListenEvent, RoomEvent } from 'src/enum';
+import { WsExceptionsFilter } from 'src/filter';
+import {
+  EventNameBindingInterceptor,
+  SocketUserIdBindingInterceptor,
+} from 'src/interceptor';
+import { UserService } from 'src/service/user.service';
+import { EmitEvents } from 'src/type';
+import {
+  InviteToRoomDto,
+  JoinRoomDto,
+  KickOutOfRoomDto,
+  LeaveRoomDto,
+  RespondInvitationDto,
+  SendGroupMessageDto,
+  SendPrivateMessageDto,
+  TransferOwnershipDto,
+} from './dto';
+import { ConnectionService } from './service/connection.service';
+import { MessageService } from './service/message.service';
+import { RoomService } from './service/room.service';
 
-@UseFilters(new AllExceptionsFilter())
+@UseFilters(new WsExceptionsFilter())
 @UsePipes(new ValidationPipe(ValidationConfig))
 @WebSocketGateway<GatewayMetadata>({
   namespace: 'text',
-  cors: {
-    origin: '*',
-    methods: ['GET', 'POST'],
-    credentials: true,
-  },
+  cors: CORSConfig,
 })
 export class TextChatGateway
   implements OnGatewayConnection, OnGatewayDisconnect
@@ -139,8 +138,8 @@ export class TextChatGateway
     const sids = await this.userService.getSocketIds(payload.receiverId);
 
     this.server.to(sids as string[]).emit(EmitEvent.ReceivePrivateMessage, {
+      ...(instanceToPlain(payload) as SendGroupMessageDto),
       senderId: client.userId,
-      ...payload,
     });
   }
 
@@ -159,11 +158,10 @@ export class TextChatGateway
     client.join(room.id);
 
     client.emit(EmitEvent.ReceiveRoomChanges, {
-      roomId: room.id,
-      memberIds: room.memberIds,
-      change: {
-        type: RoomChange.Join,
-        memeberId: client.userId,
+      event: RoomEvent.Create,
+      actorId: client.userId,
+      room: {
+        id: room.id,
       },
     });
   }
@@ -175,23 +173,25 @@ export class TextChatGateway
    * @param payload
    */
   @UseInterceptors(
-    new EventNameBindingInterceptor(ListenEvent.JoinToRoom),
+    new EventNameBindingInterceptor(ListenEvent.JoinRoom),
     SocketUserIdBindingInterceptor,
   )
-  @SubscribeMessage(ListenEvent.JoinToRoom)
+  @SubscribeMessage(ListenEvent.JoinRoom)
   async handleJoinRoom(
     @ConnectedSocket() client: Socket<null, EmitEvents>,
     payload: JoinRoomDto,
   ) {
-    const room = await this.roomService.join(payload.id, client.userId);
+    const room = await this.roomService.join(payload.roomId, client.userId);
     client.join(room.id);
 
     this.server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
-      roomId: room.id,
-      memberIds: room.memberIds,
-      change: {
-        type: RoomChange.Join,
-        memeberId: client.userId,
+      event: RoomEvent.Join,
+      actorId: client.userId,
+      room: {
+        id: room.id,
+        memberIds: room.memberIds,
+        waitingIds: room.waitingIds,
+        refusedIds: room.refusedIds,
       },
     });
   }
@@ -211,21 +211,24 @@ export class TextChatGateway
     @ConnectedSocket() client: Socket<null, EmitEvents>,
     payload: LeaveRoomDto,
   ) {
-    const room = await this.roomService.leave(payload.id, client.userId);
+    const room = await this.roomService.leave(payload.roomId, client.userId);
     client.leave(room.id);
 
-    client.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
-      roomId: room.id,
-      memberIds: room.memberIds,
-      change: {
-        type: RoomChange.Leave,
-        memeberId: client.userId,
-      },
-    });
+    this.server
+      .to(client.id)
+      .to(room.id)
+      .emit(EmitEvent.ReceiveRoomChanges, {
+        event: RoomEvent.Leave,
+        actorId: client.userId,
+        room: {
+          id: room.id,
+          memberIds: room.memberIds,
+        },
+      });
   }
 
   /**
-   * Kick member out or room.
+   * Kick member out of room.
    *
    * @param client socket client.
    * @param payload
@@ -240,21 +243,23 @@ export class TextChatGateway
     payload: KickOutOfRoomDto,
   ) {
     const room = await this.roomService.kick(
-      payload.id,
+      payload.roomId,
       client.userId,
       payload.memberId,
     );
-
-    this.server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
-      roomId: room.id,
-      memberIds: room.memberIds,
-      change: {
-        type: RoomChange.Kick,
-        memeberId: payload.memberId,
-      },
-    });
-
     client.leave(room.id);
+
+    this.server
+      .to(client.id)
+      .to(room.id)
+      .emit(EmitEvent.ReceiveRoomChanges, {
+        event: RoomEvent.Kick,
+        actorId: client.userId,
+        room: {
+          id: room.id,
+          memberIds: room.memberIds,
+        },
+      });
   }
 
   /**
@@ -285,7 +290,7 @@ export class TextChatGateway
   }
 
   /**
-   * Transfer ownership to a member in room.
+   * Transfer ownership to another member in room.
    *
    * @param client socket client.
    * @param payload
@@ -306,17 +311,17 @@ export class TextChatGateway
     );
 
     this.server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
-      roomId: room.id,
-      memberIds: room.memberIds,
-      change: {
-        type: RoomChange.Owner,
-        memeberId: room.ownerId,
+      event: RoomEvent.Owner,
+      actorId: client.userId,
+      room: {
+        id: room.id,
+        ownerId: room.ownerId,
       },
     });
   }
 
   /**
-   * Invite a member to room.
+   * Invite a guest into room.
    *
    * @param client socket client.
    * @param payload
@@ -336,17 +341,17 @@ export class TextChatGateway
       payload.guestId,
     );
 
-    client.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
-      roomId: room.id,
-      memberIds: room.memberIds,
-      change: {
-        type: RoomChange.Join,
-        memeberId: payload.guestId,
-      },
-    });
-    client.to(guestSIds).emit(EmitEvent.ReceiveRoomInvitation, {
+    this.server.to(guestSIds).emit(EmitEvent.ReceiveRoomInvitation, {
       roomId: room.id,
       inviterId: client.userId,
+    });
+    this.server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
+      event: RoomEvent.Invite,
+      actorId: client.userId,
+      room: {
+        id: room.id,
+        waitingIds: room.waitingIds,
+      },
     });
   }
 
@@ -357,15 +362,15 @@ export class TextChatGateway
    * @param payload
    */
   @UseInterceptors(
-    new EventNameBindingInterceptor(ListenEvent.ReplyInvitation),
+    new EventNameBindingInterceptor(ListenEvent.RespondInvitation),
     SocketUserIdBindingInterceptor,
   )
-  @SubscribeMessage(ListenEvent.ReplyInvitation)
-  async handleReplyInvitation(
+  @SubscribeMessage(ListenEvent.RespondInvitation)
+  async handleRespondInvitation(
     @ConnectedSocket() client: Socket<null, EmitEvents>,
-    payload: ReplyInvitationDto,
+    payload: RespondInvitationDto,
   ) {
-    const room = await this.roomService.replyInvitation(
+    const room = await this.roomService.respondInvitation(
       payload.roomId,
       client.userId,
       payload.isAccpeted,
@@ -375,12 +380,14 @@ export class TextChatGateway
       client.join(room.id);
     }
 
-    client.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
-      roomId: room.id,
-      memberIds: room.memberIds,
-      change: {
-        type: RoomChange.Join,
-        memeberId: client.userId,
+    this.server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
+      event: RoomEvent.Join,
+      actorId: client.userId,
+      room: {
+        id: room.id,
+        memberIds: room.memberIds,
+        waitingIds: room.waitingIds,
+        refusedIds: room.refusedIds,
       },
     });
   }

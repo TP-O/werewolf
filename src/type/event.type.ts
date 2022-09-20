@@ -1,6 +1,5 @@
-import { EmitEvent } from 'src/enum/event.enum';
-import { RoomChange } from 'src/enum/room.enum';
-import { ActiveStatus } from 'src/enum/user.enum';
+import { ActiveStatus, EmitEvent, RoomEvent } from 'src/enum';
+import { Room } from 'src/module/chat/type';
 import { WsErrorResponse } from './error.type';
 
 type SuccessResponse = {
@@ -17,19 +16,8 @@ type ReceivePrivateMessageData = {
   content: string;
 };
 
-type ReceiveGroupMessageData = {
+type ReceiveGroupMessageData = ReceivePrivateMessageData & {
   roomId: string;
-  senderId: number;
-  content: string;
-};
-
-type ReceiveRoomChangesData = {
-  roomId: string;
-  memberIds: number[];
-  change: {
-    type: RoomChange;
-    memeberId: number;
-  };
 };
 
 type ReceiveRoomInvitationData = {
@@ -42,13 +30,19 @@ type KickedOutOfRoomData = {
   kickerId: number;
 };
 
+type ReceiveRoomChangesData = {
+  event: RoomEvent;
+  actorId: number;
+  room: Partial<Room> & Pick<Room, 'id'>;
+};
+
 export type EmitEvents = {
   [EmitEvent.Error]: (response: WsErrorResponse) => void;
   [EmitEvent.Success]: (response: SuccessResponse) => void;
   [EmitEvent.UpdateFriendStatus]: (data: UpdateFriendStatusData) => void;
   [EmitEvent.ReceivePrivateMessage]: (data: ReceivePrivateMessageData) => void;
   [EmitEvent.ReceiveGroupMessage]: (data: ReceiveGroupMessageData) => void;
-  [EmitEvent.ReceiveRoomChanges]: (data: ReceiveRoomChangesData) => void;
   [EmitEvent.ReceiveRoomInvitation]: (data: ReceiveRoomInvitationData) => void;
   [EmitEvent.KickedOutOfRoom]: (data: KickedOutOfRoomData) => void;
+  [EmitEvent.ReceiveRoomChanges]: (data: ReceiveRoomChangesData) => void;
 };

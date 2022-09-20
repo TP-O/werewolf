@@ -3,12 +3,12 @@ export enum ListenEvent {
   SendPrivateMessage = 'send_private_message',
   SendGroupMessage = 'send_group_message',
   CreateRoom = 'create_room',
-  JoinToRoom = 'join_to_room',
+  JoinRoom = 'join_room',
   LeaveRoom = 'leave_room',
   InviteToRoom = 'invite_to_room',
-  ReplyInvitation = 'reply_invitation',
+  RespondInvitation = 'respond_invitation',
   KickOutOfRoom = 'kick_out_of_room',
-  TranserOwnership = 'transfer_owner_ship',
+  TranserOwnership = 'transfer_ownership',
 }
 
 export enum EmitEvent {
@@ -17,7 +17,16 @@ export enum EmitEvent {
   UpdateFriendStatus = 'update_friend_status',
   ReceivePrivateMessage = 'receive_private_message',
   ReceiveGroupMessage = 'receive_group_message',
-  ReceiveRoomChanges = 'receive_room_changes',
   ReceiveRoomInvitation = 'receive_room_invitation',
   KickedOutOfRoom = 'kicked_out_of_room',
+  ReceiveRoomChanges = 'receive_room_changes',
+}
+
+export enum RoomEvent {
+  Create = 0,
+  Kick = 1,
+  Leave = 2,
+  Join = 3,
+  Owner = 4,
+  Invite = 5,
 }

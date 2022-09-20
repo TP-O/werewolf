@@ -2,7 +2,7 @@ import { IoAdapter } from '@nestjs/platform-socket.io';
 import Redis from 'ioredis';
 import { ServerOptions } from 'socket.io';
 import { createAdapter } from '@socket.io/redis-adapter';
-import { RedisClient } from 'src/decorator/redis.decorator';
+import { RedisClient } from 'src/decorator';
 
 export class RedisIoAdapter extends IoAdapter {
   @RedisClient()

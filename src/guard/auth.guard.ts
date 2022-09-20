@@ -5,8 +5,8 @@ import {
   InternalServerErrorException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { UserId } from 'src/enum/user.enum';
-import { AuthService } from 'src/module/common/auth.service';
+import { UserId } from 'src/enum';
+import { AuthService } from 'src/service/auth.service';
 
 @Injectable()
 export class AuthGuard implements CanActivate {

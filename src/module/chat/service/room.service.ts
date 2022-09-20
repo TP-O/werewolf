@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { WsException } from '@nestjs/websockets';
 import Redis from 'ioredis';
-import { AppConfig } from 'src/config/app.config';
-import { RedisClient } from 'src/decorator/redis.decorator';
-import { CacheNamespace } from 'src/enum/cache.enum';
-import { Room } from './type/room.type';
+import { AppConfig } from 'src/config';
+import { RedisClient } from 'src/decorator';
+import { CacheNamespace } from 'src/enum';
+import { Room } from '../type';
 
 @Injectable()
 export class RoomService {
@@ -17,7 +17,7 @@ export class RoomService {
    * @param memberId
    * @returns
    */
-  private async isMemeberOfAny(memberId: number) {
+  private async isMemberOfAny(memberId: number) {
     const roomIds = await this.redis.llen(
       `${CacheNamespace.UId2RIds}${memberId}`,
     );
@@ -31,12 +31,12 @@ export class RoomService {
    * enter any room before creating the room.
    *
    * @param bookerId
-   * @returns room value.
+   * @returns updated room.
    */
   async book(bookerId: number) {
     if (
       !AppConfig.allowJoinMultipleRooms &&
-      (await this.isMemeberOfAny(bookerId))
+      (await this.isMemberOfAny(bookerId))
     ) {
       throw new WsException(
         'Please leave current room before creating a new one',
@@ -49,7 +49,7 @@ export class RoomService {
       ownerId: bookerId,
       memberIds: [bookerId],
       waitingIds: [],
-      rejectedIds: [],
+      refusedIds: [],
     };
 
     await this.redis
@@ -86,12 +86,12 @@ export class RoomService {
    *
    * @param roomId
    * @param joinerId
-   * @returns updated room value.
+   * @returns updated room.
    */
   async join(roomId: string, joinerId: number) {
     if (
       !AppConfig.allowJoinMultipleRooms &&
-      (await this.isMemeberOfAny(joinerId))
+      (await this.isMemberOfAny(joinerId))
     ) {
       throw new WsException(
         'Please leave current room before joining another one!',
@@ -111,21 +111,22 @@ export class RoomService {
   }
 
   /**
-   * Leave the room. Delete the room if it is empty.
+   * Leave the room. Transfer ownership for to a member
+   * in room if leaver is owner. Empty room will be deleted.
    *
    * @param roomId
    * @param leaverId
-   * @returns updated room value.
+   * @returns updated room.
    */
   async leave(roomId: string, leaverId: number) {
     const room = await this.get(roomId);
-    const deletedMemeberIndex = room.memberIds.indexOf(leaverId);
+    const deletedMemberIndex = room.memberIds.indexOf(leaverId);
 
-    if (deletedMemeberIndex === -1) {
+    if (deletedMemberIndex === -1) {
       throw new WsException('You are not in this room!');
     } else {
-      room.memberIds.splice(deletedMemeberIndex, 1);
-      room.rejectedIds.push(leaverId);
+      room.memberIds.splice(deletedMemberIndex, 1);
+      room.refusedIds.push(leaverId);
     }
 
     const redisPipe = this.redis.pipeline();
@@ -148,12 +149,14 @@ export class RoomService {
   }
 
   /**
-   * Kick memeber out of room.
+   * Kick member out of room. Kicker must be the owner
+   * and member must be in the room, otherwise the action
+   * is declined.
    *
    * @param roomId
    * @param kickerId
    * @param memberId
-   * @returns updated room value.
+   * @returns updated room.
    */
   async kick(roomId: string, kickerId: number, memberId: number) {
     const room = await this.get(roomId);
@@ -162,14 +165,14 @@ export class RoomService {
       throw new WsException('You are not owner of this room!');
     }
 
-    const deletedMemeberIndex = room.memberIds.indexOf(memberId);
+    const deletedMemberIndex = room.memberIds.indexOf(memberId);
 
-    if (deletedMemeberIndex === -1) {
+    if (deletedMemberIndex === -1) {
       throw new WsException('Member is not in this room!');
     }
 
-    room.memberIds.splice(deletedMemeberIndex, 1);
-    room.rejectedIds.push(memberId);
+    room.memberIds.splice(deletedMemberIndex, 1);
+    room.refusedIds.push(memberId);
 
     await this.redis
       .pipeline()
@@ -181,11 +184,14 @@ export class RoomService {
   }
 
   /**
+   * Transfer ownership to another member. Decline action
+   * if room is empty, actor is not owner, or choosed member
+   * does not exist in the room.
    *
    * @param roomId
    * @param transfererId
    * @param candidateId
-   * @returns
+   * @returns update room.
    */
   async transferOwnership(
     roomId: string,
@@ -196,6 +202,10 @@ export class RoomService {
 
     if (room.ownerId !== transfererId) {
       throw new WsException('You are not owner of this room!');
+    }
+
+    if (room.memberIds.length === 1) {
+      throw new WsException('Your room is empty!');
     }
 
     if (!room.memberIds.includes(candidateId)) {
@@ -213,11 +223,13 @@ export class RoomService {
   }
 
   /**
+   * Invite a guest into room. Only invite online user and
+   * non-exist in room user.
    *
    * @param roomId
    * @param inviter
    * @param guestId
-   * @returns
+   * @returns updated room.
    */
   async invite(roomId: string, inviter: number, guestId: number) {
     const [[, roomJson], [, guestSIds]] = (await this.redis
@@ -240,7 +252,7 @@ export class RoomService {
     }
 
     room.waitingIds.push(guestId);
-    room.rejectedIds = room.rejectedIds.filter((id) => id !== guestId);
+    room.refusedIds = room.refusedIds.filter((id) => id !== guestId);
 
     await this.redis.set(
       `${CacheNamespace.Room}${room.id}`,
@@ -251,13 +263,19 @@ export class RoomService {
   }
 
   /**
+   * Respond to room invitation. Two options are
+   * accept and refuse.
    *
    * @param roomId
    * @param guestId
    * @param isAccpeted
-   * @returns
+   * @returns update room.
    */
-  async replyInvitation(roomId: string, guestId: number, isAccpeted: boolean) {
+  async respondInvitation(
+    roomId: string,
+    guestId: number,
+    isAccpeted: boolean,
+  ) {
     const room = await this.get(roomId);
     const deletedWaitingIndex = room.waitingIds.indexOf(guestId);
 
@@ -270,7 +288,7 @@ export class RoomService {
     if (isAccpeted) {
       room.memberIds.push(guestId);
     } else {
-      room.rejectedIds.push(guestId);
+      room.refusedIds.push(guestId);
     }
 
     await this.redis.set(

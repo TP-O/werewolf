@@ -3,11 +3,11 @@ import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
-import { RedisIoAdapter } from './adapter/redis.adapter';
+import { RedisIoAdapter } from './adapter';
 import { AppModule } from './app.module';
-import { AppConfig } from './config/app.config';
-import { RolesGuard } from './guard/roles.guard';
-import { PrismaService } from './module/common/prisma.service';
+import { AppConfig } from './config';
+import { RolesGuard } from './guard';
+import { PrismaService } from './service/prisma.service';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
