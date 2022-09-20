@@ -31,9 +31,10 @@ export class RoomService {
    * enter any room before creating the room.
    *
    * @param bookerId
+   * @param isPublic if true, anyone can join without invitation.
    * @returns updated room.
    */
-  async book(bookerId: number) {
+  async book(bookerId: number, isPublic = false) {
     if (
       !AppConfig.allowJoinMultipleRooms &&
       (await this.isMemberOfAny(bookerId))
@@ -46,6 +47,7 @@ export class RoomService {
     const id = String(Date.now());
     const room: Room = {
       id,
+      isPublic,
       ownerId: bookerId,
       memberIds: [bookerId],
       waitingIds: [],
@@ -119,6 +121,11 @@ export class RoomService {
     }
 
     const room = await this.get(roomId);
+
+    if (!room.isPublic) {
+      throw new WsException('This room is private!');
+    }
+
     room.memberIds.push(joinerId);
     room.waitingIds.splice(room.waitingIds.indexOf(joinerId), 1);
     room.refusedIds.splice(room.waitingIds.indexOf(joinerId), 1);

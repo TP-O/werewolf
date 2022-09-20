@@ -27,6 +27,7 @@ import {
 import { UserService } from 'src/service/user.service';
 import { EmitEvents } from 'src/type';
 import {
+  CreateRoomDto,
   InviteToRoomDto,
   JoinRoomDto,
   KickOutOfRoomDto,
@@ -147,14 +148,18 @@ export class TextChatGateway
    * Create a new room.
    *
    * @param client socket client.
+   * @param payload
    */
   @UseInterceptors(
     new EventNameBindingInterceptor(ListenEvent.CreateRoom),
     SocketUserIdBindingInterceptor,
   )
   @SubscribeMessage(ListenEvent.CreateRoom)
-  async handleCreateRoom(@ConnectedSocket() client: Socket<null, EmitEvents>) {
-    const room = await this.roomService.book(client.userId);
+  async handleCreateRoom(
+    @ConnectedSocket() client: Socket<null, EmitEvents>,
+    payload: CreateRoomDto,
+  ) {
+    const room = await this.roomService.book(client.userId, payload.isPublic);
     client.join(room.id);
 
     client.emit(EmitEvent.ReceiveRoomChanges, {
@@ -162,6 +167,7 @@ export class TextChatGateway
       actorId: client.userId,
       room: {
         id: room.id,
+        isPublic: room.isPublic,
       },
     });
   }
