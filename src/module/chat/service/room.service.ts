@@ -120,6 +120,8 @@ export class RoomService {
 
     const room = await this.get(roomId);
     room.memberIds.push(joinerId);
+    room.waitingIds.splice(room.waitingIds.indexOf(joinerId), 1);
+    room.refusedIds.splice(room.waitingIds.indexOf(joinerId), 1);
 
     await this.redis
       .pipeline()
@@ -188,8 +190,7 @@ export class RoomService {
     const redisPipe = this.redis.pipeline();
 
     rooms.map((room) => {
-      const deletedMemberIndex = room.memberIds.indexOf(leaverId);
-      room.memberIds.splice(deletedMemberIndex, 1);
+      room.memberIds.splice(room.memberIds.indexOf(leaverId), 1);
       room.refusedIds.push(leaverId);
 
       // Delete room if all members have left
@@ -318,7 +319,7 @@ export class RoomService {
     }
 
     room.waitingIds.push(guestId);
-    room.refusedIds = room.refusedIds.filter((id) => id !== guestId);
+    room.refusedIds.splice(room.waitingIds.indexOf(guestId), 1);
 
     await this.redis.set(
       `${CacheNamespace.Room}${room.id}`,
