@@ -1,11 +1,28 @@
 package core
 
-// type gameManager struct {
-// 	instances []Game
-// }
+import (
+	"uwwolf/module/game/contract"
+	"uwwolf/types"
+)
 
-// var GameManger *gameManager
+type gameManager struct {
+	games map[types.GameId]contract.Game
+}
 
-// func init() {
-// 	GameManger = &gameManager{}
-// }
+var gameMangerInstance *gameManager
+
+func New() contract.GameManger {
+	if gameMangerInstance == nil {
+		gameMangerInstance = &gameManager{}
+	}
+
+	return gameMangerInstance
+}
+
+func (gm *gameManager) Game(gameId types.GameId) contract.Game {
+	return gm.games[gameId]
+}
+
+func (gm *gameManager) AddGame(setting *types.GameSetting) {
+	gm.games[setting.Id] = NewGame(setting)
+}

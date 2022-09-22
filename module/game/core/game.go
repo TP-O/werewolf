@@ -326,12 +326,14 @@ func (g *game) listenTurnSwitching() {
 			ctx, cancel := context.WithTimeout(context.Background(), duration)
 			defer cancel()
 
+			fmt.Println(g.Round().CurrentTurn().RoleId())
+
 			select {
 			case <-g.switchTurnSignal:
-				fmt.Println("next turn!")
+				// fmt.Println("next turn!")
 
 			case <-ctx.Done():
-				fmt.Println("timeout!")
+				// fmt.Println("timeout!")
 			}
 
 			g.Round().NextTurn()
