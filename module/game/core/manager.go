@@ -5,24 +5,24 @@ import (
 	"uwwolf/types"
 )
 
-type gameManager struct {
+type manager struct {
 	games map[types.GameId]contract.Game
 }
 
-var gameMangerInstance *gameManager
+var mangerInstance *manager
 
 func New() contract.GameManger {
-	if gameMangerInstance == nil {
-		gameMangerInstance = &gameManager{}
+	if mangerInstance == nil {
+		mangerInstance = &manager{}
 	}
 
-	return gameMangerInstance
+	return mangerInstance
 }
 
-func (gm *gameManager) Game(gameId types.GameId) contract.Game {
-	return gm.games[gameId]
+func (m *manager) Game(gameId types.GameId) contract.Game {
+	return m.games[gameId]
 }
 
-func (gm *gameManager) AddGame(setting *types.GameSetting) {
-	gm.games[setting.Id] = NewGame(setting)
+func (m *manager) AddGame(setting *types.GameSetting) {
+	m.games[setting.Id] = NewGame(setting)
 }

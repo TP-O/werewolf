@@ -43,7 +43,7 @@ func TestHunterAfterDeath(t *testing.T) {
 	mockPlayer.
 		EXPECT().
 		Id().
-		Return(types.PlayerId(1)).
+		Return(types.PlayerId("1")).
 		Times(2)
 
 	roleSetting := &types.RoleSetting{

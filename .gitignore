@@ -2,3 +2,4 @@
 *.db
 .docker/*
 !.docker/.gitkeep
+tmp/

@@ -14,28 +14,32 @@ func TestIdentify(t *testing.T) {
 
 	//=============================================================
 	// Data is empty
-	factionId := k.Identify(1)
+	factionId := k.Identify("1")
 
 	assert.Equal(t, factionId, types.UnknownFaction)
 
 	//=============================================================
 	// Data is provided
-	k.Acquire(1, types.VillagerFaction)
-	factionId = k.Identify(1)
+	k.Acquire("1", types.VillagerFaction)
+	factionId = k.Identify("1")
 
 	assert.Equal(t, factionId, types.VillagerFaction)
 }
 
-func Acquire(t *testing.T) {
+func TestAcquire(t *testing.T) {
 	k := state.NewKnowledge()
 
 	//=============================================================
 	// New data
-	assert.True(t, k.Acquire(1, types.VillagerFaction))
+	res := k.Acquire("1", types.VillagerFaction)
+
+	assert.True(t, res)
 
 	//=============================================================
 	// Old data
-	k.Acquire(2, types.VillagerFaction)
+	playerId := types.PlayerId("2")
+	k.Acquire(playerId, types.VillagerFaction)
+	res = k.Acquire(playerId, types.VillagerFaction)
 
-	assert.False(t, k.Acquire(2, types.VillagerFaction))
+	assert.False(t, res)
 }

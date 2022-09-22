@@ -1,11 +1,11 @@
 package types
 
-type PlayerId uint
+type PlayerId string
 
 func (pId PlayerId) IsUnknown() bool {
 	return pId == UnknownPlayer
 }
 
 const (
-	UnknownPlayer PlayerId = iota
+	UnknownPlayer PlayerId = ""
 )

@@ -14,7 +14,7 @@ import (
 )
 
 func TestPlayerId(t *testing.T) {
-	id := types.PlayerId(1)
+	id := types.PlayerId("1")
 	p := core.NewPlayer(nil, id)
 
 	assert.Equal(t, id, p.Id())
@@ -40,7 +40,7 @@ func TestPlayerRoleIds(t *testing.T) {
 	r2 := role.NewSeerRole(mockGame, &types.RoleSetting{
 		Id: 99,
 	})
-	p := core.NewPlayer(nil, 1)
+	p := core.NewPlayer(nil, types.PlayerId("1"))
 
 	p.AssignRoles(r1, r2)
 
@@ -66,7 +66,7 @@ func TestPlayerFactionId(t *testing.T) {
 		FactionId().
 		Return(factionId)
 
-	p := core.NewPlayer(nil, 1)
+	p := core.NewPlayer(nil, types.PlayerId("1"))
 
 	p.AssignRoles(mockRole)
 
@@ -110,7 +110,7 @@ func TestPlayerAssignRoles(t *testing.T) {
 
 	//=============================================================
 	// Assign new roles with replacing faction id
-	p := core.NewPlayer(nil, 1)
+	p := core.NewPlayer(nil, types.PlayerId("1"))
 	p.AssignRoles(mockRole1, mockRole2)
 
 	assert.Contains(t, p.RoleIds(), role1Id, role2Id)
@@ -118,7 +118,7 @@ func TestPlayerAssignRoles(t *testing.T) {
 
 	//=============================================================
 	// Asign new roles without replacing faction id
-	p = core.NewPlayer(nil, 1)
+	p = core.NewPlayer(nil, types.PlayerId("1"))
 	p.AssignRoles(mockRole2, mockRole1)
 
 	assert.Contains(t, p.RoleIds(), role1Id, role2Id)
@@ -126,7 +126,7 @@ func TestPlayerAssignRoles(t *testing.T) {
 
 	//=============================================================
 	// Assign duplicate role
-	p = core.NewPlayer(nil, 1)
+	p = core.NewPlayer(nil, types.PlayerId("1"))
 	p.AssignRoles(mockRole1, mockRole1)
 
 	assert.Len(t, p.RoleIds(), 1)
@@ -183,7 +183,7 @@ func TestUseSkill(t *testing.T) {
 
 	//=============================================================
 	// Turn of player
-	p := core.NewPlayer(mockGame, 1)
+	p := core.NewPlayer(mockGame, types.PlayerId("1"))
 	p.AssignRoles(mockRole1)
 
 	res := p.UseSkill(&types.ActionRequest{})
@@ -192,7 +192,7 @@ func TestUseSkill(t *testing.T) {
 
 	//=============================================================
 	// Not turn of player
-	p = core.NewPlayer(mockGame, 1)
+	p = core.NewPlayer(mockGame, types.PlayerId("1"))
 	p.AssignRoles(mockRole2)
 
 	res = p.UseSkill(&types.ActionRequest{})

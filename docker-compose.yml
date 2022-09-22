@@ -1,10 +1,26 @@
 version: "3.8"
 
 services:
+    app:
+        image: cosmtrek/air:v1.40.4
+        ports:
+            - 8080:8080
+        working_dir: /app
+        env_file:
+            - .env
+        environment:
+            - air_wd=/app
+            - GOPATH=/go
+        volumes:
+            - ./:/app
+            - $GOPATH/pkg/mod:/go/pkg/mod
+        command: go run main.go
+        networks:
+            - postgres-network
+        restart: unless-stopped
+
     postgres:
         image: postgres:14.1-alpine3.15
-        ports:
-            - 5432:5432
         environment:
             - POSTGRES_DB=${DB_NAME}
             - POSTGRES_USER=${DB_USERNAME}
@@ -18,7 +34,7 @@ services:
     adminer:
         image: dockette/adminer:pgsql
         ports:
-        - 8081:80
+            - 8081:80
         networks:
             - postgres-network
         depends_on:

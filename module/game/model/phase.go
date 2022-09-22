@@ -1,13 +1,17 @@
 package model
 
 import (
-	"uwwolf/types"
+	"time"
 
 	"gorm.io/gorm"
+
+	"uwwolf/types"
 )
 
 type Phase struct {
-	gorm.Model
-	ID   types.PhaseId `gorm:"primarykey"`
-	Name string        `gorm:"type:varchar(50);unique"`
+	Id        types.PhaseId  `gorm:"type:uuid;default:uuid_generate_v4()" json:"id"`
+	Name      string         `gorm:"type:varchar(50);unique" json:"name"`
+	CreatedAt time.Time      `gorm:"" json:"createdAt"`
+	UpdatedAt time.Time      `gorm:"" json:"updatedAt"`
+	DeletedAt gorm.DeletedAt `gorm:"index" json:"deletedAt"`
 }

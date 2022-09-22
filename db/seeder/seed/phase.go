@@ -10,15 +10,15 @@ import (
 func SeedPhases(client *gorm.DB) {
 	client.Create([]model.Phase{
 		{
-			ID:   types.NightPhase,
+			Id:   types.NightPhase,
 			Name: "Night",
 		},
 		{
-			ID:   types.DayPhase,
+			Id:   types.DayPhase,
 			Name: "Day",
 		},
 		{
-			ID:   types.DuskPhase,
+			Id:   types.DuskPhase,
 			Name: "Dusk",
 		},
 	})

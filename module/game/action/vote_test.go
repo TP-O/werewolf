@@ -25,7 +25,7 @@ func TestVoteName(t *testing.T) {
 		Return(&state.Poll{})
 
 	//=============================================================
-	playerId := types.PlayerId(1)
+	playerId := types.PlayerId("1")
 	factionId := types.VillagerFaction
 	p := action.NewVote(mockGame, factionId, playerId, 1)
 
@@ -40,9 +40,9 @@ func TestVoteState(t *testing.T) {
 	mockGame := game.NewMockGame(ctrl)
 
 	//=============================================================
-	playerId := types.PlayerId(1)
+	playerId := types.PlayerId("1")
 	poll := state.NewPoll()
-	poll.AddElectors([]types.PlayerId{playerId, 2, 3})
+	poll.AddElectors([]types.PlayerId{playerId, "2", "3"})
 
 	mockGame.
 		EXPECT().
@@ -66,9 +66,13 @@ func TestVotePerform(t *testing.T) {
 	mockGame := game.NewMockGame(ctrl)
 
 	//=============================================================
-	playerId := types.PlayerId(1)
+	playerIds := []types.PlayerId{"1", "2"}
 	poll := state.NewPoll()
-	poll.AddElectors([]types.PlayerId{playerId, 2, 3})
+	poll.AddElectors([]types.PlayerId{
+		playerIds[0],
+		playerIds[1],
+		"3",
+	})
 
 	mockGame.
 		EXPECT().
@@ -76,15 +80,15 @@ func TestVotePerform(t *testing.T) {
 		Return(poll).
 		Times(1)
 
-	p := action.NewVote(mockGame, types.VillagerFaction, playerId, 1)
+	p := action.NewVote(mockGame, types.VillagerFaction, playerIds[0], 1)
 	p.State().(*state.Poll).Open()
 
 	//=============================================================
 	// Not allowed elector id
 	res := p.Perform(&types.ActionRequest{
 		GameId:    1,
-		ActorId:   99,
-		TargetIds: []types.PlayerId{playerId},
+		ActorId:   types.PlayerId("99"),
+		TargetIds: []types.PlayerId{playerIds[0]},
 	})
 
 	assert.False(t, res.Ok)
@@ -93,7 +97,7 @@ func TestVotePerform(t *testing.T) {
 	// Skip vote
 	res = p.Perform(&types.ActionRequest{
 		GameId:    1,
-		ActorId:   types.PlayerId(2),
+		ActorId:   playerIds[1],
 		IsSkipped: true,
 	})
 
@@ -102,11 +106,11 @@ func TestVotePerform(t *testing.T) {
 
 	//=============================================================
 	// Successfully voted
-	votedPlayer := types.PlayerId(2)
+	votedPlayer := types.PlayerId("2")
 
 	res = p.Perform(&types.ActionRequest{
 		GameId:    1,
-		ActorId:   playerId,
+		ActorId:   playerIds[0],
 		TargetIds: []types.PlayerId{votedPlayer},
 	})
 

@@ -32,9 +32,8 @@ func TestShootingPerform(t *testing.T) {
 	mockPlayer := game.NewMockPlayer(ctrl)
 
 	//=============================================================
-	hunterId := types.PlayerId(1)
-	targetId := types.PlayerId(2)
-
+	hunterId := types.PlayerId("1")
+	targetId := types.PlayerId("2")
 	mockGame.
 		EXPECT().
 		KillPlayer(gomock.Any()).

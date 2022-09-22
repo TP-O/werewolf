@@ -32,7 +32,7 @@ func TestRecognitionPerform(t *testing.T) {
 
 	//=============================================================
 	knownRoleId := types.RoleId(1)
-	sameRolePlayerIds := []types.PlayerId{1, 2, 3}
+	sameRolePlayerIds := []types.PlayerId{"1", "2", "3"}
 
 	mockGame.
 		EXPECT().
@@ -40,22 +40,22 @@ func TestRecognitionPerform(t *testing.T) {
 		Return(sameRolePlayerIds).
 		Times(2)
 
-	//=============================================================
-	// Already known players having same current turn's role
+		//=============================================================
+	// Get list of players have the same current turn's role
 	r := action.NewRecognition(mockGame, knownRoleId)
-
-	r.Perform(&types.ActionRequest{})
 
 	res := r.Perform(&types.ActionRequest{})
 
-	assert.False(t, res.Ok)
+	assert.True(t, res.Ok)
+	assert.Equal(t, sameRolePlayerIds, res.Data)
 
 	//=============================================================
-	// Get list of players have the same current turn's role
+	// Already known players having same current turn's role
 	r = action.NewRecognition(mockGame, knownRoleId)
+	r.Perform(&types.ActionRequest{})
 
 	res = r.Perform(&types.ActionRequest{})
 
-	assert.True(t, res.Ok)
-	assert.Equal(t, sameRolePlayerIds, res.Data)
+	assert.False(t, res.Ok)
+
 }

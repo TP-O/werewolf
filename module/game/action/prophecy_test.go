@@ -37,8 +37,8 @@ func TestProphecyPerform(t *testing.T) {
 	p := action.NewProphecy(mockGame)
 	state := p.State().(*state.Knowledge)
 
-	werewolfId := types.PlayerId(1)
-	seerId := types.PlayerId(2)
+	werewolfId := types.PlayerId("1")
+	seerId := types.PlayerId("2")
 
 	state.Acquire(werewolfId, types.WerewolfFaction)
 	state.Acquire(seerId, types.VillagerFaction)
@@ -79,7 +79,7 @@ func TestProphecyPerform(t *testing.T) {
 	res = p.Perform(&types.ActionRequest{
 		GameId:    1,
 		ActorId:   seerId,
-		TargetIds: []types.PlayerId{99},
+		TargetIds: []types.PlayerId{types.PlayerId("99")},
 	})
 
 	assert.True(t, res.Ok)
@@ -95,7 +95,7 @@ func TestProphecyPerform(t *testing.T) {
 	res = p.Perform(&types.ActionRequest{
 		GameId:    1,
 		ActorId:   seerId,
-		TargetIds: []types.PlayerId{100},
+		TargetIds: []types.PlayerId{types.PlayerId("100")},
 	})
 
 	assert.True(t, res.Ok)

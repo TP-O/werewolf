@@ -9,7 +9,13 @@ import (
 	"uwwolf/types"
 )
 
-var playerIds = []types.PlayerId{1, 2, 3, 4, 5}
+var playerIds = []types.PlayerId{
+	"1111111111111111111111111111",
+	"1111111111111111111111111112",
+	"1111111111111111111111111113",
+	"1111111111111111111111111114",
+	"1111111111111111111111111115",
+}
 
 func TestGameRound(t *testing.T) {
 	g := core.NewGame(&types.GameSetting{
@@ -176,7 +182,7 @@ func TestGameKillPlayer(t *testing.T) {
 
 	//=============================================================
 	// Kill non-exist player
-	assert.Nil(t, g.KillPlayer(99))
+	assert.Nil(t, g.KillPlayer(types.PlayerId("99")))
 
 	//=============================================================
 	// Kill player successfully
@@ -209,7 +215,7 @@ func TestGameRequestAction(t *testing.T) {
 	})
 
 	g.Start()
-	g.KillPlayer(5)
+	g.KillPlayer(playerIds[4])
 	g.Poll(types.VillagerFaction).Open()
 
 	// Move to villager turn
@@ -219,77 +225,79 @@ func TestGameRequestAction(t *testing.T) {
 	//=============================================================
 	// Invalid input
 	res := g.RequestAction(&types.ActionRequest{
-		//
+		ActorId:   playerIds[3],
+		TargetIds: []types.PlayerId{playerIds[0]},
 	})
 
-	assert.Equal(t, types.InvalidInputErrorTag, res.Error.Tag)
-
-	res = g.RequestAction(&types.ActionRequest{
-		GameId:    0,
-		ActorId:   5,
-		TargetIds: []types.PlayerId{1},
-	})
-
+	assert.False(t, res.Ok)
 	assert.Equal(t, types.InvalidInputErrorTag, res.Error.Tag)
 
 	res = g.RequestAction(&types.ActionRequest{
 		GameId:    1,
-		ActorId:   0,
-		TargetIds: []types.PlayerId{1},
-	})
-
-	assert.Equal(t, types.InvalidInputErrorTag, res.Error.Tag)
-
-	res = g.RequestAction(&types.ActionRequest{
-		GameId:    1,
-		ActorId:   5,
+		ActorId:   playerIds[3],
 		TargetIds: []types.PlayerId{},
 	})
 
+	assert.False(t, res.Ok)
 	assert.Equal(t, types.InvalidInputErrorTag, res.Error.Tag)
 
 	res = g.RequestAction(&types.ActionRequest{
 		GameId:    1,
-		ActorId:   5,
-		TargetIds: []types.PlayerId{1, 1},
+		ActorId:   playerIds[3],
+		TargetIds: []types.PlayerId{playerIds[0], playerIds[0]},
 	})
 
+	assert.False(t, res.Ok)
 	assert.Equal(t, types.InvalidInputErrorTag, res.Error.Tag)
 
 	res = g.RequestAction(&types.ActionRequest{
 		GameId:    1,
-		ActorId:   5,
-		TargetIds: []types.PlayerId{0},
+		ActorId:   playerIds[3],
+		TargetIds: []types.PlayerId{types.UnknownPlayer},
 	})
 
+	assert.False(t, res.Ok)
 	assert.Equal(t, types.InvalidInputErrorTag, res.Error.Tag)
 
 	//=============================================================
 	// Player is dead
 	res = g.RequestAction(&types.ActionRequest{
 		GameId:    1,
-		ActorId:   5,
-		TargetIds: []types.PlayerId{1},
+		ActorId:   playerIds[4],
+		TargetIds: []types.PlayerId{playerIds[0]},
 	})
 
+	assert.False(t, res.Ok)
+	assert.Equal(t, types.UnauthorizedErrorTag, res.Error.Tag)
+
+	//=============================================================
+	// Non-exist player
+	res = g.RequestAction(&types.ActionRequest{
+		GameId:    1,
+		ActorId:   types.PlayerId("0000000000000000000000000000"),
+		TargetIds: []types.PlayerId{playerIds[0]},
+	})
+
+	assert.False(t, res.Ok)
 	assert.Equal(t, types.UnauthorizedErrorTag, res.Error.Tag)
 
 	//=============================================================
 	// Wrong turn
 	res = g.RequestAction(&types.ActionRequest{
 		GameId:    1,
-		ActorId:   6,
-		TargetIds: []types.PlayerId{1},
+		ActorId:   types.PlayerId("1111111111111111111111111116"),
+		TargetIds: []types.PlayerId{playerIds[0]},
 	})
 
+	assert.False(t, res.Ok)
 	assert.Equal(t, types.UnauthorizedErrorTag, res.Error.Tag)
 
 	//=============================================================
 	// Request successfully
 	res = g.RequestAction(&types.ActionRequest{
 		GameId:    1,
-		ActorId:   1,
-		TargetIds: []types.PlayerId{1},
+		ActorId:   playerIds[0],
+		TargetIds: []types.PlayerId{playerIds[0]},
 	})
 
 	assert.True(t, res.Ok)

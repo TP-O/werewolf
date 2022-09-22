@@ -9,11 +9,12 @@ import (
 	"uwwolf/types"
 )
 
+var playerIds = []types.PlayerId{"1", "2", "3"}
 var turnSettings []*types.TurnSetting = []*types.TurnSetting{
 	{
 		PhaseId:    types.NightPhase,
 		RoleId:     1,
-		PlayerIds:  []types.PlayerId{1},
+		PlayerIds:  []types.PlayerId{playerIds[0]},
 		BeginRound: 1,
 		Priority:   1,
 		Expiration: types.UnlimitedTimes,
@@ -21,7 +22,7 @@ var turnSettings []*types.TurnSetting = []*types.TurnSetting{
 	{
 		PhaseId:    types.DayPhase,
 		RoleId:     2,
-		PlayerIds:  []types.PlayerId{2},
+		PlayerIds:  []types.PlayerId{playerIds[1]},
 		BeginRound: 1,
 		Priority:   1,
 		Expiration: types.UnlimitedTimes,
@@ -29,7 +30,7 @@ var turnSettings []*types.TurnSetting = []*types.TurnSetting{
 	{
 		PhaseId:    types.DuskPhase,
 		RoleId:     3,
-		PlayerIds:  []types.PlayerId{3},
+		PlayerIds:  []types.PlayerId{playerIds[2]},
 		BeginRound: 1,
 		Priority:   1,
 		Expiration: types.UnlimitedTimes,
@@ -77,7 +78,7 @@ func TestReset(t *testing.T) {
 
 func TestRoundIsAllowed(t *testing.T) {
 	r := state.NewRound()
-	playerId := types.PlayerId(1)
+	playerId := types.PlayerId("1")
 
 	//=============================================================
 	// Empty round
@@ -103,7 +104,7 @@ func TestRoundIsAllowed(t *testing.T) {
 		r.AddTurn(setting)
 	}
 
-	assert.True(t, r.IsAllowed(playerId))
+	assert.True(t, r.IsAllowed(playerIds[0]))
 
 	r.Reset()
 }
@@ -488,7 +489,7 @@ func TestAddPlayer(t *testing.T) {
 		r.AddTurn(setting)
 	}
 
-	assert.False(t, r.AddPlayer(1, 99))
+	assert.False(t, r.AddPlayer(types.PlayerId("99"), 99))
 
 	r.Reset()
 
@@ -509,8 +510,10 @@ func TestAddPlayer(t *testing.T) {
 		r.AddTurn(setting)
 	}
 
-	assert.True(t, r.AddPlayer(types.PlayerId(2), turnSettings[0].RoleId))
-	assert.Contains(t, r.CurrentTurn().PlayerIds(), types.PlayerId(2))
+	addedPlayerId := types.PlayerId("2")
+
+	assert.True(t, r.AddPlayer(addedPlayerId, turnSettings[0].RoleId))
+	assert.Contains(t, r.CurrentTurn().PlayerIds(), addedPlayerId)
 
 	r.Reset()
 }
@@ -524,7 +527,7 @@ func TestDeletePlayer(t *testing.T) {
 		r.AddTurn(setting)
 	}
 
-	assert.False(t, r.DeletePlayer(1, 99))
+	assert.False(t, r.DeletePlayer(types.PlayerId("1"), 99))
 
 	r.Reset()
 
@@ -534,8 +537,10 @@ func TestDeletePlayer(t *testing.T) {
 		r.AddTurn(setting)
 	}
 
-	assert.True(t, r.DeletePlayer(types.PlayerId(1), turnSettings[0].RoleId))
-	assert.NotContains(t, r.CurrentTurn().PlayerIds(), types.PlayerId(1))
+	deletedPlayerId := types.PlayerId("1")
+
+	assert.True(t, r.DeletePlayer(deletedPlayerId, turnSettings[0].RoleId))
+	assert.NotContains(t, r.CurrentTurn().PlayerIds(), deletedPlayerId)
 
 	r.Reset()
 }
@@ -551,17 +556,17 @@ func TestDeletePlayerFromAllTurns(t *testing.T) {
 
 	r.AddTurn(&types.TurnSetting{
 		PhaseId:   types.DayPhase,
-		PlayerIds: []types.PlayerId{1},
+		PlayerIds: []types.PlayerId{playerIds[0]},
 		Position:  0,
 	})
 
-	r.DeletePlayerFromAllTurns(types.PlayerId(1))
+	r.DeletePlayerFromAllTurns(playerIds[0])
 
-	assert.NotContains(t, r.CurrentTurn().PlayerIds(), types.PlayerId(1))
+	assert.NotContains(t, r.CurrentTurn().PlayerIds(), playerIds[0])
 
 	r.NextTurn()
 
-	assert.NotContains(t, r.CurrentTurn().PlayerIds(), types.PlayerId(1))
+	assert.NotContains(t, r.CurrentTurn().PlayerIds(), playerIds[0])
 
 	r.Reset()
 }

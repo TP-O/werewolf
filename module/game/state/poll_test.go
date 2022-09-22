@@ -10,7 +10,16 @@ import (
 )
 
 var electorIds = []types.PlayerId{
-	1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+	"1",
+	"2",
+	"3",
+	"4",
+	"5",
+	"6",
+	"7",
+	"8",
+	"9",
+	"10",
 }
 
 func TestNewPoll(t *testing.T) {
@@ -63,7 +72,7 @@ func TestPollIsAllowed(t *testing.T) {
 
 	//=============================================================
 	// Not an elector
-	assert.False(t, p.IsAllowed(999))
+	assert.False(t, p.IsAllowed("999"))
 
 	//=============================================================
 	// Is an elector
@@ -88,13 +97,14 @@ func TestCurrentRound(t *testing.T) {
 func TestAddElectors(t *testing.T) {
 	p := state.NewPoll()
 	p.AddElectors(electorIds)
-	p.AddElectors([]types.PlayerId{99})
+	addedElectorId := types.PlayerId("99")
+	p.AddElectors([]types.PlayerId{addedElectorId})
 
 	for _, eId := range electorIds {
 		assert.Contains(t, p.ElectorIds, eId)
 	}
 
-	assert.Contains(t, p.ElectorIds, types.PlayerId(99))
+	assert.Contains(t, p.ElectorIds, addedElectorId)
 }
 
 func TestSetWeight(t *testing.T) {
@@ -103,7 +113,7 @@ func TestSetWeight(t *testing.T) {
 
 	//=============================================================
 	// Valid elector id
-	assert.False(t, p.SetWeight(99, 1))
+	assert.False(t, p.SetWeight(types.PlayerId("99"), 1))
 
 	//=============================================================
 	// Valid elector id
@@ -161,7 +171,7 @@ func TestVote(t *testing.T) {
 
 	//=============================================================
 	// Vote with invalid elector id
-	assert.False(t, p.Vote(99, electorIds[0]))
+	assert.False(t, p.Vote(types.PlayerId("99"), electorIds[0]))
 
 	//=============================================================
 	// Successully voted
@@ -220,11 +230,11 @@ func TestWinner(t *testing.T) {
 	p.AddElectors(electorIds)
 
 	//=============================================================
-	// Get loser before open first poll
+	// Get winner before open first poll
 	assert.Equal(t, types.UnknownPlayer, p.Winner())
 
 	//=============================================================
-	// Get loser when poll is opening
+	// Get winner when poll is opening
 	p.Open()
 
 	assert.Equal(t, types.UnknownPlayer, p.Winner())
@@ -246,7 +256,7 @@ func TestWinner(t *testing.T) {
 	assert.Equal(t, electorIds[1], p.Winner())
 
 	//=============================================================
-	// Successully got loser - 50/50
+	// Successully got winner - 50/50
 	p.Open()
 	p.Vote(electorIds[0], electorIds[1])
 	p.Vote(electorIds[1], electorIds[1])
@@ -267,7 +277,7 @@ func RemoveElector(t *testing.T) {
 
 	//=============================================================
 	// Remove non-exist elector
-	assert.False(t, p.RemoveElector(99))
+	assert.False(t, p.RemoveElector(types.PlayerId("99")))
 
 	//=============================================================
 	// Successully removed

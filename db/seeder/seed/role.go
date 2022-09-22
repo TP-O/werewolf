@@ -12,9 +12,9 @@ func SeedRoles(client *gorm.DB) {
 		[]model.Role{
 			// Night
 			{
-				ID:         types.TwoSistersRole,
-				FactionID:  types.VillagerFaction,
-				PhaseID:    types.NightPhase,
+				Id:         types.TwoSistersRole,
+				FactionId:  types.VillagerFaction,
+				PhaseId:    types.NightPhase,
 				IsDefault:  true,
 				Priority:   1,
 				Weight:     1,
@@ -23,9 +23,9 @@ func SeedRoles(client *gorm.DB) {
 				Expiration: types.OneTimes,
 			},
 			{
-				ID:         types.SeerRole,
-				FactionID:  types.VillagerFaction,
-				PhaseID:    types.NightPhase,
+				Id:         types.SeerRole,
+				FactionId:  types.VillagerFaction,
+				PhaseId:    types.NightPhase,
 				IsDefault:  true,
 				Priority:   2,
 				Weight:     1,
@@ -34,9 +34,9 @@ func SeedRoles(client *gorm.DB) {
 				Expiration: types.UnlimitedTimes,
 			},
 			{
-				ID:         types.WerewolfRole,
-				FactionID:  types.WerewolfFaction,
-				PhaseID:    types.NightPhase,
+				Id:         types.WerewolfRole,
+				FactionId:  types.WerewolfFaction,
+				PhaseId:    types.NightPhase,
 				IsDefault:  true,
 				Priority:   3,
 				Weight:     1,
@@ -47,9 +47,9 @@ func SeedRoles(client *gorm.DB) {
 
 			// Day
 			{
-				ID:         types.HunterRole,
-				FactionID:  types.VillagerFaction,
-				PhaseID:    types.DayPhase,
+				Id:         types.HunterRole,
+				FactionId:  types.VillagerFaction,
+				PhaseId:    types.DayPhase,
 				IsDefault:  false,
 				Priority:   0,
 				Weight:     1,
@@ -58,9 +58,9 @@ func SeedRoles(client *gorm.DB) {
 				Expiration: types.OneTimes,
 			},
 			{
-				ID:         types.VillagerRole,
-				FactionID:  types.VillagerFaction,
-				PhaseID:    types.DayPhase,
+				Id:         types.VillagerRole,
+				FactionId:  types.VillagerFaction,
+				PhaseId:    types.DayPhase,
 				IsDefault:  true,
 				Priority:   1,
 				Weight:     1,

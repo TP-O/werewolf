@@ -193,11 +193,11 @@ func (g *game) getRolesByIds(ids []types.RoleId) *roleSplit {
 
 	// Add role to split if id is valid, also skip 2 reserve roles
 	for _, role := range roles {
-		if role.ID != types.WerewolfRole &&
-			role.ID != types.VillagerRole &&
-			slices.Contains(ids, role.ID) {
+		if role.Id != types.WerewolfRole &&
+			role.Id != types.VillagerRole &&
+			slices.Contains(ids, role.Id) {
 
-			if role.FactionID == types.WerewolfFaction {
+			if role.FactionId == types.WerewolfFaction {
 				roleSplit.werewolfFaction = append(roleSplit.werewolfFaction, role)
 			} else {
 				roleSplit.otherFactions = append(roleSplit.otherFactions, role)
@@ -215,16 +215,16 @@ func (g *game) getRolesByIds(ids []types.RoleId) *roleSplit {
 
 func (g *game) prepareRound(roleSplit *roleSplit) {
 	g.round.AddTurn(&types.TurnSetting{
-		PhaseId:    roleSplit.reserveWerewolf.PhaseID,
-		RoleId:     roleSplit.reserveWerewolf.ID,
+		PhaseId:    roleSplit.reserveWerewolf.PhaseId,
+		RoleId:     roleSplit.reserveWerewolf.Id,
 		BeginRound: roleSplit.reserveWerewolf.BeginRound,
 		Priority:   roleSplit.reserveWerewolf.Priority,
 		Expiration: roleSplit.reserveWerewolf.Expiration,
 		Position:   types.SortedPosition,
 	})
 	g.round.AddTurn(&types.TurnSetting{
-		PhaseId:    roleSplit.reserveVillager.PhaseID,
-		RoleId:     roleSplit.reserveVillager.ID,
+		PhaseId:    roleSplit.reserveVillager.PhaseId,
+		RoleId:     roleSplit.reserveVillager.Id,
 		BeginRound: roleSplit.reserveVillager.BeginRound,
 		Priority:   roleSplit.reserveVillager.Priority,
 		Expiration: roleSplit.reserveVillager.Expiration,
@@ -233,8 +233,8 @@ func (g *game) prepareRound(roleSplit *roleSplit) {
 
 	for _, role := range roleSplit.werewolfFaction {
 		g.round.AddTurn(&types.TurnSetting{
-			PhaseId:    role.PhaseID,
-			RoleId:     role.ID,
+			PhaseId:    role.PhaseId,
+			RoleId:     role.Id,
 			BeginRound: role.BeginRound,
 			Priority:   role.Priority,
 			Expiration: role.Expiration,
@@ -243,8 +243,8 @@ func (g *game) prepareRound(roleSplit *roleSplit) {
 	}
 	for _, role := range roleSplit.otherFactions {
 		g.round.AddTurn(&types.TurnSetting{
-			PhaseId:    role.PhaseID,
-			RoleId:     role.ID,
+			PhaseId:    role.PhaseId,
+			RoleId:     role.Id,
 			BeginRound: role.BeginRound,
 			Priority:   role.Priority,
 			Expiration: role.Expiration,
@@ -258,14 +258,14 @@ func (g *game) assignRoles(roles []*model.Role) {
 		index, role := util.RandomElement(roles)
 
 		g.rId2pIds[types.VillagerRole] = append(g.rId2pIds[types.VillagerRole], player.Id())
-		g.rId2pIds[role.ID] = append(g.rId2pIds[role.ID], player.Id())
+		g.rId2pIds[role.Id] = append(g.rId2pIds[role.Id], player.Id())
 
 		player.AssignRoles(
-			factory.Role(role.ID, g, &types.RoleSetting{
-				Id:         role.ID,
+			factory.Role(role.Id, g, &types.RoleSetting{
+				Id:         role.Id,
 				OwnerId:    player.Id(),
-				PhaseId:    role.PhaseID,
-				FactionId:  role.FactionID,
+				PhaseId:    role.PhaseId,
+				FactionId:  role.FactionId,
 				BeginRound: role.BeginRound,
 				Expiration: role.Expiration,
 			}),
@@ -279,10 +279,10 @@ func (g *game) assignRoles(roles []*model.Role) {
 			}),
 		)
 
-		g.round.AddPlayer(player.Id(), role.ID)
+		g.round.AddPlayer(player.Id(), role.Id)
 		g.round.AddPlayer(player.Id(), types.VillagerRole)
 
-		if role.FactionID == types.WerewolfFaction {
+		if role.FactionId == types.WerewolfFaction {
 			g.rId2pIds[types.WerewolfRole] = append(g.rId2pIds[types.WerewolfRole], player.Id())
 			g.fId2pIds[types.WerewolfFaction] = append(g.fId2pIds[types.WerewolfFaction], player.Id())
 
@@ -326,8 +326,6 @@ func (g *game) listenTurnSwitching() {
 			ctx, cancel := context.WithTimeout(context.Background(), duration)
 			defer cancel()
 
-			fmt.Println(g.Round().CurrentTurn().RoleId())
-
 			select {
 			case <-g.switchTurnSignal:
 				// fmt.Println("next turn!")
@@ -366,6 +364,8 @@ func (g *game) RequestAction(req *types.ActionRequest) *types.ActionResponse {
 
 	if slices.Contains(g.deadPlayerIds, req.ActorId) ||
 		!g.round.IsAllowed(req.ActorId) {
+
+		fmt.Println(g.round.CurrentTurn().PlayerIds())
 
 		return &types.ActionResponse{
 			Error: &types.ErrorDetail{
