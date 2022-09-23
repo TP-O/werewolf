@@ -3,3 +3,5 @@
 .docker/*
 !.docker/.gitkeep
 tmp/
+mock/*
+!mock/.gitkeep

@@ -1,9 +1,9 @@
 package config
 
 import (
-	"uwwolf/util"
-
 	"github.com/spf13/viper"
+
+	"uwwolf/app/util"
 )
 
 type cacheConfig struct {
