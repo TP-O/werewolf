@@ -1,8 +1,8 @@
 {
-  "name": "chat",
+  "name": "communication-server",
   "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "description": "Server supports communication in game",
+  "author": "TP-O",
   "private": true,
   "scripts": {
     "prebuild": "rimraf dist",
