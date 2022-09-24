@@ -76,8 +76,8 @@ export class TextChatGateway
       const friendsSids = await this.userService.getOnlineFriendsSocketIds(
         user.id,
       );
-      friendsSids.forEach((sids) => client.to(sids));
-      client.emit(EmitEvent.UpdateFriendStatus, {
+      friendsSids.forEach((sids) => this.server.to(sids));
+      this.server.emit(EmitEvent.UpdateFriendStatus, {
         id: user.id,
         status: ActiveStatus.Online,
       });
@@ -106,8 +106,8 @@ export class TextChatGateway
         user.id,
       );
 
-      friendsSids.forEach((sids) => client.to(sids));
-      client.emit(EmitEvent.UpdateFriendStatus, {
+      friendsSids.forEach((sids) => this.server.to(sids));
+      this.server.emit(EmitEvent.UpdateFriendStatus, {
         id: user.id,
         status: null,
       });

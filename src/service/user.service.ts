@@ -80,7 +80,7 @@ export class UserService {
 
     // Change status to offline and leave all rooms
     // if there are no sockets is connected.
-    if (removedSocketIds.length === user.sids.length) {
+    if (user.sids.length === 0) {
       const roomIds = await this.getJoinedRoomIds(user.id);
       roomIds.forEach((rid) => this.roomService.leave(user.id, rid));
 
