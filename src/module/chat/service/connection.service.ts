@@ -3,7 +3,7 @@ import { WsException } from '@nestjs/websockets';
 import { User } from '@prisma/client';
 import { Server, Socket } from 'socket.io';
 import { AppConfig } from 'src/config';
-import { UserId } from 'src/enum';
+import { EmitEvent, RoomEvent, UserId } from 'src/enum';
 import { AuthService } from 'src/service/auth.service';
 import { UserService } from 'src/service/user.service';
 
@@ -28,18 +28,32 @@ export class ConnectionService {
   }
 
   /**
-   * Disconnect an user.
+   * Solve conflict if multiple people connect to the
+   * same account.
    *
    * @param server websocket server.
    * @param user
    */
-  private async forceDisconnect(server: Server, user: User) {
-    const { disconnectedSIds } = await this.userService.disconnect(user);
-    disconnectedSIds.forEach((sId) =>
-      server.sockets.sockets.get(sId).disconnect(),
+  private async handleConflict(server: Server, user: User) {
+    if (!AppConfig.disconnectIfConflict) {
+      throw new WsException('Your account is in use!');
+    }
+
+    const { disconnectedId, leftRooms } = await this.userService.disconnect(
+      user,
     );
 
-    throw new WsException('Your account is in use. Please connect again!');
+    server.sockets.sockets.get(disconnectedId).disconnect();
+
+    leftRooms.forEach((room) => {
+      if (room.memberIds.length > 0) {
+        server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
+          event: RoomEvent.Leave,
+          actorId: user.id,
+          room,
+        });
+      }
+    });
   }
 
   /**
@@ -48,7 +62,7 @@ export class ConnectionService {
    *
    * @param server websocket server.
    * @param client socket client.
-   * @returns user record.
+   * @returns updated user.
    */
   async validateConnection(server: Server, client: Socket) {
     const user = await this.validateAuthorization(
@@ -63,8 +77,8 @@ export class ConnectionService {
       throw new WsException('Please connect again after a while!');
     }
 
-    if (user.statusId != null && !AppConfig.allowDuplicateSignIn) {
-      await this.forceDisconnect(server, user);
+    if (user.statusId != null) {
+      await this.handleConflict(server, user);
     }
 
     return user;

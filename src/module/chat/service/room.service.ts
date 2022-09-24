@@ -102,7 +102,7 @@ export class RoomService {
   }
 
   /**
-   * Join to a new room. If multi-room join is disabled,
+   * Add user to room. If multi-room join is disabled,
    * the booker must not enter any room before creating
    * the room.
    *
@@ -140,7 +140,7 @@ export class RoomService {
   }
 
   /**
-   * Leave the room. Transfer ownership for to a member
+   * Remove user from room. Transfer ownership for to a member
    * in room if leaver is owner. Empty room will be deleted.
    *
    * @param leaverId
@@ -180,7 +180,8 @@ export class RoomService {
   }
 
   /**
-   * Leave many rooms. Logic is the same as `leave` method.
+   * Remove user from many rooms. Logic is the same
+   * as `leave` method.
    *
    * @param leaverId
    * @param roomIds empty if leaving all rooms.
@@ -238,11 +239,13 @@ export class RoomService {
    * @param kickerId
    * @param memberId
    * @param roomId
-   * @returns updated room.
+   * @returns updated room and socket id of kicked member.
    */
   async kick(kickerId: number, memberId: number, roomId: string) {
     if (kickerId === memberId) {
-      return this.leave(kickerId, roomId);
+      const room = await this.leave(kickerId, roomId);
+
+      return { room, kickedMemberSId: kickerId };
     }
 
     const room = await this.get(roomId);
@@ -260,13 +263,17 @@ export class RoomService {
     room.memberIds.splice(deletedMemberIndex, 1);
     room.refusedIds.push(memberId);
 
-    await this.redis
+    const [[, kickedMemberSId]] = await this.redis
       .pipeline()
+      .get(`${CacheNamespace.UID2SId}${memberId}`)
       .set(`${CacheNamespace.Room}${room.id}`, JSON.stringify(room))
       .lrem(`${CacheNamespace.UId2RIds}${memberId}`, 1, room.id)
       .exec();
 
-    return room;
+    return {
+      room,
+      kickedMemberSocketId: kickedMemberSId as string,
+    };
   }
 
   /**
@@ -314,10 +321,10 @@ export class RoomService {
    * @returns updated room and guest socket ids.
    */
   async invite(inviter: number, guestId: number, roomId: string) {
-    const [[, roomJSON], [, guestSIdsJSON]] = (await this.redis
+    const [[, roomJSON], [, guestSId]] = (await this.redis
       .pipeline()
       .get(`${CacheNamespace.Room}${roomId}`)
-      .get(`${CacheNamespace.UID2SIds}${guestId}`)
+      .get(`${CacheNamespace.UID2SId}${guestId}`)
       .exec()) as [error: any, result: string | string[]][];
 
     if (roomJSON == null) {
@@ -325,9 +332,8 @@ export class RoomService {
     }
 
     const room: Room = JSON.parse(roomJSON as string);
-    const guestSIds: string[] = JSON.parse((guestSIdsJSON as string) || '[]');
 
-    if (guestSIds.length === 0) {
+    if (guestSId == null) {
       throw new WsException('Please only invite online user!');
     }
 
@@ -347,7 +353,7 @@ export class RoomService {
       JSON.stringify(room),
     );
 
-    return { room, guestSIds };
+    return { room, guestSocketId: guestSId };
   }
 
   /**
@@ -373,6 +379,8 @@ export class RoomService {
       throw new WsException('You are not invited to this room!');
     }
 
+    const redisPipe = this.redis.pipeline();
+
     room.waitingIds.splice(deletedWaitingIndex, 1);
 
     if (isAccpeted) {
@@ -385,14 +393,13 @@ export class RoomService {
       }
 
       room.memberIds.push(guestId);
+      redisPipe.lpush(`${CacheNamespace.UId2RIds}${guestId}`, room.id);
     } else {
       room.refusedIds.push(guestId);
     }
 
-    await this.redis
-      .pipeline()
+    await redisPipe
       .set(`${CacheNamespace.Room}${room.id}`, JSON.stringify(room))
-      .lpush(`${CacheNamespace.UId2RIds}${guestId}`, room.id)
       .exec();
 
     return { room, leftRooms };

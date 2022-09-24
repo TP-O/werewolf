@@ -4,7 +4,6 @@ import Redis from 'ioredis';
 import { RedisClient } from 'src/decorator';
 import { ActiveStatus, CacheNamespace } from 'src/enum';
 import { RoomService } from 'src/module/chat/service/room.service';
-import { Room } from 'src/module/chat/type';
 import { PrismaService } from './prisma.service';
 
 @Injectable()
@@ -55,41 +54,35 @@ export class UserService {
    * @param socketId
    * @returns
    */
-  async getId(socketId: string) {
+  async getIdBySocketId(socketId: string) {
     const userId = await this.redis.get(`${CacheNamespace.SId2UId}${socketId}`);
 
     return parseInt(userId, 10);
   }
 
   /**
-   * Get socket id list by user id.
+   * Get socket id by user id.
    *
    * @param userId
    * @returns
    */
-  async getSocketIds(userId: number) {
-    const sIdsJSON = await this.redis.get(
-      `${CacheNamespace.UID2SIds}${userId}`,
-    );
-    const sIds: string[] = JSON.parse(sIdsJSON || '[]');
+  async getSocketIdByUserId(userId: number) {
+    const socketId = await this.redis.get(`${CacheNamespace.UID2SId}${userId}`);
 
-    return sIds;
+    return socketId;
   }
 
   /**
-   * Get socket id list by user ids.
+   * Get socket ids by user ids.
    *
    * @param userIds
    * @returns
    */
-  async getSocketIdsOfMany(userIds: number[]) {
-    const keys = userIds.map((uid) => `${CacheNamespace.UID2SIds}${uid}`);
-    const sIdsJSONs = await this.redis.mget(...keys);
-    const sIdsOfMany: string[][] = sIdsJSONs.map((sIdsJSON) =>
-      JSON.parse(sIdsJSON || '[]'),
-    );
+  async getSocketIdsByUserIds(userIds: number[]) {
+    const sIdKeys = userIds.map((uid) => `${CacheNamespace.UID2SId}${uid}`);
+    const sIds = await this.redis.mget(...sIdKeys);
 
-    return sIdsOfMany;
+    return sIds;
   }
 
   /**
@@ -138,7 +131,9 @@ export class UserService {
       },
     });
     const onlineFriendsIds = onlineFriends.map((friend) => friend.id);
-    const onlineFriendsSIds = await this.getSocketIdsOfMany(onlineFriendsIds);
+    const onlineFriendsSIds = await this.getSocketIdsByUserIds(
+      onlineFriendsIds,
+    );
 
     return onlineFriendsSIds;
   }
@@ -164,77 +159,63 @@ export class UserService {
   }
 
   /**
-   * Add new socket id to user's socket id list. Change the
-   * user status to online if it's the first connetected
-   * socket corresponding to the user.
+   * Change the user status to online and then
+   * bind socket id to user id.
    *
    * @param user
    * @param socketId conntected socket id.
    * @returns updated user.
    */
   async connect(user: User, socketId: string) {
-    // Change status to online if user is offline
-    if (user.statusId === null) {
-      user.statusId = ActiveStatus.Online;
-    }
-
-    const sIds = await this.getSocketIds(user.id);
-    sIds.push(socketId);
+    user.statusId = ActiveStatus.Online;
 
     await this.prismaService.user.update({
-      data: user,
+      data: {
+        statusId: user.statusId,
+      },
       where: {
         id: user.id,
       },
     });
+
     await this.redis
       .pipeline()
       .set(`${CacheNamespace.SId2UId}${socketId}`, user.id)
-      .set(`${CacheNamespace.UID2SIds}${user.id}`, JSON.stringify(sIds))
+      .set(`${CacheNamespace.UID2SId}${user.id}`, socketId)
       .exec();
 
     return user;
   }
 
   /**
-   * Remove disconnected socket ids from the user record.
-   * Change the user status to offline and leave all joined
-   * rooms if socket id list is empty.
+   * Unbind socket id from user id after that change
+   * the user status to offline and leave all joined
+   * rooms.
    *
    * @param user
-   * @param socketIds disconnected socket id list.
-   * @return updated user, left rooms and disconnected socket ids.
+   * @return updated user and left rooms.
    */
-  async disconnect(user: User, ...socketIds: string[]) {
-    let leftRooms: Room[] = [];
-    const disconnectedSIds: string[] = [];
-    const redisPipe = this.redis.pipeline();
-    const allSIds = await this.getSocketIds(user.id);
-    const removedSocketIds = socketIds.length !== 0 ? socketIds : allSIds;
+  async disconnect(user: User) {
+    const sId = await this.getSocketIdByUserId(user.id);
+    const leftRooms = await this.roomService.leaveMany(user.id);
 
-    removedSocketIds.forEach((sid) => {
-      removedSocketIds.splice(removedSocketIds.indexOf(sid), 1);
-      disconnectedSIds.push(sid);
-      redisPipe.del(`${CacheNamespace.SId2UId}${sid}`);
-    });
+    user.statusId = null;
 
-    // Change status to offline and leave all rooms
-    // if there are no sockets is connected.
-    if (allSIds.length === 0) {
-      user.statusId = null;
-      leftRooms = await this.roomService.leaveMany(user.id);
-    } else {
-      redisPipe.set(`${CacheNamespace.UID2SIds}`, JSON.stringify(allSIds));
-    }
+    await this.redis
+      .pipeline()
+      .del(`${CacheNamespace.SId2UId}${sId}`)
+      .del(`${CacheNamespace.UID2SId}${user.id}`)
+      .exec();
 
-    await redisPipe.exec();
     await this.prismaService.user.update({
-      data: user,
+      data: {
+        statusId: user.statusId,
+      },
       where: {
         id: user.id,
       },
     });
 
-    return { user, leftRooms, disconnectedSIds };
+    return { user, leftRooms, disconnectedId: sId };
   }
 }

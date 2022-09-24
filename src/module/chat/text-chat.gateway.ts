@@ -72,11 +72,10 @@ export class TextChatGateway
       );
       await this.userService.connect(user, client.id);
 
-      const friendsSids = await this.userService.getOnlineFriendsSocketIds(
+      const friendSIds = await this.userService.getOnlineFriendsSocketIds(
         user.id,
       );
-      friendsSids.forEach((sids) => this.server.to(sids));
-      this.server.emit(EmitEvent.UpdateFriendStatus, {
+      this.server.to(friendSIds).emit(EmitEvent.UpdateFriendStatus, {
         id: user.id,
         status: ActiveStatus.Online,
       });
@@ -99,13 +98,12 @@ export class TextChatGateway
     const user = await this.userService.getBySocketId(client.id);
 
     if (user != null) {
-      const { leftRooms } = await this.userService.disconnect(user, client.id);
-      const friendsSids = await this.userService.getOnlineFriendsSocketIds(
+      const friendSIds = await this.userService.getOnlineFriendsSocketIds(
         user.id,
       );
+      const { leftRooms } = await this.userService.disconnect(user);
 
-      friendsSids.forEach((sids) => this.server.to(sids));
-      this.server.emit(EmitEvent.UpdateFriendStatus, {
+      this.server.to(friendSIds).emit(EmitEvent.UpdateFriendStatus, {
         id: user.id,
         status: null,
       });
@@ -144,10 +142,12 @@ export class TextChatGateway
     }
 
     await this.messageService.createPrivateMessage(client.userId, payload);
-    const sids = await this.userService.getSocketIds(payload.receiverId);
+    const receiverSId = await this.userService.getSocketIdByUserId(
+      payload.receiverId,
+    );
 
-    if (sids.length > 0) {
-      this.server.to(sids as string[]).emit(EmitEvent.ReceivePrivateMessage, {
+    if (receiverSId != null) {
+      this.server.to(receiverSId).emit(EmitEvent.ReceivePrivateMessage, {
         ...payload,
         senderId: client.userId,
       });
@@ -244,19 +244,22 @@ export class TextChatGateway
     @ConnectedSocket() client: Socket<null, EmitEvents>,
     @MessageBody() payload: KickOutOfRoomDto,
   ) {
-    const room = await this.roomService.kick(
+    const { room, kickedMemberSocketId } = await this.roomService.kick(
       client.userId,
       payload.memberId,
       payload.roomId,
     );
-    const memberSIds = await this.userService.getSocketIds(payload.memberId);
 
-    this.server.to(memberSIds).socketsLeave(room.id);
-    this.server.to(memberSIds).to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
-      event: RoomEvent.Kick,
-      actorId: client.userId,
-      room,
-    });
+    this.server.to(kickedMemberSocketId).socketsLeave(room.id);
+
+    this.server
+      .to(kickedMemberSocketId)
+      .to(room.id)
+      .emit(EmitEvent.ReceiveRoomChanges, {
+        event: RoomEvent.Kick,
+        actorId: client.userId,
+        room,
+      });
   }
 
   /**
@@ -329,16 +332,17 @@ export class TextChatGateway
     @ConnectedSocket() client: Socket<null, EmitEvents>,
     @MessageBody() payload: InviteToRoomDto,
   ) {
-    const { room, guestSIds } = await this.roomService.invite(
+    const { room, guestSocketId } = await this.roomService.invite(
       client.userId,
       payload.guestId,
       payload.roomId,
     );
 
-    this.server.to(guestSIds).emit(EmitEvent.ReceiveRoomInvitation, {
+    this.server.to(guestSocketId).emit(EmitEvent.ReceiveRoomInvitation, {
       roomId: room.id,
       inviterId: client.userId,
     });
+
     this.server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
       event: RoomEvent.Invite,
       actorId: client.userId,
@@ -347,7 +351,7 @@ export class TextChatGateway
   }
 
   /**
-   * Reply invitation.
+   * Respond to room invitation.
    *
    * @param client socket client.
    * @param payload
