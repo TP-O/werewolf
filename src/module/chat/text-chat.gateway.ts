@@ -158,7 +158,7 @@ export class TextChatGateway
   @SubscribeMessage(ListenEvent.CreateRoom)
   async handleCreateRoom(
     @ConnectedSocket() client: Socket<null, EmitEvents>,
-    payload: CreateRoomDto,
+    @MessageBody() payload: CreateRoomDto,
   ) {
     const room = await this.roomService.book(client.userId, payload.isPublic);
     client.join(room.id);
@@ -186,7 +186,7 @@ export class TextChatGateway
   @SubscribeMessage(ListenEvent.JoinRoom)
   async handleJoinRoom(
     @ConnectedSocket() client: Socket<null, EmitEvents>,
-    payload: JoinRoomDto,
+    @MessageBody() payload: JoinRoomDto,
   ) {
     const room = await this.roomService.join(client.userId, payload.roomId);
     client.join(room.id);
@@ -216,7 +216,7 @@ export class TextChatGateway
   @SubscribeMessage(ListenEvent.LeaveRoom)
   async handleLeaveRoom(
     @ConnectedSocket() client: Socket<null, EmitEvents>,
-    payload: LeaveRoomDto,
+    @MessageBody() payload: LeaveRoomDto,
   ) {
     const room = await this.roomService.leave(client.userId, payload.roomId);
     client.leave(room.id);
@@ -247,7 +247,7 @@ export class TextChatGateway
   @SubscribeMessage(ListenEvent.KickOutOfRoom)
   async handleKickOutOfRoom(
     @ConnectedSocket() client: Socket<null, EmitEvents>,
-    payload: KickOutOfRoomDto,
+    @MessageBody() payload: KickOutOfRoomDto,
   ) {
     const room = await this.roomService.kick(
       client.userId,
@@ -282,7 +282,7 @@ export class TextChatGateway
   @SubscribeMessage(ListenEvent.SendGroupMessage)
   async handleSendGroupMessage(
     @ConnectedSocket() client: Socket<null, EmitEvents>,
-    payload: SendGroupMessageDto,
+    @MessageBody() payload: SendGroupMessageDto,
   ) {
     const room = await this.roomService.get(payload.roomId);
 
@@ -309,7 +309,7 @@ export class TextChatGateway
   @SubscribeMessage(ListenEvent.TranserOwnership)
   async handleTransferOwnership(
     @ConnectedSocket() client: Socket<null, EmitEvents>,
-    payload: TransferOwnershipDto,
+    @MessageBody() payload: TransferOwnershipDto,
   ) {
     const room = await this.roomService.transferOwnership(
       client.userId,
@@ -340,7 +340,7 @@ export class TextChatGateway
   @SubscribeMessage(ListenEvent.InviteToRoom)
   async handleInviteToRoom(
     @ConnectedSocket() client: Socket<null, EmitEvents>,
-    payload: InviteToRoomDto,
+    @MessageBody() payload: InviteToRoomDto,
   ) {
     const { room, guestSIds } = await this.roomService.invite(
       client.userId,
@@ -375,7 +375,7 @@ export class TextChatGateway
   @SubscribeMessage(ListenEvent.RespondInvitation)
   async handleRespondInvitation(
     @ConnectedSocket() client: Socket<null, EmitEvents>,
-    payload: RespondInvitationDto,
+    @MessageBody() payload: RespondInvitationDto,
   ) {
     const room = await this.roomService.respondInvitation(
       client.userId,

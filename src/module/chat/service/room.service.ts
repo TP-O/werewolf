@@ -57,7 +57,7 @@ export class RoomService {
     await this.redis
       .pipeline()
       .set(`${CacheNamespace.Room}${id}`, JSON.stringify(room))
-      .lpush(`${CacheNamespace.UId2RIds}`, room.id)
+      .lpush(`${CacheNamespace.UId2RIds}${bookerId}`, room.id)
       .exec();
 
     return room;
@@ -172,7 +172,9 @@ export class RoomService {
       redisPipe.set(`${CacheNamespace.Room}${room.id}`, JSON.stringify(room));
     }
 
-    await redisPipe.lrem(`${CacheNamespace.UId2RIds}`, 1, room.id).exec();
+    await redisPipe
+      .lrem(`${CacheNamespace.UId2RIds}${leaverId}`, 1, room.id)
+      .exec();
 
     return room;
   }
@@ -191,6 +193,10 @@ export class RoomService {
         0,
         -1,
       );
+
+      if (roomIds.length === 0) {
+        return [];
+      }
     }
 
     const rooms = await this.getMany(roomIds);
@@ -212,7 +218,9 @@ export class RoomService {
         redisPipe.set(`${CacheNamespace.Room}${room.id}`, JSON.stringify(room));
       }
 
-      redisPipe.lrem(`${CacheNamespace.UId2RIds}`, 1, room.id).exec();
+      redisPipe
+        .lrem(`${CacheNamespace.UId2RIds}${leaverId}`, 1, room.id)
+        .exec();
 
       return room;
     });
