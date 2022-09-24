@@ -21,7 +21,7 @@ export class SocketUserIdBindingInterceptor implements NestInterceptor {
     const client = context.switchToWs().getClient() as Socket<null, EmitEvents>;
     const userId = await this.userService.getId(client.id);
 
-    if (!(userId > 0)) {
+    if (userId < 1) {
       client.emit(EmitEvent.Error, {
         event: client.eventName,
         message: 'Something went wrong. Please try to login again!',

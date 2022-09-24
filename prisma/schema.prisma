@@ -10,7 +10,6 @@ datasource db {
 model User {
   id               Int                  @id @default(autoincrement())
   fid              String               @unique @db.VarChar(28)
-  sids             String[]             @default([])
   username         String               @unique @db.VarChar(16)
   statusId         Int?                 @map("status_id")
   acceptedFriends  FriendRelationship[] @relation("inviter")

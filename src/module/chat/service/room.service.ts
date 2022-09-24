@@ -70,13 +70,13 @@ export class RoomService {
    * @returns
    */
   async get(roomId: string) {
-    const roomJson = await this.redis.get(`${CacheNamespace.Room}${roomId}`);
+    const roomJSON = await this.redis.get(`${CacheNamespace.Room}${roomId}`);
 
-    if (roomJson === null) {
+    if (roomJSON === null) {
       throw new WsException('Room does not exist!');
     }
 
-    const room: Room = JSON.parse(roomJson);
+    const room: Room = JSON.parse(roomJSON);
 
     return room;
   }
@@ -314,17 +314,18 @@ export class RoomService {
    * @returns updated room and guest socket ids.
    */
   async invite(inviter: number, guestId: number, roomId: string) {
-    const [[, roomJson], [, guestSIds]] = (await this.redis
+    const [[, roomJSON], [, guestSIdsJSON]] = (await this.redis
       .pipeline()
       .get(`${CacheNamespace.Room}${roomId}`)
-      .lrange(`${CacheNamespace.UId2RIds}${guestId}`, 0, -1)
+      .get(`${CacheNamespace.UID2SIds}${guestId}`)
       .exec()) as [error: any, result: string | string[]][];
 
-    if (roomJson == null) {
+    if (roomJSON == null) {
       throw new WsException('Room does not exist!');
     }
 
-    const room: Room = JSON.parse(roomJson as string);
+    const room: Room = JSON.parse(roomJSON as string);
+    const guestSIds: string[] = JSON.parse((guestSIdsJSON as string) || '[]');
 
     if (guestSIds.length === 0) {
       throw new WsException('Please only invite online user!');
