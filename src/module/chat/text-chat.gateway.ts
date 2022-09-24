@@ -99,8 +99,7 @@ export class TextChatGateway
     const user = await this.userService.getBySocketId(client.id);
 
     if (user != null) {
-      await this.userService.disconnect(user, client.id);
-
+      const { leftRooms } = await this.userService.disconnect(user, client.id);
       const friendsSids = await this.userService.getOnlineFriendsSocketIds(
         user.id,
       );
@@ -109,6 +108,19 @@ export class TextChatGateway
       this.server.emit(EmitEvent.UpdateFriendStatus, {
         id: user.id,
         status: null,
+      });
+
+      leftRooms.forEach((room) => {
+        if (room.memberIds.length > 0) {
+          this.server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
+            event: RoomEvent.Leave,
+            actorId: client.userId,
+            room: {
+              id: room.id,
+              memberIds: room.memberIds,
+            },
+          });
+        }
       });
     }
   }

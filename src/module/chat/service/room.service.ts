@@ -133,7 +133,7 @@ export class RoomService {
     await this.redis
       .pipeline()
       .set(`${CacheNamespace.Room}${room.id}`, JSON.stringify(room))
-      .lpush(`${CacheNamespace.UId2RIds}`, room.id)
+      .lpush(`${CacheNamespace.UId2RIds}${joinerId}`, room.id)
       .exec();
 
     return room;

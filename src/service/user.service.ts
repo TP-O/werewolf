@@ -4,6 +4,7 @@ import Redis from 'ioredis';
 import { RedisClient } from 'src/decorator';
 import { ActiveStatus, CacheNamespace } from 'src/enum';
 import { RoomService } from 'src/module/chat/service/room.service';
+import { Room } from 'src/module/chat/type';
 import { PrismaService } from './prisma.service';
 
 @Injectable()
@@ -67,10 +68,11 @@ export class UserService {
    *
    * @param user user record.
    * @param socketIds disconnected socket id list.
-   * @return updated user record.
+   * @return updated user record and left rooms.
    */
   async disconnect(user: User, ...socketIds: string[]) {
     const redisPipe = this.redis.pipeline();
+    let leftRooms: Room[] = [];
     const removedSocketIds = socketIds.length === 0 ? user.sids : socketIds;
 
     removedSocketIds.forEach((sid) => {
@@ -82,7 +84,7 @@ export class UserService {
     // if there are no sockets is connected.
     if (user.sids.length === 0) {
       user.statusId = null;
-      this.roomService.leaveMany(user.id);
+      leftRooms = await this.roomService.leaveMany(user.id);
     }
 
     user.sids = user.sids.filter((sid) => !socketIds.includes(sid));
@@ -95,7 +97,7 @@ export class UserService {
       },
     });
 
-    return user;
+    return { user, leftRooms };
   }
 
   /**
