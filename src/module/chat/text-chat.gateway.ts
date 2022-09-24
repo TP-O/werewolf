@@ -252,17 +252,11 @@ export class TextChatGateway
     const memberSIds = await this.userService.getSocketIds(payload.memberId);
 
     this.server.to(memberSIds).socketsLeave(room.id);
-    this.server
-      .to(memberSIds)
-      .to(room.id)
-      .emit(EmitEvent.ReceiveRoomChanges, {
-        event: RoomEvent.Kick,
-        actorId: client.userId,
-        room: {
-          id: room.id,
-          memberIds: room.memberIds,
-        },
-      });
+    this.server.to(memberSIds).to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
+      event: RoomEvent.Kick,
+      actorId: client.userId,
+      room,
+    });
   }
 
   /**
@@ -286,7 +280,7 @@ export class TextChatGateway
       throw new WsException('You are not in this room!');
     }
 
-    client.to(payload.roomId).emit(EmitEvent.ReceiveGroupMessage, {
+    this.server.to(payload.roomId).emit(EmitEvent.ReceiveGroupMessage, {
       ...payload,
       senderId: client.userId,
     });
@@ -316,10 +310,7 @@ export class TextChatGateway
     this.server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
       event: RoomEvent.Owner,
       actorId: client.userId,
-      room: {
-        id: room.id,
-        ownerId: room.ownerId,
-      },
+      room,
     });
   }
 
@@ -351,10 +342,7 @@ export class TextChatGateway
     this.server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
       event: RoomEvent.Invite,
       actorId: client.userId,
-      room: {
-        id: room.id,
-        waitingIds: room.waitingIds,
-      },
+      room,
     });
   }
 
@@ -373,7 +361,7 @@ export class TextChatGateway
     @ConnectedSocket() client: Socket<null, EmitEvents>,
     @MessageBody() payload: RespondInvitationDto,
   ) {
-    const room = await this.roomService.respondInvitation(
+    const { room, leftRooms } = await this.roomService.respondInvitation(
       client.userId,
       payload.isAccpeted,
       payload.roomId,
@@ -381,17 +369,22 @@ export class TextChatGateway
 
     if (payload.isAccpeted) {
       client.join(room.id);
-    }
 
-    this.server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
-      event: RoomEvent.Join,
-      actorId: client.userId,
-      room: {
-        id: room.id,
-        memberIds: room.memberIds,
-        waitingIds: room.waitingIds,
-        refusedIds: room.refusedIds,
-      },
-    });
+      this.server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
+        event: RoomEvent.Join,
+        actorId: client.userId,
+        room,
+      });
+
+      leftRooms.forEach((room) => {
+        if (room.memberIds.length > 0) {
+          this.server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
+            event: RoomEvent.Leave,
+            actorId: client.userId,
+            room,
+          });
+        }
+      });
+    }
   }
 }

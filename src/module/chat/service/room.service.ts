@@ -274,28 +274,24 @@ export class RoomService {
    * if room is empty, actor is not owner, or choosed member
    * does not exist in the room.
    *
-   * @param transfererId
+   * @param ownerId
    * @param candidateId
    * @param roomId
    * @returns update room.
    */
   async transferOwnership(
-    transfererId: number,
+    ownerId: number,
     candidateId: number,
     roomId: string,
   ) {
     const room = await this.get(roomId);
 
-    if (room.ownerId !== transfererId) {
+    if (room.ownerId !== ownerId) {
       throw new WsException('You are not owner of this room!');
     }
 
-    if (room.memberIds.length === 1) {
-      throw new WsException('Your room is empty!');
-    }
-
-    if (!room.memberIds.includes(candidateId)) {
-      throw new WsException('New owner must in this room!');
+    if (ownerId === candidateId || !room.memberIds.includes(candidateId)) {
+      throw new WsException('New owner must be a member in this room!');
     }
 
     room.ownerId = candidateId;
@@ -315,7 +311,7 @@ export class RoomService {
    * @param inviter
    * @param guestId
    * @param roomId
-   * @returns updated room.
+   * @returns updated room and guest socket ids.
    */
   async invite(inviter: number, guestId: number, roomId: string) {
     const [[, roomJson], [, guestSIds]] = (await this.redis
@@ -323,6 +319,11 @@ export class RoomService {
       .get(`${CacheNamespace.Room}${roomId}`)
       .lrange(`${CacheNamespace.UId2RIds}${guestId}`, 0, -1)
       .exec()) as [error: any, result: string | string[]][];
+
+    if (roomJson == null) {
+      throw new WsException('Room does not exist!');
+    }
+
     const room: Room = JSON.parse(roomJson as string);
 
     if (guestSIds.length === 0) {
@@ -356,13 +357,14 @@ export class RoomService {
    * @param guestId
    * @param isAccpeted
    * @param roomId
-   * @returns update room.
+   * @returns updated room and left rooms.
    */
   async respondInvitation(
     guestId: number,
     isAccpeted: boolean,
     roomId: string,
   ) {
+    let leftRooms: Room[] = [];
     const room = await this.get(roomId);
     const deletedWaitingIndex = room.waitingIds.indexOf(guestId);
 
@@ -378,7 +380,7 @@ export class RoomService {
         !AppConfig.allowJoinMultipleRooms &&
         (await this.isMemberOfAny(guestId))
       ) {
-        await this.leaveMany(guestId);
+        leftRooms = await this.leaveMany(guestId);
       }
 
       room.memberIds.push(guestId);
@@ -386,11 +388,12 @@ export class RoomService {
       room.refusedIds.push(guestId);
     }
 
-    await this.redis.set(
-      `${CacheNamespace.Room}${room.id}`,
-      JSON.stringify(room),
-    );
+    await this.redis
+      .pipeline()
+      .set(`${CacheNamespace.Room}${room.id}`, JSON.stringify(room))
+      .lpush(`${CacheNamespace.UId2RIds}${guestId}`, room.id)
+      .exec();
 
-    return room;
+    return { room, leftRooms };
   }
 }

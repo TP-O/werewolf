@@ -12,7 +12,7 @@ export const AppConfig = Object.freeze(
       debug: env.APP_DEBUG === 'true',
       port: parsedPort >= 0 && parsedPort < 65536 ? parsedPort : 3000,
       allowDuplicateSignIn: false,
-      allowJoinMultipleRooms: false,
+      allowJoinMultipleRooms: true,
     };
   })(),
 );
