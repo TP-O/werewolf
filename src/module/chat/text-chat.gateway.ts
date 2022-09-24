@@ -249,10 +249,11 @@ export class TextChatGateway
       payload.memberId,
       payload.roomId,
     );
-    client.leave(room.id);
+    const memberSIds = await this.userService.getSocketIds(payload.memberId);
 
+    this.server.to(memberSIds).socketsLeave(room.id);
     this.server
-      .to(client.id)
+      .to(memberSIds)
       .to(room.id)
       .emit(EmitEvent.ReceiveRoomChanges, {
         event: RoomEvent.Kick,

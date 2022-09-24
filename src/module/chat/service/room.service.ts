@@ -241,6 +241,10 @@ export class RoomService {
    * @returns updated room.
    */
   async kick(kickerId: number, memberId: number, roomId: string) {
+    if (kickerId === memberId) {
+      return this.leave(kickerId, roomId);
+    }
+
     const room = await this.get(roomId);
 
     if (room.ownerId !== kickerId) {
@@ -259,7 +263,7 @@ export class RoomService {
     await this.redis
       .pipeline()
       .set(`${CacheNamespace.Room}${room.id}`, JSON.stringify(room))
-      .lrem(`${CacheNamespace.UId2RIds}`, 1, room.id)
+      .lrem(`${CacheNamespace.UId2RIds}${memberId}`, 1, room.id)
       .exec();
 
     return room;
