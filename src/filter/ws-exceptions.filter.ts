@@ -1,5 +1,5 @@
 import { Catch, ArgumentsHost, BadRequestException } from '@nestjs/common';
-import { BaseWsExceptionFilter } from '@nestjs/websockets';
+import { BaseWsExceptionFilter, WsException } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
 import { EmitEvent } from 'src/enum';
 import { EmitEvents } from 'src/type';
@@ -14,8 +14,10 @@ export class WsExceptionsFilter extends BaseWsExceptionFilter {
       const res = exception.getResponse();
       errorResponse =
         typeof res === 'string' ? res : (res as any)?.message?.[0];
-    } else {
+    } else if (exception instanceof WsException) {
       errorResponse = exception.message;
+    } else {
+      throw exception;
     }
 
     client.emit(EmitEvent.Error, {

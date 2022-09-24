@@ -15,7 +15,6 @@ import {
   WebSocketServer,
   WsException,
 } from '@nestjs/websockets';
-import { instanceToPlain } from 'class-transformer';
 import { Server, Socket } from 'socket.io';
 import { CORSConfig, ValidationConfig } from 'src/config';
 import { ActiveStatus, EmitEvent, ListenEvent, RoomEvent } from 'src/enum';
@@ -138,10 +137,12 @@ export class TextChatGateway
     await this.messageService.createPrivateMessage(client.userId, payload);
     const sids = await this.userService.getSocketIds(payload.receiverId);
 
-    this.server.to(sids as string[]).emit(EmitEvent.ReceivePrivateMessage, {
-      ...(instanceToPlain(payload) as SendGroupMessageDto),
-      senderId: client.userId,
-    });
+    if (sids.length > 0) {
+      this.server.to(sids as string[]).emit(EmitEvent.ReceivePrivateMessage, {
+        ...payload,
+        senderId: client.userId,
+      });
+    }
   }
 
   /**
