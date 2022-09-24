@@ -115,10 +115,7 @@ export class TextChatGateway
           this.server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
             event: RoomEvent.Leave,
             actorId: client.userId,
-            room: {
-              id: room.id,
-              memberIds: room.memberIds,
-            },
+            room,
           });
         }
       });
@@ -178,10 +175,7 @@ export class TextChatGateway
     client.emit(EmitEvent.ReceiveRoomChanges, {
       event: RoomEvent.Create,
       actorId: client.userId,
-      room: {
-        id: room.id,
-        isPublic: room.isPublic,
-      },
+      room,
     });
   }
 
@@ -206,12 +200,7 @@ export class TextChatGateway
     this.server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
       event: RoomEvent.Join,
       actorId: client.userId,
-      room: {
-        id: room.id,
-        memberIds: room.memberIds,
-        waitingIds: room.waitingIds,
-        refusedIds: room.refusedIds,
-      },
+      room,
     });
   }
 
@@ -233,17 +222,11 @@ export class TextChatGateway
     const room = await this.roomService.leave(client.userId, payload.roomId);
     client.leave(room.id);
 
-    this.server
-      .to(client.id)
-      .to(room.id)
-      .emit(EmitEvent.ReceiveRoomChanges, {
-        event: RoomEvent.Leave,
-        actorId: client.userId,
-        room: {
-          id: room.id,
-          memberIds: room.memberIds,
-        },
-      });
+    this.server.to(client.id).to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
+      event: RoomEvent.Leave,
+      actorId: client.userId,
+      room,
+    });
   }
 
   /**
