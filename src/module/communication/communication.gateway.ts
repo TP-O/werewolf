@@ -18,12 +18,11 @@ import {
 import { Server, Socket } from 'socket.io';
 import { CORSConfig, ValidationConfig } from 'src/config';
 import { ActiveStatus, EmitEvent, ListenEvent, RoomEvent } from 'src/enum';
-import { AllExceptionFilter, WsExceptionsFilter } from 'src/filter';
+import { AllExceptionFilter, WsExceptionsFilter } from 'src/common/filter';
 import {
   EventNameBindingInterceptor,
   SocketUserIdBindingInterceptor,
-} from 'src/interceptor';
-import { UserService } from 'src/service/user.service';
+} from 'src/common/interceptor';
 import { EmitEvents } from 'src/type';
 import {
   CreateRoomDto,
@@ -31,14 +30,14 @@ import {
   JoinRoomDto,
   KickOutOfRoomDto,
   LeaveRoomDto,
-  RespondInvitationDto,
-  SendGroupMessageDto,
-  SendPrivateMessageDto,
+  RespondRoomInvitationDto,
   TransferOwnershipDto,
-} from './dto';
-import { ConnectionService } from './service/connection.service';
-import { MessageService } from './service/message.service';
-import { RoomService } from './service/room.service';
+} from '../room/dto';
+import { UserService } from '../user/user.service';
+import { CommunicationService } from './communication.service';
+import { MessageService } from '../message/message.service';
+import { RoomService } from '../room/room.service';
+import { SendGroupMessageDto, SendPrivateMessageDto } from '../message/dto';
 
 @UseFilters(new AllExceptionFilter(), new WsExceptionsFilter())
 @UsePipes(new ValidationPipe(ValidationConfig))
@@ -46,7 +45,7 @@ import { RoomService } from './service/room.service';
   namespace: 'text',
   cors: CORSConfig,
 })
-export class TextChatGateway
+export class CommunicationGateway
   implements OnGatewayConnection, OnGatewayDisconnect
 {
   @WebSocketServer()
@@ -54,7 +53,7 @@ export class TextChatGateway
 
   constructor(
     private userService: UserService,
-    private connectionService: ConnectionService,
+    private connectionService: CommunicationService,
     private messageService: MessageService,
     private roomService: RoomService,
   ) {}
@@ -367,7 +366,7 @@ export class TextChatGateway
   @SubscribeMessage(ListenEvent.RespondInvitation)
   async handleRespondInvitation(
     @ConnectedSocket() client: Socket<null, EmitEvents>,
-    @MessageBody() payload: RespondInvitationDto,
+    @MessageBody() payload: RespondRoomInvitationDto,
   ) {
     const { room, leftRooms } = await this.roomService.respondInvitation(
       client.userId,

@@ -1,10 +1,14 @@
-import { Injectable } from '@nestjs/common';
-import { WsException } from '@nestjs/websockets';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import Redis from 'ioredis';
 import { AppConfig } from 'src/config';
-import { RedisClient } from 'src/decorator';
+import { RedisClient } from 'src/common/decorator';
 import { CacheNamespace } from 'src/enum';
-import { Room } from '../type';
+import { Room } from './room.type';
 
 @Injectable()
 export class RoomService {
@@ -39,7 +43,7 @@ export class RoomService {
       !AppConfig.allowJoinMultipleRooms &&
       (await this.isMemberOfAny(bookerId))
     ) {
-      throw new WsException(
+      throw new BadRequestException(
         'Please leave current room before creating a new one',
       );
     }
@@ -73,7 +77,7 @@ export class RoomService {
     const roomJSON = await this.redis.get(`${CacheNamespace.Room}${roomId}`);
 
     if (roomJSON === null) {
-      throw new WsException('Room does not exist!');
+      throw new BadRequestException('Room does not exist!');
     }
 
     const room: Room = JSON.parse(roomJSON);
@@ -115,7 +119,7 @@ export class RoomService {
       !AppConfig.allowJoinMultipleRooms &&
       (await this.isMemberOfAny(joinerId))
     ) {
-      throw new WsException(
+      throw new BadRequestException(
         'Please leave current room before joining another one!',
       );
     }
@@ -123,7 +127,7 @@ export class RoomService {
     const room = await this.get(roomId);
 
     if (!room.isPublic) {
-      throw new WsException('This room is private!');
+      throw new ForbiddenException('This room is private!');
     }
 
     room.memberIds.push(joinerId);
@@ -152,7 +156,7 @@ export class RoomService {
     const deletedMemberIndex = room.memberIds.indexOf(leaverId);
 
     if (deletedMemberIndex === -1) {
-      throw new WsException('You are not in this room!');
+      throw new ForbiddenException('You are not in this room!');
     } else {
       room.memberIds.splice(deletedMemberIndex, 1);
       room.refusedIds.push(leaverId);
@@ -251,13 +255,13 @@ export class RoomService {
     const room = await this.get(roomId);
 
     if (room.ownerId !== kickerId) {
-      throw new WsException('You are not owner of this room!');
+      throw new ForbiddenException('You are not owner of this room!');
     }
 
     const deletedMemberIndex = room.memberIds.indexOf(memberId);
 
     if (deletedMemberIndex === -1) {
-      throw new WsException('Member is not in this room!');
+      throw new BadRequestException('Member is not in this room!');
     }
 
     room.memberIds.splice(deletedMemberIndex, 1);
@@ -294,11 +298,11 @@ export class RoomService {
     const room = await this.get(roomId);
 
     if (room.ownerId !== ownerId) {
-      throw new WsException('You are not owner of this room!');
+      throw new ForbiddenException('You are not owner of this room!');
     }
 
     if (ownerId === candidateId || !room.memberIds.includes(candidateId)) {
-      throw new WsException('New owner must be a member in this room!');
+      throw new BadRequestException('New owner must be a member in this room!');
     }
 
     room.ownerId = candidateId;
@@ -328,21 +332,21 @@ export class RoomService {
       .exec()) as [error: any, result: string | string[]][];
 
     if (roomJSON == null) {
-      throw new WsException('Room does not exist!');
+      throw new NotFoundException('Room does not exist!');
     }
 
     const room: Room = JSON.parse(roomJSON as string);
 
     if (guestSId == null) {
-      throw new WsException('Please only invite online user!');
+      throw new BadRequestException('Please only invite online user!');
     }
 
     if (!room.memberIds.includes(inviter)) {
-      throw new WsException('You are not in this room!');
+      throw new ForbiddenException('You are not in this room!');
     }
 
     if (room.memberIds.includes(guestId) || room.waitingIds.includes(guestId)) {
-      throw new WsException('This user has been invited!');
+      throw new BadRequestException('This user has been invited!');
     }
 
     room.waitingIds.push(guestId);
@@ -376,7 +380,7 @@ export class RoomService {
     const deletedWaitingIndex = room.waitingIds.indexOf(guestId);
 
     if (deletedWaitingIndex === -1) {
-      throw new WsException('You are not invited to this room!');
+      throw new BadRequestException('You are not invited to this room!');
     }
 
     const redisPipe = this.redis.pipeline();

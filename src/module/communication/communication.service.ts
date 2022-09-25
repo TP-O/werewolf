@@ -2,14 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { WsException } from '@nestjs/websockets';
 import { User } from '@prisma/client';
 import { Server, Socket } from 'socket.io';
+import { AuthService } from 'src/common/service/auth.service';
 import { AppConfig } from 'src/config';
 import { EmitEvent, ListenEvent, RoomEvent } from 'src/enum';
-import { AuthService } from 'src/service/auth.service';
-import { UserService } from 'src/service/user.service';
 import { EmitEvents } from 'src/type';
+import { UserService } from '../user/user.service';
 
 @Injectable()
-export class ConnectionService {
+export class CommunicationService {
   constructor(
     private authService: AuthService,
     private userService: UserService,

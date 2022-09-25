@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { User } from '@prisma/client';
 import Redis from 'ioredis';
-import { RedisClient } from 'src/decorator';
+import { RedisClient } from 'src/common/decorator';
+import { PrismaService } from 'src/common/service/prisma.service';
 import { ActiveStatus, CacheNamespace } from 'src/enum';
-import { RoomService } from 'src/module/chat/service/room.service';
-import { PrismaService } from './prisma.service';
+import { RoomService } from '../room/room.service';
 
 @Injectable()
 export class UserService {

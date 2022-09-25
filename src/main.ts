@@ -6,8 +6,8 @@ import {
 import { RedisIoAdapter } from './adapter';
 import { AppModule } from './app.module';
 import { AppConfig } from './config';
-import { AllExceptionFilter, HttpExceptionFilter } from './filter';
-import { PrismaService } from './service/prisma.service';
+import { AllExceptionFilter, HttpExceptionFilter } from './common/filter';
+import { PrismaService } from './common/service/prisma.service';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(

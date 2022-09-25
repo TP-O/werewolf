@@ -7,7 +7,7 @@ import {
 import { Observable } from 'rxjs';
 import { Socket } from 'socket.io';
 import { EmitEvent } from 'src/enum';
-import { UserService } from 'src/service/user.service';
+import { UserService } from 'src/module/user/user.service';
 import { EmitEvents } from 'src/type';
 
 @Injectable()

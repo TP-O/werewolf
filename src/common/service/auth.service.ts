@@ -4,7 +4,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Auth } from 'firebase-admin/auth';
-import { FirebaseAuth } from 'src/decorator';
+import { FirebaseAuth } from 'src/common/decorator';
 import { PrismaService } from './prisma.service';
 
 @Injectable()

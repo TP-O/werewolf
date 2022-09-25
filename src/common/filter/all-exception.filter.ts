@@ -2,7 +2,7 @@ import { ExceptionFilter, Catch, ArgumentsHost } from '@nestjs/common';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { Socket } from 'socket.io';
 import { AppConfig } from 'src/config';
-import { Log } from 'src/decorator/log.decorator';
+import { Log } from 'src/common/decorator/log.decorator';
 import { EmitEvent } from 'src/enum';
 import { EmitEvents, LoggedError } from 'src/type';
 import { Logger } from 'winston';

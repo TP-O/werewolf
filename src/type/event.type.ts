@@ -1,5 +1,5 @@
 import { ActiveStatus, EmitEvent, RoomEvent } from 'src/enum';
-import { Room } from 'src/module/chat/type';
+import { Room } from 'src/module/room/room.type';
 import { WsErrorResponse } from './error.type';
 
 type SuccessResponse = {
