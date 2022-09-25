@@ -3,9 +3,10 @@ import { WsException } from '@nestjs/websockets';
 import { User } from '@prisma/client';
 import { Server, Socket } from 'socket.io';
 import { AppConfig } from 'src/config';
-import { EmitEvent, RoomEvent, UserId } from 'src/enum';
+import { EmitEvent, ListenEvent, RoomEvent } from 'src/enum';
 import { AuthService } from 'src/service/auth.service';
 import { UserService } from 'src/service/user.service';
+import { EmitEvents } from 'src/type';
 
 @Injectable()
 export class ConnectionService {
@@ -34,7 +35,7 @@ export class ConnectionService {
    * @param server websocket server.
    * @param user
    */
-  private async handleConflict(server: Server, user: User) {
+  private async handleConflict(server: Server<null, EmitEvents>, user: User) {
     if (!AppConfig.disconnectIfConflict) {
       throw new WsException('Your account is in use!');
     }
@@ -43,7 +44,11 @@ export class ConnectionService {
       user,
     );
 
-    server.sockets.sockets.get(disconnectedId).disconnect();
+    server.to(disconnectedId).emit(EmitEvent.Error, {
+      event: ListenEvent.Connect,
+      message: 'This account is being connected by someone else!',
+    });
+    server.to(disconnectedId).disconnectSockets();
 
     leftRooms.forEach((room) => {
       if (room.memberIds.length > 0) {
@@ -68,14 +73,6 @@ export class ConnectionService {
     const user = await this.validateAuthorization(
       client.handshake.headers.authorization,
     );
-
-    if (user.id === UserId.NonExist) {
-      throw new WsException('Invalid access token!');
-    }
-
-    if (user.id === UserId.Asynchronous) {
-      throw new WsException('Please connect again after a while!');
-    }
 
     if (user.statusId != null) {
       await this.handleConflict(server, user);

@@ -18,7 +18,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { CORSConfig, ValidationConfig } from 'src/config';
 import { ActiveStatus, EmitEvent, ListenEvent, RoomEvent } from 'src/enum';
-import { WsExceptionsFilter } from 'src/filter';
+import { AllExceptionFilter, WsExceptionsFilter } from 'src/filter';
 import {
   EventNameBindingInterceptor,
   SocketUserIdBindingInterceptor,
@@ -40,7 +40,7 @@ import { ConnectionService } from './service/connection.service';
 import { MessageService } from './service/message.service';
 import { RoomService } from './service/room.service';
 
-@UseFilters(new WsExceptionsFilter())
+@UseFilters(new AllExceptionFilter(), new WsExceptionsFilter())
 @UsePipes(new ValidationPipe(ValidationConfig))
 @WebSocketGateway<GatewayMetadata>({
   namespace: 'text',
@@ -95,28 +95,32 @@ export class TextChatGateway
    * @param client socket client.
    */
   async handleDisconnect(client: Socket<null, EmitEvents>) {
-    const user = await this.userService.getBySocketId(client.id);
+    try {
+      const user = await this.userService.getBySocketId(client.id);
 
-    if (user != null) {
-      const friendSIds = await this.userService.getOnlineFriendsSocketIds(
-        user.id,
-      );
-      const { leftRooms } = await this.userService.disconnect(user);
+      if (user != null) {
+        const friendSIds = await this.userService.getOnlineFriendsSocketIds(
+          user.id,
+        );
+        const { leftRooms } = await this.userService.disconnect(user);
 
-      this.server.to(friendSIds).emit(EmitEvent.UpdateFriendStatus, {
-        id: user.id,
-        status: null,
-      });
+        this.server.to(friendSIds).emit(EmitEvent.UpdateFriendStatus, {
+          id: user.id,
+          status: null,
+        });
 
-      leftRooms.forEach((room) => {
-        if (room.memberIds.length > 0) {
-          this.server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
-            event: RoomEvent.Leave,
-            actorId: client.userId,
-            room,
-          });
-        }
-      });
+        leftRooms.forEach((room) => {
+          if (room.memberIds.length > 0) {
+            this.server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
+              event: RoomEvent.Leave,
+              actorId: client.userId,
+              room,
+            });
+          }
+        });
+      }
+    } catch (error) {
+      //
     }
   }
 

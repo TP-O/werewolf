@@ -1,4 +1,4 @@
-import { NestFactory, Reflector } from '@nestjs/core';
+import { NestFactory } from '@nestjs/core';
 import {
   FastifyAdapter,
   NestFastifyApplication,
@@ -6,7 +6,7 @@ import {
 import { RedisIoAdapter } from './adapter';
 import { AppModule } from './app.module';
 import { AppConfig } from './config';
-import { RolesGuard } from './guard';
+import { AllExceptionFilter, HttpExceptionFilter } from './filter';
 import { PrismaService } from './service/prisma.service';
 
 async function bootstrap() {
@@ -22,7 +22,7 @@ async function bootstrap() {
   const prismaService = app.get(PrismaService);
   await prismaService.enableShutdownHooks(app);
 
-  app.useGlobalGuards(new RolesGuard(app.get(Reflector)));
+  app.useGlobalFilters(new AllExceptionFilter(), new HttpExceptionFilter());
 
   await app.listen(AppConfig.port, '0.0.0.0');
 }

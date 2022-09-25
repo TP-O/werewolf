@@ -1,8 +1,10 @@
-import { Injectable } from '@nestjs/common';
-import { User } from '@prisma/client';
+import {
+  Injectable,
+  InternalServerErrorException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { Auth } from 'firebase-admin/auth';
 import { FirebaseAuth } from 'src/decorator';
-import { UserId } from 'src/enum';
 import { PrismaService } from './prisma.service';
 
 @Injectable()
@@ -19,7 +21,7 @@ export class AuthService {
    * @param token
    * @returns
    */
-  private async getFirebaseId(token: string) {
+  private async getFirebaseUserId(token: string) {
     let fid: string;
 
     try {
@@ -33,30 +35,17 @@ export class AuthService {
   }
 
   /**
-   * Create an empty user with only id field. This function
-   * is only used when an invalid user is returned.
-   *
-   * @param id
-   * @returns
-   */
-  private generateEmptyUser(id: number): User {
-    return {
-      id,
-    } as User;
-  }
-
-  /**
-   * Get a corresponding user on the entered token. Return an empty
-   * user if authentication failed.
+   * Get a corresponding user on the entered token. Throw an error
+   * if authentication failed.
    *
    * @param token ID token provided by firebase authentication.
    * @returns
    */
   async getUser(token: string) {
-    const fid = await this.getFirebaseId(token);
+    const fid = await this.getFirebaseUserId(token);
 
     if (fid === '') {
-      return this.generateEmptyUser(UserId.NonExist);
+      throw new UnauthorizedException('Invalid access token!');
     }
 
     const user = await this.prismaService.user.findUnique({
@@ -65,6 +54,12 @@ export class AuthService {
       },
     });
 
-    return user ?? this.generateEmptyUser(UserId.Asynchronous);
+    if (user == null) {
+      throw new InternalServerErrorException(
+        'Please connect again after a while!',
+      );
+    }
+
+    return user;
   }
 }

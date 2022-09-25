@@ -19,19 +19,19 @@ export class SocketUserIdBindingInterceptor implements NestInterceptor {
     next: CallHandler,
   ): Promise<Observable<any>> {
     const client = context.switchToWs().getClient() as Socket<null, EmitEvents>;
-    const userId = await this.userService.getId(client.id);
+    const userId = await this.userService.getIdBySocketId(client.id);
 
-    if (userId < 1) {
-      client.emit(EmitEvent.Error, {
-        event: client.eventName,
-        message: 'Something went wrong. Please try to login again!',
-      });
+    if (userId > 0) {
+      client.userId = userId;
 
-      client.disconnect();
+      return next.handle();
     }
 
-    client.userId = userId;
+    client.emit(EmitEvent.Error, {
+      event: client.eventName,
+      message: 'Something went wrong. Please try to login again!',
+    });
 
-    return next.handle();
+    client.disconnect();
   }
 }

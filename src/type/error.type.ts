@@ -1,6 +1,6 @@
 import { ListenEvent } from 'src/enum/event.enum';
 
-type ErrorMessage = string | string[];
+export type ErrorMessage = string | string[];
 
 export type HttpErrorResponse = {
   statusCode: number;
