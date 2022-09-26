@@ -25,7 +25,7 @@ import {
 } from 'src/common/interceptor';
 import { EmitEvents } from 'src/type';
 import {
-  CreateRoomDto,
+  BookRoomDto,
   InviteToRoomDto,
   JoinRoomDto,
   KickOutOfRoomDto,
@@ -170,7 +170,7 @@ export class CommunicationGateway
   @SubscribeMessage(ListenEvent.CreateRoom)
   async handleCreateRoom(
     @ConnectedSocket() client: Socket<null, EmitEvents>,
-    @MessageBody() payload: CreateRoomDto,
+    @MessageBody() payload: BookRoomDto,
   ) {
     const room = await this.roomService.book(client.userId, payload.isPublic);
     client.join(room.id);

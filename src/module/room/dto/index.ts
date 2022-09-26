@@ -1,4 +1,4 @@
-export * from './create-room.dto';
+export * from './book-room.dto';
 export * from './invite-to-room.dto';
 export * from './join-room.dto';
 export * from './kick-out-of-room.dto';
