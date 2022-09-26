@@ -22,6 +22,7 @@ async function bootstrap() {
   const prismaService = app.get(PrismaService);
   await prismaService.enableShutdownHooks(app);
 
+  app.setGlobalPrefix('api/v1');
   app.useGlobalFilters(new AllExceptionFilter(), new HttpExceptionFilter());
 
   await app.listen(AppConfig.port, '0.0.0.0');

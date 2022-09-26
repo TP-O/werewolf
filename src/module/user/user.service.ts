@@ -139,6 +139,33 @@ export class UserService {
   }
 
   /**
+   * Get user's friend list.
+   *
+   * @param userId
+   * @returns
+   */
+  async getFriendList(userId: number) {
+    const friendList = await this.prismaService.user.findMany({
+      where: {
+        OR: {
+          acceptedFriends: {
+            every: {
+              inviterId: userId,
+            },
+          },
+          invitedFriends: {
+            every: {
+              acceptorId: userId,
+            },
+          },
+        },
+      },
+    });
+
+    return friendList;
+  }
+
+  /**
    * Check if two users are friends.
    *
    * @param stUserId

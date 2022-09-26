@@ -10,7 +10,7 @@ import { Logger } from 'winston';
 @Catch()
 export class AllExceptionFilter implements ExceptionFilter {
   @Log()
-  private logger: Logger;
+  private readonly logger: Logger;
 
   catch(exception: LoggedError, host: ArgumentsHost) {
     if (AppConfig.debug) {
