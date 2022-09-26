@@ -1,6 +1,6 @@
 # Overview
 
-A template supports the most basic things for user - user, and user - group communicate in a **game client**. The differences of this template from normal social platform chat mechanism are that room state will be reset if all the users connected to it have left and group messages are not archived anywhere.
+A template supports the most basic things for user - user, and user - group communicate in **game client**. The differences of this template from normal social platform chat mechanism are that room state will be reset if all the users connected to it have left and group messages are not archived anywhere.
 
 # Features
 
@@ -28,7 +28,7 @@ A template supports the most basic things for user - user, and user - group comm
 - [NestJS](https://nestjs.com/)
 - [Socket.IO](https://socket.io/)
 - [Prisma](https://www.prisma.io/)
-- [REST API](https://restfulapi.net/)
+- [RESTful API](https://restfulapi.net/)
 - [NGINX Web Server](https://en.wikipedia.org/wiki/Nginx)
 - [Redis](https://redis.io/)
 - [Redis Commander](https://github.com/joeferner/redis-commander)
@@ -40,21 +40,47 @@ A template supports the most basic things for user - user, and user - group comm
 
 # Details
 
-## Structure
+## Architecture
 
-![Communication Server Structure]()
+![Communication Server Structure](/docs/img/architecture.jpg)
 
 ## Database Design
 
 ![Communication Server Database Design](/docs/img/database.jpg)
 
-## API Documentaion
+## Documentaions
 
-Read [here](https://tp-o.github.io/e-commerce-api).
+RESTful APIs [here](#).
+
+Event-driven APIs [here](#).
 
 # Setup
 
-aaaa
+```bash
+$ git clone git@github.com:TP-OG/communication-server.git
+
+$ cd communication-server
+
+$ cp .env.example .env
+```
+
+Then fill in the `.env` file.
+
+## Development
+
+```bash
+$ docker-compose up
+
+$ docker-compose exec app npx prisma migrate dev
+```
+
+## Demo
+
+```bash
+$ docker-compose -f docker-compose.demo.yml up
+
+$ docker-compose exec app npx prisma migrate deploy
+```
 
 # License
 

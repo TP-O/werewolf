@@ -4,7 +4,7 @@ services:
     app:
         build:
             context: .
-        image: chat-server:dev-latest
+        image: communication-server
         env_file:
             - .env
         volumes:
