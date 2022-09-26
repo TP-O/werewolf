@@ -1,6 +1,7 @@
 lockfileVersion: 5.4
 
 specifiers:
+  '@firebase/app-types': ^0.7.0
   '@nestjs/cli': ^9.0.0
   '@nestjs/common': ^9.0.0
   '@nestjs/core': ^9.0.0
@@ -52,7 +53,7 @@ dependencies:
   '@socket.io/redis-adapter': 7.2.0
   class-transformer: 0.5.1
   class-validator: 0.13.2
-  firebase-admin: 11.0.1
+  firebase-admin: 11.0.1_@firebase+app-types@0.7.0
   ioredis: 5.2.3
   reflect-metadata: 0.1.13
   rimraf: 3.0.2
@@ -61,6 +62,7 @@ dependencies:
   winston: 3.8.2
 
 devDependencies:
+  '@firebase/app-types': 0.7.0
   '@nestjs/cli': 9.1.2
   '@nestjs/schematics': 9.0.3_typescript@4.8.2
   '@nestjs/testing': 9.0.11_khr6mt6ojlxbw7bo55fknouh34
@@ -576,14 +578,14 @@ packages:
 
   /@firebase/app-types/0.7.0:
     resolution: {integrity: sha512-6fbHQwDv2jp/v6bXhBw2eSRbNBpxHcd1NBF864UksSMVIqIyri9qpJB1Mn6sGZE+bnDsSQBC5j2TbMxYsJQkQg==}
-    dev: false
 
-  /@firebase/auth-interop-types/0.1.6_@firebase+util@1.6.3:
+  /@firebase/auth-interop-types/0.1.6_pbfwexsq7uf6mrzcwnikj3g37m:
     resolution: {integrity: sha512-etIi92fW3CctsmR9e3sYM3Uqnoq861M0Id9mdOPF6PWIg38BXL5k4upCNBggGUpLIS0H1grMOvy/wn1xymwe2g==}
     peerDependencies:
       '@firebase/app-types': 0.x
       '@firebase/util': 1.x
     dependencies:
+      '@firebase/app-types': 0.7.0
       '@firebase/util': 1.6.3
     dev: false
 
@@ -594,11 +596,11 @@ packages:
       tslib: 2.4.0
     dev: false
 
-  /@firebase/database-compat/0.2.6:
+  /@firebase/database-compat/0.2.6_@firebase+app-types@0.7.0:
     resolution: {integrity: sha512-Ls1BAODaiDYgeJljrIgSuC7JkFIY/HNhhNYebzZSoGQU62RuvnaO3Qgp2EH6h2LzHyRnycNadfh1suROtPaUIA==}
     dependencies:
       '@firebase/component': 0.5.17
-      '@firebase/database': 0.13.6
+      '@firebase/database': 0.13.6_@firebase+app-types@0.7.0
       '@firebase/database-types': 0.9.13
       '@firebase/logger': 0.3.3
       '@firebase/util': 1.6.3
@@ -614,10 +616,10 @@ packages:
       '@firebase/util': 1.6.3
     dev: false
 
-  /@firebase/database/0.13.6:
+  /@firebase/database/0.13.6_@firebase+app-types@0.7.0:
     resolution: {integrity: sha512-5IZIBw2LT50Z8mwmKYmdX37p+Gg2HgeJsrruZmRyOSVgbfoY4Pg87n1uFx6qWqDmfL6HwQgwcrrQfVIXE3C5SA==}
     dependencies:
-      '@firebase/auth-interop-types': 0.1.6_@firebase+util@1.6.3
+      '@firebase/auth-interop-types': 0.1.6_pbfwexsq7uf6mrzcwnikj3g37m
       '@firebase/component': 0.5.17
       '@firebase/logger': 0.3.3
       '@firebase/util': 1.6.3
@@ -3030,12 +3032,12 @@ packages:
       path-exists: 4.0.0
     dev: true
 
-  /firebase-admin/11.0.1:
+  /firebase-admin/11.0.1_@firebase+app-types@0.7.0:
     resolution: {integrity: sha512-rL3wlZbi2Kb/KJgcmj1YHlD4ZhfmhfgRO2YJialxAllm0tj1IQea878hHuBLGmv4DpbW9t9nLvX9kddNR2Y65Q==}
     engines: {node: '>=14'}
     dependencies:
       '@fastify/busboy': 1.1.0
-      '@firebase/database-compat': 0.2.6
+      '@firebase/database-compat': 0.2.6_@firebase+app-types@0.7.0
       '@firebase/database-types': 0.9.13
       '@types/node': 18.7.16
       jsonwebtoken: 8.5.1
