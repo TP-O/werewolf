@@ -1,0 +1,1683 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>Communication Server Template</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
+	   <link rel="stylesheet" href="../styles/style.css">
+        <link rel="stylesheet" href="../styles/dark.css">
+    </head>
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top visible-xs">
+            <a href="../" class="navbar-brand">Communication Server Template</a>
+            <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="hidden-xs menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content injectable">
+                   <div class="content-data">
+
+
+
+
+
+
+
+
+<ol class="breadcrumb">
+  <li>Injectables</li>
+  <li >RoomService</li>
+</ol>
+
+<ul class="nav nav-tabs" role="tablist">
+        <li class="active">
+            <a href="#info" role="tab" id="info-tab" data-toggle="tab" data-link="info">Info</a>
+        </li>
+        <li >
+            <a href="#source" role="tab" id="source-tab" data-toggle="tab" data-link="source">Source</a>
+        </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade active in" id="c-info">
+        <p class="comment">
+            <h3>File</h3>
+        </p>
+        <p class="comment">
+            <code>src/module/room/room.service.ts</code>
+        </p>
+
+
+
+
+
+            <section>
+    <h3 id="index">Index</h3>
+    <table class="table table-sm table-bordered index-table">
+        <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Properties</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                    <span class="modifier">Private</span>
+                                    <span class="modifier">Readonly</span>
+                                <a href="#redis" >redis</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Methods</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#book" >book</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#get" >get</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#getMany" >getMany</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#invite" >invite</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#isMemberOfAny" >isMemberOfAny</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#join" >join</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#kick" >kick</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#leave" >leave</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#leaveMany" >leaveMany</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#respondInvitation" >respondInvitation</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#transferOwnership" >transferOwnership</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+
+
+
+
+        </tbody>
+    </table>
+</section>
+
+
+            <section>
+    
+    <h3 id="methods">
+        Methods
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="book"></a>
+                    <span class="name">
+                        <span class="modifier">Async</span>
+                        <span ><b>book</b></span>
+                        <a href="#book"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>book(bookerId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>, isPublic)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="41"
+                            class="link-to-prism">src/module/room/room.service.ts:41</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Create a room and add the booker to its member list.
+If multi-room join is disabled, the booker must not
+enter any room before creating the room.</p>
+</div>
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                    <td>Default value</td>
+                                    <td>Description</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>bookerId</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+                                    <td>
+                                    </td>
+
+                                    <td>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>isPublic</td>
+                                    <td>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+                                    <td>
+                                        <code>false</code>
+                                    </td>
+
+                                    <td>
+                                        <p>if true, anyone can join without invitation.</p>
+
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>    <code>unknown</code>
+
+                    </div>
+                    <div class="io-description">
+                        <p>updated room.</p>
+
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="get"></a>
+                    <span class="name">
+                        <span class="modifier">Async</span>
+                        <span ><b>get</b></span>
+                        <a href="#get"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>get(roomId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="76"
+                            class="link-to-prism">src/module/room/room.service.ts:76</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Get room by id.</p>
+</div>
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>roomId</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>    <code>unknown</code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getMany"></a>
+                    <span class="name">
+                        <span class="modifier">Async</span>
+                        <span ><b>getMany</b></span>
+                        <a href="#getMany"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getMany(roomIds: string[])</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="94"
+                            class="link-to-prism">src/module/room/room.service.ts:94</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Get rooms by ids.</p>
+</div>
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>roomIds</td>
+                                    <td>
+                                            <code>string[]</code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>    <code>unknown</code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="invite"></a>
+                    <span class="name">
+                        <span class="modifier">Async</span>
+                        <span ><b>invite</b></span>
+                        <a href="#invite"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>invite(inviter: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>, guestId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>, roomId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="327"
+                            class="link-to-prism">src/module/room/room.service.ts:327</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Invite a guest into room. Only invite online user and
+non-exist in room user.</p>
+</div>
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>inviter</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                                <tr>
+                                    <td>guestId</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                                <tr>
+                                    <td>roomId</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>    <code>unknown</code>
+
+                    </div>
+                    <div class="io-description">
+                        <p>updated room and guest socket ids.</p>
+
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="isMemberOfAny"></a>
+                    <span class="name">
+                        <span class="modifier">Private</span>
+                        <span class="modifier">Async</span>
+                        <span ><b>isMemberOfAny</b></span>
+                        <a href="#isMemberOfAny"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>isMemberOfAny(memberId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="24"
+                            class="link-to-prism">src/module/room/room.service.ts:24</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Check if user is in any room.</p>
+</div>
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>memberId</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>    <code>unknown</code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="join"></a>
+                    <span class="name">
+                        <span class="modifier">Async</span>
+                        <span ><b>join</b></span>
+                        <a href="#join"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>join(joinerId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>, roomId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="117"
+                            class="link-to-prism">src/module/room/room.service.ts:117</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Add user to room. If multi-room join is disabled,
+the booker must not enter any room before creating
+the room.</p>
+</div>
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>joinerId</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                                <tr>
+                                    <td>roomId</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>    <code>unknown</code>
+
+                    </div>
+                    <div class="io-description">
+                        <p>updated room.</p>
+
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="kick"></a>
+                    <span class="name">
+                        <span class="modifier">Async</span>
+                        <span ><b>kick</b></span>
+                        <a href="#kick"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>kick(kickerId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>, memberId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>, roomId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="248"
+                            class="link-to-prism">src/module/room/room.service.ts:248</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Kick member out of room. Kicker must be the owner
+and member must be in the room, otherwise the action
+is declined.</p>
+</div>
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>kickerId</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                                <tr>
+                                    <td>memberId</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                                <tr>
+                                    <td>roomId</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>    <code>unknown</code>
+
+                    </div>
+                    <div class="io-description">
+                        <p>updated room and socket id of kicked member.</p>
+
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="leave"></a>
+                    <span class="name">
+                        <span class="modifier">Async</span>
+                        <span ><b>leave</b></span>
+                        <a href="#leave"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>leave(leaverId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>, roomId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="154"
+                            class="link-to-prism">src/module/room/room.service.ts:154</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Remove user from room. Transfer ownership for to a member
+in room if leaver is owner. Empty room will be deleted.</p>
+</div>
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>leaverId</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                                <tr>
+                                    <td>roomId</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>    <code>unknown</code>
+
+                    </div>
+                    <div class="io-description">
+                        <p>updated room.</p>
+
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="leaveMany"></a>
+                    <span class="name">
+                        <span class="modifier">Async</span>
+                        <span ><b>leaveMany</b></span>
+                        <a href="#leaveMany"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>leaveMany(leaverId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>, ...roomIds: string[])</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="194"
+                            class="link-to-prism">src/module/room/room.service.ts:194</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Remove user from many rooms. Logic is the same
+as <code>leave</code> method.</p>
+</div>
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                    <td>Description</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>leaverId</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                    <td>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>roomIds</td>
+                                    <td>
+                                            <code>string[]</code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                    <td>
+                                        <p>empty if leaving all rooms.</p>
+
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>    <code>unknown</code>
+
+                    </div>
+                    <div class="io-description">
+                        <p>updated rooms.</p>
+
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="respondInvitation"></a>
+                    <span class="name">
+                        <span class="modifier">Async</span>
+                        <span ><b>respondInvitation</b></span>
+                        <a href="#respondInvitation"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>respondInvitation(guestId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>, isAccpeted: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank">boolean</a>, roomId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="373"
+                            class="link-to-prism">src/module/room/room.service.ts:373</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Respond to room invitation. There are 2 options:
+accept and refuse. Leave the current room after
+accepting if multi-room join is disabled.</p>
+</div>
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>guestId</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                                <tr>
+                                    <td>isAccpeted</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                                <tr>
+                                    <td>roomId</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>    <code>unknown</code>
+
+                    </div>
+                    <div class="io-description">
+                        <p>updated room and left rooms.</p>
+
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="transferOwnership"></a>
+                    <span class="name">
+                        <span class="modifier">Async</span>
+                        <span ><b>transferOwnership</b></span>
+                        <a href="#transferOwnership"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>transferOwnership(ownerId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>, candidateId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>, roomId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="293"
+                            class="link-to-prism">src/module/room/room.service.ts:293</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Transfer ownership to another member. Decline action
+if room is empty, actor is not owner, or choosed member
+does not exist in the room.</p>
+</div>
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>ownerId</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                                <tr>
+                                    <td>candidateId</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                                <tr>
+                                    <td>roomId</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>    <code>unknown</code>
+
+                    </div>
+                    <div class="io-description">
+                        <p>update room.</p>
+
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+            <section>
+    
+    <h3 id="inputs">
+        Properties
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="redis"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                            <span class="modifier">Readonly</span>
+                        <span ><b>redis</b></span>
+                        <a href="#redis"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>Redis</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <b>Decorators : </b>
+                        <br />
+                        <code>
+                            @RedisClient()<br />
+                        </code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="16" class="link-to-prism">src/module/room/room.service.ts:16</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+</section>
+
+    </div>
+
+
+    <div class="tab-pane fade  tab-source-code" id="c-source">
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from &#x27;@nestjs/common&#x27;;
+import Redis from &#x27;ioredis&#x27;;
+import { AppConfig } from &#x27;src/config&#x27;;
+import { RedisClient } from &#x27;src/common/decorator&#x27;;
+import { CacheNamespace } from &#x27;src/enum&#x27;;
+import { Room } from &#x27;./room.type&#x27;;
+
+@Injectable()
+export class RoomService {
+  @RedisClient()
+  private readonly redis: Redis;
+
+  /**
+   * Check if user is in any room.
+   *
+   * @param memberId
+   * @returns
+   */
+  private async isMemberOfAny(memberId: number) {
+    const roomIds &#x3D; await this.redis.llen(
+      &#x60;${CacheNamespace.UId2RIds}${memberId}&#x60;,
+    );
+
+    return roomIds &gt; 0;
+  }
+
+  /**
+   * Create a room and add the booker to its member list.
+   * If multi-room join is disabled, the booker must not
+   * enter any room before creating the room.
+   *
+   * @param bookerId
+   * @param isPublic if true, anyone can join without invitation.
+   * @returns updated room.
+   */
+  async book(bookerId: number, isPublic &#x3D; false) {
+    if (
+      !AppConfig.allowJoinMultipleRooms &amp;&amp;
+      (await this.isMemberOfAny(bookerId))
+    ) {
+      throw new BadRequestException(
+        &#x27;Please leave current room before creating a new one&#x27;,
+      );
+    }
+
+    const id &#x3D; String(Date.now());
+    const room: Room &#x3D; {
+      id,
+      isPublic,
+      ownerId: bookerId,
+      memberIds: [bookerId],
+      waitingIds: [],
+      refusedIds: [],
+    };
+
+    await this.redis
+      .pipeline()
+      .set(&#x60;${CacheNamespace.Room}${id}&#x60;, JSON.stringify(room))
+      .lpush(&#x60;${CacheNamespace.UId2RIds}${bookerId}&#x60;, room.id)
+      .exec();
+
+    return room;
+  }
+
+  /**
+   * Get room by id.
+   *
+   * @param roomId
+   * @returns
+   */
+  async get(roomId: string) {
+    const roomJSON &#x3D; await this.redis.get(&#x60;${CacheNamespace.Room}${roomId}&#x60;);
+
+    if (roomJSON &#x3D;&#x3D;&#x3D; null) {
+      throw new BadRequestException(&#x27;Room does not exist!&#x27;);
+    }
+
+    const room: Room &#x3D; JSON.parse(roomJSON);
+
+    return room;
+  }
+
+  /**
+   * Get rooms by ids.
+   *
+   * @param roomIds
+   * @returns
+   */
+  async getMany(roomIds: string[]) {
+    const rooms: Room[] &#x3D; [];
+    const redisPipe &#x3D; this.redis.pipeline();
+    roomIds.forEach((rId) &#x3D;&gt; redisPipe.get(&#x60;${CacheNamespace.Room}${rId}&#x60;));
+
+    (await redisPipe.exec()).forEach((val) &#x3D;&gt; {
+      if (typeof val[1] &#x3D;&#x3D;&#x3D; &#x27;string&#x27;) {
+        rooms.push(JSON.parse(val[1] as string));
+      }
+    });
+
+    return rooms;
+  }
+
+  /**
+   * Add user to room. If multi-room join is disabled,
+   * the booker must not enter any room before creating
+   * the room.
+   *
+   * @param joinerId
+   * @param roomId
+   * @returns updated room.
+   */
+  async join(joinerId: number, roomId: string) {
+    if (
+      !AppConfig.allowJoinMultipleRooms &amp;&amp;
+      (await this.isMemberOfAny(joinerId))
+    ) {
+      throw new BadRequestException(
+        &#x27;Please leave current room before joining another one!&#x27;,
+      );
+    }
+
+    const room &#x3D; await this.get(roomId);
+
+    if (!room.isPublic) {
+      throw new ForbiddenException(&#x27;This room is private!&#x27;);
+    }
+
+    room.memberIds.push(joinerId);
+    room.waitingIds.splice(room.waitingIds.indexOf(joinerId), 1);
+    room.refusedIds.splice(room.waitingIds.indexOf(joinerId), 1);
+
+    await this.redis
+      .pipeline()
+      .set(&#x60;${CacheNamespace.Room}${room.id}&#x60;, JSON.stringify(room))
+      .lpush(&#x60;${CacheNamespace.UId2RIds}${joinerId}&#x60;, room.id)
+      .exec();
+
+    return room;
+  }
+
+  /**
+   * Remove user from room. Transfer ownership for to a member
+   * in room if leaver is owner. Empty room will be deleted.
+   *
+   * @param leaverId
+   * @param roomId
+   * @returns updated room.
+   */
+  async leave(leaverId: number, roomId: string) {
+    const room &#x3D; await this.get(roomId);
+    const deletedMemberIndex &#x3D; room.memberIds.indexOf(leaverId);
+
+    if (deletedMemberIndex &#x3D;&#x3D;&#x3D; -1) {
+      throw new ForbiddenException(&#x27;You are not in this room!&#x27;);
+    } else {
+      room.memberIds.splice(deletedMemberIndex, 1);
+      room.refusedIds.push(leaverId);
+    }
+
+    const redisPipe &#x3D; this.redis.pipeline();
+
+    // Delete room if all members have left
+    if (room.memberIds.length &#x3D;&#x3D;&#x3D; 0) {
+      redisPipe.del(&#x60;${CacheNamespace.Room}${room.id}&#x60;);
+    } else {
+      // Assign owner to the first member
+      if (leaverId &#x3D;&#x3D;&#x3D; room.ownerId) {
+        room.ownerId &#x3D; room.memberIds[0];
+      }
+
+      redisPipe.set(&#x60;${CacheNamespace.Room}${room.id}&#x60;, JSON.stringify(room));
+    }
+
+    await redisPipe
+      .lrem(&#x60;${CacheNamespace.UId2RIds}${leaverId}&#x60;, 1, room.id)
+      .exec();
+
+    return room;
+  }
+
+  /**
+   * Remove user from many rooms. Logic is the same
+   * as &#x60;leave&#x60; method.
+   *
+   * @param leaverId
+   * @param roomIds empty if leaving all rooms.
+   * @returns updated rooms.
+   */
+  async leaveMany(leaverId: number, ...roomIds: string[]) {
+    if (roomIds.length &#x3D;&#x3D;&#x3D; 0) {
+      roomIds &#x3D; await this.redis.lrange(
+        &#x60;${CacheNamespace.UId2RIds}${leaverId}&#x60;,
+        0,
+        -1,
+      );
+
+      if (roomIds.length &#x3D;&#x3D;&#x3D; 0) {
+        return [];
+      }
+    }
+
+    const rooms &#x3D; await this.getMany(roomIds);
+    const redisPipe &#x3D; this.redis.pipeline();
+
+    rooms.map((room) &#x3D;&gt; {
+      room.memberIds.splice(room.memberIds.indexOf(leaverId), 1);
+      room.refusedIds.push(leaverId);
+
+      // Delete room if all members have left
+      if (room.memberIds.length &#x3D;&#x3D;&#x3D; 0) {
+        redisPipe.del(&#x60;${CacheNamespace.Room}${room.id}&#x60;);
+      } else {
+        // Assign owner to the first member
+        if (leaverId &#x3D;&#x3D;&#x3D; room.ownerId) {
+          room.ownerId &#x3D; room.memberIds[0];
+        }
+
+        redisPipe.set(&#x60;${CacheNamespace.Room}${room.id}&#x60;, JSON.stringify(room));
+      }
+
+      redisPipe
+        .lrem(&#x60;${CacheNamespace.UId2RIds}${leaverId}&#x60;, 1, room.id)
+        .exec();
+
+      return room;
+    });
+
+    await redisPipe.exec();
+
+    return rooms;
+  }
+
+  /**
+   * Kick member out of room. Kicker must be the owner
+   * and member must be in the room, otherwise the action
+   * is declined.
+   *
+   * @param kickerId
+   * @param memberId
+   * @param roomId
+   * @returns updated room and socket id of kicked member.
+   */
+  async kick(kickerId: number, memberId: number, roomId: string) {
+    if (kickerId &#x3D;&#x3D;&#x3D; memberId) {
+      const room &#x3D; await this.leave(kickerId, roomId);
+
+      return { room, kickedMemberSId: kickerId };
+    }
+
+    const room &#x3D; await this.get(roomId);
+
+    if (room.ownerId !&#x3D;&#x3D; kickerId) {
+      throw new ForbiddenException(&#x27;You are not owner of this room!&#x27;);
+    }
+
+    const deletedMemberIndex &#x3D; room.memberIds.indexOf(memberId);
+
+    if (deletedMemberIndex &#x3D;&#x3D;&#x3D; -1) {
+      throw new BadRequestException(&#x27;Member is not in this room!&#x27;);
+    }
+
+    room.memberIds.splice(deletedMemberIndex, 1);
+    room.refusedIds.push(memberId);
+
+    const [[, kickedMemberSId]] &#x3D; await this.redis
+      .pipeline()
+      .get(&#x60;${CacheNamespace.UID2SId}${memberId}&#x60;)
+      .set(&#x60;${CacheNamespace.Room}${room.id}&#x60;, JSON.stringify(room))
+      .lrem(&#x60;${CacheNamespace.UId2RIds}${memberId}&#x60;, 1, room.id)
+      .exec();
+
+    return {
+      room,
+      kickedMemberSocketId: kickedMemberSId as string,
+    };
+  }
+
+  /**
+   * Transfer ownership to another member. Decline action
+   * if room is empty, actor is not owner, or choosed member
+   * does not exist in the room.
+   *
+   * @param ownerId
+   * @param candidateId
+   * @param roomId
+   * @returns update room.
+   */
+  async transferOwnership(
+    ownerId: number,
+    candidateId: number,
+    roomId: string,
+  ) {
+    const room &#x3D; await this.get(roomId);
+
+    if (room.ownerId !&#x3D;&#x3D; ownerId) {
+      throw new ForbiddenException(&#x27;You are not owner of this room!&#x27;);
+    }
+
+    if (ownerId &#x3D;&#x3D;&#x3D; candidateId || !room.memberIds.includes(candidateId)) {
+      throw new BadRequestException(&#x27;New owner must be a member in this room!&#x27;);
+    }
+
+    room.ownerId &#x3D; candidateId;
+
+    await this.redis.set(
+      &#x60;${CacheNamespace.Room}${room.id}&#x60;,
+      JSON.stringify(room),
+    );
+
+    return room;
+  }
+
+  /**
+   * Invite a guest into room. Only invite online user and
+   * non-exist in room user.
+   *
+   * @param inviter
+   * @param guestId
+   * @param roomId
+   * @returns updated room and guest socket ids.
+   */
+  async invite(inviter: number, guestId: number, roomId: string) {
+    const [[, roomJSON], [, guestSId]] &#x3D; (await this.redis
+      .pipeline()
+      .get(&#x60;${CacheNamespace.Room}${roomId}&#x60;)
+      .get(&#x60;${CacheNamespace.UID2SId}${guestId}&#x60;)
+      .exec()) as [error: any, result: string | string[]][];
+
+    if (roomJSON &#x3D;&#x3D; null) {
+      throw new NotFoundException(&#x27;Room does not exist!&#x27;);
+    }
+
+    const room: Room &#x3D; JSON.parse(roomJSON as string);
+
+    if (guestSId &#x3D;&#x3D; null) {
+      throw new BadRequestException(&#x27;Please only invite online user!&#x27;);
+    }
+
+    if (!room.memberIds.includes(inviter)) {
+      throw new ForbiddenException(&#x27;You are not in this room!&#x27;);
+    }
+
+    if (room.memberIds.includes(guestId) || room.waitingIds.includes(guestId)) {
+      throw new BadRequestException(&#x27;This user has been invited!&#x27;);
+    }
+
+    room.waitingIds.push(guestId);
+    room.refusedIds.splice(room.waitingIds.indexOf(guestId), 1);
+
+    await this.redis.set(
+      &#x60;${CacheNamespace.Room}${room.id}&#x60;,
+      JSON.stringify(room),
+    );
+
+    return { room, guestSocketId: guestSId };
+  }
+
+  /**
+   * Respond to room invitation. There are 2 options:
+   * accept and refuse. Leave the current room after
+   * accepting if multi-room join is disabled.
+   *
+   * @param guestId
+   * @param isAccpeted
+   * @param roomId
+   * @returns updated room and left rooms.
+   */
+  async respondInvitation(
+    guestId: number,
+    isAccpeted: boolean,
+    roomId: string,
+  ) {
+    let leftRooms: Room[] &#x3D; [];
+    const room &#x3D; await this.get(roomId);
+    const deletedWaitingIndex &#x3D; room.waitingIds.indexOf(guestId);
+
+    if (deletedWaitingIndex &#x3D;&#x3D;&#x3D; -1) {
+      throw new BadRequestException(&#x27;You are not invited to this room!&#x27;);
+    }
+
+    const redisPipe &#x3D; this.redis.pipeline();
+
+    room.waitingIds.splice(deletedWaitingIndex, 1);
+
+    if (isAccpeted) {
+      // Leave all current rooms if multi-room join is disabled
+      if (
+        !AppConfig.allowJoinMultipleRooms &amp;&amp;
+        (await this.isMemberOfAny(guestId))
+      ) {
+        leftRooms &#x3D; await this.leaveMany(guestId);
+      }
+
+      room.memberIds.push(guestId);
+      redisPipe.lpush(&#x60;${CacheNamespace.UId2RIds}${guestId}&#x60;, room.id);
+    } else {
+      room.refusedIds.push(guestId);
+    }
+
+    await redisPipe
+      .set(&#x60;${CacheNamespace.Room}${room.id}&#x60;, JSON.stringify(room))
+      .exec();
+
+    return { room, leftRooms };
+  }
+}
+</code></pre>
+    </div>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+          <label class="dark-mode-switch">
+               <input type="checkbox">
+               <span class="slider">
+                    <svg class="slider-icon" viewBox="0 0 24 24" fill="none" height="20" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+               </span>
+          </label>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 1;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'injectable';
+            var COMPODOC_CURRENT_PAGE_URL = 'RoomService.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script src="../js/libs/custom-elements.min.js"></script>
+       <script src="../js/libs/lit-html.js"></script>
+
+       <script src="../js/menu-wc.js" defer></script>
+       <script nomodule src="../js/menu-wc_es5.js" defer></script>
+
+       <script src="../js/libs/bootstrap-native.js"></script>
+
+       <script src="../js/libs/es6-shim.min.js"></script>
+       <script src="../js/libs/EventDispatcher.js"></script>
+       <script src="../js/libs/promise.min.js"></script>
+       <script src="../js/libs/zepto.min.js"></script>
+
+       <script src="../js/compodoc.js"></script>
+
+       <script src="../js/tabs.js"></script>
+       <script src="../js/menu.js"></script>
+       <script src="../js/libs/clipboard.min.js"></script>
+       <script src="../js/libs/prism.js"></script>
+       <script src="../js/sourceCode.js"></script>
+          <script src="../js/search/search.js"></script>
+          <script src="../js/search/lunr.min.js"></script>
+          <script src="../js/search/search-lunr.js"></script>
+          <script src="../js/search/search_index.js"></script>
+       <script src="../js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>

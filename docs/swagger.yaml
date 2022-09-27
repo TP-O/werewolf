@@ -1,0 +1,36 @@
+openapi: 3.0.0
+info:
+  title: Communication Server Template
+  description: Several API endpoints of the template. Clone this [repo](https://github.com/TP-OG/communication-server) and run it on local environment before accessing API endpoints.
+  version: 1.0.0
+  license:
+    name: MIT
+    url: https://github.com/tp-og/communication-server/blob/main/LICENSE
+tags:
+  - name: users
+servers:
+  - url: http://127.0.0.1:{port}/api/v1
+    description: Localhost
+    variables:
+      port:
+        default: '80'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: token
+  schemas: {}
+security:
+  - bearerAuth: []
+paths:
+  /api/v1/users/friends:
+    get:
+      operationId: UserFriendList
+      summary: Get friend list of logged in user.
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      tags:
+        - users

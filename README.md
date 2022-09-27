@@ -42,17 +42,19 @@ A template supports the most basic things for user - user, and user - group comm
 
 ## Architecture
 
-![Communication Server Structure](/docs/img/architecture.jpg)
+![Communication Server Structure](https://raw.githubusercontent.com/TP-OG/communication-server/main/docs/img/architecture.jpg)
 
 ## Database Design
 
-![Communication Server Database Design](/docs/img/database.jpg)
+![Communication Server Database Design](https://raw.githubusercontent.com/TP-OG/communication-server/main/docs/img/database.jpg)
 
 ## Documentaions
 
-RESTful APIs [here](#).
+RESTful API [here](https://tp-og.github.io/communication-server/api-docs).
 
-Event-driven APIs [here](#).
+Event-Driven API [here](https://tp-og.github.io/communication-server/socketio-docs).
+
+Application [here](https://tp-og.github.io/communication-server/app-docs).
 
 # Setup
 

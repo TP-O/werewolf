@@ -2,11 +2,11 @@ export enum ListenEvent {
   Connect = 'connect',
   SendPrivateMessage = 'send_private_message',
   SendGroupMessage = 'send_group_message',
-  CreateRoom = 'create_room',
+  BookRoom = 'book_room',
   JoinRoom = 'join_room',
   LeaveRoom = 'leave_room',
   InviteToRoom = 'invite_to_room',
-  RespondInvitation = 'respond_invitation',
+  RespondRoomInvitation = 'respond_room_invitation',
   KickOutOfRoom = 'kick_out_of_room',
   TranserOwnership = 'transfer_ownership',
 }
@@ -18,7 +18,6 @@ export enum EmitEvent {
   ReceivePrivateMessage = 'receive_private_message',
   ReceiveGroupMessage = 'receive_group_message',
   ReceiveRoomInvitation = 'receive_room_invitation',
-  KickedOutOfRoom = 'kicked_out_of_room',
   ReceiveRoomChanges = 'receive_room_changes',
 }
 

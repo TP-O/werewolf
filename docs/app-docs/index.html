@@ -1,0 +1,185 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>Communication Server Template</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="./images/favicon.ico">
+	   <link rel="stylesheet" href="./styles/style.css">
+        <link rel="stylesheet" href="./styles/dark.css">
+    </head>
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top visible-xs">
+            <a href="./" class="navbar-brand">Communication Server Template</a>
+            <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="hidden-xs menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content getting-started">
+                   <div class="content-data">
+
+<h1 id="overview">Overview</h1>
+<p>A template supports the most basic things for user - user, and user - group communicate in <strong>game client</strong>. The differences of this template from normal social platform chat mechanism are that room state will be reset if all the users connected to it have left and group messages are not archived anywhere.</p>
+<h1 id="features">Features</h1>
+<ul>
+<li><input checked="" disabled="" type="checkbox"> Firebase Authentication</li>
+<li><input disabled="" type="checkbox"> User<ul>
+<li><input checked="" disabled="" type="checkbox"> Send private message</li>
+<li><input checked="" disabled="" type="checkbox"> Notify friends status</li>
+<li><input disabled="" type="checkbox"> Friend relationship<ul>
+<li><input checked="" disabled="" type="checkbox"> Get friend list</li>
+<li><input disabled="" type="checkbox"> Add friend</li>
+<li><input disabled="" type="checkbox"> Remove friend</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><input checked="" disabled="" type="checkbox"> Room<ul>
+<li><input checked="" disabled="" type="checkbox"> Create room</li>
+<li><input checked="" disabled="" type="checkbox"> Join room (Multi-room join mode)</li>
+<li><input checked="" disabled="" type="checkbox"> Leave room</li>
+<li><input checked="" disabled="" type="checkbox"> Kick out of room</li>
+<li><input checked="" disabled="" type="checkbox"> Transfer ownership</li>
+<li><input checked="" disabled="" type="checkbox"> Invite to room</li>
+<li><input checked="" disabled="" type="checkbox"> Respond to room invitation</li>
+<li><input checked="" disabled="" type="checkbox"> Notify room chages</li>
+<li><input checked="" disabled="" type="checkbox"> Send group message (Don&#39;t store into database)</li>
+</ul>
+</li>
+</ul>
+<h1 id="tools-and-technologies">Tools And Technologies</h1>
+<ul>
+<li><a href="https://nestjs.com/">NestJS</a></li>
+<li><a href="https://socket.io/">Socket.IO</a></li>
+<li><a href="https://www.prisma.io/">Prisma</a></li>
+<li><a href="https://restfulapi.net/">RESTful API</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Nginx">NGINX Web Server</a></li>
+<li><a href="https://redis.io/">Redis</a></li>
+<li><a href="https://github.com/joeferner/redis-commander">Redis Commander</a></li>
+<li><a href="https://www.postgresql.org">PostgreSQL</a></li>
+<li><a href="https://www.adminer.org">Adminer</a></li>
+<li><a href="https://firebase.google.com/docs/auth">Firebase Authentication</a></li>
+<li><a href="https://www.docker.com">Docker</a></li>
+<li><a href="https://docs.docker.com/compose">Docker Compose</a></li>
+</ul>
+<h1 id="details">Details</h1>
+<h2 id="architecture">Architecture</h2>
+<p><img src="https://raw.githubusercontent.com/TP-OG/communication-server/main/docs/img/architecture.jpg" alt="Communication Server Structure" class="img-responsive"></p>
+<h2 id="database-design">Database Design</h2>
+<p><img src="https://raw.githubusercontent.com/TP-OG/communication-server/main/docs/img/database.jpg" alt="Communication Server Database Design" class="img-responsive"></p>
+<h2 id="documentaions">Documentaions</h2>
+<p>RESTful API <a href="https://tp-og.github.io/communication-server/api-docs">here</a>.</p>
+<p>Event-Driven API <a href="https://tp-og.github.io/communication-server/socketio-docs">here</a>.</p>
+<p>Application <a href="https://tp-og.github.io/communication-server/app-docs">here</a>.</p>
+<h1 id="setup">Setup</h1>
+<div><pre class="line-numbers"><code class="language-bash">$ git clone git&#64;github.com:TP-OG/communication-server.git
+
+$ cd communication-server
+
+$ cp .env.example .env</code></pre></div><p>Then fill in the <code>.env</code> file.</p>
+<h2 id="development">Development</h2>
+<div><pre class="line-numbers"><code class="language-bash">$ docker-compose up
+
+$ docker-compose exec app npx prisma migrate dev</code></pre></div><h2 id="demo">Demo</h2>
+<div><pre class="line-numbers"><code class="language-bash">$ docker-compose -f docker-compose.demo.yml up
+
+$ docker-compose exec app npx prisma migrate deploy</code></pre></div><h1 id="license">License</h1>
+<ul>
+<li><h5 id="this-project-is-distributed-under-the-mit-license">This project is distributed under the <a href="LICENSE">MIT License</a>.</h5>
+</li>
+<li><h5 id="copyright-of-tp-o-2022">Copyright of <a href="https://github.com/TP-O">@TP-O</a>, 2022.</h5>
+</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+          <label class="dark-mode-switch">
+               <input type="checkbox">
+               <span class="slider">
+                    <svg class="slider-icon" viewBox="0 0 24 24" fill="none" height="20" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+               </span>
+          </label>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 0;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'getting-started';
+            var COMPODOC_CURRENT_PAGE_URL = 'index.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script src="./js/libs/custom-elements.min.js"></script>
+       <script src="./js/libs/lit-html.js"></script>
+
+       <script src="./js/menu-wc.js" defer></script>
+       <script nomodule src="./js/menu-wc_es5.js" defer></script>
+
+       <script src="./js/libs/bootstrap-native.js"></script>
+
+       <script src="./js/libs/es6-shim.min.js"></script>
+       <script src="./js/libs/EventDispatcher.js"></script>
+       <script src="./js/libs/promise.min.js"></script>
+       <script src="./js/libs/zepto.min.js"></script>
+
+       <script src="./js/compodoc.js"></script>
+
+       <script src="./js/tabs.js"></script>
+       <script src="./js/menu.js"></script>
+       <script src="./js/libs/clipboard.min.js"></script>
+       <script src="./js/libs/prism.js"></script>
+       <script src="./js/sourceCode.js"></script>
+          <script src="./js/search/search.js"></script>
+          <script src="./js/search/lunr.min.js"></script>
+          <script src="./js/search/search-lunr.js"></script>
+          <script src="./js/search/search_index.js"></script>
+       <script src="./js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>

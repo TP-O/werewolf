@@ -8,6 +8,12 @@ import { UserService } from './user.service';
 export class UserController {
   constructor(private userService: UserService) {}
 
+  /**
+   * Get friend list of logged in user.
+   *
+   * @param request
+   * @param response
+   */
   @Get('friends')
   async getFriendList(
     @Req() request: FastifyRequest,

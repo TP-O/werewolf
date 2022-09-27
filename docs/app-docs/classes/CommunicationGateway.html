@@ -1,0 +1,1823 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>Communication Server Template</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
+	   <link rel="stylesheet" href="../styles/style.css">
+        <link rel="stylesheet" href="../styles/dark.css">
+    </head>
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top visible-xs">
+            <a href="../" class="navbar-brand">Communication Server Template</a>
+            <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="hidden-xs menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content class">
+                   <div class="content-data">
+
+
+
+
+
+
+
+
+
+
+
+
+<ol class="breadcrumb">
+  <li>Classes</li>
+  <li >CommunicationGateway</li>
+</ol>
+
+<ul class="nav nav-tabs" role="tablist">
+        <li class="active">
+            <a href="#info" role="tab" id="info-tab" data-toggle="tab" data-link="info">Info</a>
+        </li>
+        <li >
+            <a href="#source" role="tab" id="source-tab" data-toggle="tab" data-link="source">Source</a>
+        </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade active in" id="c-info">
+        <p class="comment">
+            <h3>File</h3>
+        </p>
+        <p class="comment">
+            <code>src/module/communication/communication.gateway.ts</code>
+        </p>
+
+
+
+
+            <p class="comment">
+                <h3>Implements</h3>
+            </p>
+            <p class="comment">
+                        <code>OnGatewayConnection</code>
+                        <code>OnGatewayDisconnect</code>
+            </p>
+
+
+            <section>
+    <h3 id="index">Index</h3>
+    <table class="table table-sm table-bordered index-table">
+        <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Properties</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                    <span class="modifier">Private</span>
+                                    <span class="modifier">Readonly</span>
+                                <a href="#server" >server</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Methods</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#handleConnection" >handleConnection</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#handleCreateRoom" >handleCreateRoom</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#handleDisconnect" >handleDisconnect</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#handleInviteToRoom" >handleInviteToRoom</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#handleJoinRoom" >handleJoinRoom</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#handleKickOutOfRoom" >handleKickOutOfRoom</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#handleLeaveRoom" >handleLeaveRoom</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#handleRespondInvitation" >handleRespondInvitation</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#handleSendGroupMessage" >handleSendGroupMessage</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#handleTransferOwnership" >handleTransferOwnership</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#sendPrivateMessage" >sendPrivateMessage</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+
+
+
+
+        </tbody>
+    </table>
+</section>
+
+            <section>
+    <h3 id="constructor">Constructor</h3>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+<code>constructor(userService: <a href="../injectables/UserService.html" target="_self">UserService</a>, connectionService: <a href="../injectables/CommunicationService.html" target="_self">CommunicationService</a>, messageService: <a href="../injectables/MessageService.html" target="_self">MessageService</a>, roomService: <a href="../injectables/RoomService.html" target="_self">RoomService</a>)</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="52" class="link-to-prism">src/module/communication/communication.gateway.ts:52</a></div>
+                            </td>
+                        </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                            <div>
+                                    <b>Parameters :</b>
+                                    <table class="params">
+                                        <thead>
+                                            <tr>
+                                                <td>Name</td>
+                                                    <td>Type</td>
+                                                <td>Optional</td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                                <tr>
+                                                        <td>userService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/UserService.html" target="_self" >UserService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>connectionService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/CommunicationService.html" target="_self" >CommunicationService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>messageService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/MessageService.html" target="_self" >MessageService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>roomService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/RoomService.html" target="_self" >RoomService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                        </tbody>
+                                    </table>
+                            </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+</section>
+
+            <section>
+    
+    <h3 id="inputs">
+        Properties
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="server"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                            <span class="modifier">Readonly</span>
+                        <span ><b>server</b></span>
+                        <a href="#server"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="../miscellaneous/typealiases.html#EmitEvents" target="_self" >Server&lt; | EmitEvents&gt;</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <b>Decorators : </b>
+                        <br />
+                        <code>
+                            @WebSocketServer()<br />
+                        </code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="52" class="link-to-prism">src/module/communication/communication.gateway.ts:52</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+</section>
+
+            <section>
+    
+    <h3 id="methods">
+        Methods
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="handleConnection"></a>
+                    <span class="name">
+                        <span class="modifier">Async</span>
+                        <span ><b>handleConnection</b></span>
+                        <a href="#handleConnection"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>handleConnection(client: <a href="../undefineds/EmitEvents.html" target="_self">Socket&lt; | EmitEvents&gt;</a>)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="66"
+                            class="link-to-prism">src/module/communication/communication.gateway.ts:66</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Store user state before connection.</p>
+</div>
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                    <td>Description</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>client</td>
+                                    <td>
+                                                <code><a href="../miscellaneous/typealiases.html#EmitEvents" target="_self" >Socket&lt; | EmitEvents&gt;</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                    <td>
+                                        <p>socket client.</p>
+
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="handleCreateRoom"></a>
+                    <span class="name">
+                        <span class="modifier">Async</span>
+                        <span ><b>handleCreateRoom</b></span>
+                        <a href="#handleCreateRoom"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>handleCreateRoom(client: <a href="../undefineds/EmitEvents.html" target="_self">Socket&lt; | EmitEvents&gt;</a>, payload: <a href="../classes/BookRoomDto.html" target="_self">BookRoomDto</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@UseInterceptors(new EventNameBindingInterceptor(), SocketUserIdBindingInterceptor)<br />@SubscribeMessage(ListenEvent.BookRoom)<br /></code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="171"
+                            class="link-to-prism">src/module/communication/communication.gateway.ts:171</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Create a new room.</p>
+</div>
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                    <td>Description</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>client</td>
+                                    <td>
+                                                <code><a href="../miscellaneous/typealiases.html#EmitEvents" target="_self" >Socket&lt; | EmitEvents&gt;</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                    <td>
+                                        <p>socket client.</p>
+
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>payload</td>
+                                    <td>
+                                                <code><a href="../classes/BookRoomDto.html" target="_self" >BookRoomDto</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                    <td>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="handleDisconnect"></a>
+                    <span class="name">
+                        <span class="modifier">Async</span>
+                        <span ><b>handleDisconnect</b></span>
+                        <a href="#handleDisconnect"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>handleDisconnect(client: <a href="../undefineds/EmitEvents.html" target="_self">Socket&lt; | EmitEvents&gt;</a>)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="96"
+                            class="link-to-prism">src/module/communication/communication.gateway.ts:96</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Remove user state after disconnection.</p>
+</div>
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                    <td>Description</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>client</td>
+                                    <td>
+                                                <code><a href="../miscellaneous/typealiases.html#EmitEvents" target="_self" >Socket&lt; | EmitEvents&gt;</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                    <td>
+                                        <p>socket client.</p>
+
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="handleInviteToRoom"></a>
+                    <span class="name">
+                        <span class="modifier">Async</span>
+                        <span ><b>handleInviteToRoom</b></span>
+                        <a href="#handleInviteToRoom"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>handleInviteToRoom(client: <a href="../undefineds/EmitEvents.html" target="_self">Socket&lt; | EmitEvents&gt;</a>, payload: <a href="../classes/InviteToRoomDto.html" target="_self">InviteToRoomDto</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@UseInterceptors(new EventNameBindingInterceptor(), SocketUserIdBindingInterceptor)<br />@SubscribeMessage(ListenEvent.InviteToRoom)<br /></code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="334"
+                            class="link-to-prism">src/module/communication/communication.gateway.ts:334</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Invite a guest into room.</p>
+</div>
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                    <td>Description</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>client</td>
+                                    <td>
+                                                <code><a href="../miscellaneous/typealiases.html#EmitEvents" target="_self" >Socket&lt; | EmitEvents&gt;</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                    <td>
+                                        <p>socket client.</p>
+
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>payload</td>
+                                    <td>
+                                                <code><a href="../classes/InviteToRoomDto.html" target="_self" >InviteToRoomDto</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                    <td>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="handleJoinRoom"></a>
+                    <span class="name">
+                        <span class="modifier">Async</span>
+                        <span ><b>handleJoinRoom</b></span>
+                        <a href="#handleJoinRoom"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>handleJoinRoom(client: <a href="../undefineds/EmitEvents.html" target="_self">Socket&lt; | EmitEvents&gt;</a>, payload: <a href="../classes/JoinRoomDto.html" target="_self">JoinRoomDto</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@UseInterceptors(new EventNameBindingInterceptor(), SocketUserIdBindingInterceptor)<br />@SubscribeMessage(ListenEvent.JoinRoom)<br /></code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="196"
+                            class="link-to-prism">src/module/communication/communication.gateway.ts:196</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Join to a new room.</p>
+</div>
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                    <td>Description</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>client</td>
+                                    <td>
+                                                <code><a href="../miscellaneous/typealiases.html#EmitEvents" target="_self" >Socket&lt; | EmitEvents&gt;</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                    <td>
+                                        <p>socket client.</p>
+
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>payload</td>
+                                    <td>
+                                                <code><a href="../classes/JoinRoomDto.html" target="_self" >JoinRoomDto</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                    <td>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="handleKickOutOfRoom"></a>
+                    <span class="name">
+                        <span class="modifier">Async</span>
+                        <span ><b>handleKickOutOfRoom</b></span>
+                        <a href="#handleKickOutOfRoom"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>handleKickOutOfRoom(client: <a href="../undefineds/EmitEvents.html" target="_self">Socket&lt; | EmitEvents&gt;</a>, payload: <a href="../classes/KickOutOfRoomDto.html" target="_self">KickOutOfRoomDto</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@UseInterceptors(new EventNameBindingInterceptor(), SocketUserIdBindingInterceptor)<br />@SubscribeMessage(ListenEvent.KickOutOfRoom)<br /></code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="246"
+                            class="link-to-prism">src/module/communication/communication.gateway.ts:246</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Kick member out of room.</p>
+</div>
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                    <td>Description</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>client</td>
+                                    <td>
+                                                <code><a href="../miscellaneous/typealiases.html#EmitEvents" target="_self" >Socket&lt; | EmitEvents&gt;</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                    <td>
+                                        <p>socket client.</p>
+
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>payload</td>
+                                    <td>
+                                                <code><a href="../classes/KickOutOfRoomDto.html" target="_self" >KickOutOfRoomDto</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                    <td>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="handleLeaveRoom"></a>
+                    <span class="name">
+                        <span class="modifier">Async</span>
+                        <span ><b>handleLeaveRoom</b></span>
+                        <a href="#handleLeaveRoom"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>handleLeaveRoom(client: <a href="../undefineds/EmitEvents.html" target="_self">Socket&lt; | EmitEvents&gt;</a>, payload: <a href="../classes/LeaveRoomDto.html" target="_self">LeaveRoomDto</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@UseInterceptors(new EventNameBindingInterceptor(), SocketUserIdBindingInterceptor)<br />@SubscribeMessage(ListenEvent.LeaveRoom)<br /></code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="221"
+                            class="link-to-prism">src/module/communication/communication.gateway.ts:221</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Leave the room.</p>
+</div>
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                    <td>Description</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>client</td>
+                                    <td>
+                                                <code><a href="../miscellaneous/typealiases.html#EmitEvents" target="_self" >Socket&lt; | EmitEvents&gt;</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                    <td>
+                                        <p>socket client.</p>
+
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>payload</td>
+                                    <td>
+                                                <code><a href="../classes/LeaveRoomDto.html" target="_self" >LeaveRoomDto</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                    <td>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="handleRespondInvitation"></a>
+                    <span class="name">
+                        <span class="modifier">Async</span>
+                        <span ><b>handleRespondInvitation</b></span>
+                        <a href="#handleRespondInvitation"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>handleRespondInvitation(client: <a href="../undefineds/EmitEvents.html" target="_self">Socket&lt; | EmitEvents&gt;</a>, payload: <a href="../classes/RespondRoomInvitationDto.html" target="_self">RespondRoomInvitationDto</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@UseInterceptors(new EventNameBindingInterceptor(), SocketUserIdBindingInterceptor)<br />@SubscribeMessage(ListenEvent.RespondRoomInvitation)<br /></code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="367"
+                            class="link-to-prism">src/module/communication/communication.gateway.ts:367</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Respond to room invitation.</p>
+</div>
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                    <td>Description</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>client</td>
+                                    <td>
+                                                <code><a href="../miscellaneous/typealiases.html#EmitEvents" target="_self" >Socket&lt; | EmitEvents&gt;</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                    <td>
+                                        <p>socket client.</p>
+
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>payload</td>
+                                    <td>
+                                                <code><a href="../classes/RespondRoomInvitationDto.html" target="_self" >RespondRoomInvitationDto</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                    <td>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="handleSendGroupMessage"></a>
+                    <span class="name">
+                        <span class="modifier">Async</span>
+                        <span ><b>handleSendGroupMessage</b></span>
+                        <a href="#handleSendGroupMessage"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>handleSendGroupMessage(client: <a href="../undefineds/EmitEvents.html" target="_self">Socket&lt; | EmitEvents&gt;</a>, payload: <a href="../classes/SendGroupMessageDto.html" target="_self">SendGroupMessageDto</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@UseInterceptors(new EventNameBindingInterceptor(), SocketUserIdBindingInterceptor)<br />@SubscribeMessage(ListenEvent.SendGroupMessage)<br /></code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="279"
+                            class="link-to-prism">src/module/communication/communication.gateway.ts:279</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Send group message.</p>
+</div>
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                    <td>Description</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>client</td>
+                                    <td>
+                                                <code><a href="../miscellaneous/typealiases.html#EmitEvents" target="_self" >Socket&lt; | EmitEvents&gt;</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                    <td>
+                                        <p>socket client.</p>
+
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>payload</td>
+                                    <td>
+                                                <code><a href="../classes/SendGroupMessageDto.html" target="_self" >SendGroupMessageDto</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                    <td>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="handleTransferOwnership"></a>
+                    <span class="name">
+                        <span class="modifier">Async</span>
+                        <span ><b>handleTransferOwnership</b></span>
+                        <a href="#handleTransferOwnership"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>handleTransferOwnership(client: <a href="../undefineds/EmitEvents.html" target="_self">Socket&lt; | EmitEvents&gt;</a>, payload: <a href="../classes/TransferOwnershipDto.html" target="_self">TransferOwnershipDto</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@UseInterceptors(new EventNameBindingInterceptor(), SocketUserIdBindingInterceptor)<br />@SubscribeMessage(ListenEvent.TranserOwnership)<br /></code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="306"
+                            class="link-to-prism">src/module/communication/communication.gateway.ts:306</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Transfer ownership to another member in room.</p>
+</div>
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                    <td>Description</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>client</td>
+                                    <td>
+                                                <code><a href="../miscellaneous/typealiases.html#EmitEvents" target="_self" >Socket&lt; | EmitEvents&gt;</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                    <td>
+                                        <p>socket client.</p>
+
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>payload</td>
+                                    <td>
+                                                <code><a href="../classes/TransferOwnershipDto.html" target="_self" >TransferOwnershipDto</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                    <td>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="sendPrivateMessage"></a>
+                    <span class="name">
+                        <span class="modifier">Async</span>
+                        <span ><b>sendPrivateMessage</b></span>
+                        <a href="#sendPrivateMessage"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>sendPrivateMessage(client: <a href="../undefineds/EmitEvents.html" target="_self">Socket&lt; | EmitEvents&gt;</a>, payload: <a href="../classes/SendPrivateMessageDto.html" target="_self">SendPrivateMessageDto</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@UseInterceptors(new EventNameBindingInterceptor(), SocketUserIdBindingInterceptor)<br />@SubscribeMessage(ListenEvent.SendPrivateMessage)<br /></code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="137"
+                            class="link-to-prism">src/module/communication/communication.gateway.ts:137</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Send private message.</p>
+</div>
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                    <td>Description</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>client</td>
+                                    <td>
+                                                <code><a href="../miscellaneous/typealiases.html#EmitEvents" target="_self" >Socket&lt; | EmitEvents&gt;</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                    <td>
+                                        <p>socket client.</p>
+
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>payload</td>
+                                    <td>
+                                                <code><a href="../classes/SendPrivateMessageDto.html" target="_self" >SendPrivateMessageDto</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                    <td>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+
+
+
+
+
+    </div>
+
+
+    <div class="tab-pane fade  tab-source-code" id="c-source">
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
+  UseFilters,
+  UseInterceptors,
+  UsePipes,
+  ValidationPipe,
+} from &#x27;@nestjs/common&#x27;;
+import {
+  ConnectedSocket,
+  GatewayMetadata,
+  MessageBody,
+  OnGatewayConnection,
+  OnGatewayDisconnect,
+  SubscribeMessage,
+  WebSocketGateway,
+  WebSocketServer,
+  WsException,
+} from &#x27;@nestjs/websockets&#x27;;
+import { Server, Socket } from &#x27;socket.io&#x27;;
+import { CORSConfig, ValidationConfig } from &#x27;src/config&#x27;;
+import { ActiveStatus, EmitEvent, ListenEvent, RoomEvent } from &#x27;src/enum&#x27;;
+import { AllExceptionFilter, WsExceptionsFilter } from &#x27;src/common/filter&#x27;;
+import {
+  EventNameBindingInterceptor,
+  SocketUserIdBindingInterceptor,
+} from &#x27;src/common/interceptor&#x27;;
+import { EmitEvents } from &#x27;src/type&#x27;;
+import {
+  BookRoomDto,
+  InviteToRoomDto,
+  JoinRoomDto,
+  KickOutOfRoomDto,
+  LeaveRoomDto,
+  RespondRoomInvitationDto,
+  TransferOwnershipDto,
+} from &#x27;../room/dto&#x27;;
+import { UserService } from &#x27;../user/user.service&#x27;;
+import { CommunicationService } from &#x27;./communication.service&#x27;;
+import { MessageService } from &#x27;../message/message.service&#x27;;
+import { RoomService } from &#x27;../room/room.service&#x27;;
+import { SendGroupMessageDto, SendPrivateMessageDto } from &#x27;../message/dto&#x27;;
+
+@UseFilters(new AllExceptionFilter(), new WsExceptionsFilter())
+@UsePipes(new ValidationPipe(ValidationConfig))
+@WebSocketGateway&lt;GatewayMetadata&gt;({
+  namespace: &#x27;/&#x27;,
+  cors: CORSConfig,
+})
+export class CommunicationGateway
+  implements OnGatewayConnection, OnGatewayDisconnect
+{
+  @WebSocketServer()
+  private readonly server: Server&lt;null, EmitEvents&gt;;
+
+  constructor(
+    private userService: UserService,
+    private connectionService: CommunicationService,
+    private messageService: MessageService,
+    private roomService: RoomService,
+  ) {}
+
+  /**
+   * Store user state before connection.
+   *
+   * @param client socket client.
+   */
+  async handleConnection(client: Socket&lt;null, EmitEvents&gt;) {
+    try {
+      const user &#x3D; await this.connectionService.validateConnection(
+        this.server,
+        client,
+      );
+      await this.userService.connect(user, client.id);
+
+      const friendSIds &#x3D; await this.userService.getOnlineFriendsSocketIds(
+        user.id,
+      );
+      this.server.to(friendSIds).emit(EmitEvent.UpdateFriendStatus, {
+        id: user.id,
+        status: ActiveStatus.Online,
+      });
+    } catch (error: any) {
+      client.emit(EmitEvent.Error, {
+        event: ListenEvent.Connect,
+        message: error.message,
+      });
+
+      client.disconnect();
+    }
+  }
+
+  /**
+   * Remove user state after disconnection.
+   *
+   * @param client socket client.
+   */
+  async handleDisconnect(client: Socket&lt;null, EmitEvents&gt;) {
+    try {
+      const user &#x3D; await this.userService.getBySocketId(client.id);
+
+      if (user !&#x3D; null) {
+        const friendSIds &#x3D; await this.userService.getOnlineFriendsSocketIds(
+          user.id,
+        );
+        const { leftRooms } &#x3D; await this.userService.disconnect(user);
+
+        this.server.to(friendSIds).emit(EmitEvent.UpdateFriendStatus, {
+          id: user.id,
+          status: null,
+        });
+
+        leftRooms.forEach((room) &#x3D;&gt; {
+          if (room.memberIds.length &gt; 0) {
+            this.server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
+              event: RoomEvent.Leave,
+              actorId: client.userId,
+              room,
+            });
+          }
+        });
+      }
+    } catch (error) {
+      //
+    }
+  }
+
+  /**
+   * Send private message.
+   *
+   * @param client socket client.
+   * @param payload
+   */
+  @UseInterceptors(
+    new EventNameBindingInterceptor(ListenEvent.SendPrivateMessage),
+    SocketUserIdBindingInterceptor,
+  )
+  @SubscribeMessage(ListenEvent.SendPrivateMessage)
+  async sendPrivateMessage(
+    @ConnectedSocket() client: Socket&lt;null, EmitEvents&gt;,
+    @MessageBody() payload: SendPrivateMessageDto,
+  ) {
+    if (
+      !(await this.userService.areFriends(client.userId, payload.receiverId))
+    ) {
+      throw new WsException(&#x27;Only friends can send messages to each other!&#x27;);
+    }
+
+    await this.messageService.createPrivateMessage(client.userId, payload);
+    const receiverSId &#x3D; await this.userService.getSocketIdByUserId(
+      payload.receiverId,
+    );
+
+    if (receiverSId !&#x3D; null) {
+      this.server.to(receiverSId).emit(EmitEvent.ReceivePrivateMessage, {
+        ...payload,
+        senderId: client.userId,
+      });
+    }
+  }
+
+  /**
+   * Create a new room.
+   *
+   * @param client socket client.
+   * @param payload
+   */
+  @UseInterceptors(
+    new EventNameBindingInterceptor(ListenEvent.BookRoom),
+    SocketUserIdBindingInterceptor,
+  )
+  @SubscribeMessage(ListenEvent.BookRoom)
+  async handleCreateRoom(
+    @ConnectedSocket() client: Socket&lt;null, EmitEvents&gt;,
+    @MessageBody() payload: BookRoomDto,
+  ) {
+    const room &#x3D; await this.roomService.book(client.userId, payload.isPublic);
+    client.join(room.id);
+
+    client.emit(EmitEvent.ReceiveRoomChanges, {
+      event: RoomEvent.Create,
+      actorId: client.userId,
+      room,
+    });
+  }
+
+  /**
+   * Join to a new room.
+   *
+   * @param client socket client.
+   * @param payload
+   */
+  @UseInterceptors(
+    new EventNameBindingInterceptor(ListenEvent.JoinRoom),
+    SocketUserIdBindingInterceptor,
+  )
+  @SubscribeMessage(ListenEvent.JoinRoom)
+  async handleJoinRoom(
+    @ConnectedSocket() client: Socket&lt;null, EmitEvents&gt;,
+    @MessageBody() payload: JoinRoomDto,
+  ) {
+    const room &#x3D; await this.roomService.join(client.userId, payload.roomId);
+    client.join(room.id);
+
+    this.server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
+      event: RoomEvent.Join,
+      actorId: client.userId,
+      room,
+    });
+  }
+
+  /**
+   * Leave the room.
+   *
+   * @param client socket client.
+   * @param payload
+   */
+  @UseInterceptors(
+    new EventNameBindingInterceptor(ListenEvent.LeaveRoom),
+    SocketUserIdBindingInterceptor,
+  )
+  @SubscribeMessage(ListenEvent.LeaveRoom)
+  async handleLeaveRoom(
+    @ConnectedSocket() client: Socket&lt;null, EmitEvents&gt;,
+    @MessageBody() payload: LeaveRoomDto,
+  ) {
+    const room &#x3D; await this.roomService.leave(client.userId, payload.roomId);
+    client.leave(room.id);
+
+    this.server.to(client.id).to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
+      event: RoomEvent.Leave,
+      actorId: client.userId,
+      room,
+    });
+  }
+
+  /**
+   * Kick member out of room.
+   *
+   * @param client socket client.
+   * @param payload
+   */
+  @UseInterceptors(
+    new EventNameBindingInterceptor(ListenEvent.KickOutOfRoom),
+    SocketUserIdBindingInterceptor,
+  )
+  @SubscribeMessage(ListenEvent.KickOutOfRoom)
+  async handleKickOutOfRoom(
+    @ConnectedSocket() client: Socket&lt;null, EmitEvents&gt;,
+    @MessageBody() payload: KickOutOfRoomDto,
+  ) {
+    const { room, kickedMemberSocketId } &#x3D; await this.roomService.kick(
+      client.userId,
+      payload.memberId,
+      payload.roomId,
+    );
+
+    this.server
+      .to(kickedMemberSocketId)
+      .to(room.id)
+      .emit(EmitEvent.ReceiveRoomChanges, {
+        event: RoomEvent.Kick,
+        actorId: client.userId,
+        room,
+      });
+
+    this.server.to(kickedMemberSocketId).socketsLeave(room.id);
+  }
+
+  /**
+   * Send group message.
+   *
+   * @param client socket client.
+   * @param payload
+   */
+  @UseInterceptors(
+    new EventNameBindingInterceptor(ListenEvent.SendGroupMessage),
+    SocketUserIdBindingInterceptor,
+  )
+  @SubscribeMessage(ListenEvent.SendGroupMessage)
+  async handleSendGroupMessage(
+    @ConnectedSocket() client: Socket&lt;null, EmitEvents&gt;,
+    @MessageBody() payload: SendGroupMessageDto,
+  ) {
+    const room &#x3D; await this.roomService.get(payload.roomId);
+
+    if (!room.memberIds.includes(client.userId)) {
+      throw new WsException(&#x27;You are not in this room!&#x27;);
+    }
+
+    this.server.to(payload.roomId).emit(EmitEvent.ReceiveGroupMessage, {
+      ...payload,
+      senderId: client.userId,
+    });
+  }
+
+  /**
+   * Transfer ownership to another member in room.
+   *
+   * @param client socket client.
+   * @param payload
+   */
+  @UseInterceptors(
+    new EventNameBindingInterceptor(ListenEvent.TranserOwnership),
+    SocketUserIdBindingInterceptor,
+  )
+  @SubscribeMessage(ListenEvent.TranserOwnership)
+  async handleTransferOwnership(
+    @ConnectedSocket() client: Socket&lt;null, EmitEvents&gt;,
+    @MessageBody() payload: TransferOwnershipDto,
+  ) {
+    const room &#x3D; await this.roomService.transferOwnership(
+      client.userId,
+      payload.candidateId,
+      payload.roomId,
+    );
+
+    this.server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
+      event: RoomEvent.Owner,
+      actorId: client.userId,
+      room,
+    });
+  }
+
+  /**
+   * Invite a guest into room.
+   *
+   * @param client socket client.
+   * @param payload
+   */
+  @UseInterceptors(
+    new EventNameBindingInterceptor(ListenEvent.InviteToRoom),
+    SocketUserIdBindingInterceptor,
+  )
+  @SubscribeMessage(ListenEvent.InviteToRoom)
+  async handleInviteToRoom(
+    @ConnectedSocket() client: Socket&lt;null, EmitEvents&gt;,
+    @MessageBody() payload: InviteToRoomDto,
+  ) {
+    const { room, guestSocketId } &#x3D; await this.roomService.invite(
+      client.userId,
+      payload.guestId,
+      payload.roomId,
+    );
+
+    this.server.to(guestSocketId).emit(EmitEvent.ReceiveRoomInvitation, {
+      roomId: room.id,
+      inviterId: client.userId,
+    });
+
+    this.server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
+      event: RoomEvent.Invite,
+      actorId: client.userId,
+      room,
+    });
+  }
+
+  /**
+   * Respond to room invitation.
+   *
+   * @param client socket client.
+   * @param payload
+   */
+  @UseInterceptors(
+    new EventNameBindingInterceptor(ListenEvent.RespondRoomInvitation),
+    SocketUserIdBindingInterceptor,
+  )
+  @SubscribeMessage(ListenEvent.RespondRoomInvitation)
+  async handleRespondInvitation(
+    @ConnectedSocket() client: Socket&lt;null, EmitEvents&gt;,
+    @MessageBody() payload: RespondRoomInvitationDto,
+  ) {
+    const { room, leftRooms } &#x3D; await this.roomService.respondInvitation(
+      client.userId,
+      payload.isAccpeted,
+      payload.roomId,
+    );
+
+    if (payload.isAccpeted) {
+      client.join(room.id);
+
+      this.server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
+        event: RoomEvent.Join,
+        actorId: client.userId,
+        room,
+      });
+
+      leftRooms.forEach((room) &#x3D;&gt; {
+        if (room.memberIds.length &gt; 0) {
+          this.server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
+            event: RoomEvent.Leave,
+            actorId: client.userId,
+            room,
+          });
+        }
+      });
+    }
+  }
+}
+</code></pre>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+          <label class="dark-mode-switch">
+               <input type="checkbox">
+               <span class="slider">
+                    <svg class="slider-icon" viewBox="0 0 24 24" fill="none" height="20" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+               </span>
+          </label>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 1;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'class';
+            var COMPODOC_CURRENT_PAGE_URL = 'CommunicationGateway.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script src="../js/libs/custom-elements.min.js"></script>
+       <script src="../js/libs/lit-html.js"></script>
+
+       <script src="../js/menu-wc.js" defer></script>
+       <script nomodule src="../js/menu-wc_es5.js" defer></script>
+
+       <script src="../js/libs/bootstrap-native.js"></script>
+
+       <script src="../js/libs/es6-shim.min.js"></script>
+       <script src="../js/libs/EventDispatcher.js"></script>
+       <script src="../js/libs/promise.min.js"></script>
+       <script src="../js/libs/zepto.min.js"></script>
+
+       <script src="../js/compodoc.js"></script>
+
+       <script src="../js/tabs.js"></script>
+       <script src="../js/menu.js"></script>
+       <script src="../js/libs/clipboard.min.js"></script>
+       <script src="../js/libs/prism.js"></script>
+       <script src="../js/sourceCode.js"></script>
+          <script src="../js/search/search.js"></script>
+          <script src="../js/search/lunr.min.js"></script>
+          <script src="../js/search/search-lunr.js"></script>
+          <script src="../js/search/search_index.js"></script>
+       <script src="../js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>

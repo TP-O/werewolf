@@ -25,11 +25,6 @@ type ReceiveRoomInvitationData = {
   roomId: string;
 };
 
-type KickedOutOfRoomData = {
-  roomId: string;
-  kickerId: number;
-};
-
 type ReceiveRoomChangesData = {
   event: RoomEvent;
   actorId: number;
@@ -43,6 +38,5 @@ export type EmitEvents = {
   [EmitEvent.ReceivePrivateMessage]: (data: ReceivePrivateMessageData) => void;
   [EmitEvent.ReceiveGroupMessage]: (data: ReceiveGroupMessageData) => void;
   [EmitEvent.ReceiveRoomInvitation]: (data: ReceiveRoomInvitationData) => void;
-  [EmitEvent.KickedOutOfRoom]: (data: KickedOutOfRoomData) => void;
   [EmitEvent.ReceiveRoomChanges]: (data: ReceiveRoomChangesData) => void;
 };

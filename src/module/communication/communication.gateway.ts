@@ -42,7 +42,7 @@ import { SendGroupMessageDto, SendPrivateMessageDto } from '../message/dto';
 @UseFilters(new AllExceptionFilter(), new WsExceptionsFilter())
 @UsePipes(new ValidationPipe(ValidationConfig))
 @WebSocketGateway<GatewayMetadata>({
-  namespace: 'text',
+  namespace: '/',
   cors: CORSConfig,
 })
 export class CommunicationGateway
@@ -164,10 +164,10 @@ export class CommunicationGateway
    * @param payload
    */
   @UseInterceptors(
-    new EventNameBindingInterceptor(ListenEvent.CreateRoom),
+    new EventNameBindingInterceptor(ListenEvent.BookRoom),
     SocketUserIdBindingInterceptor,
   )
-  @SubscribeMessage(ListenEvent.CreateRoom)
+  @SubscribeMessage(ListenEvent.BookRoom)
   async handleCreateRoom(
     @ConnectedSocket() client: Socket<null, EmitEvents>,
     @MessageBody() payload: BookRoomDto,
@@ -253,8 +253,6 @@ export class CommunicationGateway
       payload.roomId,
     );
 
-    this.server.to(kickedMemberSocketId).socketsLeave(room.id);
-
     this.server
       .to(kickedMemberSocketId)
       .to(room.id)
@@ -263,6 +261,8 @@ export class CommunicationGateway
         actorId: client.userId,
         room,
       });
+
+    this.server.to(kickedMemberSocketId).socketsLeave(room.id);
   }
 
   /**
@@ -360,10 +360,10 @@ export class CommunicationGateway
    * @param payload
    */
   @UseInterceptors(
-    new EventNameBindingInterceptor(ListenEvent.RespondInvitation),
+    new EventNameBindingInterceptor(ListenEvent.RespondRoomInvitation),
     SocketUserIdBindingInterceptor,
   )
-  @SubscribeMessage(ListenEvent.RespondInvitation)
+  @SubscribeMessage(ListenEvent.RespondRoomInvitation)
   async handleRespondInvitation(
     @ConnectedSocket() client: Socket<null, EmitEvents>,
     @MessageBody() payload: RespondRoomInvitationDto,
