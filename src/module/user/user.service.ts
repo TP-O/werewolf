@@ -113,23 +113,32 @@ export class UserService {
         id: true,
       },
       where: {
-        OR: {
-          acceptedFriends: {
-            every: {
-              inviterId: userId,
+        OR: [
+          {
+            acceptedFriends: {
+              some: {
+                acceptorId: userId,
+              },
             },
           },
-          invitedFriends: {
-            every: {
-              acceptorId: userId,
+          {
+            invitedFriends: {
+              some: {
+                inviterId: userId,
+              },
             },
           },
-        },
+        ],
         NOT: {
           statusId: null,
         },
       },
     });
+
+    if (onlineFriends.length === 0) {
+      return [];
+    }
+
     const onlineFriendsIds = onlineFriends.map((friend) => friend.id);
     const onlineFriendsSIds = await this.getSocketIdsByUserIds(
       onlineFriendsIds,
