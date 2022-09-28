@@ -15,5 +15,6 @@ import { CommunicationGateway } from './communication.gateway';
     AuthService,
     PrismaService,
   ],
+  exports: [CommunicationGateway],
 })
 export class CommunicationModule {}

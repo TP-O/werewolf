@@ -8,6 +8,7 @@ import { AppModule } from './app.module';
 import { AppConfig } from './config';
 import { AllExceptionFilter, HttpExceptionFilter } from './common/filter';
 import { PrismaService } from './common/service/prisma.service';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -24,6 +25,7 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api/v1');
   app.useGlobalFilters(new AllExceptionFilter(), new HttpExceptionFilter());
+  app.useGlobalPipes(new ValidationPipe());
 
   await app.listen(AppConfig.port, '0.0.0.0');
 }

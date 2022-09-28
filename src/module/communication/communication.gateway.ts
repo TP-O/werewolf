@@ -1,4 +1,5 @@
 import {
+  Injectable,
   UseFilters,
   UseInterceptors,
   UsePipes,
@@ -39,6 +40,7 @@ import { MessageService } from '../message/message.service';
 import { RoomService } from '../room/room.service';
 import { SendGroupMessageDto, SendPrivateMessageDto } from '../message/dto';
 
+@Injectable()
 @UseFilters(new AllExceptionFilter(), new WsExceptionsFilter())
 @UsePipes(new ValidationPipe(ValidationConfig))
 @WebSocketGateway<GatewayMetadata>({
@@ -49,7 +51,7 @@ export class CommunicationGateway
   implements OnGatewayConnection, OnGatewayDisconnect
 {
   @WebSocketServer()
-  private readonly server: Server<null, EmitEvents>;
+  readonly server: Server<null, EmitEvents>;
 
   constructor(
     private userService: UserService,
@@ -105,7 +107,7 @@ export class CommunicationGateway
 
         this.server.to(friendSIds).emit(EmitEvent.UpdateFriendStatus, {
           id: user.id,
-          status: null,
+          status: ActiveStatus.Offline,
         });
 
         leftRooms.forEach((room) => {

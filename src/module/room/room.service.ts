@@ -9,6 +9,7 @@ import { AppConfig } from 'src/config';
 import { RedisClient } from 'src/common/decorator';
 import { CacheNamespace } from 'src/enum';
 import { Room } from './room.type';
+import { CreateManyRoomDto } from './dto';
 
 @Injectable()
 export class RoomService {
@@ -27,6 +28,86 @@ export class RoomService {
     );
 
     return roomIds > 0;
+  }
+
+  /**
+   * Create many rooms with given settings.
+   *
+   * @param roomSettings
+   * @returns created rooms and socket ids of members.
+   */
+  async create(roomSettings: CreateManyRoomDto['rooms']) {
+    const socketIdsList: string[][] = [];
+    const redisPipe = this.redis.pipeline();
+    const rooms = roomSettings.map((setting) => {
+      const room: Room = {
+        ...setting,
+        waitingIds: [],
+        refusedIds: [],
+      };
+      const memberSIdKeys = setting.memberIds.map((mId) => {
+        // By the way, bind room id with member id
+        redisPipe.lpush(`${CacheNamespace.UId2RIds}${mId}`, room.id);
+
+        return `${CacheNamespace.UID2SId}${mId}`;
+      });
+
+      redisPipe
+        .mget(...memberSIdKeys)
+        .set(`${CacheNamespace.Room}${room.id}`, JSON.stringify(room));
+
+      return room;
+    });
+
+    (await redisPipe.exec()).forEach((res) => {
+      if (Array.isArray(res[1])) {
+        socketIdsList.push(res[1]);
+      }
+    });
+
+    return {
+      rooms,
+      socketIdsList,
+    };
+  }
+
+  /**
+   * Remove many rooms by given room ids.
+   *
+   * @param roomIds
+   * @returns removed room ids and socket ids of members in removed rooms.
+   */
+  async remove(roomIds: string[]) {
+    const rooms: Room[] = (
+      await this.redis.mget(
+        ...roomIds.map((rId) => `${CacheNamespace.Room}${rId}`),
+      )
+    )
+      .filter((roomJSON) => roomJSON != null)
+      .map((roomJSON) => JSON.parse(roomJSON));
+    const removedRoomIds: string[] = [];
+    const socketIdsList: string[][] = [];
+    const redisPipe = this.redis.pipeline();
+
+    rooms.forEach((room) => {
+      const memberSIdKeys = room.memberIds.map((mId) => {
+        // By the way, remove room id from member id
+        redisPipe.lrem(`${CacheNamespace.UId2RIds}${mId}`, 1, room.id);
+
+        return `${CacheNamespace.UID2SId}${mId}`;
+      });
+
+      redisPipe.mget(...memberSIdKeys).del(`${CacheNamespace.Room}${room.id}`);
+      removedRoomIds.push(room.id);
+    });
+
+    (await redisPipe.exec()).forEach((res) => {
+      if (Array.isArray(res[1])) {
+        socketIdsList.push(res[1]);
+      }
+    });
+
+    return { removedRoomIds, socketIdsList };
   }
 
   /**
