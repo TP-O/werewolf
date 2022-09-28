@@ -130,6 +130,10 @@ export class RoomService {
       throw new ForbiddenException('This room is private!');
     }
 
+    if (room.memberIds.includes(joinerId)) {
+      throw new BadRequestException('You have already joined this room!');
+    }
+
     room.memberIds.push(joinerId);
     room.waitingIds.splice(room.waitingIds.indexOf(joinerId), 1);
     room.refusedIds.splice(room.waitingIds.indexOf(joinerId), 1);
