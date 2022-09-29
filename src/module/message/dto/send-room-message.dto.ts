@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsString, MinLength } from 'class-validator';
 
-export class SendGroupMessageDto {
+export class SendRoomMessageDto {
   @IsString()
   @MinLength(13)
   roomId: string;

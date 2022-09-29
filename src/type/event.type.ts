@@ -16,7 +16,7 @@ type ReceivePrivateMessageData = {
   content: string;
 };
 
-type ReceiveGroupMessageData = ReceivePrivateMessageData & {
+type ReceiveRoomMessageData = ReceivePrivateMessageData & {
   roomId: string;
 };
 
@@ -36,7 +36,7 @@ export type EmitEvents = {
   [EmitEvent.Success]: (response: SuccessResponse) => void;
   [EmitEvent.UpdateFriendStatus]: (data: UpdateFriendStatusData) => void;
   [EmitEvent.ReceivePrivateMessage]: (data: ReceivePrivateMessageData) => void;
-  [EmitEvent.ReceiveGroupMessage]: (data: ReceiveGroupMessageData) => void;
+  [EmitEvent.ReceiveRoomMessage]: (data: ReceiveRoomMessageData) => void;
   [EmitEvent.ReceiveRoomInvitation]: (data: ReceiveRoomInvitationData) => void;
   [EmitEvent.ReceiveRoomChanges]: (data: ReceiveRoomChangesData) => void;
 };

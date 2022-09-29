@@ -133,6 +133,7 @@ export class RoomService {
     const room: Room = {
       id,
       isPublic,
+      isPersistent: false,
       ownerId: bookerId,
       memberIds: [bookerId],
       waitingIds: [],
@@ -207,7 +208,7 @@ export class RoomService {
 
     const room = await this.get(roomId);
 
-    if (!room.isPublic) {
+    if (!room.isPublic || room.isPersistent) {
       throw new ForbiddenException('This room is private!');
     }
 
@@ -289,10 +290,10 @@ export class RoomService {
       }
     }
 
-    const rooms = await this.getMany(roomIds);
+    let rooms = await this.getMany(roomIds);
     const redisPipe = this.redis.pipeline();
 
-    rooms.map((room) => {
+    rooms = rooms.map((room) => {
       room.memberIds.splice(room.memberIds.indexOf(leaverId), 1);
       room.refusedIds.push(leaverId);
 
@@ -421,6 +422,12 @@ export class RoomService {
     }
 
     const room: Room = JSON.parse(roomJSON as string);
+
+    if (room.isPersistent) {
+      throw new ForbiddenException(
+        'You can not invite other user to this room!',
+      );
+    }
 
     if (guestSId == null) {
       throw new BadRequestException('Please only invite online user!');

@@ -38,7 +38,7 @@ import { UserService } from '../user/user.service';
 import { CommunicationService } from './communication.service';
 import { MessageService } from '../message/message.service';
 import { RoomService } from '../room/room.service';
-import { SendGroupMessageDto, SendPrivateMessageDto } from '../message/dto';
+import { SendRoomMessageDto, SendPrivateMessageDto } from '../message/dto';
 
 @Injectable()
 @UseFilters(new AllExceptionFilter(), new WsExceptionsFilter())
@@ -140,12 +140,6 @@ export class CommunicationGateway
     @ConnectedSocket() client: Socket<null, EmitEvents>,
     @MessageBody() payload: SendPrivateMessageDto,
   ) {
-    if (
-      !(await this.userService.areFriends(client.userId, payload.receiverId))
-    ) {
-      throw new WsException('Only friends can send messages to each other!');
-    }
-
     await this.messageService.createPrivateMessage(client.userId, payload);
     const receiverSId = await this.userService.getSocketIdByUserId(
       payload.receiverId,
@@ -268,19 +262,19 @@ export class CommunicationGateway
   }
 
   /**
-   * Send group message.
+   * Send room message.
    *
    * @param client socket client.
    * @param payload
    */
   @UseInterceptors(
-    new EventNameBindingInterceptor(ListenEvent.SendGroupMessage),
+    new EventNameBindingInterceptor(ListenEvent.SendRoomMessage),
     SocketUserIdBindingInterceptor,
   )
-  @SubscribeMessage(ListenEvent.SendGroupMessage)
-  async handleSendGroupMessage(
+  @SubscribeMessage(ListenEvent.SendRoomMessage)
+  async handleSendRoomMesage(
     @ConnectedSocket() client: Socket<null, EmitEvents>,
-    @MessageBody() payload: SendGroupMessageDto,
+    @MessageBody() payload: SendRoomMessageDto,
   ) {
     const room = await this.roomService.get(payload.roomId);
 
@@ -288,7 +282,11 @@ export class CommunicationGateway
       throw new WsException('You are not in this room!');
     }
 
-    this.server.to(payload.roomId).emit(EmitEvent.ReceiveGroupMessage, {
+    if (room.isPersistent) {
+      await this.messageService.createRoomMessage(client.userId, payload);
+    }
+
+    this.server.to(payload.roomId).emit(EmitEvent.ReceiveRoomMessage, {
       ...payload,
       senderId: client.userId,
     });

@@ -17,6 +17,7 @@ model User {
   sentMessages     PrivateMessage[]     @relation("sender")
   receivedMessages PrivateMessage[]     @relation("receiver")
   status           Status?              @relation(fields: [statusId], references: [id])
+  roomMessages     RoomMessage[]
 
   @@map("users")
 }
@@ -49,4 +50,24 @@ model Status {
   User User[]
 
   @@map("active status")
+}
+
+model ChatRoom {
+  id           String        @id @unique @db.VarChar(28)
+  createdAt    DateTime      @default(now()) @map("created_at")
+  roomMessages RoomMessage[]
+
+  @@map("chat_room")
+}
+
+model RoomMessage {
+  id        Int      @id @default(autoincrement())
+  roomId    String   @map("room_id")
+  senderId  Int      @map("sender_id")
+  content   String
+  createdAt DateTime @default(now()) @map("created_at")
+  room      ChatRoom @relation(fields: [roomId], references: [id])
+  sender    User     @relation(fields: [senderId], references: [id])
+
+  @@map("room_messages")
 }

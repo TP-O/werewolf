@@ -1,7 +1,7 @@
 export enum ListenEvent {
   Connect = 'connect',
   SendPrivateMessage = 'send_private_message',
-  SendGroupMessage = 'send_group_message',
+  SendRoomMessage = 'send_room_message',
   BookRoom = 'book_room',
   JoinRoom = 'join_room',
   LeaveRoom = 'leave_room',
@@ -16,7 +16,7 @@ export enum EmitEvent {
   Success = 'success',
   UpdateFriendStatus = 'update_friend_status',
   ReceivePrivateMessage = 'receive_private_message',
-  ReceiveGroupMessage = 'receive_group_message',
+  ReceiveRoomMessage = 'receive_room_message',
   ReceiveRoomInvitation = 'receive_room_invitation',
   ReceiveRoomChanges = 'receive_room_changes',
 }

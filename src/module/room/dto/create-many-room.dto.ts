@@ -21,6 +21,9 @@ class CreateRoomDto {
   @IsBoolean()
   isPublic: boolean;
 
+  @IsBoolean()
+  isPersistent: boolean;
+
   @ValidateIf((dto: CreateRoomDto, v) => !dto.memberIds?.includes(v))
   @Equals(undefined, { message: '$property must be contained in memberIds' })
   ownerId: number;
