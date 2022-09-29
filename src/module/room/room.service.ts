@@ -315,7 +315,7 @@ export class RoomService {
     const redisPipe = this.redis.pipeline();
 
     // Delete room if all members have left
-    if (room.memberIds.length === 0) {
+    if (room.memberIds.length === 0 && !room.isPersistent) {
       redisPipe.del(`${CacheNamespace.Room}${room.id}`);
     } else {
       // Assign owner to the first member
@@ -362,7 +362,7 @@ export class RoomService {
       room.refusedIds.push(leaverId);
 
       // Delete room if all members have left
-      if (room.memberIds.length === 0) {
+      if (room.memberIds.length === 0 && !room.isPersistent) {
         redisPipe.del(`${CacheNamespace.Room}${room.id}`);
       } else {
         // Assign owner to the first member
