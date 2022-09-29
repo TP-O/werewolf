@@ -14,11 +14,10 @@ import {
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
-  WsException,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { CORSConfig, ValidationConfig } from 'src/config';
-import { ActiveStatus, EmitEvent, ListenEvent, RoomEvent } from 'src/enum';
+import { ListenEvent } from 'src/enum';
 import { AllExceptionFilter, WsExceptionsFilter } from 'src/common/filter';
 import {
   EventNameBindingInterceptor,
@@ -34,10 +33,7 @@ import {
   RespondRoomInvitationDto,
   TransferOwnershipDto,
 } from '../room/dto';
-import { UserService } from '../user/user.service';
 import { CommunicationService } from './communication.service';
-import { MessageService } from '../message/message.service';
-import { RoomService } from '../room/room.service';
 import { SendRoomMessageDto, SendPrivateMessageDto } from '../message/dto';
 
 @Injectable()
@@ -53,41 +49,15 @@ export class CommunicationGateway
   @WebSocketServer()
   readonly server: Server<null, EmitEvents>;
 
-  constructor(
-    private userService: UserService,
-    private connectionService: CommunicationService,
-    private messageService: MessageService,
-    private roomService: RoomService,
-  ) {}
+  constructor(private communicationService: CommunicationService) {}
 
   /**
    * Store user state before connection.
    *
    * @param client socket client.
    */
-  async handleConnection(client: Socket<null, EmitEvents>) {
-    try {
-      const user = await this.connectionService.validateConnection(
-        this.server,
-        client,
-      );
-      await this.userService.connect(user, client.id);
-
-      const friendSIds = await this.userService.getOnlineFriendsSocketIds(
-        user.id,
-      );
-      this.server.to(friendSIds).emit(EmitEvent.UpdateFriendStatus, {
-        id: user.id,
-        status: ActiveStatus.Online,
-      });
-    } catch (error: any) {
-      client.emit(EmitEvent.Error, {
-        event: ListenEvent.Connect,
-        message: error.message,
-      });
-
-      client.disconnect();
-    }
+  async handleConnection(client: Socket) {
+    await this.communicationService.connect(this.server, client);
   }
 
   /**
@@ -95,34 +65,8 @@ export class CommunicationGateway
    *
    * @param client socket client.
    */
-  async handleDisconnect(client: Socket<null, EmitEvents>) {
-    try {
-      const user = await this.userService.getBySocketId(client.id);
-
-      if (user != null) {
-        const friendSIds = await this.userService.getOnlineFriendsSocketIds(
-          user.id,
-        );
-        const { leftRooms } = await this.userService.disconnect(user);
-
-        this.server.to(friendSIds).emit(EmitEvent.UpdateFriendStatus, {
-          id: user.id,
-          status: ActiveStatus.Offline,
-        });
-
-        leftRooms.forEach((room) => {
-          if (room.memberIds.length > 0) {
-            this.server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
-              event: RoomEvent.Leave,
-              actorId: client.userId,
-              room,
-            });
-          }
-        });
-      }
-    } catch (error) {
-      //
-    }
+  async handleDisconnect(client: Socket) {
+    await this.communicationService.disconnect(this.server, client);
   }
 
   /**
@@ -137,24 +81,40 @@ export class CommunicationGateway
   )
   @SubscribeMessage(ListenEvent.SendPrivateMessage)
   async sendPrivateMessage(
-    @ConnectedSocket() client: Socket<null, EmitEvents>,
+    @ConnectedSocket() client: Socket,
     @MessageBody() payload: SendPrivateMessageDto,
   ) {
-    await this.messageService.createPrivateMessage(client.userId, payload);
-    const receiverSId = await this.userService.getSocketIdByUserId(
-      payload.receiverId,
+    await this.communicationService.sendPrivateMessage(
+      this.server,
+      client,
+      payload,
     );
-
-    if (receiverSId != null) {
-      this.server.to(receiverSId).emit(EmitEvent.ReceivePrivateMessage, {
-        ...payload,
-        senderId: client.userId,
-      });
-    }
   }
 
   /**
-   * Create a new room.
+   * Send room message.
+   *
+   * @param client socket client.
+   * @param payload
+   */
+  @UseInterceptors(
+    new EventNameBindingInterceptor(ListenEvent.SendRoomMessage),
+    SocketUserIdBindingInterceptor,
+  )
+  @SubscribeMessage(ListenEvent.SendRoomMessage)
+  async handleSendRoomMesage(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload: SendRoomMessageDto,
+  ) {
+    await this.communicationService.sendRoomMessage(
+      this.server,
+      client,
+      payload,
+    );
+  }
+
+  /**
+   * Book a new room.
    *
    * @param client socket client.
    * @param payload
@@ -164,18 +124,11 @@ export class CommunicationGateway
     SocketUserIdBindingInterceptor,
   )
   @SubscribeMessage(ListenEvent.BookRoom)
-  async handleCreateRoom(
-    @ConnectedSocket() client: Socket<null, EmitEvents>,
+  async handleBookRoom(
+    @ConnectedSocket() client: Socket,
     @MessageBody() payload: BookRoomDto,
   ) {
-    const room = await this.roomService.book(client.userId, payload.isPublic);
-    client.join(room.id);
-
-    client.emit(EmitEvent.ReceiveRoomChanges, {
-      event: RoomEvent.Create,
-      actorId: client.userId,
-      room,
-    });
+    await this.communicationService.createTemporaryRoom(client, payload);
   }
 
   /**
@@ -190,17 +143,10 @@ export class CommunicationGateway
   )
   @SubscribeMessage(ListenEvent.JoinRoom)
   async handleJoinRoom(
-    @ConnectedSocket() client: Socket<null, EmitEvents>,
+    @ConnectedSocket() client: Socket,
     @MessageBody() payload: JoinRoomDto,
   ) {
-    const room = await this.roomService.join(client.userId, payload.roomId);
-    client.join(room.id);
-
-    this.server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
-      event: RoomEvent.Join,
-      actorId: client.userId,
-      room,
-    });
+    await this.communicationService.joinRoom(this.server, client, payload);
   }
 
   /**
@@ -218,14 +164,7 @@ export class CommunicationGateway
     @ConnectedSocket() client: Socket<null, EmitEvents>,
     @MessageBody() payload: LeaveRoomDto,
   ) {
-    const room = await this.roomService.leave(client.userId, payload.roomId);
-    client.leave(room.id);
-
-    this.server.to(client.id).to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
-      event: RoomEvent.Leave,
-      actorId: client.userId,
-      room,
-    });
+    await this.communicationService.leaveRoom(this.server, client, payload);
   }
 
   /**
@@ -243,53 +182,7 @@ export class CommunicationGateway
     @ConnectedSocket() client: Socket<null, EmitEvents>,
     @MessageBody() payload: KickOutOfRoomDto,
   ) {
-    const { room, kickedMemberSocketId } = await this.roomService.kick(
-      client.userId,
-      payload.memberId,
-      payload.roomId,
-    );
-
-    this.server
-      .to(kickedMemberSocketId)
-      .to(room.id)
-      .emit(EmitEvent.ReceiveRoomChanges, {
-        event: RoomEvent.Kick,
-        actorId: client.userId,
-        room,
-      });
-
-    this.server.to(kickedMemberSocketId).socketsLeave(room.id);
-  }
-
-  /**
-   * Send room message.
-   *
-   * @param client socket client.
-   * @param payload
-   */
-  @UseInterceptors(
-    new EventNameBindingInterceptor(ListenEvent.SendRoomMessage),
-    SocketUserIdBindingInterceptor,
-  )
-  @SubscribeMessage(ListenEvent.SendRoomMessage)
-  async handleSendRoomMesage(
-    @ConnectedSocket() client: Socket<null, EmitEvents>,
-    @MessageBody() payload: SendRoomMessageDto,
-  ) {
-    const room = await this.roomService.get(payload.roomId);
-
-    if (!room.memberIds.includes(client.userId)) {
-      throw new WsException('You are not in this room!');
-    }
-
-    if (room.isPersistent) {
-      await this.messageService.createRoomMessage(client.userId, payload);
-    }
-
-    this.server.to(payload.roomId).emit(EmitEvent.ReceiveRoomMessage, {
-      ...payload,
-      senderId: client.userId,
-    });
+    await this.communicationService.kickOutOfRoom(this.server, client, payload);
   }
 
   /**
@@ -307,17 +200,11 @@ export class CommunicationGateway
     @ConnectedSocket() client: Socket<null, EmitEvents>,
     @MessageBody() payload: TransferOwnershipDto,
   ) {
-    const room = await this.roomService.transferOwnership(
-      client.userId,
-      payload.candidateId,
-      payload.roomId,
+    await this.communicationService.transferRoomOwnership(
+      this.server,
+      client,
+      payload,
     );
-
-    this.server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
-      event: RoomEvent.Owner,
-      actorId: client.userId,
-      room,
-    });
   }
 
   /**
@@ -335,22 +222,7 @@ export class CommunicationGateway
     @ConnectedSocket() client: Socket<null, EmitEvents>,
     @MessageBody() payload: InviteToRoomDto,
   ) {
-    const { room, guestSocketId } = await this.roomService.invite(
-      client.userId,
-      payload.guestId,
-      payload.roomId,
-    );
-
-    this.server.to(guestSocketId).emit(EmitEvent.ReceiveRoomInvitation, {
-      roomId: room.id,
-      inviterId: client.userId,
-    });
-
-    this.server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
-      event: RoomEvent.Invite,
-      actorId: client.userId,
-      room,
-    });
+    await this.communicationService.inviteToRoom(this.server, client, payload);
   }
 
   /**
@@ -368,30 +240,10 @@ export class CommunicationGateway
     @ConnectedSocket() client: Socket<null, EmitEvents>,
     @MessageBody() payload: RespondRoomInvitationDto,
   ) {
-    const { room, leftRooms } = await this.roomService.respondInvitation(
-      client.userId,
-      payload.isAccpeted,
-      payload.roomId,
+    await this.communicationService.respondRoomInvitation(
+      this.server,
+      client,
+      payload,
     );
-
-    if (payload.isAccpeted) {
-      client.join(room.id);
-
-      this.server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
-        event: RoomEvent.Join,
-        actorId: client.userId,
-        room,
-      });
-
-      leftRooms.forEach((room) => {
-        if (room.memberIds.length > 0) {
-          this.server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
-            event: RoomEvent.Leave,
-            actorId: client.userId,
-            room,
-          });
-        }
-      });
-    }
   }
 }

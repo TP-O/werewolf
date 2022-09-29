@@ -1,5 +1,5 @@
 import { env } from 'process';
-import { AppEnv } from 'src/enum';
+import { AppEnv, Time } from 'src/enum';
 
 export const AppConfig = Object.freeze(
   (() => {
@@ -13,6 +13,16 @@ export const AppConfig = Object.freeze(
       port: parsedPort >= 0 && parsedPort < 65536 ? parsedPort : 3000,
       allowJoinMultipleRooms: true,
       disconnectIfConflict: true,
+      messageManagment: {
+        private: {
+          maxOld: 2 * Time.Day,
+          cronTime: '0 0 0 * * *',
+        },
+        room: {
+          maxOld: 7 * Time.Day,
+          cronTime: '0 0 0 * * *',
+        },
+      },
     };
   })(),
 );

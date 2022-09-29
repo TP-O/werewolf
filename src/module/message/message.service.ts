@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
+import moment from 'moment';
 import { PrismaService } from 'src/common/service/prisma.service';
 import { UserService } from '../user/user.service';
 import { SendPrivateMessageDto, SendRoomMessageDto } from './dto';
@@ -45,16 +46,46 @@ export class MessageService {
    *
    * @param senderId
    * @param roomMessageDto
+   * @returns
    */
-  async createRoomMessage(
-    senderId: number,
-    roomMessageDto: SendRoomMessageDto,
-  ) {
+  createRoomMessage(senderId: number, roomMessageDto: SendRoomMessageDto) {
     return this.prismaService.roomMessage.create({
       data: {
         roomId: roomMessageDto.roomId,
         senderId,
         content: roomMessageDto.content,
+      },
+    });
+  }
+
+  /**
+   * Remove all old private messages.
+   *
+   * @param maxOld max old of message in second.
+   * @returns
+   */
+  removeOldPrivateMessage(maxOld: number) {
+    return this.prismaService.privateMessage.deleteMany({
+      where: {
+        createdAt: {
+          lt: moment().subtract(maxOld, 'seconds').toDate(),
+        },
+      },
+    });
+  }
+
+  /**
+   * Remove all old room messages.
+   *
+   * @param maxOld max old of message in second.
+   * @returns
+   */
+  removeOldRoomMessage(maxOld: number) {
+    return this.prismaService.roomMessage.deleteMany({
+      where: {
+        createdAt: {
+          lt: moment().subtract(maxOld, 'seconds').toDate(),
+        },
       },
     });
   }
