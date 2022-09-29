@@ -2,7 +2,12 @@ import { Body, Controller, Delete, Post, Res } from '@nestjs/common';
 import { FastifyReply } from 'fastify';
 import { EmitEvent, RoomEvent } from 'src/enum';
 import { CommunicationGateway } from '../communication/communication.gateway';
-import { CreateManyRoomDto, RemoveManyRoomDto } from './dto';
+import {
+  AddToRoomDto,
+  CreateManyRoomDto,
+  RemoveFromRoomDto,
+  RemoveManyRoomDto,
+} from './dto';
 import { RoomService } from './room.service';
 
 @Controller('rooms')
@@ -12,6 +17,12 @@ export class RoomController {
     private communicationGateway: CommunicationGateway,
   ) {}
 
+  /**
+   * Create many rooms at once.
+   *
+   * @param payload
+   * @param response
+   */
   @Post()
   async createMany(
     @Body() payload: CreateManyRoomDto,
@@ -37,6 +48,12 @@ export class RoomController {
     });
   }
 
+  /**
+   * Remove many room at once.
+   *
+   * @param payload
+   * @param response
+   */
   @Delete()
   async remove(
     @Body() payload: RemoveManyRoomDto,
@@ -61,6 +78,66 @@ export class RoomController {
 
     response.code(200).send({
       data: true,
+    });
+  }
+
+  /**
+   * Add many members to room.
+   *
+   * @param payload
+   * @param response
+   */
+  @Post('members')
+  async addMembers(
+    @Body() payload: AddToRoomDto,
+    @Res() response: FastifyReply,
+  ) {
+    const { room, socketIds } = await this.roomService.addMembers(
+      payload.roomId,
+      payload.memberIds,
+    );
+
+    this.communicationGateway.server.to(socketIds).socketsJoin(room.id);
+    this.communicationGateway.server
+      .to(socketIds)
+      .emit(EmitEvent.ReceiveRoomChanges, {
+        event: RoomEvent.Join,
+        actorId: 0,
+        room,
+      });
+
+    response.code(201).send({
+      data: room,
+    });
+  }
+
+  /**
+   * Remove many members from room.
+   *
+   * @param payload
+   * @param response
+   */
+  @Delete('members')
+  async removeMembers(
+    @Body() payload: RemoveFromRoomDto,
+    @Res() response: FastifyReply,
+  ) {
+    const { room, socketIds } = await this.roomService.removeMembers(
+      payload.roomId,
+      payload.memberIds,
+    );
+
+    this.communicationGateway.server.to(socketIds).socketsLeave(room.id);
+    this.communicationGateway.server
+      .to(socketIds)
+      .emit(EmitEvent.ReceiveRoomChanges, {
+        event: RoomEvent.Join,
+        actorId: 0,
+        room,
+      });
+
+    response.code(201).send({
+      data: room,
     });
   }
 }

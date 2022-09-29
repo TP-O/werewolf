@@ -111,6 +111,70 @@ export class RoomService {
   }
 
   /**
+   * Add members to room.
+   *
+   * @param roomId
+   * @param memberIds
+   * @returns updated room and socket id of members.
+   */
+  async addMembers(roomId: string, memberIds: number[]) {
+    const room = await this.get(roomId);
+    const redisPipe = this.redis.pipeline();
+    const memberSIdKeys: string[] = [];
+
+    memberIds.forEach((mId) => {
+      if (!room.memberIds.includes(mId)) {
+        room.memberIds.push(mId);
+        memberSIdKeys.push(`${CacheNamespace.UID2SId}${mId}`);
+        redisPipe.lpush(`${CacheNamespace.UId2RIds}${mId}`, room.id);
+      }
+    });
+
+    const redisRes = await redisPipe
+      .set(`${CacheNamespace.Room}${room.id}`, JSON.stringify(room))
+      .mget(...memberSIdKeys)
+      .exec();
+
+    return {
+      room,
+      socketIds: (redisRes[redisPipe.length - 1][1] as string[]) || [],
+    };
+  }
+
+  /**
+   * Remove members from room.
+   *
+   * @param roomId
+   * @param memberIds
+   * @returns updated room and socket id of members.
+   */
+  async removeMembers(roomId: string, memberIds: number[]) {
+    const room = await this.get(roomId);
+    const redisPipe = this.redis.pipeline();
+    const memberSIdKeys: string[] = [];
+
+    memberIds.forEach((mId) => {
+      const removedMemberIndex = room.memberIds.indexOf(mId);
+
+      if (removedMemberIndex !== -1) {
+        room.memberIds.splice(removedMemberIndex, 1);
+        memberSIdKeys.push(`${CacheNamespace.UID2SId}${mId}`);
+        redisPipe.lrem(`${CacheNamespace.UId2RIds}${mId}`, 1, room.id);
+      }
+    });
+
+    const redisRes = await redisPipe
+      .set(`${CacheNamespace.Room}${room.id}`, JSON.stringify(room))
+      .mget(...memberSIdKeys)
+      .exec();
+
+    return {
+      room,
+      socketIds: (redisRes[redisPipe.length - 1][1] as string[]) || [],
+    };
+  }
+
+  /**
    * Create a room and add the booker to its member list.
    * If multi-room join is disabled, the booker must not
    * enter any room before creating the room.

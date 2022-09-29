@@ -7,3 +7,5 @@ export * from './respond-room-invitation.dto';
 export * from './transer-ownership.dto';
 export * from './create-many-room.dto';
 export * from './remove-many-room.dto';
+export * from './add-to-room.dto';
+export * from './remove-from-room.dto';
