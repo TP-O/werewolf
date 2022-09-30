@@ -79,6 +79,8 @@ export class RoomController {
     @Body() payload: CreateTemporaryRoomsDto,
     @Res() response: FastifyReply,
   ) {
+    console.log(payload);
+
     const { rooms, socketIdsList, joinerIdsList } =
       await this.roomService.createTemporarily(payload);
 

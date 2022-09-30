@@ -45,13 +45,18 @@ export class MessageService {
    * Store new room message.
    *
    * @param senderId
+   * @param gameId
    * @param roomMessageDto
    * @returns
    */
-  createRoomMessage(senderId: number, roomMessageDto: SendRoomMessageDto) {
+  createRoomMessage(
+    senderId: number,
+    roomId: number,
+    roomMessageDto: SendRoomMessageDto,
+  ) {
     return this.prismaService.roomMessage.create({
       data: {
-        roomId: roomMessageDto.roomId,
+        roomId,
         senderId,
         content: roomMessageDto.content,
       },

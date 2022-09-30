@@ -209,7 +209,11 @@ export class CommunicationService {
     }
 
     if (room.isPersistent) {
-      await this.messageService.createRoomMessage(client.userId, payload);
+      await this.messageService.createRoomMessage(
+        client.userId,
+        room.gameId,
+        payload,
+      );
     }
 
     server.to(payload.roomId).emit(EmitEvent.ReceiveRoomMessage, {

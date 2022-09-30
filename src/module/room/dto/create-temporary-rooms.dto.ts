@@ -16,9 +16,6 @@ class CreateRoomDto implements Room {
   @IsBoolean()
   isPublic: boolean;
 
-  @IsBoolean()
-  isMuted: boolean;
-
   @ValidateIf((dto: CreateRoomDto, v) => !dto.memberIds?.includes(v))
   @Equals(undefined, { message: '$property must be contained in memberIds' })
   ownerId: number;
@@ -31,6 +28,8 @@ class CreateRoomDto implements Room {
   id: string;
 
   isPersistent = false;
+
+  isMuted = false;
 
   gameId = 0;
 

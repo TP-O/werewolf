@@ -3,6 +3,7 @@ import {
   ArrayMinSize,
   ArrayUnique,
   IsArray,
+  IsBoolean,
   IsNotEmpty,
   IsNumber,
   IsPositive,
@@ -16,6 +17,9 @@ class CreatePersistentRoomDto implements Room {
   @IsNotEmpty()
   id: string;
 
+  @IsBoolean()
+  isMuted: boolean;
+
   @IsNumber({}, { each: true })
   @IsPositive({ each: true })
   @ArrayUnique()
@@ -28,8 +32,6 @@ class CreatePersistentRoomDto implements Room {
   isPublic: boolean;
 
   isPersistent = true;
-
-  isMuted = false;
 
   waitingIds: number[] = [];
 
