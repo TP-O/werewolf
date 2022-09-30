@@ -22,6 +22,8 @@ A template supports the most basic things for user - user, and user - group comm
     - [x] Respond to room invitation
   - [x] Persistent room (via API)
     - [x] Create rooms
+      - [x] Temporary room
+      - [x] Persistent room
     - [x] Mute room
     - [x] Remove rooms
     - [x] Add members
@@ -31,6 +33,10 @@ A template supports the most basic things for user - user, and user - group comm
   - [x] Send private message
   - [x] Send room message (only persistent room)
   - [x] Delete old messages automatically
+- [ ] Others
+  - [x] Logging
+  - [x] Scalable
+  - [ ] CORS
 
 # Tools And Technologies
 
@@ -67,6 +73,8 @@ Application [here](https://tp-og.github.io/communication-server/app-docs).
 
 # Setup
 
+Fill in the `.env` file.
+
 ```bash
 $ git clone git@github.com:TP-OG/communication-server.git
 
@@ -75,7 +83,11 @@ $ cd communication-server
 $ cp .env.example .env
 ```
 
-Then fill in the `.env` file.
+Export encrypted API key.
+
+```bash
+$ node encrypt-api-key.js
+```
 
 ## Development
 

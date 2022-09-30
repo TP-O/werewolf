@@ -1,5 +1,6 @@
-import { Body, Controller, Delete, Post, Res } from '@nestjs/common';
+import { Body, Controller, Delete, Post, Res, UseGuards } from '@nestjs/common';
 import { FastifyReply } from 'fastify';
+import { ApiKeyGuard } from 'src/common/guard';
 import { EmitEvent, RoomEvent } from 'src/enum';
 import { CommunicationGateway } from '../communication/communication.gateway';
 import {
@@ -75,12 +76,11 @@ export class RoomController {
    * @param response
    */
   @Post('temporary')
+  @UseGuards(ApiKeyGuard)
   async createTemporarily(
     @Body() payload: CreateTemporaryRoomsDto,
     @Res() response: FastifyReply,
   ) {
-    console.log(payload);
-
     const { rooms, socketIdsList, joinerIdsList } =
       await this.roomService.createTemporarily(payload);
 
@@ -97,6 +97,7 @@ export class RoomController {
    * @param response
    */
   @Post('persistent')
+  @UseGuards(ApiKeyGuard)
   async createPersistently(
     @Body() payload: CreatePersistentRoomsDto,
     @Res() response: FastifyReply,
@@ -117,6 +118,7 @@ export class RoomController {
    * @param response
    */
   @Delete()
+  @UseGuards(ApiKeyGuard)
   async remove(@Body() payload: RemoveRoomsDto, @Res() response: FastifyReply) {
     const { rooms, socketIdsList, leaverIdsList } =
       await this.roomService.remove(payload.ids);
@@ -134,6 +136,7 @@ export class RoomController {
    * @param response
    */
   @Post('members')
+  @UseGuards(ApiKeyGuard)
   async addMembers(
     @Body() payload: AddToRoomDto,
     @Res() response: FastifyReply,
@@ -156,6 +159,7 @@ export class RoomController {
    * @param response
    */
   @Delete('members')
+  @UseGuards(ApiKeyGuard)
   async removeMembers(
     @Body() payload: RemoveFromRoomDto,
     @Res() response: FastifyReply,
@@ -172,6 +176,7 @@ export class RoomController {
   }
 
   @Post('mute')
+  @UseGuards(ApiKeyGuard)
   async mute(@Body() payload: MuteRoomDto, @Res() response: FastifyReply) {
     const room = await this.roomService.allowChat(payload.roomId, payload.mute);
 

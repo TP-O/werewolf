@@ -11,6 +11,8 @@ export const AppConfig = Object.freeze(
         : AppEnv.Development,
       debug: env.APP_DEBUG === 'true',
       port: parsedPort >= 0 && parsedPort < 65536 ? parsedPort : 3000,
+      secretKey: env.APP_SECRET_KEY,
+      apiKey: env.APP_DECRYPTED_API_KEY,
       allowJoinMultipleRooms: true,
       disconnectIfConflict: true,
       messageManagment: {

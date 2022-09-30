@@ -23,8 +23,10 @@ specifiers:
   '@types/supertest': ^2.0.11
   '@typescript-eslint/eslint-plugin': ^5.0.0
   '@typescript-eslint/parser': ^5.0.0
+  aes256: ^1.1.0
   class-transformer: ^0.5.1
   class-validator: ^0.13.2
+  dotenv: ^16.0.3
   eslint: ^8.0.1
   eslint-config-prettier: ^8.3.0
   eslint-plugin-prettier: ^4.0.0
@@ -59,8 +61,10 @@ dependencies:
   '@nestjs/websockets': 9.0.11_lta74l7a56f7avmhvq6ggypouy
   '@prisma/client': 4.3.1_prisma@4.3.1
   '@socket.io/redis-adapter': 7.2.0
+  aes256: 1.1.0
   class-transformer: 0.5.1
   class-validator: 0.13.2
+  dotenv: 16.0.3
   fastify: 4.5.3
   firebase-admin: 11.0.1_@firebase+app-types@0.7.0
   ioredis: 5.2.3
@@ -4404,6 +4408,10 @@ packages:
     hasBin: true
     dev: true
 
+  /aes256/1.1.0:
+    resolution: {integrity: sha512-JfjTA5HEpvnn4lX9lsfgPMiV6HYqefRmvUj5MScIUeaRCbWEIT8URNpKA9ddY9iWl+Ye9oUHrdusO1cDmS/tEQ==}
+    dev: false
+
   /agent-base/6.0.2:
     resolution: {integrity: sha512-RZNwNclF7+MS/8bDg70amg32dyeZGZxiDuQmZxKLAlQjr3jGyLx+4Kkk58UO7D2QdgFIQCovuSuZESne6RG6XQ==}
     engines: {node: '>= 6.0.0'}
@@ -5763,6 +5771,11 @@ packages:
     engines: {'0': node >=0.2.6}
     hasBin: true
     dev: true
+
+  /dotenv/16.0.3:
+    resolution: {integrity: sha512-7GO6HghkA5fYG9TYnNxi14/7K9f5occMlp3zXAuSxn7CKCxt9xbNWG7yF8hTCSUchlfWSe3uLmlPfigevRItzQ==}
+    engines: {node: '>=12'}
+    dev: false
 
   /duplexer/0.1.2:
     resolution: {integrity: sha512-jtD6YG370ZCIi/9GTaJKQxWTZD045+4R4hTk/x1UyoqadyJ9x9CgSi1RlVDQF8U2sxLLSnFkCaMihqljHIWgMg==}
