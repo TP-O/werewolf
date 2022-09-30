@@ -60,9 +60,9 @@ model Game {
 }
 
 model ChatRoom {
-  gameId       Int           @id
+  id           Int           @id
   createdAt    DateTime      @default(now()) @map("created_at")
-  game         Game          @relation(fields: [gameId], references: [id])
+  game         Game          @relation(fields: [id], references: [id])
   roomMessages RoomMessage[]
 
   @@map("chat_rooms")
@@ -74,7 +74,7 @@ model RoomMessage {
   senderId  Int      @map("sender_id")
   content   String
   createdAt DateTime @default(now()) @map("created_at")
-  room      ChatRoom @relation(fields: [roomId], references: [gameId])
+  room      ChatRoom @relation(fields: [roomId], references: [id])
   sender    User     @relation(fields: [senderId], references: [id])
 
   @@map("room_messages")

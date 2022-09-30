@@ -92,17 +92,17 @@ export class RoomService {
   /**
    * Store chat room of a game into database.
    *
-   * @param gameId
+   * @param id
    * @returns created chat room.
    */
-  private async storeChatRoom(gameId: number) {
+  private async storeChatRoom(id: number) {
     try {
       return await this.prismaService.chatRoom.create({
         select: {
-          gameId: true,
+          id: true,
         },
         data: {
-          gameId,
+          id,
         },
       });
     } catch (_) {
@@ -117,7 +117,7 @@ export class RoomService {
    * @returns created rooms and socket ids of members.
    */
   async createPersistently(dto: CreatePersistentRoomsDto) {
-    const { gameId } = await this.storeChatRoom(dto.gameId);
+    const { id: gameId } = await this.storeChatRoom(dto.gameId);
 
     return this.storeRooms(
       dto.rooms.map((setting) => ({
