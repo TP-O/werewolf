@@ -1,4 +1,4 @@
-asyncapi: '2.4.0'
+asyncapi: '2.5.0'
 info:
   title: Communication Server Template
   version: '1.0.0'
@@ -34,7 +34,7 @@ components:
       required:
         - receiverId
         - content
-    SendGroupMessageDto:
+    SendRoomMessageDto:
       type: object
       properties:
         roomId:
@@ -166,7 +166,7 @@ components:
         content:
           type: string
           description: Message content.
-    ReceiveGroupMessageDto:
+    ReceiveRoomMessageDto:
       type: object
       properties:
         roomId:
@@ -261,15 +261,15 @@ components:
         - $ref: '#/components/messageTraits/commonHeaders'
       payload:
         $ref: '#/components/schemas/SendPrivateMessageDto'
-    SendGroupMessage:
-      name: send_group_message
-      title: Send group message
-      summary: User sends a message to a group.
+    SendRoomMessage:
+      name: send_room_message
+      title: Send room message
+      summary: User sends a message to a room.
       contentType: application/json
       traits:
         - $ref: '#/components/messageTraits/commonHeaders'
       payload:
-        $ref: '#/components/schemas/SendGroupMessageDto'
+        $ref: '#/components/schemas/SendRoomMessageDto'
     BookRoom:
       name: book_room
       title: Book room
@@ -367,15 +367,15 @@ components:
         - $ref: '#/components/messageTraits/commonHeaders'
       payload:
         $ref: '#/components/schemas/ReceivePrivateMessageDto'
-    ReceiveGroupMessage:
-      name: receive_group_message
-      title: Receive group message
-      summary: Receive a message from group.
+    ReceiveRoomMessage:
+      name: receive_room_message
+      title: Receive room message
+      summary: Receive a message from room.
       contentType: application/json
       traits:
         - $ref: '#/components/messageTraits/commonHeaders'
       payload:
-        $ref: '#/components/schemas/ReceiveGroupMessageDto'
+        $ref: '#/components/schemas/ReceiveRoomMessageDto'
     ReceiveRoomInvitation:
       name: receive_room_invitation
       title: Receive room invitation
@@ -401,7 +401,7 @@ channels:
       message:
         oneOf:
           - $ref: '#/components/messages/SendPrivateMessage'
-          - $ref: '#/components/messages/SendGroupMessage'
+          - $ref: '#/components/messages/SendRoomMessage'
           - $ref: '#/components/messages/BookRoom'
           - $ref: '#/components/messages/JoinRoom'
           - $ref: '#/components/messages/LeaveRoom'
@@ -417,6 +417,6 @@ channels:
           - $ref: '#/components/messages/Success'
           - $ref: '#/components/messages/UpdateFriendStatus'
           - $ref: '#/components/messages/ReceivePrivateMessage'
-          - $ref: '#/components/messages/ReceiveGroupMessage'
+          - $ref: '#/components/messages/ReceiveRoomMessage'
           - $ref: '#/components/messages/ReceiveRoomInvitation'
           - $ref: '#/components/messages/ReceiveRoomChanges'

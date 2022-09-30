@@ -238,8 +238,8 @@
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="175"
-                            class="link-to-prism">src/module/user/user.service.ts:175</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="184"
+                            class="link-to-prism">src/module/user/user.service.ts:184</a></div>
                 </td>
             </tr>
 
@@ -323,8 +323,8 @@
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="196"
-                            class="link-to-prism">src/module/user/user.service.ts:196</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="205"
+                            class="link-to-prism">src/module/user/user.service.ts:205</a></div>
                 </td>
             </tr>
 
@@ -417,8 +417,8 @@ bind socket id to user id.</p>
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="225"
-                            class="link-to-prism">src/module/user/user.service.ts:225</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="234"
+                            class="link-to-prism">src/module/user/user.service.ts:234</a></div>
                 </td>
             </tr>
 
@@ -639,8 +639,8 @@ rooms.</p>
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="147"
-                            class="link-to-prism">src/module/user/user.service.ts:147</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="156"
+                            class="link-to-prism">src/module/user/user.service.ts:156</a></div>
                 </td>
             </tr>
 
@@ -1219,23 +1219,32 @@ export class UserService {
         id: true,
       },
       where: {
-        OR: {
-          acceptedFriends: {
-            every: {
-              inviterId: userId,
+        OR: [
+          {
+            acceptedFriends: {
+              some: {
+                acceptorId: userId,
+              },
             },
           },
-          invitedFriends: {
-            every: {
-              acceptorId: userId,
+          {
+            invitedFriends: {
+              some: {
+                inviterId: userId,
+              },
             },
           },
-        },
+        ],
         NOT: {
           statusId: null,
         },
       },
     });
+
+    if (onlineFriends.length &#x3D;&#x3D;&#x3D; 0) {
+      return [];
+    }
+
     const onlineFriendsIds &#x3D; onlineFriends.map((friend) &#x3D;&gt; friend.id);
     const onlineFriendsSIds &#x3D; await this.getSocketIdsByUserIds(
       onlineFriendsIds,

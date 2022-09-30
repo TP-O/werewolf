@@ -44,7 +44,7 @@
 
 <ol class="breadcrumb">
   <li>Classes</li>
-  <li >InviteToRoomDto</li>
+  <li >CreatePersistentRoomsDto</li>
 </ol>
 
 <ul class="nav nav-tabs" role="tablist">
@@ -62,7 +62,7 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/module/room/dto/invite-to-room.dto.ts</code>
+            <code>src/module/room/dto/create-persistent-rooms.dto.ts</code>
         </p>
 
 
@@ -83,10 +83,10 @@
                     <td class="col-md-4">
                         <ul class="index-list">
                             <li>
-                                <a href="#guestId" >guestId</a>
+                                <a href="#gameId" >gameId</a>
                             </li>
                             <li>
-                                <a href="#roomId" >roomId</a>
+                                <a href="#rooms" >rooms</a>
                             </li>
                         </ul>
                     </td>
@@ -111,10 +111,10 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="guestId"></a>
+                    <a name="gameId"></a>
                     <span class="name">
-                        <span ><b>guestId</b></span>
-                        <a href="#guestId"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>gameId</b></span>
+                        <a href="#gameId"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
@@ -129,13 +129,13 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @IsInt()<br />@IsPositive()<br />
+                            @IsNumber()<br />@IsPositive()<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="10" class="link-to-prism">src/module/room/dto/invite-to-room.dto.ts:10</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="42" class="link-to-prism">src/module/room/dto/create-persistent-rooms.dto.ts:42</a></div>
                         </td>
                     </tr>
 
@@ -146,16 +146,16 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="roomId"></a>
+                    <a name="rooms"></a>
                     <span class="name">
-                        <span ><b>roomId</b></span>
-                        <a href="#roomId"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>rooms</b></span>
+                        <a href="#rooms"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
                 <tr>
                     <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                        <i>Type : </i>        <code><a href="../classes/CreatePersistentRoomDto.html" target="_self" >CreatePersistentRoomDto[]</a></code>
 
                     </td>
                 </tr>
@@ -164,13 +164,13 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @IsString()<br />@IsNotEmpty()<br />
+                            @IsArray()<br />@ArrayMinSize(1)<br />@ArrayUnique(value &#x3D;&gt; value.id)<br />@ValidateNested({each: true})<br />@Type(undefined)<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="6" class="link-to-prism">src/module/room/dto/invite-to-room.dto.ts:6</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="49" class="link-to-prism">src/module/room/dto/create-persistent-rooms.dto.ts:49</a></div>
                         </td>
                     </tr>
 
@@ -189,16 +189,55 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="c-source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { IsInt, IsNotEmpty, IsPositive, IsString } from &#x27;class-validator&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Type } from &#x27;class-transformer&#x27;;
+import {
+  ArrayMinSize,
+  ArrayUnique,
+  IsArray,
+  IsNotEmpty,
+  IsNumber,
+  IsPositive,
+  IsString,
+  ValidateNested,
+} from &#x27;class-validator&#x27;;
+import { Room } from &#x27;../room.type&#x27;;
 
-export class InviteToRoomDto {
+class CreatePersistentRoomDto implements Room {
   @IsString()
   @IsNotEmpty()
-  roomId: string;
+  id: string;
 
-  @IsInt()
+  @IsNumber({}, { each: true })
+  @IsPositive({ each: true })
+  @ArrayUnique()
+  memberIds: number[];
+
+  ownerId: number;
+
+  gameId: number;
+
+  isPublic: boolean;
+
+  isPersistent &#x3D; true;
+
+  isMuted &#x3D; false;
+
+  waitingIds: number[] &#x3D; [];
+
+  refusedIds: number[] &#x3D; [];
+}
+
+export class CreatePersistentRoomsDto {
+  @IsNumber()
   @IsPositive()
-  guestId: number;
+  gameId: number;
+
+  @IsArray()
+  @ArrayMinSize(1)
+  @ArrayUnique((value: CreatePersistentRoomDto) &#x3D;&gt; value.id)
+  @ValidateNested({ each: true })
+  @Type(() &#x3D;&gt; CreatePersistentRoomDto)
+  rooms: CreatePersistentRoomDto[];
 }
 </code></pre>
     </div>
@@ -238,7 +277,7 @@ export class InviteToRoomDto {
        <script>
             var COMPODOC_CURRENT_PAGE_DEPTH = 1;
             var COMPODOC_CURRENT_PAGE_CONTEXT = 'class';
-            var COMPODOC_CURRENT_PAGE_URL = 'InviteToRoomDto.html';
+            var COMPODOC_CURRENT_PAGE_URL = 'CreatePersistentRoomsDto.html';
             var MAX_SEARCH_RESULTS = 15;
        </script>
 

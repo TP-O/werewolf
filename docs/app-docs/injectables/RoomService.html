@@ -96,7 +96,23 @@
                         <ul class="index-list">
                             <li>
                                     <span class="modifier">Async</span>
+                                <a href="#addMembers" >addMembers</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#allowChat" >allowChat</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
                                 <a href="#book" >book</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#createPersistently" >createPersistently</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#createTemporarily" >createTemporarily</a>
                             </li>
                             <li>
                                     <span class="modifier">Async</span>
@@ -133,7 +149,25 @@
                             </li>
                             <li>
                                     <span class="modifier">Async</span>
+                                <a href="#remove" >remove</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#removeMembers" >removeMembers</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
                                 <a href="#respondInvitation" >respondInvitation</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#storeChatRoom" >storeChatRoom</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#storeRooms" >storeRooms</a>
                             </li>
                             <li>
                                     <span class="modifier">Async</span>
@@ -151,12 +185,237 @@
     </table>
 </section>
 
+            <section>
+    <h3 id="constructor">Constructor</h3>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+<code>constructor(prismaService: <a href="../injectables/PrismaService.html" target="_self">PrismaService</a>)</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="19" class="link-to-prism">src/module/room/room.service.ts:19</a></div>
+                            </td>
+                        </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                            <div>
+                                    <b>Parameters :</b>
+                                    <table class="params">
+                                        <thead>
+                                            <tr>
+                                                <td>Name</td>
+                                                    <td>Type</td>
+                                                <td>Optional</td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                                <tr>
+                                                        <td>prismaService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/PrismaService.html" target="_self" >PrismaService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                        </tbody>
+                                    </table>
+                            </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+</section>
 
             <section>
     
     <h3 id="methods">
         Methods
     </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="addMembers"></a>
+                    <span class="name">
+                        <span class="modifier">Async</span>
+                        <span ><b>addMembers</b></span>
+                        <a href="#addMembers"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>addMembers(roomId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, memberIds: number[])</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="177"
+                            class="link-to-prism">src/module/room/room.service.ts:177</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Add members to room.</p>
+</div>
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>roomId</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                                <tr>
+                                    <td>memberIds</td>
+                                    <td>
+                                            <code>number[]</code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>    <code>unknown</code>
+
+                    </div>
+                    <div class="io-description">
+                        <p>updated room and socket id of members.</p>
+
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="allowChat"></a>
+                    <span class="name">
+                        <span class="modifier">Async</span>
+                        <span ><b>allowChat</b></span>
+                        <a href="#allowChat"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>allowChat(roomId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, mute)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="241"
+                            class="link-to-prism">src/module/room/room.service.ts:241</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Allow chatting in room or not.</p>
+</div>
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                    <td>Default value</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>roomId</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+                                    <td>
+                                    </td>
+
+                                </tr>
+                                <tr>
+                                    <td>mute</td>
+                                    <td>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+                                    <td>
+                                        <code>true</code>
+                                    </td>
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>    <code>unknown</code>
+
+                    </div>
+                    <div class="io-description">
+                        <p>updated room.</p>
+
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
     <table class="table table-sm table-bordered">
         <tbody>
             <tr>
@@ -179,8 +438,8 @@
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="41"
-                            class="link-to-prism">src/module/room/room.service.ts:41</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="265"
+                            class="link-to-prism">src/module/room/room.service.ts:265</a></div>
                 </td>
             </tr>
 
@@ -261,6 +520,154 @@ enter any room before creating the room.</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="createPersistently"></a>
+                    <span class="name">
+                        <span class="modifier">Async</span>
+                        <span ><b>createPersistently</b></span>
+                        <a href="#createPersistently"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>createPersistently(dto: <a href="../classes/CreatePersistentRoomsDto.html" target="_self">CreatePersistentRoomsDto</a>)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="119"
+                            class="link-to-prism">src/module/room/room.service.ts:119</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Create persistent rooms with given settings.</p>
+</div>
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>dto</td>
+                                    <td>
+                                                <code><a href="../classes/CreatePersistentRoomsDto.html" target="_self" >CreatePersistentRoomsDto</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>    <code>unknown</code>
+
+                    </div>
+                    <div class="io-description">
+                        <p>created rooms and socket ids of members.</p>
+
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="createTemporarily"></a>
+                    <span class="name">
+                        <span class="modifier">Async</span>
+                        <span ><b>createTemporarily</b></span>
+                        <a href="#createTemporarily"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>createTemporarily(dto: <a href="../classes/CreateTemporaryRoomsDto.html" target="_self">CreateTemporaryRoomsDto</a>)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="83"
+                            class="link-to-prism">src/module/room/room.service.ts:83</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Create temporary rooms with given settings.</p>
+</div>
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>dto</td>
+                                    <td>
+                                                <code><a href="../classes/CreateTemporaryRoomsDto.html" target="_self" >CreateTemporaryRoomsDto</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>    <code>unknown</code>
+
+                    </div>
+                    <div class="io-description">
+                        <p>created rooms and socket ids of members.</p>
+
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="get"></a>
                     <span class="name">
                         <span class="modifier">Async</span>
@@ -279,8 +686,8 @@ enter any room before creating the room.</p>
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="76"
-                            class="link-to-prism">src/module/room/room.service.ts:76</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="302"
+                            class="link-to-prism">src/module/room/room.service.ts:302</a></div>
                 </td>
             </tr>
 
@@ -352,8 +759,8 @@ enter any room before creating the room.</p>
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="94"
-                            class="link-to-prism">src/module/room/room.service.ts:94</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="320"
+                            class="link-to-prism">src/module/room/room.service.ts:320</a></div>
                 </td>
             </tr>
 
@@ -425,8 +832,8 @@ enter any room before creating the room.</p>
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="327"
-                            class="link-to-prism">src/module/room/room.service.ts:327</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="557"
+                            class="link-to-prism">src/module/room/room.service.ts:557</a></div>
                 </td>
             </tr>
 
@@ -525,8 +932,8 @@ non-exist in room user.</p>
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="24"
-                            class="link-to-prism">src/module/room/room.service.ts:24</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="29"
+                            class="link-to-prism">src/module/room/room.service.ts:29</a></div>
                 </td>
             </tr>
 
@@ -598,8 +1005,8 @@ non-exist in room user.</p>
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="117"
-                            class="link-to-prism">src/module/room/room.service.ts:117</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="343"
+                            class="link-to-prism">src/module/room/room.service.ts:343</a></div>
                 </td>
             </tr>
 
@@ -686,8 +1093,8 @@ the room.</p>
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="248"
-                            class="link-to-prism">src/module/room/room.service.ts:248</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="478"
+                            class="link-to-prism">src/module/room/room.service.ts:478</a></div>
                 </td>
             </tr>
 
@@ -786,8 +1193,8 @@ is declined.</p>
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="154"
-                            class="link-to-prism">src/module/room/room.service.ts:154</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="384"
+                            class="link-to-prism">src/module/room/room.service.ts:384</a></div>
                 </td>
             </tr>
 
@@ -873,8 +1280,8 @@ in room if leaver is owner. Empty room will be deleted.</p>
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="194"
-                            class="link-to-prism">src/module/room/room.service.ts:194</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="424"
+                            class="link-to-prism">src/module/room/room.service.ts:424</a></div>
                 </td>
             </tr>
 
@@ -949,6 +1356,166 @@ as <code>leave</code> method.</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="remove"></a>
+                    <span class="name">
+                        <span class="modifier">Async</span>
+                        <span ><b>remove</b></span>
+                        <a href="#remove"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>remove(roomIds: string[])</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="137"
+                            class="link-to-prism">src/module/room/room.service.ts:137</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Remove many rooms by given room ids.</p>
+</div>
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>roomIds</td>
+                                    <td>
+                                            <code>string[]</code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>    <code>unknown</code>
+
+                    </div>
+                    <div class="io-description">
+                        <p>removed rooms and socket ids of members in removed rooms.</p>
+
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="removeMembers"></a>
+                    <span class="name">
+                        <span class="modifier">Async</span>
+                        <span ><b>removeMembers</b></span>
+                        <a href="#removeMembers"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>removeMembers(roomId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, memberIds: number[])</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="208"
+                            class="link-to-prism">src/module/room/room.service.ts:208</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Remove members from room.</p>
+</div>
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>roomId</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                                <tr>
+                                    <td>memberIds</td>
+                                    <td>
+                                            <code>number[]</code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>    <code>unknown</code>
+
+                    </div>
+                    <div class="io-description">
+                        <p>updated room and socket id of members.</p>
+
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="respondInvitation"></a>
                     <span class="name">
                         <span class="modifier">Async</span>
@@ -967,8 +1534,8 @@ as <code>leave</code> method.</p>
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="373"
-                            class="link-to-prism">src/module/room/room.service.ts:373</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="609"
+                            class="link-to-prism">src/module/room/room.service.ts:609</a></div>
                 </td>
             </tr>
 
@@ -1049,6 +1616,156 @@ accepting if multi-room join is disabled.</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="storeChatRoom"></a>
+                    <span class="name">
+                        <span class="modifier">Private</span>
+                        <span class="modifier">Async</span>
+                        <span ><b>storeChatRoom</b></span>
+                        <a href="#storeChatRoom"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>storeChatRoom(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="98"
+                            class="link-to-prism">src/module/room/room.service.ts:98</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Store chat room into database.</p>
+</div>
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>id</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>    <code>unknown</code>
+
+                    </div>
+                    <div class="io-description">
+                        <p>created chat room.</p>
+
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="storeRooms"></a>
+                    <span class="name">
+                        <span class="modifier">Private</span>
+                        <span class="modifier">Async</span>
+                        <span ><b>storeRooms</b></span>
+                        <a href="#storeRooms"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>storeRooms(rooms: <a href="../undefineds/Room.html" target="_self">Room[]</a>)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="43"
+                            class="link-to-prism">src/module/room/room.service.ts:43</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Store rooms temporarily.</p>
+</div>
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>rooms</td>
+                                    <td>
+                                                <code><a href="../miscellaneous/typealiases.html#Room" target="_self" >Room[]</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>    <code>unknown</code>
+
+                    </div>
+                    <div class="io-description">
+                        <p>created rooms and socket ids of members.</p>
+
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="transferOwnership"></a>
                     <span class="name">
                         <span class="modifier">Async</span>
@@ -1067,8 +1784,8 @@ accepting if multi-room join is disabled.</p>
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="293"
-                            class="link-to-prism">src/module/room/room.service.ts:293</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="523"
+                            class="link-to-prism">src/module/room/room.service.ts:523</a></div>
                 </td>
             </tr>
 
@@ -1181,7 +1898,7 @@ does not exist in the room.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="16" class="link-to-prism">src/module/room/room.service.ts:16</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="19" class="link-to-prism">src/module/room/room.service.ts:19</a></div>
                         </td>
                     </tr>
 
@@ -1205,11 +1922,16 @@ import { AppConfig } from &#x27;src/config&#x27;;
 import { RedisClient } from &#x27;src/common/decorator&#x27;;
 import { CacheNamespace } from &#x27;src/enum&#x27;;
 import { Room } from &#x27;./room.type&#x27;;
+import { CreatePersistentRoomsDto, CreateTemporaryRoomsDto } from &#x27;./dto&#x27;;
+import { PrismaService } from &#x27;src/common/service/prisma.service&#x27;;
+import { v4 as uuidv4 } from &#x27;uuid&#x27;;
 
 @Injectable()
 export class RoomService {
   @RedisClient()
   private readonly redis: Redis;
+
+  constructor(private prismaService: PrismaService) {}
 
   /**
    * Check if user is in any room.
@@ -1223,6 +1945,225 @@ export class RoomService {
     );
 
     return roomIds &gt; 0;
+  }
+
+  /**
+   * Store rooms temporarily.
+   *
+   * @param rooms
+   * @returns created rooms and socket ids of members.
+   */
+  private async storeRooms(rooms: Room[]) {
+    const socketIdsList: string[][] &#x3D; [];
+    const joinerIdsList: number[][] &#x3D; [];
+    const redisPipe &#x3D; this.redis.pipeline();
+
+    rooms.map((room) &#x3D;&gt; {
+      const memberSIdKeys &#x3D; room.memberIds.map((mId) &#x3D;&gt; {
+        // By the way, bind room id with member id
+        redisPipe.lpush(&#x60;${CacheNamespace.UId2RIds}${mId}&#x60;, room.id);
+
+        return &#x60;${CacheNamespace.UID2SId}${mId}&#x60;;
+      });
+
+      joinerIdsList.push(room.memberIds);
+      redisPipe
+        .mget(...memberSIdKeys)
+        .set(&#x60;${CacheNamespace.Room}${room.id}&#x60;, JSON.stringify(room));
+
+      return room;
+    });
+
+    (await redisPipe.exec()).forEach((res) &#x3D;&gt; {
+      if (Array.isArray(res[1])) {
+        socketIdsList.push(res[1]);
+      }
+    });
+
+    return {
+      rooms,
+      socketIdsList,
+      joinerIdsList,
+    };
+  }
+
+  /**
+   * Create temporary rooms with given settings.
+   *
+   * @param dto
+   * @returns created rooms and socket ids of members.
+   */
+  async createTemporarily(dto: CreateTemporaryRoomsDto) {
+    return this.storeRooms(
+      dto.rooms.map((setting) &#x3D;&gt; ({
+        ...setting,
+        id: uuidv4(),
+      })),
+    );
+  }
+
+  /**
+   * Store chat room into database.
+   *
+   * @param id
+   * @returns created chat room.
+   */
+  private async storeChatRoom(id: number) {
+    try {
+      return await this.prismaService.chatRoom.create({
+        select: {
+          id: true,
+        },
+        data: {
+          id,
+        },
+      });
+    } catch (_) {
+      throw new BadRequestException(&#x27;Unable to create chat room!&#x27;);
+    }
+  }
+
+  /**
+   * Create persistent rooms with given settings.
+   *
+   * @param dto
+   * @returns created rooms and socket ids of members.
+   */
+  async createPersistently(dto: CreatePersistentRoomsDto) {
+    const { id: gameId } &#x3D; await this.storeChatRoom(dto.gameId);
+
+    return this.storeRooms(
+      dto.rooms.map((setting) &#x3D;&gt; ({
+        ...setting,
+        id: &#x60;${gameId}:${setting.id}&#x60;,
+        gameId,
+      })),
+    );
+  }
+
+  /**
+   * Remove many rooms by given room ids.
+   *
+   * @param roomIds
+   * @returns removed rooms and socket ids of members in removed rooms.
+   */
+  async remove(roomIds: string[]) {
+    const rooms: Room[] &#x3D; (
+      await this.redis.mget(
+        ...roomIds.map((rId) &#x3D;&gt; &#x60;${CacheNamespace.Room}${rId}&#x60;),
+      )
+    )
+      .filter((roomJSON) &#x3D;&gt; roomJSON !&#x3D; null)
+      .map((roomJSON) &#x3D;&gt; JSON.parse(roomJSON));
+    const socketIdsList: string[][] &#x3D; [];
+    const leaverIdsList: number[][] &#x3D; [];
+    const redisPipe &#x3D; this.redis.pipeline();
+
+    rooms.forEach((room) &#x3D;&gt; {
+      const memberSIdKeys &#x3D; room.memberIds.map((mId) &#x3D;&gt; {
+        // By the way, remove room id from member id
+        redisPipe.lrem(&#x60;${CacheNamespace.UId2RIds}${mId}&#x60;, 1, room.id);
+
+        return &#x60;${CacheNamespace.UID2SId}${mId}&#x60;;
+      });
+
+      leaverIdsList.push(room.memberIds);
+      redisPipe.mget(...memberSIdKeys).del(&#x60;${CacheNamespace.Room}${room.id}&#x60;);
+    });
+
+    (await redisPipe.exec()).forEach((res) &#x3D;&gt; {
+      if (Array.isArray(res[1])) {
+        socketIdsList.push(res[1]);
+      }
+    });
+
+    return { rooms, socketIdsList, leaverIdsList };
+  }
+
+  /**
+   * Add members to room.
+   *
+   * @param roomId
+   * @param memberIds
+   * @returns updated room and socket id of members.
+   */
+  async addMembers(roomId: string, memberIds: number[]) {
+    const room &#x3D; await this.get(roomId);
+    const redisPipe &#x3D; this.redis.pipeline();
+    const memberSIdKeys: string[] &#x3D; [];
+
+    memberIds.forEach((mId) &#x3D;&gt; {
+      if (!room.memberIds.includes(mId)) {
+        room.memberIds.push(mId);
+        memberSIdKeys.push(&#x60;${CacheNamespace.UID2SId}${mId}&#x60;);
+        redisPipe.lpush(&#x60;${CacheNamespace.UId2RIds}${mId}&#x60;, room.id);
+      }
+    });
+
+    const redisRes &#x3D; await redisPipe
+      .set(&#x60;${CacheNamespace.Room}${room.id}&#x60;, JSON.stringify(room))
+      .mget(...memberSIdKeys)
+      .exec();
+
+    return {
+      room,
+      socketIds: (redisRes[redisPipe.length - 1][1] as string[]) || [],
+    };
+  }
+
+  /**
+   * Remove members from room.
+   *
+   * @param roomId
+   * @param memberIds
+   * @returns updated room and socket id of members.
+   */
+  async removeMembers(roomId: string, memberIds: number[]) {
+    const room &#x3D; await this.get(roomId);
+    const redisPipe &#x3D; this.redis.pipeline();
+    const memberSIdKeys: string[] &#x3D; [];
+
+    memberIds.forEach((mId) &#x3D;&gt; {
+      const removedMemberIndex &#x3D; room.memberIds.indexOf(mId);
+
+      if (removedMemberIndex !&#x3D;&#x3D; -1) {
+        room.memberIds.splice(removedMemberIndex, 1);
+        memberSIdKeys.push(&#x60;${CacheNamespace.UID2SId}${mId}&#x60;);
+        redisPipe.lrem(&#x60;${CacheNamespace.UId2RIds}${mId}&#x60;, 1, room.id);
+      }
+    });
+
+    const redisRes &#x3D; await redisPipe
+      .set(&#x60;${CacheNamespace.Room}${room.id}&#x60;, JSON.stringify(room))
+      .mget(...memberSIdKeys)
+      .exec();
+
+    return {
+      room,
+      socketIds: (redisRes[redisPipe.length - 1][1] as string[]) || [],
+    };
+  }
+
+  /**
+   * Allow chatting in room or not.
+   *
+   * @param roomId
+   * @param mute
+   * @returns updated room.
+   */
+  async allowChat(roomId: string, mute &#x3D; true) {
+    const room &#x3D; await this.get(roomId);
+
+    if (room.isMuted !&#x3D;&#x3D; mute) {
+      room.isMuted &#x3D; mute;
+    }
+
+    await this.redis.set(
+      &#x60;${CacheNamespace.Room}${roomId}&#x60;,
+      JSON.stringify(room),
+    );
+
+    return room;
   }
 
   /**
@@ -1244,10 +2185,12 @@ export class RoomService {
       );
     }
 
-    const id &#x3D; String(Date.now());
     const room: Room &#x3D; {
-      id,
+      id: uuidv4(),
       isPublic,
+      isPersistent: false,
+      isMuted: false,
+      gameId: 0,
       ownerId: bookerId,
       memberIds: [bookerId],
       waitingIds: [],
@@ -1256,7 +2199,7 @@ export class RoomService {
 
     await this.redis
       .pipeline()
-      .set(&#x60;${CacheNamespace.Room}${id}&#x60;, JSON.stringify(room))
+      .set(&#x60;${CacheNamespace.Room}${room.id}&#x60;, JSON.stringify(room))
       .lpush(&#x60;${CacheNamespace.UId2RIds}${bookerId}&#x60;, room.id)
       .exec();
 
@@ -1322,8 +2265,12 @@ export class RoomService {
 
     const room &#x3D; await this.get(roomId);
 
-    if (!room.isPublic) {
+    if (!room.isPublic || room.isPersistent) {
       throw new ForbiddenException(&#x27;This room is private!&#x27;);
+    }
+
+    if (room.memberIds.includes(joinerId)) {
+      throw new BadRequestException(&#x27;You have already joined this room!&#x27;);
     }
 
     room.memberIds.push(joinerId);
@@ -1361,7 +2308,7 @@ export class RoomService {
     const redisPipe &#x3D; this.redis.pipeline();
 
     // Delete room if all members have left
-    if (room.memberIds.length &#x3D;&#x3D;&#x3D; 0) {
+    if (room.memberIds.length &#x3D;&#x3D;&#x3D; 0 &amp;&amp; !room.isPersistent) {
       redisPipe.del(&#x60;${CacheNamespace.Room}${room.id}&#x60;);
     } else {
       // Assign owner to the first member
@@ -1400,15 +2347,15 @@ export class RoomService {
       }
     }
 
-    const rooms &#x3D; await this.getMany(roomIds);
+    let rooms &#x3D; await this.getMany(roomIds);
     const redisPipe &#x3D; this.redis.pipeline();
 
-    rooms.map((room) &#x3D;&gt; {
+    rooms &#x3D; rooms.map((room) &#x3D;&gt; {
       room.memberIds.splice(room.memberIds.indexOf(leaverId), 1);
       room.refusedIds.push(leaverId);
 
       // Delete room if all members have left
-      if (room.memberIds.length &#x3D;&#x3D;&#x3D; 0) {
+      if (room.memberIds.length &#x3D;&#x3D;&#x3D; 0 &amp;&amp; !room.isPersistent) {
         redisPipe.del(&#x60;${CacheNamespace.Room}${room.id}&#x60;);
       } else {
         // Assign owner to the first member
@@ -1532,6 +2479,12 @@ export class RoomService {
     }
 
     const room: Room &#x3D; JSON.parse(roomJSON as string);
+
+    if (room.isPersistent) {
+      throw new ForbiddenException(
+        &#x27;You can not invite other user to this room!&#x27;,
+      );
+    }
 
     if (guestSId &#x3D;&#x3D; null) {
       throw new BadRequestException(&#x27;Please only invite online user!&#x27;);

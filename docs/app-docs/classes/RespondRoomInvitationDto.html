@@ -164,7 +164,7 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @IsString()<br />@MinLength(13)<br />
+                            @IsString()<br />@IsNotEmpty()<br />
                         </code>
                     </td>
                 </tr>
@@ -189,11 +189,11 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="c-source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { IsBoolean, IsString, MinLength } from &#x27;class-validator&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { IsBoolean, IsNotEmpty, IsString } from &#x27;class-validator&#x27;;
 
 export class RespondRoomInvitationDto {
   @IsString()
-  @MinLength(13)
+  @IsNotEmpty()
   roomId: string;
 
   @IsBoolean()

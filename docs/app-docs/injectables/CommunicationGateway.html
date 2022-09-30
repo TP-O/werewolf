@@ -40,7 +40,7 @@
 
 <ol class="breadcrumb">
   <li>Injectables</li>
-  <li >CommunicationService</li>
+  <li >CommunicationGateway</li>
 </ol>
 
 <ul class="nav nav-tabs" role="tablist">
@@ -58,7 +58,7 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/module/communication/communication.service.ts</code>
+            <code>src/module/communication/communication.gateway.ts</code>
         </p>
 
 
@@ -69,6 +69,21 @@
     <h3 id="index">Index</h3>
     <table class="table table-sm table-bordered index-table">
         <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Properties</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                    <span class="modifier">Readonly</span>
+                                <a href="#server" >server</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
 
                 <tr>
                     <td class="col-md-4">
@@ -80,62 +95,47 @@
                         <ul class="index-list">
                             <li>
                                     <span class="modifier">Async</span>
-                                <a href="#connect" >connect</a>
+                                <a href="#handleBookRoom" >handleBookRoom</a>
                             </li>
                             <li>
                                     <span class="modifier">Async</span>
-                                <a href="#createTemporaryRoom" >createTemporaryRoom</a>
+                                <a href="#handleConnection" >handleConnection</a>
                             </li>
                             <li>
                                     <span class="modifier">Async</span>
-                                <a href="#disconnect" >disconnect</a>
-                            </li>
-                            <li>
-                                    <span class="modifier">Private</span>
-                                    <span class="modifier">Async</span>
-                                <a href="#handleConflict" >handleConflict</a>
+                                <a href="#handleDisconnect" >handleDisconnect</a>
                             </li>
                             <li>
                                     <span class="modifier">Async</span>
-                                <a href="#inviteToRoom" >inviteToRoom</a>
+                                <a href="#handleInviteToRoom" >handleInviteToRoom</a>
                             </li>
                             <li>
                                     <span class="modifier">Async</span>
-                                <a href="#joinRoom" >joinRoom</a>
+                                <a href="#handleJoinRoom" >handleJoinRoom</a>
                             </li>
                             <li>
                                     <span class="modifier">Async</span>
-                                <a href="#kickOutOfRoom" >kickOutOfRoom</a>
+                                <a href="#handleKickOutOfRoom" >handleKickOutOfRoom</a>
                             </li>
                             <li>
                                     <span class="modifier">Async</span>
-                                <a href="#leaveRoom" >leaveRoom</a>
+                                <a href="#handleLeaveRoom" >handleLeaveRoom</a>
                             </li>
                             <li>
                                     <span class="modifier">Async</span>
-                                <a href="#respondRoomInvitation" >respondRoomInvitation</a>
+                                <a href="#handleRespondInvitation" >handleRespondInvitation</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#handleSendRoomMesage" >handleSendRoomMesage</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#handleTransferOwnership" >handleTransferOwnership</a>
                             </li>
                             <li>
                                     <span class="modifier">Async</span>
                                 <a href="#sendPrivateMessage" >sendPrivateMessage</a>
-                            </li>
-                            <li>
-                                    <span class="modifier">Async</span>
-                                <a href="#sendRoomMessage" >sendRoomMessage</a>
-                            </li>
-                            <li>
-                                    <span class="modifier">Async</span>
-                                <a href="#transferRoomOwnership" >transferRoomOwnership</a>
-                            </li>
-                            <li>
-                                    <span class="modifier">Private</span>
-                                    <span class="modifier">Async</span>
-                                <a href="#validateAuthorization" >validateAuthorization</a>
-                            </li>
-                            <li>
-                                    <span class="modifier">Private</span>
-                                    <span class="modifier">Async</span>
-                                <a href="#validateConnection" >validateConnection</a>
                             </li>
                         </ul>
                     </td>
@@ -155,12 +155,12 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(authService: <a href="../injectables/AuthService.html" target="_self">AuthService</a>, userService: <a href="../injectables/UserService.html" target="_self">UserService</a>, messageService: <a href="../injectables/MessageService.html" target="_self">MessageService</a>, roomService: <a href="../injectables/RoomService.html" target="_self">RoomService</a>)</code>
+<code>constructor(communicationService: <a href="../injectables/CommunicationService.html" target="_self">CommunicationService</a>)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="27" class="link-to-prism">src/module/communication/communication.service.ts:27</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="50" class="link-to-prism">src/module/communication/communication.gateway.ts:50</a></div>
                             </td>
                         </tr>
 
@@ -178,46 +178,10 @@
                                         </thead>
                                         <tbody>
                                                 <tr>
-                                                        <td>authService</td>
+                                                        <td>communicationService</td>
                                                   
                                                         <td>
-                                                                        <code><a href="../injectables/AuthService.html" target="_self" >AuthService</a></code>
-                                                        </td>
-                                                  
-                                                    <td>
-                                                            No
-                                                    </td>
-                                                    
-                                                </tr>
-                                                <tr>
-                                                        <td>userService</td>
-                                                  
-                                                        <td>
-                                                                        <code><a href="../injectables/UserService.html" target="_self" >UserService</a></code>
-                                                        </td>
-                                                  
-                                                    <td>
-                                                            No
-                                                    </td>
-                                                    
-                                                </tr>
-                                                <tr>
-                                                        <td>messageService</td>
-                                                  
-                                                        <td>
-                                                                        <code><a href="../injectables/MessageService.html" target="_self" >MessageService</a></code>
-                                                        </td>
-                                                  
-                                                    <td>
-                                                            No
-                                                    </td>
-                                                    
-                                                </tr>
-                                                <tr>
-                                                        <td>roomService</td>
-                                                  
-                                                        <td>
-                                                                        <code><a href="../injectables/RoomService.html" target="_self" >RoomService</a></code>
+                                                                        <code><a href="../injectables/CommunicationService.html" target="_self" >CommunicationService</a></code>
                                                         </td>
                                                   
                                                     <td>
@@ -243,127 +207,40 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="connect"></a>
+                    <a name="handleBookRoom"></a>
                     <span class="name">
                         <span class="modifier">Async</span>
-                        <span ><b>connect</b></span>
-                        <a href="#connect"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>handleBookRoom</b></span>
+                        <a href="#handleBookRoom"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
                     <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>connect(server: <a href="../undefineds/EmitEvents.html" target="_self">Server&lt; | EmitEvents&gt;</a>, client: Socket)</code>
+                    <code>handleBookRoom(client: Socket, payload: <a href="../classes/BookRoomDto.html" target="_self">BookRoomDto</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@UseInterceptors(new EventNameBindingInterceptor(), SocketUserIdBindingInterceptor)<br />@SubscribeMessage(ListenEvent.BookRoom)<br /></code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="127"
+                            class="link-to-prism">src/module/communication/communication.gateway.ts:127</a></div>
                 </td>
             </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="107"
-                            class="link-to-prism">src/module/communication/communication.service.ts:107</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-description"><p>Connect the client.</p>
-</div>
-
-                    <div class="io-description">
-                        <b>Parameters :</b>
-                        
-                        <table class="params">
-                            <thead>
-                                <tr>
-                                    <td>Name</td>
-                                    <td>Type</td>
-                                    <td>Optional</td>
-                                    <td>Description</td>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>server</td>
-                                    <td>
-                                                <code><a href="../miscellaneous/typealiases.html#EmitEvents" target="_self" >Server&lt; | EmitEvents&gt;</a></code>
-                                    </td>
-
-                                    <td>
-                                        No
-                                    </td>
-
-
-                                    <td>
-                                        <p>websocket server.</p>
-
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>client</td>
-                                    <td>
-                                            <code>Socket</code>
-                                    </td>
-
-                                    <td>
-                                        No
-                                    </td>
-
-
-                                    <td>
-                                        <p>socket client.</p>
-
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div>
-                    </div>
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
-
-                    </div>
-                    <div class="io-description">
-                        
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="createTemporaryRoom"></a>
-                    <span class="name">
-                        <span class="modifier">Async</span>
-                        <span ><b>createTemporaryRoom</b></span>
-                        <a href="#createTemporaryRoom"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                    <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>createTemporaryRoom(client: Socket, payload: <a href="../classes/BookRoomDto.html" target="_self">BookRoomDto</a>)</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="227"
-                            class="link-to-prism">src/module/communication/communication.service.ts:227</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-description"><p>Create a room that is deleted after all members leave.</p>
+                    <div class="io-description"><p>Book a new room.</p>
 </div>
 
                     <div class="io-description">
@@ -429,33 +306,33 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="disconnect"></a>
+                    <a name="handleConnection"></a>
                     <span class="name">
                         <span class="modifier">Async</span>
-                        <span ><b>disconnect</b></span>
-                        <a href="#disconnect"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>handleConnection</b></span>
+                        <a href="#handleConnection"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
                     <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>disconnect(server: <a href="../undefineds/EmitEvents.html" target="_self">Server&lt; | EmitEvents&gt;</a>, client: Socket)</code>
+                    <code>handleConnection(client: Socket)</code>
                 </td>
             </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="134"
-                            class="link-to-prism">src/module/communication/communication.service.ts:134</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="59"
+                            class="link-to-prism">src/module/communication/communication.gateway.ts:59</a></div>
                 </td>
             </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-description"><p>Disconnect the client.</p>
+                    <div class="io-description"><p>Store user state before connection.</p>
 </div>
 
                     <div class="io-description">
@@ -471,22 +348,6 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>server</td>
-                                    <td>
-                                                <code><a href="../miscellaneous/typealiases.html#EmitEvents" target="_self" >Server&lt; | EmitEvents&gt;</a></code>
-                                    </td>
-
-                                    <td>
-                                        No
-                                    </td>
-
-
-                                    <td>
-                                        <p>websocket server.</p>
-
-                                    </td>
-                                </tr>
                                 <tr>
                                     <td>client</td>
                                     <td>
@@ -523,35 +384,33 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="handleConflict"></a>
+                    <a name="handleDisconnect"></a>
                     <span class="name">
-                        <span class="modifier">Private</span>
                         <span class="modifier">Async</span>
-                        <span ><b>handleConflict</b></span>
-                        <a href="#handleConflict"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>handleDisconnect</b></span>
+                        <a href="#handleDisconnect"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
                     <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>handleConflict(server: <a href="../undefineds/EmitEvents.html" target="_self">Server&lt; | EmitEvents&gt;</a>, user: User)</code>
+                    <code>handleDisconnect(client: Socket)</code>
                 </td>
             </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="55"
-                            class="link-to-prism">src/module/communication/communication.service.ts:55</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="68"
+                            class="link-to-prism">src/module/communication/communication.gateway.ts:68</a></div>
                 </td>
             </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-description"><p>Solve conflict if multiple people connect to the
-same account.</p>
+                    <div class="io-description"><p>Remove user state after disconnection.</p>
 </div>
 
                     <div class="io-description">
@@ -568,9 +427,9 @@ same account.</p>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td>server</td>
+                                    <td>client</td>
                                     <td>
-                                                <code><a href="../miscellaneous/typealiases.html#EmitEvents" target="_self" >Server&lt; | EmitEvents&gt;</a></code>
+                                            <code>Socket</code>
                                     </td>
 
                                     <td>
@@ -579,22 +438,8 @@ same account.</p>
 
 
                                     <td>
-                                        <p>websocket server.</p>
+                                        <p>socket client.</p>
 
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>user</td>
-                                    <td>
-                                            <code>User</code>
-                                    </td>
-
-                                    <td>
-                                        No
-                                    </td>
-
-
-                                    <td>
                                     </td>
                                 </tr>
                             </tbody>
@@ -617,33 +462,40 @@ same account.</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="inviteToRoom"></a>
+                    <a name="handleInviteToRoom"></a>
                     <span class="name">
                         <span class="modifier">Async</span>
-                        <span ><b>inviteToRoom</b></span>
-                        <a href="#inviteToRoom"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>handleInviteToRoom</b></span>
+                        <a href="#handleInviteToRoom"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
                     <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>inviteToRoom(server: <a href="../undefineds/EmitEvents.html" target="_self">Server&lt; | EmitEvents&gt;</a>, client: Socket, payload: <a href="../classes/InviteToRoomDto.html" target="_self">InviteToRoomDto</a>)</code>
+                    <code>handleInviteToRoom(client: <a href="../undefineds/EmitEvents.html" target="_self">Socket&lt; | EmitEvents&gt;</a>, payload: <a href="../classes/InviteToRoomDto.html" target="_self">InviteToRoomDto</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@UseInterceptors(new EventNameBindingInterceptor(), SocketUserIdBindingInterceptor)<br />@SubscribeMessage(ListenEvent.InviteToRoom)<br /></code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="221"
+                            class="link-to-prism">src/module/communication/communication.gateway.ts:221</a></div>
                 </td>
             </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="347"
-                            class="link-to-prism">src/module/communication/communication.service.ts:347</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-description"><p>Send a room invitation to user.</p>
+                    <div class="io-description"><p>Invite a guest into room.</p>
 </div>
 
                     <div class="io-description">
@@ -660,25 +512,9 @@ same account.</p>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td>server</td>
-                                    <td>
-                                                <code><a href="../miscellaneous/typealiases.html#EmitEvents" target="_self" >Server&lt; | EmitEvents&gt;</a></code>
-                                    </td>
-
-                                    <td>
-                                        No
-                                    </td>
-
-
-                                    <td>
-                                        <p>websocket server.</p>
-
-                                    </td>
-                                </tr>
-                                <tr>
                                     <td>client</td>
                                     <td>
-                                            <code>Socket</code>
+                                                <code><a href="../miscellaneous/typealiases.html#EmitEvents" target="_self" >Socket&lt; | EmitEvents&gt;</a></code>
                                     </td>
 
                                     <td>
@@ -725,33 +561,40 @@ same account.</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="joinRoom"></a>
+                    <a name="handleJoinRoom"></a>
                     <span class="name">
                         <span class="modifier">Async</span>
-                        <span ><b>joinRoom</b></span>
-                        <a href="#joinRoom"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>handleJoinRoom</b></span>
+                        <a href="#handleJoinRoom"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
                     <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>joinRoom(server: <a href="../undefineds/EmitEvents.html" target="_self">Server&lt; | EmitEvents&gt;</a>, client: Socket, payload: <a href="../classes/JoinRoomDto.html" target="_self">JoinRoomDto</a>)</code>
+                    <code>handleJoinRoom(client: Socket, payload: <a href="../classes/JoinRoomDto.html" target="_self">JoinRoomDto</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@UseInterceptors(new EventNameBindingInterceptor(), SocketUserIdBindingInterceptor)<br />@SubscribeMessage(ListenEvent.JoinRoom)<br /></code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="145"
+                            class="link-to-prism">src/module/communication/communication.gateway.ts:145</a></div>
                 </td>
             </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="245"
-                            class="link-to-prism">src/module/communication/communication.service.ts:245</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-description"><p>Join to new room.</p>
+                    <div class="io-description"><p>Join to a new room.</p>
 </div>
 
                     <div class="io-description">
@@ -767,22 +610,6 @@ same account.</p>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>server</td>
-                                    <td>
-                                                <code><a href="../miscellaneous/typealiases.html#EmitEvents" target="_self" >Server&lt; | EmitEvents&gt;</a></code>
-                                    </td>
-
-                                    <td>
-                                        No
-                                    </td>
-
-
-                                    <td>
-                                        <p>websocket server.</p>
-
-                                    </td>
-                                </tr>
                                 <tr>
                                     <td>client</td>
                                     <td>
@@ -833,33 +660,40 @@ same account.</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="kickOutOfRoom"></a>
+                    <a name="handleKickOutOfRoom"></a>
                     <span class="name">
                         <span class="modifier">Async</span>
-                        <span ><b>kickOutOfRoom</b></span>
-                        <a href="#kickOutOfRoom"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>handleKickOutOfRoom</b></span>
+                        <a href="#handleKickOutOfRoom"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
                     <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>kickOutOfRoom(server: <a href="../undefineds/EmitEvents.html" target="_self">Server&lt; | EmitEvents&gt;</a>, client: Socket, payload: <a href="../classes/KickOutOfRoomDto.html" target="_self">KickOutOfRoomDto</a>)</code>
+                    <code>handleKickOutOfRoom(client: <a href="../undefineds/EmitEvents.html" target="_self">Socket&lt; | EmitEvents&gt;</a>, payload: <a href="../classes/KickOutOfRoomDto.html" target="_self">KickOutOfRoomDto</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@UseInterceptors(new EventNameBindingInterceptor(), SocketUserIdBindingInterceptor)<br />@SubscribeMessage(ListenEvent.KickOutOfRoom)<br /></code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="181"
+                            class="link-to-prism">src/module/communication/communication.gateway.ts:181</a></div>
                 </td>
             </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="292"
-                            class="link-to-prism">src/module/communication/communication.service.ts:292</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-description"><p>Kick a member out of the room.</p>
+                    <div class="io-description"><p>Kick member out of room.</p>
 </div>
 
                     <div class="io-description">
@@ -876,25 +710,9 @@ same account.</p>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td>server</td>
-                                    <td>
-                                                <code><a href="../miscellaneous/typealiases.html#EmitEvents" target="_self" >Server&lt; | EmitEvents&gt;</a></code>
-                                    </td>
-
-                                    <td>
-                                        No
-                                    </td>
-
-
-                                    <td>
-                                        <p>websocket server.</p>
-
-                                    </td>
-                                </tr>
-                                <tr>
                                     <td>client</td>
                                     <td>
-                                            <code>Socket</code>
+                                                <code><a href="../miscellaneous/typealiases.html#EmitEvents" target="_self" >Socket&lt; | EmitEvents&gt;</a></code>
                                     </td>
 
                                     <td>
@@ -941,33 +759,40 @@ same account.</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="leaveRoom"></a>
+                    <a name="handleLeaveRoom"></a>
                     <span class="name">
                         <span class="modifier">Async</span>
-                        <span ><b>leaveRoom</b></span>
-                        <a href="#leaveRoom"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>handleLeaveRoom</b></span>
+                        <a href="#handleLeaveRoom"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
                     <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>leaveRoom(server: <a href="../undefineds/EmitEvents.html" target="_self">Server&lt; | EmitEvents&gt;</a>, client: Socket, payload: <a href="../classes/LeaveRoomDto.html" target="_self">LeaveRoomDto</a>)</code>
+                    <code>handleLeaveRoom(client: <a href="../undefineds/EmitEvents.html" target="_self">Socket&lt; | EmitEvents&gt;</a>, payload: <a href="../classes/LeaveRoomDto.html" target="_self">LeaveRoomDto</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@UseInterceptors(new EventNameBindingInterceptor(), SocketUserIdBindingInterceptor)<br />@SubscribeMessage(ListenEvent.LeaveRoom)<br /></code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="163"
+                            class="link-to-prism">src/module/communication/communication.gateway.ts:163</a></div>
                 </td>
             </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="267"
-                            class="link-to-prism">src/module/communication/communication.service.ts:267</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-description"><p>Leave the joined room.</p>
+                    <div class="io-description"><p>Leave the room.</p>
 </div>
 
                     <div class="io-description">
@@ -984,25 +809,9 @@ same account.</p>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td>server</td>
-                                    <td>
-                                                <code><a href="../miscellaneous/typealiases.html#EmitEvents" target="_self" >Server&lt; | EmitEvents&gt;</a></code>
-                                    </td>
-
-                                    <td>
-                                        No
-                                    </td>
-
-
-                                    <td>
-                                        <p>websocket server.</p>
-
-                                    </td>
-                                </tr>
-                                <tr>
                                     <td>client</td>
                                     <td>
-                                            <code>Socket</code>
+                                                <code><a href="../miscellaneous/typealiases.html#EmitEvents" target="_self" >Socket&lt; | EmitEvents&gt;</a></code>
                                     </td>
 
                                     <td>
@@ -1049,33 +858,40 @@ same account.</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="respondRoomInvitation"></a>
+                    <a name="handleRespondInvitation"></a>
                     <span class="name">
                         <span class="modifier">Async</span>
-                        <span ><b>respondRoomInvitation</b></span>
-                        <a href="#respondRoomInvitation"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>handleRespondInvitation</b></span>
+                        <a href="#handleRespondInvitation"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
                     <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>respondRoomInvitation(server: <a href="../undefineds/EmitEvents.html" target="_self">Server&lt; | EmitEvents&gt;</a>, client: Socket, payload: <a href="../classes/RespondRoomInvitationDto.html" target="_self">RespondRoomInvitationDto</a>)</code>
+                    <code>handleRespondInvitation(client: <a href="../undefineds/EmitEvents.html" target="_self">Socket&lt; | EmitEvents&gt;</a>, payload: <a href="../classes/RespondRoomInvitationDto.html" target="_self">RespondRoomInvitationDto</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@UseInterceptors(new EventNameBindingInterceptor(), SocketUserIdBindingInterceptor)<br />@SubscribeMessage(ListenEvent.RespondRoomInvitation)<br /></code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="239"
+                            class="link-to-prism">src/module/communication/communication.gateway.ts:239</a></div>
                 </td>
             </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="376"
-                            class="link-to-prism">src/module/communication/communication.service.ts:376</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-description"><p>Respond to a room invitation.</p>
+                    <div class="io-description"><p>Respond to room invitation.</p>
 </div>
 
                     <div class="io-description">
@@ -1092,25 +908,9 @@ same account.</p>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td>server</td>
-                                    <td>
-                                                <code><a href="../miscellaneous/typealiases.html#EmitEvents" target="_self" >Server&lt; | EmitEvents&gt;</a></code>
-                                    </td>
-
-                                    <td>
-                                        No
-                                    </td>
-
-
-                                    <td>
-                                        <p>websocket server.</p>
-
-                                    </td>
-                                </tr>
-                                <tr>
                                     <td>client</td>
                                     <td>
-                                            <code>Socket</code>
+                                                <code><a href="../miscellaneous/typealiases.html#EmitEvents" target="_self" >Socket&lt; | EmitEvents&gt;</a></code>
                                     </td>
 
                                     <td>
@@ -1157,33 +957,40 @@ same account.</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="sendPrivateMessage"></a>
+                    <a name="handleSendRoomMesage"></a>
                     <span class="name">
                         <span class="modifier">Async</span>
-                        <span ><b>sendPrivateMessage</b></span>
-                        <a href="#sendPrivateMessage"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>handleSendRoomMesage</b></span>
+                        <a href="#handleSendRoomMesage"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
                     <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>sendPrivateMessage(server: <a href="../undefineds/EmitEvents.html" target="_self">Server&lt; | EmitEvents&gt;</a>, client: Socket, payload: <a href="../classes/SendPrivateMessageDto.html" target="_self">SendPrivateMessageDto</a>)</code>
+                    <code>handleSendRoomMesage(client: Socket, payload: <a href="../classes/SendRoomMessageDto.html" target="_self">SendRoomMessageDto</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@UseInterceptors(new EventNameBindingInterceptor(), SocketUserIdBindingInterceptor)<br />@SubscribeMessage(ListenEvent.SendRoomMessage)<br /></code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="105"
+                            class="link-to-prism">src/module/communication/communication.gateway.ts:105</a></div>
                 </td>
             </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="171"
-                            class="link-to-prism">src/module/communication/communication.service.ts:171</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-description"><p>Send a private message to friend.</p>
+                    <div class="io-description"><p>Send room message.</p>
 </div>
 
                     <div class="io-description">
@@ -1199,130 +1006,6 @@ same account.</p>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>server</td>
-                                    <td>
-                                                <code><a href="../miscellaneous/typealiases.html#EmitEvents" target="_self" >Server&lt; | EmitEvents&gt;</a></code>
-                                    </td>
-
-                                    <td>
-                                        No
-                                    </td>
-
-
-                                    <td>
-                                        <p>websocket server.</p>
-
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>client</td>
-                                    <td>
-                                            <code>Socket</code>
-                                    </td>
-
-                                    <td>
-                                        No
-                                    </td>
-
-
-                                    <td>
-                                        <p>socket client.</p>
-
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>payload</td>
-                                    <td>
-                                                <code><a href="../classes/SendPrivateMessageDto.html" target="_self" >SendPrivateMessageDto</a></code>
-                                    </td>
-
-                                    <td>
-                                        No
-                                    </td>
-
-
-                                    <td>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div>
-                    </div>
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
-
-                    </div>
-                    <div class="io-description">
-                        
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="sendRoomMessage"></a>
-                    <span class="name">
-                        <span class="modifier">Async</span>
-                        <span ><b>sendRoomMessage</b></span>
-                        <a href="#sendRoomMessage"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                    <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>sendRoomMessage(server: <a href="../undefineds/EmitEvents.html" target="_self">Server&lt; | EmitEvents&gt;</a>, client: Socket, payload: <a href="../classes/SendRoomMessageDto.html" target="_self">SendRoomMessageDto</a>)</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="196"
-                            class="link-to-prism">src/module/communication/communication.service.ts:196</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-description"><p>Send a message to joined room.</p>
-</div>
-
-                    <div class="io-description">
-                        <b>Parameters :</b>
-                        
-                        <table class="params">
-                            <thead>
-                                <tr>
-                                    <td>Name</td>
-                                    <td>Type</td>
-                                    <td>Optional</td>
-                                    <td>Description</td>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>server</td>
-                                    <td>
-                                                <code><a href="../miscellaneous/typealiases.html#EmitEvents" target="_self" >Server&lt; | EmitEvents&gt;</a></code>
-                                    </td>
-
-                                    <td>
-                                        No
-                                    </td>
-
-
-                                    <td>
-                                        <p>websocket server.</p>
-
-                                    </td>
-                                </tr>
                                 <tr>
                                     <td>client</td>
                                     <td>
@@ -1373,33 +1056,40 @@ same account.</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="transferRoomOwnership"></a>
+                    <a name="handleTransferOwnership"></a>
                     <span class="name">
                         <span class="modifier">Async</span>
-                        <span ><b>transferRoomOwnership</b></span>
-                        <a href="#transferRoomOwnership"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>handleTransferOwnership</b></span>
+                        <a href="#handleTransferOwnership"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
                     <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>transferRoomOwnership(server: <a href="../undefineds/EmitEvents.html" target="_self">Server&lt; | EmitEvents&gt;</a>, client: Socket, payload: <a href="../classes/TransferOwnershipDto.html" target="_self">TransferOwnershipDto</a>)</code>
+                    <code>handleTransferOwnership(client: <a href="../undefineds/EmitEvents.html" target="_self">Socket&lt; | EmitEvents&gt;</a>, payload: <a href="../classes/TransferOwnershipDto.html" target="_self">TransferOwnershipDto</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@UseInterceptors(new EventNameBindingInterceptor(), SocketUserIdBindingInterceptor)<br />@SubscribeMessage(ListenEvent.TranserOwnership)<br /></code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="199"
+                            class="link-to-prism">src/module/communication/communication.gateway.ts:199</a></div>
                 </td>
             </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="322"
-                            class="link-to-prism">src/module/communication/communication.service.ts:322</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-description"><p>Transfer room ownership to a member in that room.</p>
+                    <div class="io-description"><p>Transfer ownership to another member in room.</p>
 </div>
 
                     <div class="io-description">
@@ -1416,25 +1106,9 @@ same account.</p>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td>server</td>
-                                    <td>
-                                                <code><a href="../miscellaneous/typealiases.html#EmitEvents" target="_self" >Server&lt; | EmitEvents&gt;</a></code>
-                                    </td>
-
-                                    <td>
-                                        No
-                                    </td>
-
-
-                                    <td>
-                                        <p>websocket server.</p>
-
-                                    </td>
-                                </tr>
-                                <tr>
                                     <td>client</td>
                                     <td>
-                                            <code>Socket</code>
+                                                <code><a href="../miscellaneous/typealiases.html#EmitEvents" target="_self" >Socket&lt; | EmitEvents&gt;</a></code>
                                     </td>
 
                                     <td>
@@ -1481,110 +1155,40 @@ same account.</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="validateAuthorization"></a>
+                    <a name="sendPrivateMessage"></a>
                     <span class="name">
-                        <span class="modifier">Private</span>
                         <span class="modifier">Async</span>
-                        <span ><b>validateAuthorization</b></span>
-                        <a href="#validateAuthorization"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>sendPrivateMessage</b></span>
+                        <a href="#sendPrivateMessage"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
                     <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>validateAuthorization(headerAuthorization: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                    <code>sendPrivateMessage(client: Socket, payload: <a href="../classes/SendPrivateMessageDto.html" target="_self">SendPrivateMessageDto</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@UseInterceptors(new EventNameBindingInterceptor(), SocketUserIdBindingInterceptor)<br />@SubscribeMessage(ListenEvent.SendPrivateMessage)<br /></code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="83"
+                            class="link-to-prism">src/module/communication/communication.gateway.ts:83</a></div>
                 </td>
             </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="41"
-                            class="link-to-prism">src/module/communication/communication.service.ts:41</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-description"><p>Verify token.</p>
-</div>
-
-                    <div class="io-description">
-                        <b>Parameters :</b>
-                        
-                        <table class="params">
-                            <thead>
-                                <tr>
-                                    <td>Name</td>
-                                    <td>Type</td>
-                                    <td>Optional</td>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>headerAuthorization</td>
-                                    <td>
-                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                    </td>
-
-                                    <td>
-                                        No
-                                    </td>
-
-
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div>
-                    </div>
-                    <div class="io-description">
-                        <b>Returns : </b>    <code>unknown</code>
-
-                    </div>
-                    <div class="io-description">
-                        <p>user record.</p>
-
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="validateConnection"></a>
-                    <span class="name">
-                        <span class="modifier">Private</span>
-                        <span class="modifier">Async</span>
-                        <span ><b>validateConnection</b></span>
-                        <a href="#validateConnection"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                    <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>validateConnection(server: Server, client: Socket)</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="89"
-                            class="link-to-prism">src/module/communication/communication.service.ts:89</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-description"><p>Check if the connection satisfies some sepecific conditions
-before allowing the connection.</p>
+                    <div class="io-description"><p>Send private message.</p>
 </div>
 
                     <div class="io-description">
@@ -1601,22 +1205,6 @@ before allowing the connection.</p>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td>server</td>
-                                    <td>
-                                            <code>Server</code>
-                                    </td>
-
-                                    <td>
-                                        No
-                                    </td>
-
-
-                                    <td>
-                                        <p>websocket server.</p>
-
-                                    </td>
-                                </tr>
-                                <tr>
                                     <td>client</td>
                                     <td>
                                             <code>Socket</code>
@@ -1632,21 +1220,76 @@ before allowing the connection.</p>
 
                                     </td>
                                 </tr>
+                                <tr>
+                                    <td>payload</td>
+                                    <td>
+                                                <code><a href="../classes/SendPrivateMessageDto.html" target="_self" >SendPrivateMessageDto</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                    <td>
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
                     <div>
                     </div>
                     <div class="io-description">
-                        <b>Returns : </b>    <code>unknown</code>
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
 
                     </div>
                     <div class="io-description">
-                        <p>updated user.</p>
-
+                        
                     </div>
                 </td>
             </tr>
+        </tbody>
+    </table>
+</section>
+            <section>
+    
+    <h3 id="inputs">
+        Properties
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="server"></a>
+                    <span class="name">
+                            <span class="modifier">Readonly</span>
+                        <span ><b>server</b></span>
+                        <a href="#server"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="../miscellaneous/typealiases.html#EmitEvents" target="_self" >Server&lt; | EmitEvents&gt;</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <b>Decorators : </b>
+                        <br />
+                        <code>
+                            @WebSocketServer()<br />
+                        </code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="50" class="link-to-prism">src/module/communication/communication.gateway.ts:50</a></div>
+                        </td>
+                    </tr>
+
+
         </tbody>
     </table>
 </section>
@@ -1656,18 +1299,31 @@ before allowing the connection.</p>
 
     <div class="tab-pane fade  tab-source-code" id="c-source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
-  BadRequestException,
-  ForbiddenException,
   Injectable,
+  UseFilters,
+  UseInterceptors,
+  UsePipes,
+  ValidationPipe,
 } from &#x27;@nestjs/common&#x27;;
-import { User } from &#x27;@prisma/client&#x27;;
+import {
+  ConnectedSocket,
+  GatewayMetadata,
+  MessageBody,
+  OnGatewayConnection,
+  OnGatewayDisconnect,
+  SubscribeMessage,
+  WebSocketGateway,
+  WebSocketServer,
+} from &#x27;@nestjs/websockets&#x27;;
 import { Server, Socket } from &#x27;socket.io&#x27;;
-import { AuthService } from &#x27;src/common/service/auth.service&#x27;;
-import { AppConfig } from &#x27;src/config&#x27;;
-import { ActiveStatus, EmitEvent, ListenEvent, RoomEvent } from &#x27;src/enum&#x27;;
+import { CORSConfig, ValidationConfig } from &#x27;src/config&#x27;;
+import { ListenEvent } from &#x27;src/enum&#x27;;
+import { AllExceptionFilter, WsExceptionsFilter } from &#x27;src/common/filter&#x27;;
+import {
+  EventNameBindingInterceptor,
+  SocketUserIdBindingInterceptor,
+} from &#x27;src/common/interceptor&#x27;;
 import { EmitEvents } from &#x27;src/type&#x27;;
-import { SendPrivateMessageDto, SendRoomMessageDto } from &#x27;../message/dto&#x27;;
-import { MessageService } from &#x27;../message/message.service&#x27;;
 import {
   BookRoomDto,
   InviteToRoomDto,
@@ -1677,389 +1333,218 @@ import {
   RespondRoomInvitationDto,
   TransferOwnershipDto,
 } from &#x27;../room/dto&#x27;;
-import { RoomService } from &#x27;../room/room.service&#x27;;
-import { UserService } from &#x27;../user/user.service&#x27;;
+import { CommunicationService } from &#x27;./communication.service&#x27;;
+import { SendRoomMessageDto, SendPrivateMessageDto } from &#x27;../message/dto&#x27;;
 
 @Injectable()
-export class CommunicationService {
-  constructor(
-    private authService: AuthService,
-    private userService: UserService,
-    private messageService: MessageService,
-    private roomService: RoomService,
-  ) {}
+@UseFilters(new AllExceptionFilter(), new WsExceptionsFilter())
+@UsePipes(new ValidationPipe(ValidationConfig))
+@WebSocketGateway&lt;GatewayMetadata&gt;({
+  namespace: &#x27;/&#x27;,
+  cors: CORSConfig,
+})
+export class CommunicationGateway
+  implements OnGatewayConnection, OnGatewayDisconnect
+{
+  @WebSocketServer()
+  readonly server: Server&lt;null, EmitEvents&gt;;
+
+  constructor(private communicationService: CommunicationService) {}
 
   /**
-   * Verify token.
+   * Store user state before connection.
    *
-   * @param headerAuthorization
-   * @returns user record.
-   */
-  private async validateAuthorization(headerAuthorization: string) {
-    const token &#x3D; String(headerAuthorization).replace(&#x27;Bearer &#x27;, &#x27;&#x27;);
-    const user &#x3D; await this.authService.getUser(token);
-
-    return user;
-  }
-
-  /**
-   * Solve conflict if multiple people connect to the
-   * same account.
-   *
-   * @param server websocket server.
-   * @param user
-   */
-  private async handleConflict(server: Server&lt;null, EmitEvents&gt;, user: User) {
-    if (!AppConfig.disconnectIfConflict) {
-      throw new BadRequestException(&#x27;Your account is in use!&#x27;);
-    }
-
-    const { disconnectedId, leftRooms } &#x3D; await this.userService.disconnect(
-      user,
-    );
-
-    server.to(disconnectedId).emit(EmitEvent.Error, {
-      event: ListenEvent.Connect,
-      message: &#x27;This account is being connected by someone else!&#x27;,
-    });
-    server.to(disconnectedId).disconnectSockets();
-
-    leftRooms.forEach((room) &#x3D;&gt; {
-      if (room.memberIds.length &gt; 0) {
-        server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
-          event: RoomEvent.Leave,
-          actorIds: [user.id],
-          room,
-        });
-      }
-    });
-  }
-
-  /**
-   * Check if the connection satisfies some sepecific conditions
-   * before allowing the connection.
-   *
-   * @param server websocket server.
-   * @param client socket client.
-   * @returns updated user.
-   */
-  private async validateConnection(server: Server, client: Socket) {
-    const user &#x3D; await this.validateAuthorization(
-      client.handshake.headers.authorization,
-    );
-
-    if (user.statusId !&#x3D; null) {
-      await this.handleConflict(server, user);
-    }
-
-    return user;
-  }
-
-  /**
-   * Connect the client.
-   *
-   * @param server websocket server.
    * @param client socket client.
    */
-  async connect(server: Server&lt;null, EmitEvents&gt;, client: Socket) {
-    try {
-      const user &#x3D; await this.validateConnection(server, client);
-      await this.userService.connect(user, client.id);
-
-      const friendSIds &#x3D; await this.userService.getOnlineFriendsSocketIds(
-        user.id,
-      );
-      server.to(friendSIds).emit(EmitEvent.UpdateFriendStatus, {
-        id: user.id,
-        status: ActiveStatus.Online,
-      });
-    } catch (error: any) {
-      client.emit(EmitEvent.Error, {
-        event: ListenEvent.Connect,
-        message: error.message,
-      });
-      client.disconnect();
-    }
+  async handleConnection(client: Socket) {
+    await this.communicationService.connect(this.server, client);
   }
 
   /**
-   * Disconnect the client.
+   * Remove user state after disconnection.
    *
-   * @param server websocket server.
    * @param client socket client.
    */
-  async disconnect(server: Server&lt;null, EmitEvents&gt;, client: Socket) {
-    try {
-      const user &#x3D; await this.userService.getBySocketId(client.id);
-
-      if (user !&#x3D; null) {
-        const friendSIds &#x3D; await this.userService.getOnlineFriendsSocketIds(
-          user.id,
-        );
-        const { leftRooms } &#x3D; await this.userService.disconnect(user);
-
-        server.to(friendSIds).emit(EmitEvent.UpdateFriendStatus, {
-          id: user.id,
-          status: ActiveStatus.Offline,
-        });
-
-        leftRooms.forEach((room) &#x3D;&gt; {
-          if (room.memberIds.length &gt; 0) {
-            server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
-              event: RoomEvent.Leave,
-              actorIds: [client.userId],
-              room,
-            });
-          }
-        });
-      }
-    } catch (error) {
-      //
-    }
+  async handleDisconnect(client: Socket) {
+    await this.communicationService.disconnect(this.server, client);
   }
 
   /**
-   * Send a private message to friend.
+   * Send private message.
    *
-   * @param server websocket server.
    * @param client socket client.
    * @param payload
    */
+  @UseInterceptors(
+    new EventNameBindingInterceptor(ListenEvent.SendPrivateMessage),
+    SocketUserIdBindingInterceptor,
+  )
+  @SubscribeMessage(ListenEvent.SendPrivateMessage)
   async sendPrivateMessage(
-    server: Server&lt;null, EmitEvents&gt;,
-    client: Socket,
-    payload: SendPrivateMessageDto,
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload: SendPrivateMessageDto,
   ) {
-    await this.messageService.createPrivateMessage(client.userId, payload);
-    const receiverSId &#x3D; await this.userService.getSocketIdByUserId(
-      payload.receiverId,
+    await this.communicationService.sendPrivateMessage(
+      this.server,
+      client,
+      payload,
     );
-
-    if (receiverSId !&#x3D; null) {
-      server.to(receiverSId).emit(EmitEvent.ReceivePrivateMessage, {
-        ...payload,
-        senderId: client.userId,
-      });
-    }
   }
 
   /**
-   * Send a message to joined room.
+   * Send room message.
    *
-   * @param server websocket server.
    * @param client socket client.
    * @param payload
    */
-  async sendRoomMessage(
-    server: Server&lt;null, EmitEvents&gt;,
-    client: Socket,
-    payload: SendRoomMessageDto,
+  @UseInterceptors(
+    new EventNameBindingInterceptor(ListenEvent.SendRoomMessage),
+    SocketUserIdBindingInterceptor,
+  )
+  @SubscribeMessage(ListenEvent.SendRoomMessage)
+  async handleSendRoomMesage(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload: SendRoomMessageDto,
   ) {
-    const room &#x3D; await this.roomService.get(payload.roomId);
-
-    if (room.isMuted) {
-      throw new ForbiddenException(&#x27;Unable to chat at this time!&#x27;);
-    }
-
-    if (!room.memberIds.includes(client.userId)) {
-      throw new ForbiddenException(&#x27;You are not in this room!&#x27;);
-    }
-
-    if (room.isPersistent) {
-      await this.messageService.createRoomMessage(client.userId, payload);
-    }
-
-    server.to(payload.roomId).emit(EmitEvent.ReceiveRoomMessage, {
-      ...payload,
-      senderId: client.userId,
-    });
-  }
-
-  /**
-   * Create a room that is deleted after all members leave.
-   *
-   * @param client socket client.
-   * @param payload
-   */
-  async createTemporaryRoom(client: Socket, payload: BookRoomDto) {
-    const room &#x3D; await this.roomService.book(client.userId, payload.isPublic);
-    client.join(room.id);
-
-    client.emit(EmitEvent.ReceiveRoomChanges, {
-      event: RoomEvent.Create,
-      actorIds: [client.userId],
-      room,
-    });
-  }
-
-  /**
-   * Join to new room.
-   *
-   * @param server websocket server.
-   * @param client socket client.
-   * @param payload
-   */
-  async joinRoom(
-    server: Server&lt;null, EmitEvents&gt;,
-    client: Socket,
-    payload: JoinRoomDto,
-  ) {
-    const room &#x3D; await this.roomService.join(client.userId, payload.roomId);
-    client.join(room.id);
-
-    server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
-      event: RoomEvent.Join,
-      actorIds: [client.userId],
-      room,
-    });
-  }
-
-  /**
-   * Leave the joined room.
-   *
-   * @param server websocket server.
-   * @param client socket client.
-   * @param payload
-   */
-  async leaveRoom(
-    server: Server&lt;null, EmitEvents&gt;,
-    client: Socket,
-    payload: LeaveRoomDto,
-  ) {
-    const room &#x3D; await this.roomService.leave(client.userId, payload.roomId);
-    client.leave(room.id);
-
-    server
-      .to(client.id)
-      .to(room.id)
-      .emit(EmitEvent.ReceiveRoomChanges, {
-        event: RoomEvent.Leave,
-        actorIds: [client.userId],
-        room,
-      });
-  }
-
-  /**
-   * Kick a member out of the room.
-   *
-   * @param server websocket server.
-   * @param client socket client.
-   * @param payload
-   */
-  async kickOutOfRoom(
-    server: Server&lt;null, EmitEvents&gt;,
-    client: Socket,
-    payload: KickOutOfRoomDto,
-  ) {
-    const { room, kickedMemberSocketId } &#x3D; await this.roomService.kick(
-      client.userId,
-      payload.memberId,
-      payload.roomId,
+    await this.communicationService.sendRoomMessage(
+      this.server,
+      client,
+      payload,
     );
-
-    server
-      .to(kickedMemberSocketId)
-      .to(room.id)
-      .emit(EmitEvent.ReceiveRoomChanges, {
-        event: RoomEvent.Kick,
-        actorIds: [client.userId],
-        room,
-      });
-
-    server.to(kickedMemberSocketId).socketsLeave(room.id);
   }
 
   /**
-   * Transfer room ownership to a member in that room.
+   * Book a new room.
    *
-   * @param server websocket server.
    * @param client socket client.
    * @param payload
    */
-  async transferRoomOwnership(
-    server: Server&lt;null, EmitEvents&gt;,
-    client: Socket,
-    payload: TransferOwnershipDto,
+  @UseInterceptors(
+    new EventNameBindingInterceptor(ListenEvent.BookRoom),
+    SocketUserIdBindingInterceptor,
+  )
+  @SubscribeMessage(ListenEvent.BookRoom)
+  async handleBookRoom(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload: BookRoomDto,
   ) {
-    const room &#x3D; await this.roomService.transferOwnership(
-      client.userId,
-      payload.candidateId,
-      payload.roomId,
-    );
-
-    server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
-      event: RoomEvent.Owner,
-      actorIds: [client.userId],
-      room,
-    });
+    await this.communicationService.createTemporaryRoom(client, payload);
   }
 
   /**
-   * Send a room invitation to user.
+   * Join to a new room.
    *
-   * @param server websocket server.
    * @param client socket client.
    * @param payload
    */
-  async inviteToRoom(
-    server: Server&lt;null, EmitEvents&gt;,
-    client: Socket,
-    payload: InviteToRoomDto,
+  @UseInterceptors(
+    new EventNameBindingInterceptor(ListenEvent.JoinRoom),
+    SocketUserIdBindingInterceptor,
+  )
+  @SubscribeMessage(ListenEvent.JoinRoom)
+  async handleJoinRoom(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload: JoinRoomDto,
   ) {
-    const { room, guestSocketId } &#x3D; await this.roomService.invite(
-      client.userId,
-      payload.guestId,
-      payload.roomId,
-    );
-
-    server.to(guestSocketId).emit(EmitEvent.ReceiveRoomInvitation, {
-      roomId: room.id,
-      inviterId: client.userId,
-    });
-    server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
-      event: RoomEvent.Invite,
-      actorIds: [client.userId],
-      room,
-    });
+    await this.communicationService.joinRoom(this.server, client, payload);
   }
 
   /**
-   * Respond to a room invitation.
+   * Leave the room.
    *
-   * @param server websocket server.
    * @param client socket client.
    * @param payload
    */
-  async respondRoomInvitation(
-    server: Server&lt;null, EmitEvents&gt;,
-    client: Socket,
-    payload: RespondRoomInvitationDto,
+  @UseInterceptors(
+    new EventNameBindingInterceptor(ListenEvent.LeaveRoom),
+    SocketUserIdBindingInterceptor,
+  )
+  @SubscribeMessage(ListenEvent.LeaveRoom)
+  async handleLeaveRoom(
+    @ConnectedSocket() client: Socket&lt;null, EmitEvents&gt;,
+    @MessageBody() payload: LeaveRoomDto,
   ) {
-    const { room, leftRooms } &#x3D; await this.roomService.respondInvitation(
-      client.userId,
-      payload.isAccpeted,
-      payload.roomId,
+    await this.communicationService.leaveRoom(this.server, client, payload);
+  }
+
+  /**
+   * Kick member out of room.
+   *
+   * @param client socket client.
+   * @param payload
+   */
+  @UseInterceptors(
+    new EventNameBindingInterceptor(ListenEvent.KickOutOfRoom),
+    SocketUserIdBindingInterceptor,
+  )
+  @SubscribeMessage(ListenEvent.KickOutOfRoom)
+  async handleKickOutOfRoom(
+    @ConnectedSocket() client: Socket&lt;null, EmitEvents&gt;,
+    @MessageBody() payload: KickOutOfRoomDto,
+  ) {
+    await this.communicationService.kickOutOfRoom(this.server, client, payload);
+  }
+
+  /**
+   * Transfer ownership to another member in room.
+   *
+   * @param client socket client.
+   * @param payload
+   */
+  @UseInterceptors(
+    new EventNameBindingInterceptor(ListenEvent.TranserOwnership),
+    SocketUserIdBindingInterceptor,
+  )
+  @SubscribeMessage(ListenEvent.TranserOwnership)
+  async handleTransferOwnership(
+    @ConnectedSocket() client: Socket&lt;null, EmitEvents&gt;,
+    @MessageBody() payload: TransferOwnershipDto,
+  ) {
+    await this.communicationService.transferRoomOwnership(
+      this.server,
+      client,
+      payload,
     );
+  }
 
-    if (payload.isAccpeted) {
-      client.join(room.id);
+  /**
+   * Invite a guest into room.
+   *
+   * @param client socket client.
+   * @param payload
+   */
+  @UseInterceptors(
+    new EventNameBindingInterceptor(ListenEvent.InviteToRoom),
+    SocketUserIdBindingInterceptor,
+  )
+  @SubscribeMessage(ListenEvent.InviteToRoom)
+  async handleInviteToRoom(
+    @ConnectedSocket() client: Socket&lt;null, EmitEvents&gt;,
+    @MessageBody() payload: InviteToRoomDto,
+  ) {
+    await this.communicationService.inviteToRoom(this.server, client, payload);
+  }
 
-      server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
-        event: RoomEvent.Join,
-        actorIds: [client.userId],
-        room,
-      });
-
-      leftRooms.forEach((room) &#x3D;&gt; {
-        if (room.memberIds.length &gt; 0) {
-          server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
-            event: RoomEvent.Leave,
-            actorIds: [client.userId],
-            room,
-          });
-        }
-      });
-    }
+  /**
+   * Respond to room invitation.
+   *
+   * @param client socket client.
+   * @param payload
+   */
+  @UseInterceptors(
+    new EventNameBindingInterceptor(ListenEvent.RespondRoomInvitation),
+    SocketUserIdBindingInterceptor,
+  )
+  @SubscribeMessage(ListenEvent.RespondRoomInvitation)
+  async handleRespondInvitation(
+    @ConnectedSocket() client: Socket&lt;null, EmitEvents&gt;,
+    @MessageBody() payload: RespondRoomInvitationDto,
+  ) {
+    await this.communicationService.respondRoomInvitation(
+      this.server,
+      client,
+      payload,
+    );
   }
 }
 </code></pre>
@@ -2105,7 +1590,7 @@ export class CommunicationService {
        <script>
             var COMPODOC_CURRENT_PAGE_DEPTH = 1;
             var COMPODOC_CURRENT_PAGE_CONTEXT = 'injectable';
-            var COMPODOC_CURRENT_PAGE_URL = 'CommunicationService.html';
+            var COMPODOC_CURRENT_PAGE_URL = 'CommunicationGateway.html';
             var MAX_SEARCH_RESULTS = 15;
        </script>
 

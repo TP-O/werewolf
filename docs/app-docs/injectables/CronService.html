@@ -40,7 +40,7 @@
 
 <ol class="breadcrumb">
   <li>Injectables</li>
-  <li >PrismaService</li>
+  <li >CronService</li>
 </ol>
 
 <ul class="nav nav-tabs" role="tablist">
@@ -58,17 +58,11 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/common/service/prisma.service.ts</code>
+            <code>src/common/service/cron.service.ts</code>
         </p>
 
 
 
-            <p class="comment">
-                <h3>Extends</h3>
-            </p>
-            <p class="comment">
-                    <code>PrismaClient</code>
-            </p>
 
 
             <section>
@@ -86,11 +80,11 @@
                         <ul class="index-list">
                             <li>
                                     <span class="modifier">Async</span>
-                                <a href="#enableShutdownHooks" >enableShutdownHooks</a>
+                                <a href="#clearPrivateMessage" >clearPrivateMessage</a>
                             </li>
                             <li>
                                     <span class="modifier">Async</span>
-                                <a href="#onModuleInit" >onModuleInit</a>
+                                <a href="#clearRoomMessage" >clearRoomMessage</a>
                             </li>
                         </ul>
                     </td>
@@ -110,15 +104,45 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor()</code>
+<code>constructor(messageService: <a href="../injectables/MessageService.html" target="_self">MessageService</a>)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="6" class="link-to-prism">src/common/service/prisma.service.ts:6</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="7" class="link-to-prism">src/common/service/cron.service.ts:7</a></div>
                             </td>
                         </tr>
 
+                <tr>
+                    <td class="col-md-4">
+                            <div>
+                                    <b>Parameters :</b>
+                                    <table class="params">
+                                        <thead>
+                                            <tr>
+                                                <td>Name</td>
+                                                    <td>Type</td>
+                                                <td>Optional</td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                                <tr>
+                                                        <td>messageService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/MessageService.html" target="_self" >MessageService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                        </tbody>
+                                    </table>
+                            </div>
+                    </td>
+                </tr>
             </tbody>
         </table>
 </section>
@@ -132,68 +156,43 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="enableShutdownHooks"></a>
+                    <a name="clearPrivateMessage"></a>
                     <span class="name">
                         <span class="modifier">Async</span>
-                        <span ><b>enableShutdownHooks</b></span>
-                        <a href="#enableShutdownHooks"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>clearPrivateMessage</b></span>
+                        <a href="#clearPrivateMessage"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
                     <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>enableShutdownHooks(app: INestApplication)</code>
+                    <code>clearPrivateMessage()</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Cron(undefined.cronTime)<br /></code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="11"
+                            class="link-to-prism">src/common/service/cron.service.ts:11</a></div>
                 </td>
             </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="36"
-                            class="link-to-prism">src/common/service/prisma.service.ts:36</a></div>
-                </td>
-            </tr>
 
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Parameters :</b>
-                        
-                        <table class="params">
-                            <thead>
-                                <tr>
-                                    <td>Name</td>
-                                    <td>Type</td>
-                                    <td>Optional</td>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>app</td>
-                                    <td>
-                                            <code>INestApplication</code>
-                                    </td>
-
-                                    <td>
-                                        No
-                                    </td>
-
-
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div>
-                    </div>
                     <div class="io-description">
                         <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
 
-                    </div>
-                    <div class="io-description">
-                        
                     </div>
                 </td>
             </tr>
@@ -203,26 +202,33 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="onModuleInit"></a>
+                    <a name="clearRoomMessage"></a>
                     <span class="name">
                         <span class="modifier">Async</span>
-                        <span ><b>onModuleInit</b></span>
-                        <a href="#onModuleInit"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>clearRoomMessage</b></span>
+                        <a href="#clearRoomMessage"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
                     <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>onModuleInit()</code>
+                    <code>clearRoomMessage()</code>
                 </td>
             </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Cron(undefined.cronTime)<br /></code>
+                </td>
+            </tr>
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="22"
-                            class="link-to-prism">src/common/service/prisma.service.ts:22</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="18"
+                            class="link-to-prism">src/common/service/cron.service.ts:18</a></div>
                 </td>
             </tr>
 
@@ -244,45 +250,27 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="c-source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { INestApplication, Injectable, OnModuleInit } from &#x27;@nestjs/common&#x27;;
-import { PrismaClient } from &#x27;@prisma/client&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable } from &#x27;@nestjs/common&#x27;;
+import { Cron } from &#x27;@nestjs/schedule&#x27;;
 import { AppConfig } from &#x27;src/config&#x27;;
+import { MessageService } from &#x27;src/module/message/message.service&#x27;;
 
 @Injectable()
-export class PrismaService extends PrismaClient implements OnModuleInit {
-  constructor() {
-    if (AppConfig.debug) {
-      super({
-        log: [
-          {
-            emit: &#x27;event&#x27;,
-            level: &#x27;query&#x27;,
-          },
-        ],
-      });
-    } else {
-      super();
-    }
+export class CronService {
+  constructor(private messageService: MessageService) {}
+
+  @Cron(AppConfig.messageManagment.private.cronTime)
+  async clearPrivateMessage() {
+    await this.messageService.removeOldPrivateMessage(
+      AppConfig.messageManagment.private.maxOld,
+    );
   }
 
-  async onModuleInit() {
-    await this.$connect();
-
-    if (AppConfig.debug) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      this.$on(&#x27;query&#x27;, async (e) &#x3D;&gt; {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        console.log(&#x60;${e.query} ${e.params}&#x60;);
-      });
-    }
-  }
-
-  async enableShutdownHooks(app: INestApplication) {
-    this.$on(&#x27;beforeExit&#x27;, async () &#x3D;&gt; {
-      await app.close();
-    });
+  @Cron(AppConfig.messageManagment.room.cronTime)
+  async clearRoomMessage() {
+    await this.messageService.removeOldRoomMessage(
+      AppConfig.messageManagment.room.maxOld,
+    );
   }
 }
 </code></pre>
@@ -328,7 +316,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
        <script>
             var COMPODOC_CURRENT_PAGE_DEPTH = 1;
             var COMPODOC_CURRENT_PAGE_CONTEXT = 'injectable';
-            var COMPODOC_CURRENT_PAGE_URL = 'PrismaService.html';
+            var COMPODOC_CURRENT_PAGE_URL = 'CronService.html';
             var MAX_SEARCH_RESULTS = 15;
        </script>
 

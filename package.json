@@ -19,7 +19,7 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "doc:app": "npx @compodoc/compodoc -p tsconfig.json -n \"Communication Server Template\" -d ./docs/app-docs",
-    "doc:async-api": "ag docs/async-api.yaml @asyncapi/html-template -o docs/socketio-docs/ --force-write"
+    "doc:async-api": "ag docs/async-api.yaml @asyncapi/html-template -o docs/event-driven-docs/ --force-write"
   },
   "dependencies": {
     "@nestjs/common": "^9.0.0",
@@ -46,6 +46,7 @@
   },
   "devDependencies": {
     "@asyncapi/generator": "^1.9.11",
+    "@asyncapi/html-template": "0.25.2",
     "@compodoc/compodoc": "^1.1.19",
     "@firebase/app-types": "^0.7.0",
     "@nestjs/cli": "^9.0.0",

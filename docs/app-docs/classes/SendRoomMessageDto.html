@@ -44,7 +44,7 @@
 
 <ol class="breadcrumb">
   <li>Classes</li>
-  <li >InviteToRoomDto</li>
+  <li >SendRoomMessageDto</li>
 </ol>
 
 <ul class="nav nav-tabs" role="tablist">
@@ -62,7 +62,7 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/module/room/dto/invite-to-room.dto.ts</code>
+            <code>src/module/message/dto/send-room-message.dto.ts</code>
         </p>
 
 
@@ -83,7 +83,7 @@
                     <td class="col-md-4">
                         <ul class="index-list">
                             <li>
-                                <a href="#guestId" >guestId</a>
+                                <a href="#content" >content</a>
                             </li>
                             <li>
                                 <a href="#roomId" >roomId</a>
@@ -111,16 +111,16 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="guestId"></a>
+                    <a name="content"></a>
                     <span class="name">
-                        <span ><b>guestId</b></span>
-                        <a href="#guestId"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>content</b></span>
+                        <a href="#content"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
                 <tr>
                     <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
 
                     </td>
                 </tr>
@@ -129,13 +129,13 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @IsInt()<br />@IsPositive()<br />
+                            @IsString()<br />@IsNotEmpty()<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="10" class="link-to-prism">src/module/room/dto/invite-to-room.dto.ts:10</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="10" class="link-to-prism">src/module/message/dto/send-room-message.dto.ts:10</a></div>
                         </td>
                     </tr>
 
@@ -164,13 +164,13 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @IsString()<br />@IsNotEmpty()<br />
+                            @IsString()<br />@MinLength(13)<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="6" class="link-to-prism">src/module/room/dto/invite-to-room.dto.ts:6</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="6" class="link-to-prism">src/module/message/dto/send-room-message.dto.ts:6</a></div>
                         </td>
                     </tr>
 
@@ -189,16 +189,16 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="c-source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { IsInt, IsNotEmpty, IsPositive, IsString } from &#x27;class-validator&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { IsNotEmpty, IsString, MinLength } from &#x27;class-validator&#x27;;
 
-export class InviteToRoomDto {
+export class SendRoomMessageDto {
   @IsString()
-  @IsNotEmpty()
+  @MinLength(13)
   roomId: string;
 
-  @IsInt()
-  @IsPositive()
-  guestId: number;
+  @IsString()
+  @IsNotEmpty()
+  content: string;
 }
 </code></pre>
     </div>
@@ -238,7 +238,7 @@ export class InviteToRoomDto {
        <script>
             var COMPODOC_CURRENT_PAGE_DEPTH = 1;
             var COMPODOC_CURRENT_PAGE_CONTEXT = 'class';
-            var COMPODOC_CURRENT_PAGE_URL = 'InviteToRoomDto.html';
+            var COMPODOC_CURRENT_PAGE_URL = 'SendRoomMessageDto.html';
             var MAX_SEARCH_RESULTS = 15;
        </script>
 

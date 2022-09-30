@@ -1,27 +1,36 @@
 # Overview
 
-A template supports the most basic things for user - user, and user - group communicate in **game client**. The differences of this template from normal social platform chat mechanism are that room state will be reset if all the users connected to it have left and group messages are not archived anywhere.
+A template supports the most basic things for user - user, and user - group communicate in **game client**. The differences of this template from a normal chat platform are that room state is lost if all the users connected to it have left and group messages are not archived anywhere. To enable these mechanisms, you can create a persistent room.
 
 # Features
 
 - [x] Firebase Authentication
 - [ ] User
-  - [x] Send private message
-  - [x] Notify friends status
-  - [ ] Friend relationship
-    - [x] Get friend list
-    - [ ] Add friend
-    - [ ] Remove friend
+  - [x] Get friend list
+  - [ ] Add friend
+  - [ ] Remove friend
+  - [x] Receive friend status changes
 - [x] Room
-  - [x] Create room
-  - [x] Join room (Multi-room join mode)
   - [x] Leave room
-  - [x] Kick out of room
-  - [x] Transfer ownership
-  - [x] Invite to room
-  - [x] Respond to room invitation
-  - [x] Notify room chages
-  - [x] Send group message (Don't store into database)
+  - [x] Notify room changes
+  - [x] Temporary room (user functionality)
+    - [x] Book room
+    - [x] Join room
+    - [x] Kick out of room
+    - [x] Transfer ownership
+    - [x] Invite to room
+    - [x] Respond to room invitation
+  - [x] Persistent room (via API)
+    - [x] Create rooms
+    - [x] Mute room
+    - [x] Remove rooms
+    - [x] Add members
+    - [x] Remove members
+    - [x] Store message
+- [x] Message
+  - [x] Send private message
+  - [x] Send room message (only persistent room)
+  - [x] Delete old messages automatically
 
 # Tools And Technologies
 
@@ -52,7 +61,7 @@ A template supports the most basic things for user - user, and user - group comm
 
 RESTful API [here](https://tp-og.github.io/communication-server/api-docs).
 
-Event-Driven API [here](https://tp-og.github.io/communication-server/socketio-docs).
+Event-Driven API [here](https://tp-og.github.io/communication-server/event-driven-docs).
 
 Application [here](https://tp-og.github.io/communication-server/app-docs).
 
@@ -71,7 +80,7 @@ Then fill in the `.env` file.
 ## Development
 
 ```bash
-$ docker-compose up
+$ docker-compose up -d
 
 $ docker-compose exec app npx prisma migrate dev
 ```
@@ -79,9 +88,9 @@ $ docker-compose exec app npx prisma migrate dev
 ## Demo
 
 ```bash
-$ docker-compose -f docker-compose.demo.yml up
+$ docker-compose -f docker-compose.demo.yml up -d
 
-$ docker-compose exec app npx prisma migrate deploy
+$ docker-compose -f docker-compose.demo.yml exec app npx prisma migrate deploy
 ```
 
 # License

@@ -129,7 +129,7 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @IsInt()<br />@Min(1)<br />
+                            @IsInt()<br />@IsPositive()<br />
                         </code>
                     </td>
                 </tr>
@@ -164,7 +164,7 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @IsString()<br />@MinLength(13)<br />
+                            @IsString()<br />@IsNotEmpty()<br />
                         </code>
                     </td>
                 </tr>
@@ -189,15 +189,15 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="c-source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { IsInt, IsString, Min, MinLength } from &#x27;class-validator&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { IsInt, IsString, IsNotEmpty, IsPositive } from &#x27;class-validator&#x27;;
 
 export class KickOutOfRoomDto {
   @IsString()
-  @MinLength(13)
+  @IsNotEmpty()
   roomId: string;
 
   @IsInt()
-  @Min(1)
+  @IsPositive()
   memberId: number;
 }
 </code></pre>

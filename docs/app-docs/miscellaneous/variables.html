@@ -70,7 +70,7 @@
                             <a href="#client" title="src/common/decorator/redis.decorator.ts" ><b>client</b>&nbsp;&nbsp;&nbsp;(src/.../redis.decorator.ts)</a>
                         </li>
                         <li>
-                            <a href="#CORSConfig" title="src/config/core.config.ts" ><b>CORSConfig</b>&nbsp;&nbsp;&nbsp;(src/.../core.config.ts)</a>
+                            <a href="#CORSConfig" title="src/config/cors.config.ts" ><b>CORSConfig</b>&nbsp;&nbsp;&nbsp;(src/.../cors.config.ts)</a>
                         </li>
                         <li>
                             <a href="#FirebaseAuth" title="src/common/decorator/firebase-auth.decorator.ts" ><b>FirebaseAuth</b>&nbsp;&nbsp;&nbsp;(src/.../firebase-auth.decorator.ts)</a>
@@ -124,6 +124,16 @@
       port: parsedPort &gt;&#x3D; 0 &amp;&amp; parsedPort &lt; 65536 ? parsedPort : 3000,
       allowJoinMultipleRooms: true,
       disconnectIfConflict: true,
+      messageManagment: {
+        private: {
+          maxOld: 2 * Time.Day,
+          cronTime: &#x27;0 0 0 * * *&#x27;,
+        },
+        room: {
+          maxOld: 7 * Time.Day,
+          cronTime: &#x27;0 0 0 * * *&#x27;,
+        },
+      },
     };
   })(),
 )</code>
@@ -202,7 +212,7 @@
         </tbody>
     </table>
 </section>
-    <h3>src/config/core.config.ts</h3>
+    <h3>src/config/cors.config.ts</h3>
     <section>
     <h3></h3>    <table class="table table-sm table-bordered">
         <tbody>

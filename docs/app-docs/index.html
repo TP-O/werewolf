@@ -32,31 +32,44 @@
                    <div class="content-data">
 
 <h1 id="overview">Overview</h1>
-<p>A template supports the most basic things for user - user, and user - group communicate in <strong>game client</strong>. The differences of this template from normal social platform chat mechanism are that room state will be reset if all the users connected to it have left and group messages are not archived anywhere.</p>
+<p>A template supports the most basic things for user - user, and user - group communicate in <strong>game client</strong>. The differences of this template from a normal chat platform are that room state is lost if all the users connected to it have left and group messages are not archived anywhere. To enable these mechanisms, you can create a persistent room.</p>
 <h1 id="features">Features</h1>
 <ul>
 <li><input checked="" disabled="" type="checkbox"> Firebase Authentication</li>
 <li><input disabled="" type="checkbox"> User<ul>
-<li><input checked="" disabled="" type="checkbox"> Send private message</li>
-<li><input checked="" disabled="" type="checkbox"> Notify friends status</li>
-<li><input disabled="" type="checkbox"> Friend relationship<ul>
 <li><input checked="" disabled="" type="checkbox"> Get friend list</li>
 <li><input disabled="" type="checkbox"> Add friend</li>
 <li><input disabled="" type="checkbox"> Remove friend</li>
-</ul>
-</li>
+<li><input checked="" disabled="" type="checkbox"> Receive friend status changes</li>
 </ul>
 </li>
 <li><input checked="" disabled="" type="checkbox"> Room<ul>
-<li><input checked="" disabled="" type="checkbox"> Create room</li>
-<li><input checked="" disabled="" type="checkbox"> Join room (Multi-room join mode)</li>
 <li><input checked="" disabled="" type="checkbox"> Leave room</li>
+<li><input checked="" disabled="" type="checkbox"> Notify room changes</li>
+<li><input checked="" disabled="" type="checkbox"> Temporary room (user functionality)<ul>
+<li><input checked="" disabled="" type="checkbox"> Book room</li>
+<li><input checked="" disabled="" type="checkbox"> Join room</li>
 <li><input checked="" disabled="" type="checkbox"> Kick out of room</li>
 <li><input checked="" disabled="" type="checkbox"> Transfer ownership</li>
 <li><input checked="" disabled="" type="checkbox"> Invite to room</li>
 <li><input checked="" disabled="" type="checkbox"> Respond to room invitation</li>
-<li><input checked="" disabled="" type="checkbox"> Notify room chages</li>
-<li><input checked="" disabled="" type="checkbox"> Send group message (Don&#39;t store into database)</li>
+</ul>
+</li>
+<li><input checked="" disabled="" type="checkbox"> Persistent room (via API)<ul>
+<li><input checked="" disabled="" type="checkbox"> Create rooms</li>
+<li><input checked="" disabled="" type="checkbox"> Mute room</li>
+<li><input checked="" disabled="" type="checkbox"> Remove rooms</li>
+<li><input checked="" disabled="" type="checkbox"> Add members</li>
+<li><input checked="" disabled="" type="checkbox"> Remove members</li>
+<li><input checked="" disabled="" type="checkbox"> Store message</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><input checked="" disabled="" type="checkbox"> Message<ul>
+<li><input checked="" disabled="" type="checkbox"> Send private message</li>
+<li><input checked="" disabled="" type="checkbox"> Send room message (only persistent room)</li>
+<li><input checked="" disabled="" type="checkbox"> Delete old messages automatically</li>
 </ul>
 </li>
 </ul>
@@ -91,12 +104,12 @@ $ cd communication-server
 
 $ cp .env.example .env</code></pre></div><p>Then fill in the <code>.env</code> file.</p>
 <h2 id="development">Development</h2>
-<div><pre class="line-numbers"><code class="language-bash">$ docker-compose up
+<div><pre class="line-numbers"><code class="language-bash">$ docker-compose up -d
 
 $ docker-compose exec app npx prisma migrate dev</code></pre></div><h2 id="demo">Demo</h2>
-<div><pre class="line-numbers"><code class="language-bash">$ docker-compose -f docker-compose.demo.yml up
+<div><pre class="line-numbers"><code class="language-bash">$ docker-compose -f docker-compose.demo.yml up -d
 
-$ docker-compose exec app npx prisma migrate deploy</code></pre></div><h1 id="license">License</h1>
+$ docker-compose -f docker-compose.demo.yml exec app npx prisma migrate deploy</code></pre></div><h1 id="license">License</h1>
 <ul>
 <li><h5 id="this-project-is-distributed-under-the-mit-license">This project is distributed under the <a href="LICENSE">MIT License</a>.</h5>
 </li>

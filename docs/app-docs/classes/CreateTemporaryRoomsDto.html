@@ -44,7 +44,7 @@
 
 <ol class="breadcrumb">
   <li>Classes</li>
-  <li >InviteToRoomDto</li>
+  <li >CreateTemporaryRoomsDto</li>
 </ol>
 
 <ul class="nav nav-tabs" role="tablist">
@@ -62,7 +62,7 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/module/room/dto/invite-to-room.dto.ts</code>
+            <code>src/module/room/dto/create-temporary-rooms.dto.ts</code>
         </p>
 
 
@@ -83,10 +83,7 @@
                     <td class="col-md-4">
                         <ul class="index-list">
                             <li>
-                                <a href="#guestId" >guestId</a>
-                            </li>
-                            <li>
-                                <a href="#roomId" >roomId</a>
+                                <a href="#rooms" >rooms</a>
                             </li>
                         </ul>
                     </td>
@@ -111,16 +108,16 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="guestId"></a>
+                    <a name="rooms"></a>
                     <span class="name">
-                        <span ><b>guestId</b></span>
-                        <a href="#guestId"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>rooms</b></span>
+                        <a href="#rooms"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
                 <tr>
                     <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                        <i>Type : </i>        <code><a href="../classes/CreateRoomDto.html" target="_self" >CreateRoomDto[]</a></code>
 
                     </td>
                 </tr>
@@ -129,48 +126,13 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @IsInt()<br />@IsPositive()<br />
+                            @IsArray()<br />@ArrayMinSize(1)<br />@ValidateNested({each: true})<br />@Type(undefined)<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="10" class="link-to-prism">src/module/room/dto/invite-to-room.dto.ts:10</a></div>
-                        </td>
-                    </tr>
-
-
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="roomId"></a>
-                    <span class="name">
-                        <span ><b>roomId</b></span>
-                        <a href="#roomId"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <b>Decorators : </b>
-                        <br />
-                        <code>
-                            @IsString()<br />@IsNotEmpty()<br />
-                        </code>
-                    </td>
-                </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="6" class="link-to-prism">src/module/room/dto/invite-to-room.dto.ts:6</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="47" class="link-to-prism">src/module/room/dto/create-temporary-rooms.dto.ts:47</a></div>
                         </td>
                     </tr>
 
@@ -189,16 +151,53 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="c-source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { IsInt, IsNotEmpty, IsPositive, IsString } from &#x27;class-validator&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Type } from &#x27;class-transformer&#x27;;
+import {
+  ArrayMinSize,
+  ArrayUnique,
+  Equals,
+  IsArray,
+  IsBoolean,
+  IsNumber,
+  Min,
+  ValidateIf,
+  ValidateNested,
+} from &#x27;class-validator&#x27;;
+import { Room } from &#x27;../room.type&#x27;;
 
-export class InviteToRoomDto {
-  @IsString()
-  @IsNotEmpty()
-  roomId: string;
+class CreateRoomDto implements Room {
+  @IsBoolean()
+  isPublic: boolean;
 
-  @IsInt()
-  @IsPositive()
-  guestId: number;
+  @IsBoolean()
+  isMuted: boolean;
+
+  @ValidateIf((dto: CreateRoomDto, v) &#x3D;&gt; !dto.memberIds?.includes(v))
+  @Equals(undefined, { message: &#x27;$property must be contained in memberIds&#x27; })
+  ownerId: number;
+
+  @IsNumber({}, { each: true })
+  @Min(1, { each: true })
+  @ArrayUnique()
+  memberIds: number[];
+
+  id: string;
+
+  isPersistent &#x3D; false;
+
+  gameId &#x3D; 0;
+
+  waitingIds: number[] &#x3D; [];
+
+  refusedIds: number[] &#x3D; [];
+}
+
+export class CreateTemporaryRoomsDto {
+  @IsArray()
+  @ArrayMinSize(1)
+  @ValidateNested({ each: true })
+  @Type(() &#x3D;&gt; CreateRoomDto)
+  rooms: CreateRoomDto[];
 }
 </code></pre>
     </div>
@@ -238,7 +237,7 @@ export class InviteToRoomDto {
        <script>
             var COMPODOC_CURRENT_PAGE_DEPTH = 1;
             var COMPODOC_CURRENT_PAGE_CONTEXT = 'class';
-            var COMPODOC_CURRENT_PAGE_URL = 'InviteToRoomDto.html';
+            var COMPODOC_CURRENT_PAGE_URL = 'CreateTemporaryRoomsDto.html';
             var MAX_SEARCH_RESULTS = 15;
        </script>
 
