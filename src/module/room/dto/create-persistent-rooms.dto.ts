@@ -29,6 +29,8 @@ class CreatePersistentRoomDto implements Room {
 
   isPersistent = true;
 
+  isMuted = false;
+
   waitingIds: number[] = [];
 
   refusedIds: number[] = [];

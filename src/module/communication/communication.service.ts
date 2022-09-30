@@ -200,6 +200,10 @@ export class CommunicationService {
   ) {
     const room = await this.roomService.get(payload.roomId);
 
+    if (room.isMuted) {
+      throw new ForbiddenException('Unable to chat at this time!');
+    }
+
     if (!room.memberIds.includes(client.userId)) {
       throw new ForbiddenException('You are not in this room!');
     }

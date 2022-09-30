@@ -9,6 +9,7 @@ import {
   RemoveFromRoomDto,
   RemoveRoomsDto,
 } from './dto';
+import { MuteRoomDto } from './dto/mute-room.dto';
 import { RoomService } from './room.service';
 import { Room } from './room.type';
 
@@ -141,7 +142,7 @@ export class RoomController {
     );
 
     this.notifyRoomJoins([socketIds], [room], [payload.memberIds]);
-    response.code(201).send({
+    response.code(200).send({
       data: room,
     });
   }
@@ -163,6 +164,22 @@ export class RoomController {
     );
 
     this.notifyRoomLeaves([socketIds], [room], [payload.memberIds]);
+    response.code(200).send({
+      data: room,
+    });
+  }
+
+  @Post('mute')
+  async mute(@Body() payload: MuteRoomDto, @Res() response: FastifyReply) {
+    const room = await this.roomService.allowChat(payload.roomId, payload.mute);
+
+    this.communicationGateway.server
+      .to(room.id)
+      .emit(EmitEvent.ReceiveRoomChanges, {
+        event: RoomEvent.Mute,
+        actorIds: [],
+        room,
+      });
     response.code(201).send({
       data: room,
     });

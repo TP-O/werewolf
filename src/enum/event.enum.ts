@@ -29,4 +29,5 @@ export enum RoomEvent {
   Owner = 4,
   Invite = 5,
   Remove = 6,
+  Mute = 7,
 }

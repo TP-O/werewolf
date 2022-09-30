@@ -231,6 +231,28 @@ export class RoomService {
   }
 
   /**
+   * Allow chatting in room or not.
+   *
+   * @param roomId
+   * @param mute
+   * @returns updated room.
+   */
+  async allowChat(roomId: string, mute = true) {
+    const room = await this.get(roomId);
+
+    if (room.isMuted !== mute) {
+      room.isMuted = mute;
+    }
+
+    await this.redis.set(
+      `${CacheNamespace.Room}${roomId}`,
+      JSON.stringify(room),
+    );
+
+    return room;
+  }
+
+  /**
    * Create a room and add the booker to its member list.
    * If multi-room join is disabled, the booker must not
    * enter any room before creating the room.
@@ -254,6 +276,7 @@ export class RoomService {
       id,
       isPublic,
       isPersistent: false,
+      isMuted: false,
       gameId: 0,
       ownerId: bookerId,
       memberIds: [bookerId],
