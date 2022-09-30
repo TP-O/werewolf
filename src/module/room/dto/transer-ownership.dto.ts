@@ -1,11 +1,11 @@
-import { IsInt, IsString, Min, MinLength } from 'class-validator';
+import { IsInt, IsNotEmpty, IsPositive, IsString } from 'class-validator';
 
 export class TransferOwnershipDto {
   @IsString()
-  @MinLength(13)
+  @IsNotEmpty()
   roomId: string;
 
   @IsInt()
-  @Min(1)
+  @IsPositive()
   candidateId: number;
 }

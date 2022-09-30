@@ -5,8 +5,8 @@ import {
   IsArray,
   IsNotEmpty,
   IsNumber,
+  IsPositive,
   IsString,
-  Min,
   ValidateNested,
 } from 'class-validator';
 import { Room } from '../room.type';
@@ -17,7 +17,7 @@ class CreatePersistentRoomDto implements Room {
   id: string;
 
   @IsNumber({}, { each: true })
-  @Min(1, { each: true })
+  @IsPositive({ each: true })
   @ArrayUnique()
   memberIds: number[];
 
@@ -38,7 +38,7 @@ class CreatePersistentRoomDto implements Room {
 
 export class CreatePersistentRoomsDto {
   @IsNumber()
-  @Min(1)
+  @IsPositive()
   gameId: number;
 
   @IsArray()

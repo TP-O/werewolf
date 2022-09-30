@@ -1,8 +1,8 @@
-import { IsBoolean, IsString, MinLength } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsString } from 'class-validator';
 
 export class MuteRoomDto {
   @IsString()
-  @MinLength(13)
+  @IsNotEmpty()
   roomId: string;
 
   @IsBoolean()

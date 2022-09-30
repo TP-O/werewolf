@@ -1,7 +1,7 @@
-import { IsString, MinLength } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class LeaveRoomDto {
   @IsString()
-  @MinLength(13)
+  @IsNotEmpty()
   roomId: string;
 }

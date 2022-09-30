@@ -1,11 +1,11 @@
-import { IsInt, IsString, Min, MinLength } from 'class-validator';
+import { IsInt, IsString, IsNotEmpty, IsPositive } from 'class-validator';
 
 export class KickOutOfRoomDto {
   @IsString()
-  @MinLength(13)
+  @IsNotEmpty()
   roomId: string;
 
   @IsInt()
-  @Min(1)
+  @IsPositive()
   memberId: number;
 }

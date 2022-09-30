@@ -41,6 +41,7 @@
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0",
     "socket.io": "^4.5.2",
+    "uuid": "^9.0.0",
     "winston": "^3.8.2"
   },
   "devDependencies": {

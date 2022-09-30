@@ -11,6 +11,7 @@ import { CacheNamespace } from 'src/enum';
 import { Room } from './room.type';
 import { CreatePersistentRoomsDto, CreateTemporaryRoomsDto } from './dto';
 import { PrismaService } from 'src/common/service/prisma.service';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class RoomService {
@@ -81,9 +82,9 @@ export class RoomService {
    */
   async createTemporarily(dto: CreateTemporaryRoomsDto) {
     return this.storeRooms(
-      dto.rooms.map((dto) => ({
-        ...dto,
-        id: String(Date.now()),
+      dto.rooms.map((setting) => ({
+        ...setting,
+        id: uuidv4(),
       })),
     );
   }
@@ -271,9 +272,8 @@ export class RoomService {
       );
     }
 
-    const id = String(Date.now());
     const room: Room = {
-      id,
+      id: uuidv4(),
       isPublic,
       isPersistent: false,
       isMuted: false,
@@ -286,7 +286,7 @@ export class RoomService {
 
     await this.redis
       .pipeline()
-      .set(`${CacheNamespace.Room}${id}`, JSON.stringify(room))
+      .set(`${CacheNamespace.Room}${room.id}`, JSON.stringify(room))
       .lpush(`${CacheNamespace.UId2RIds}${bookerId}`, room.id)
       .exec();
 

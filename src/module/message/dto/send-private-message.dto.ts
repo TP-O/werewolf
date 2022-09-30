@@ -1,8 +1,8 @@
-import { IsInt, IsNotEmpty, IsString, Min } from 'class-validator';
+import { IsInt, IsNotEmpty, IsPositive, IsString } from 'class-validator';
 
 export class SendPrivateMessageDto {
   @IsInt()
-  @Min(1)
+  @IsPositive()
   receiverId: number;
 
   @IsString()
