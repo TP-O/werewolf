@@ -5,24 +5,16 @@ import {
   Equals,
   IsArray,
   IsBoolean,
-  IsNotEmpty,
   IsNumber,
-  IsString,
   Min,
   ValidateIf,
   ValidateNested,
 } from 'class-validator';
+import { Room } from '../room.type';
 
-class CreateRoomDto {
-  @IsString()
-  @IsNotEmpty()
-  id: string;
-
+class CreateRoomDto implements Room {
   @IsBoolean()
   isPublic: boolean;
-
-  @IsBoolean()
-  isPersistent: boolean;
 
   @ValidateIf((dto: CreateRoomDto, v) => !dto.memberIds?.includes(v))
   @Equals(undefined, { message: '$property must be contained in memberIds' })
@@ -32,12 +24,21 @@ class CreateRoomDto {
   @Min(1, { each: true })
   @ArrayUnique()
   memberIds: number[];
+
+  id: string;
+
+  isPersistent = false;
+
+  gameId = 0;
+
+  waitingIds: number[] = [];
+
+  refusedIds: number[] = [];
 }
 
-export class CreateManyRoomDto {
+export class CreateTemporaryRoomsDto {
   @IsArray()
   @ArrayMinSize(1)
-  @ArrayUnique((value: CreateRoomDto) => value.id)
   @ValidateNested({ each: true })
   @Type(() => CreateRoomDto)
   rooms: CreateRoomDto[];

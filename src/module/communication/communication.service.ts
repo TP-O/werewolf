@@ -71,7 +71,7 @@ export class CommunicationService {
       if (room.memberIds.length > 0) {
         server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
           event: RoomEvent.Leave,
-          actorId: user.id,
+          actorIds: [user.id],
           room,
         });
       }
@@ -150,7 +150,7 @@ export class CommunicationService {
           if (room.memberIds.length > 0) {
             server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
               event: RoomEvent.Leave,
-              actorId: client.userId,
+              actorIds: [client.userId],
               room,
             });
           }
@@ -226,7 +226,7 @@ export class CommunicationService {
 
     client.emit(EmitEvent.ReceiveRoomChanges, {
       event: RoomEvent.Create,
-      actorId: client.userId,
+      actorIds: [client.userId],
       room,
     });
   }
@@ -248,7 +248,7 @@ export class CommunicationService {
 
     server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
       event: RoomEvent.Join,
-      actorId: client.userId,
+      actorIds: [client.userId],
       room,
     });
   }
@@ -268,11 +268,14 @@ export class CommunicationService {
     const room = await this.roomService.leave(client.userId, payload.roomId);
     client.leave(room.id);
 
-    server.to(client.id).to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
-      event: RoomEvent.Leave,
-      actorId: client.userId,
-      room,
-    });
+    server
+      .to(client.id)
+      .to(room.id)
+      .emit(EmitEvent.ReceiveRoomChanges, {
+        event: RoomEvent.Leave,
+        actorIds: [client.userId],
+        room,
+      });
   }
 
   /**
@@ -298,7 +301,7 @@ export class CommunicationService {
       .to(room.id)
       .emit(EmitEvent.ReceiveRoomChanges, {
         event: RoomEvent.Kick,
-        actorId: client.userId,
+        actorIds: [client.userId],
         room,
       });
 
@@ -325,7 +328,7 @@ export class CommunicationService {
 
     server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
       event: RoomEvent.Owner,
-      actorId: client.userId,
+      actorIds: [client.userId],
       room,
     });
   }
@@ -354,7 +357,7 @@ export class CommunicationService {
     });
     server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
       event: RoomEvent.Invite,
-      actorId: client.userId,
+      actorIds: [client.userId],
       room,
     });
   }
@@ -382,7 +385,7 @@ export class CommunicationService {
 
       server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
         event: RoomEvent.Join,
-        actorId: client.userId,
+        actorIds: [client.userId],
         room,
       });
 
@@ -390,7 +393,7 @@ export class CommunicationService {
         if (room.memberIds.length > 0) {
           server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
             event: RoomEvent.Leave,
-            actorId: client.userId,
+            actorIds: [client.userId],
             room,
           });
         }

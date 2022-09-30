@@ -27,7 +27,7 @@ type ReceiveRoomInvitationData = {
 
 type ReceiveRoomChangesData = {
   event: RoomEvent;
-  actorId: number;
+  actorIds: number[];
   room: Partial<Room> & Pick<Room, 'id'>;
 };
 

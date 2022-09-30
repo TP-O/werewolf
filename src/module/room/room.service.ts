@@ -9,12 +9,15 @@ import { AppConfig } from 'src/config';
 import { RedisClient } from 'src/common/decorator';
 import { CacheNamespace } from 'src/enum';
 import { Room } from './room.type';
-import { CreateManyRoomDto } from './dto';
+import { CreatePersistentRoomsDto, CreateTemporaryRoomsDto } from './dto';
+import { PrismaService } from 'src/common/service/prisma.service';
 
 @Injectable()
 export class RoomService {
   @RedisClient()
   private readonly redis: Redis;
+
+  constructor(private prismaService: PrismaService) {}
 
   /**
    * Check if user is in any room.
@@ -31,27 +34,25 @@ export class RoomService {
   }
 
   /**
-   * Create many rooms with given settings.
+   * Store rooms temporarily.
    *
-   * @param roomSettings
+   * @param rooms
    * @returns created rooms and socket ids of members.
    */
-  async create(roomSettings: CreateManyRoomDto['rooms']) {
+  private async storeRooms(rooms: Room[]) {
     const socketIdsList: string[][] = [];
+    const joinerIdsList: number[][] = [];
     const redisPipe = this.redis.pipeline();
-    const rooms = roomSettings.map((setting) => {
-      const room: Room = {
-        ...setting,
-        waitingIds: [],
-        refusedIds: [],
-      };
-      const memberSIdKeys = setting.memberIds.map((mId) => {
+
+    rooms.map((room) => {
+      const memberSIdKeys = room.memberIds.map((mId) => {
         // By the way, bind room id with member id
         redisPipe.lpush(`${CacheNamespace.UId2RIds}${mId}`, room.id);
 
         return `${CacheNamespace.UID2SId}${mId}`;
       });
 
+      joinerIdsList.push(room.memberIds);
       redisPipe
         .mget(...memberSIdKeys)
         .set(`${CacheNamespace.Room}${room.id}`, JSON.stringify(room));
@@ -68,14 +69,68 @@ export class RoomService {
     return {
       rooms,
       socketIdsList,
+      joinerIdsList,
     };
+  }
+
+  /**
+   * Create temporary rooms with given settings.
+   *
+   * @param dto
+   * @returns created rooms and socket ids of members.
+   */
+  async createTemporarily(dto: CreateTemporaryRoomsDto) {
+    return this.storeRooms(
+      dto.rooms.map((dto) => ({
+        ...dto,
+        id: String(Date.now()),
+      })),
+    );
+  }
+
+  /**
+   * Store room into database.
+   *
+   * @param id
+   * @returns created room.
+   */
+  private async storeRoomInDB(id: number) {
+    try {
+      return await this.prismaService.chatRoom.create({
+        select: {
+          id: true,
+        },
+        data: {
+          id,
+        },
+      });
+    } catch (_) {
+      throw new BadRequestException('Unable to create chat room!');
+    }
+  }
+
+  /**
+   * Create persistent rooms with given settings.
+   *
+   * @param dto
+   * @returns created rooms and socket ids of members.
+   */
+  async createPersistently(dto: CreatePersistentRoomsDto) {
+    const { id: gameId } = await this.storeRoomInDB(dto.gameId);
+
+    return this.storeRooms(
+      dto.rooms.map((setting) => ({
+        ...setting,
+        gameId,
+      })),
+    );
   }
 
   /**
    * Remove many rooms by given room ids.
    *
    * @param roomIds
-   * @returns removed room ids and socket ids of members in removed rooms.
+   * @returns removed rooms and socket ids of members in removed rooms.
    */
   async remove(roomIds: string[]) {
     const rooms: Room[] = (
@@ -85,8 +140,8 @@ export class RoomService {
     )
       .filter((roomJSON) => roomJSON != null)
       .map((roomJSON) => JSON.parse(roomJSON));
-    const removedRoomIds: string[] = [];
     const socketIdsList: string[][] = [];
+    const leaverIdsList: number[][] = [];
     const redisPipe = this.redis.pipeline();
 
     rooms.forEach((room) => {
@@ -97,8 +152,8 @@ export class RoomService {
         return `${CacheNamespace.UID2SId}${mId}`;
       });
 
+      leaverIdsList.push(room.memberIds);
       redisPipe.mget(...memberSIdKeys).del(`${CacheNamespace.Room}${room.id}`);
-      removedRoomIds.push(room.id);
     });
 
     (await redisPipe.exec()).forEach((res) => {
@@ -107,7 +162,7 @@ export class RoomService {
       }
     });
 
-    return { removedRoomIds, socketIdsList };
+    return { rooms, socketIdsList, leaverIdsList };
   }
 
   /**
@@ -198,6 +253,7 @@ export class RoomService {
       id,
       isPublic,
       isPersistent: false,
+      gameId: 0,
       ownerId: bookerId,
       memberIds: [bookerId],
       waitingIds: [],

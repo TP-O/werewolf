@@ -4,11 +4,13 @@ import { EmitEvent, RoomEvent } from 'src/enum';
 import { CommunicationGateway } from '../communication/communication.gateway';
 import {
   AddToRoomDto,
-  CreateManyRoomDto,
+  CreatePersistentRoomsDto,
+  CreateTemporaryRoomsDto,
   RemoveFromRoomDto,
-  RemoveManyRoomDto,
+  RemoveRoomsDto,
 } from './dto';
 import { RoomService } from './room.service';
+import { Room } from './room.type';
 
 @Controller('rooms')
 export class RoomController {
@@ -18,31 +20,88 @@ export class RoomController {
   ) {}
 
   /**
-   * Create many rooms at once.
+   * Notify room joins to all members.
    *
-   * @param payload
-   * @param response
+   * @param socketIdsList
+   * @param rooms
+   * @param joinerIdsLst
    */
-  @Post()
-  async createMany(
-    @Body() payload: CreateManyRoomDto,
-    @Res() response: FastifyReply,
+  private notifyRoomJoins(
+    socketIdsList: string[][],
+    rooms: Room[],
+    joinerIdsLst: number[][],
   ) {
-    const { rooms, socketIdsList } = await this.roomService.create(
-      payload.rooms,
-    );
-
     socketIdsList.forEach((sIds, i) => {
       this.communicationGateway.server.to(sIds).socketsJoin(rooms[i].id);
       this.communicationGateway.server
         .to(sIds)
         .emit(EmitEvent.ReceiveRoomChanges, {
           event: RoomEvent.Join,
-          actorId: 0,
+          actorIds: joinerIdsLst[i],
           room: rooms[i],
         });
     });
+  }
 
+  /**
+   * Notify room leaves to all members.
+   *
+   * @param socketIdsList
+   * @param rooms
+   * @param leaverIdsList
+   */
+  private notifyRoomLeaves(
+    socketIdsList: string[][],
+    rooms: Room[],
+    leaverIdsList: number[][],
+  ) {
+    socketIdsList.forEach((sIds, i) => {
+      this.communicationGateway.server.to(sIds).socketsLeave(rooms[i].id);
+      this.communicationGateway.server
+        .to(sIds)
+        .emit(EmitEvent.ReceiveRoomChanges, {
+          event: RoomEvent.Leave,
+          actorIds: leaverIdsList[i],
+          room: rooms[i],
+        });
+    });
+  }
+
+  /**
+   * Create many temporary rooms at once.
+   *
+   * @param payload
+   * @param response
+   */
+  @Post('temporary')
+  async createTemporarily(
+    @Body() payload: CreateTemporaryRoomsDto,
+    @Res() response: FastifyReply,
+  ) {
+    const { rooms, socketIdsList, joinerIdsList } =
+      await this.roomService.createTemporarily(payload);
+
+    this.notifyRoomJoins(socketIdsList, rooms, joinerIdsList);
+    response.code(201).send({
+      data: rooms,
+    });
+  }
+
+  /**
+   * Create many persistent rooms at once.
+   *
+   * @param payload
+   * @param response
+   */
+  @Post('persistent')
+  async createPersistently(
+    @Body() payload: CreatePersistentRoomsDto,
+    @Res() response: FastifyReply,
+  ) {
+    const { rooms, socketIdsList, joinerIdsList } =
+      await this.roomService.createPersistently(payload);
+
+    this.notifyRoomJoins(socketIdsList, rooms, joinerIdsList);
     response.code(201).send({
       data: rooms,
     });
@@ -55,27 +114,11 @@ export class RoomController {
    * @param response
    */
   @Delete()
-  async remove(
-    @Body() payload: RemoveManyRoomDto,
-    @Res() response: FastifyReply,
-  ) {
-    const { removedRoomIds, socketIdsList } = await this.roomService.remove(
-      payload.ids,
-    );
+  async remove(@Body() payload: RemoveRoomsDto, @Res() response: FastifyReply) {
+    const { rooms, socketIdsList, leaverIdsList } =
+      await this.roomService.remove(payload.ids);
 
-    socketIdsList.forEach((sIds, i) => {
-      this.communicationGateway.server.to(sIds).socketsLeave(removedRoomIds[i]);
-      this.communicationGateway.server
-        .to(sIds)
-        .emit(EmitEvent.ReceiveRoomChanges, {
-          event: RoomEvent.Remove,
-          actorId: 0,
-          room: {
-            id: removedRoomIds[i],
-          },
-        });
-    });
-
+    this.notifyRoomLeaves(socketIdsList, rooms, leaverIdsList);
     response.code(200).send({
       data: true,
     });
@@ -97,15 +140,7 @@ export class RoomController {
       payload.memberIds,
     );
 
-    this.communicationGateway.server.to(socketIds).socketsJoin(room.id);
-    this.communicationGateway.server
-      .to(socketIds)
-      .emit(EmitEvent.ReceiveRoomChanges, {
-        event: RoomEvent.Join,
-        actorId: 0,
-        room,
-      });
-
+    this.notifyRoomJoins([socketIds], [room], [payload.memberIds]);
     response.code(201).send({
       data: room,
     });
@@ -127,15 +162,7 @@ export class RoomController {
       payload.memberIds,
     );
 
-    this.communicationGateway.server.to(socketIds).socketsLeave(room.id);
-    this.communicationGateway.server
-      .to(socketIds)
-      .emit(EmitEvent.ReceiveRoomChanges, {
-        event: RoomEvent.Join,
-        actorId: 0,
-        room,
-      });
-
+    this.notifyRoomLeaves([socketIds], [room], [payload.memberIds]);
     response.code(201).send({
       data: room,
     });

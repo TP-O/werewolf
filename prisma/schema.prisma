@@ -52,17 +52,23 @@ model Status {
   @@map("active status")
 }
 
+// model Game {
+//   id        Int       @id @default(autoincrement())
+//   chatRooms ChatRoom?
+// }
+
 model ChatRoom {
-  id           String        @id @unique @db.VarChar(28)
+  id           Int           @id
   createdAt    DateTime      @default(now()) @map("created_at")
+  // game         Game          @relation(fields: [id], references: [id])
   roomMessages RoomMessage[]
 
-  @@map("chat_room")
+  @@map("chat_rooms")
 }
 
 model RoomMessage {
   id        Int      @id @default(autoincrement())
-  roomId    String   @map("room_id")
+  roomId    Int      @map("room_id")
   senderId  Int      @map("sender_id")
   content   String
   createdAt DateTime @default(now()) @map("created_at")
