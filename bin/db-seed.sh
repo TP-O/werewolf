@@ -1,4 +1,4 @@
 #!/bin/sh
 set -ex
 
-go run ./db/seeder/main.go
+go run ./database/seeder/main.go
