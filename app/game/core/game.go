@@ -7,14 +7,13 @@ import (
 
 	"golang.org/x/exp/slices"
 
+	"uwwolf/app/enum"
 	"uwwolf/app/game/contract"
-	"uwwolf/app/game/factory"
-	"uwwolf/app/game/state"
+	"uwwolf/app/game/role"
 	"uwwolf/app/model"
 	"uwwolf/app/types"
-	"uwwolf/app/util"
 	"uwwolf/app/validator"
-	"uwwolf/database"
+	"uwwolf/util"
 )
 
 type game struct {
@@ -25,13 +24,15 @@ type game struct {
 	switchTurnSignal   chan bool
 	turnDuration       time.Duration
 	discussionDuration time.Duration
-	round              *state.Round
-	rolePool           []types.RoleId
+	round              contract.Round
+	werewolfRoleIds    []types.RoleId
+	nonWerewolfRoleIds []types.RoleId
+	selectedRoleIds    []types.RoleId
 	deadPlayerIds      []types.PlayerId
 	fId2pIds           map[types.FactionId][]types.PlayerId
 	rId2pIds           map[types.RoleId][]types.PlayerId
 	players            map[types.PlayerId]contract.Player
-	polls              map[types.FactionId]*state.Poll
+	polls              map[types.FactionId]contract.Poll
 }
 
 type roleSplit struct {
@@ -43,7 +44,7 @@ type roleSplit struct {
 
 // NewGame returns an inactive game instance. Only call it
 // directly if you are sure the game setting is valid, otherwise
-// call it through AddGame function of manager.
+// call it through AddGame function of game manager.
 func NewGame(setting *types.GameSetting) contract.Game {
 	game := game{
 		id:                 setting.Id,
@@ -52,13 +53,14 @@ func NewGame(setting *types.GameSetting) contract.Game {
 		switchTurnSignal:   make(chan bool),
 		turnDuration:       setting.TurnDuration,
 		discussionDuration: setting.DiscussionDuration,
-		rolePool:           setting.RolePool,
-		round:              state.NewRound(),
+		werewolfRoleIds:    setting.WerewolfRoleIds,
+		nonWerewolfRoleIds: setting.NonWerewolfRoleIds,
+		round:              NewRound(),
 		deadPlayerIds:      make([]types.PlayerId, len(setting.PlayerIds)),
 		fId2pIds:           make(map[types.FactionId][]types.PlayerId),
 		rId2pIds:           make(map[types.RoleId][]types.PlayerId),
 		players:            make(map[types.PlayerId]contract.Player),
-		polls:              make(map[types.FactionId]*state.Poll),
+		polls:              make(map[types.FactionId]contract.Poll),
 	}
 
 	for _, id := range setting.PlayerIds {
@@ -66,14 +68,22 @@ func NewGame(setting *types.GameSetting) contract.Game {
 	}
 
 	// Create polls for villagers and werewolves
-	game.polls[types.VillagerFaction] = state.NewPoll()
-	game.polls[types.WerewolfFaction] = state.NewPoll()
+	game.polls[enum.VillagerFactionId] = NewPoll()
+	game.polls[enum.WerewolfFactionId] = NewPoll()
 
 	return &game
 }
 
 func (g *game) IsStarted() bool {
 	return g.isStarted
+}
+
+func (g *game) Round() contract.Round {
+	return g.round
+}
+
+func (g *game) Poll(facitonId types.FactionId) contract.Poll {
+	return g.polls[facitonId]
 }
 
 func (g *game) Player(playerId types.PlayerId) contract.Player {
@@ -88,29 +98,18 @@ func (g *game) PlayerIdsWithFaction(factionId types.FactionId) []types.PlayerId 
 	return g.fId2pIds[factionId]
 }
 
-func (g *game) Round() *state.Round {
-	return g.round
-}
-
-func (g *game) Poll(factionId types.FactionId) *state.Poll {
-	return g.polls[factionId]
-}
-
 func (g *game) Start() bool {
 	if g.IsStarted() {
 		return false
 	}
 
-	roleSplit := g.getRolesByIds(g.rolePool)
-	g.prepareRound(roleSplit)
-
-	roles := g.randomRoles(roleSplit)
-	g.assignRoles(roles)
+	g.selectRoleIds()
+	g.assignRoles()
+	g.initRound()
 
 	// Create polls for villagers and werewolves
-	g.polls[types.VillagerFaction].AddElectors(g.fId2pIds[types.VillagerFaction])
-	g.polls[types.VillagerFaction].AddElectors(g.fId2pIds[types.WerewolfFaction])
-	g.polls[types.WerewolfFaction].AddElectors(g.fId2pIds[types.WerewolfFaction])
+	g.polls[enum.VillagerFactionId].AddElectors(g.fId2pIds[enum.VillagerFactionId])
+	g.polls[enum.WerewolfFactionId].AddElectors(g.fId2pIds[enum.WerewolfFactionId])
 
 	go g.listenTurnSwitching()
 
@@ -119,181 +118,124 @@ func (g *game) Start() bool {
 	return true
 }
 
-func (g *game) randomRoles(roleSplit *roleSplit) []*model.Role {
-	randomRoles := append(
-		g.pickUpRoles(
-			g.numberOfWerewolves,
-			roleSplit.werewolfFaction,
-			roleSplit.reserveWerewolf,
-		),
-		g.pickUpRoles(
-			g.capacity-g.numberOfWerewolves,
-			roleSplit.otherFactions,
-			roleSplit.reserveVillager,
-		)...,
-	)
+func (g *game) selectRoleIds() {
+	var selectedWerewolfRoleCounter int
+	var selectedNonWerewolfRoleCounter int
 
-	return randomRoles
-}
+	if len(g.werewolfRoleIds) <= g.numberOfWerewolves {
+		g.selectedRoleIds = append(g.selectedRoleIds, g.werewolfRoleIds...)
+	} else {
+		werewolfRoleIds := slices.Clone(g.werewolfRoleIds)
 
-// Return list of roles which can be duplicate because
-// one role can be assigned to many players.
-func (g *game) pickUpRoles(slots int, roles []*model.Role, reserveRole *model.Role) []*model.Role {
-	var pickedUpRoles []*model.Role
-	var randomRoles []*model.Role
+		for selectedWerewolfRoleCounter < g.numberOfWerewolves {
+			if len(werewolfRoleIds) == 0 {
+				g.selectedRoleIds = append(g.selectedRoleIds, enum.WerewolfRoleId)
+				selectedWerewolfRoleCounter++
+			}
 
-	// Pick roles randomly
-	for i := 0; i < slots; i++ {
-		index, role := util.RandomElement(roles)
+			i, roleId := util.RandomElement(werewolfRoleIds)
+			werewolfRoleIds = slices.Delete(werewolfRoleIds, i, i+1)
 
-		if index == -1 {
-			break
-		}
-
-		pickedUpRoles = append(pickedUpRoles, role)
-		roles = slices.Delete(roles, index, index+1)
-	}
-
-	// Spread random roles based on Set property
-	for i := 0; i < slots; i++ {
-		index, role := util.RandomElement(pickedUpRoles)
-
-		if index == -1 {
-			randomRoles = append(randomRoles, reserveRole)
-		} else {
-			randomRoles = append(randomRoles, role)
-
-			if role.Set == 1 {
-				pickedUpRoles = slices.Delete(pickedUpRoles, index, index+1)
-			} else {
-				role.Set--
+			for i := 0; i < enum.RoleSets[roleId]; i++ {
+				g.selectedRoleIds = append(g.selectedRoleIds, roleId)
+				selectedWerewolfRoleCounter++
 			}
 		}
 	}
 
-	return randomRoles
-}
+	if len(g.nonWerewolfRoleIds) <= len(g.players)-g.numberOfWerewolves {
+		g.selectedRoleIds = append(g.selectedRoleIds, g.werewolfRoleIds...)
+	} else {
+		nonWerewolfRoleIds := slices.Clone(g.nonWerewolfRoleIds)
 
-// Get roles by ids then split them to 2 faction Werewolf and the rest
-func (g *game) getRolesByIds(ids []types.RoleId) *roleSplit {
-	var roles []*model.Role
-	database.Client().Order("id").Where("IN (?)", ids).Find(&roles)
+		for selectedNonWerewolfRoleCounter < len(g.players)-g.numberOfWerewolves {
+			if len(nonWerewolfRoleIds) == 0 {
+				g.selectedRoleIds = append(g.selectedRoleIds, enum.VillagerRoleId)
+				selectedNonWerewolfRoleCounter++
+			}
 
-	roleSplit := &roleSplit{
-		reserveWerewolf: roles[types.WerewolfRole-1],
-		reserveVillager: roles[types.VillagerRole-1],
-	}
+			i, roleId := util.RandomElement(nonWerewolfRoleIds)
+			nonWerewolfRoleIds = slices.Delete(nonWerewolfRoleIds, i, i+1)
 
-	// Add role to split if id is valid, also skip 2 reserve roles
-	for _, role := range roles {
-		if role.Id != types.WerewolfRole &&
-			role.Id != types.VillagerRole &&
-			slices.Contains(ids, role.Id) {
-
-			if role.FactionId == types.WerewolfFaction {
-				roleSplit.werewolfFaction = append(roleSplit.werewolfFaction, role)
-			} else {
-				roleSplit.otherFactions = append(roleSplit.otherFactions, role)
+			for i := 0; i < enum.RoleSets[roleId]; i++ {
+				g.selectedRoleIds = append(g.selectedRoleIds, roleId)
+				selectedNonWerewolfRoleCounter++
 			}
 		}
-
-		// Break if enough roles
-		if len(roleSplit.werewolfFaction)+len(roleSplit.otherFactions) == len(ids) {
-			break
-		}
-	}
-
-	return roleSplit
-}
-
-func (g *game) prepareRound(roleSplit *roleSplit) {
-	g.round.AddTurn(&types.TurnSetting{
-		PhaseId:    roleSplit.reserveWerewolf.PhaseId,
-		RoleId:     roleSplit.reserveWerewolf.Id,
-		BeginRound: roleSplit.reserveWerewolf.BeginRound,
-		Priority:   roleSplit.reserveWerewolf.Priority,
-		Expiration: roleSplit.reserveWerewolf.Expiration,
-		Position:   types.SortedPosition,
-	})
-	g.round.AddTurn(&types.TurnSetting{
-		PhaseId:    roleSplit.reserveVillager.PhaseId,
-		RoleId:     roleSplit.reserveVillager.Id,
-		BeginRound: roleSplit.reserveVillager.BeginRound,
-		Priority:   roleSplit.reserveVillager.Priority,
-		Expiration: roleSplit.reserveVillager.Expiration,
-		Position:   types.SortedPosition,
-	})
-
-	for _, role := range roleSplit.werewolfFaction {
-		g.round.AddTurn(&types.TurnSetting{
-			PhaseId:    role.PhaseId,
-			RoleId:     role.Id,
-			BeginRound: role.BeginRound,
-			Priority:   role.Priority,
-			Expiration: role.Expiration,
-			Position:   types.SortedPosition,
-		})
-	}
-	for _, role := range roleSplit.otherFactions {
-		g.round.AddTurn(&types.TurnSetting{
-			PhaseId:    role.PhaseId,
-			RoleId:     role.Id,
-			BeginRound: role.BeginRound,
-			Priority:   role.Priority,
-			Expiration: role.Expiration,
-			Position:   types.SortedPosition,
-		})
 	}
 }
 
-func (g *game) assignRoles(roles []*model.Role) {
+func (g *game) assignRoles() {
+	selectedRoleIds := slices.Clone(g.selectedRoleIds)
+
 	for _, player := range g.players {
-		index, role := util.RandomElement(roles)
+		i, selectedRoleId := util.RandomElement(selectedRoleIds)
+		selectedRoleIds = slices.Delete(selectedRoleIds, i, i+1)
+		selectedRole := role.New(selectedRoleId, g, player.Id())
 
-		g.rId2pIds[types.VillagerRole] = append(g.rId2pIds[types.VillagerRole], player.Id())
-		g.rId2pIds[role.Id] = append(g.rId2pIds[role.Id], player.Id())
-
-		player.AssignRoles(
-			factory.Role(role.Id, g, &types.RoleSetting{
-				Id:         role.Id,
-				OwnerId:    player.Id(),
-				PhaseId:    role.PhaseId,
-				FactionId:  role.FactionId,
-				BeginRound: role.BeginRound,
-				Expiration: role.Expiration,
-			}),
-			factory.Role(types.VillagerRole, g, &types.RoleSetting{
-				Id:         types.VillagerRole,
-				OwnerId:    player.Id(),
-				PhaseId:    types.DayPhase,
-				FactionId:  types.VillagerFaction,
-				BeginRound: types.FirstRound,
-				Expiration: types.UnlimitedTimes,
-			}),
+		g.rId2pIds[enum.VillagerRoleId] = append(
+			g.rId2pIds[enum.VillagerRoleId],
+			player.Id(),
+		)
+		g.rId2pIds[selectedRoleId] = append(
+			g.rId2pIds[selectedRoleId],
+			player.Id(),
 		)
 
-		g.round.AddPlayer(player.Id(), role.Id)
-		g.round.AddPlayer(player.Id(), types.VillagerRole)
+		// Villager role is always assigned to the player
+		player.AssignRoles(
+			role.New(enum.VillagerRoleId, g, player.Id()),
+			selectedRole,
+		)
 
-		if role.FactionId == types.WerewolfFaction {
-			g.rId2pIds[types.WerewolfRole] = append(g.rId2pIds[types.WerewolfRole], player.Id())
-			g.fId2pIds[types.WerewolfFaction] = append(g.fId2pIds[types.WerewolfFaction], player.Id())
+		// Werewolf role is always assigned to the player belongs
+		// to werewolf faction
+		if selectedRole.FactionId() == enum.WerewolfFactionId {
+			g.rId2pIds[enum.WerewolfRoleId] = append(
+				g.rId2pIds[enum.WerewolfRoleId],
+				player.Id(),
+			)
 
-			g.round.AddPlayer(player.Id(), types.WerewolfRole)
-
-			player.AssignRoles(factory.Role(types.WerewolfRole, g, &types.RoleSetting{
-				Id:         types.WerewolfRole,
-				OwnerId:    player.Id(),
-				PhaseId:    types.NightPhase,
-				FactionId:  types.WerewolfFaction,
-				BeginRound: types.FirstRound,
-				Expiration: types.UnlimitedTimes,
-			}))
-		} else {
-			g.fId2pIds[types.VillagerFaction] = append(g.fId2pIds[types.VillagerFaction], player.Id())
+			player.AssignRoles(role.New(enum.WerewolfRoleId, g, player.Id()))
 		}
 
-		roles = slices.Delete(roles, index, index+1)
+		g.fId2pIds[selectedRole.FactionId()] = append(
+			g.fId2pIds[selectedRole.FactionId()],
+			player.Id(),
+		)
+	}
+}
+
+func (g *game) initRound() {
+	g.round.AddTurn(&types.TurnSetting{
+		PhaseId:    enum.DayPhaseId,
+		RoleId:     enum.VillagerRoleId,
+		BeginRound: enum.FirstRound,
+		Priority:   1,
+		Expiration: enum.UnlimitedTimes,
+		Position:   enum.SortedPosition,
+	})
+	g.round.AddTurn(&types.TurnSetting{
+		PhaseId:    enum.NightPhaseId,
+		RoleId:     enum.WerewolfRoleId,
+		BeginRound: enum.FirstRound,
+		Priority:   1,
+		Expiration: enum.UnlimitedTimes,
+		Position:   enum.SortedPosition,
+	})
+
+	for _, player := range g.players {
+		for _, assignedRole := range player.Roles() {
+			g.round.AddTurn(&types.TurnSetting{
+				PhaseId:    assignedRole.PhaseId(),
+				RoleId:     assignedRole.Id(),
+				BeginRound: assignedRole.BeginRound(),
+				Priority:   assignedRole.Priority(),
+				Expiration: assignedRole.Expiration(),
+				Position:   enum.SortedPosition,
+			})
+			g.round.AddPlayer(player.Id(), assignedRole.Id())
+		}
 	}
 }
 
@@ -302,17 +244,17 @@ func (g *game) listenTurnSwitching() {
 		func() {
 			var duration time.Duration
 
-			if g.Round().CurrentTurn().RoleId() == types.VillagerRole {
+			if g.Round().CurrentTurn().RoleId == enum.VillagerRoleId {
 				duration = g.discussionDuration
 
-				g.Poll(types.VillagerFaction).Open()
-				defer g.Poll(types.VillagerFaction).Close()
+				g.Poll(enum.VillagerFactionId).Open()
+				defer g.Poll(enum.VillagerFactionId).Close()
 			} else {
 				duration = g.turnDuration
 
-				if g.Round().CurrentTurn().RoleId() == types.WerewolfRole {
-					g.Poll(types.WerewolfFaction).Open()
-					defer g.Poll(types.WerewolfFaction).Close()
+				if g.Round().CurrentTurn().RoleId == enum.WerewolfRoleId {
+					g.Poll(enum.WerewolfFactionId).Open()
+					defer g.Poll(enum.WerewolfFactionId).Close()
 				}
 			}
 
@@ -337,8 +279,8 @@ func (g *game) KillPlayer(playerId types.PlayerId) contract.Player {
 		return nil
 	} else {
 		g.Round().DeletePlayerFromAllTurns(player.Id())
-		g.polls[types.VillagerFaction].RemoveElector(player.Id())
-		g.polls[types.WerewolfFaction].RemoveElector(player.Id())
+		g.polls[enum.VillagerFactionId].RemoveElector(player.Id())
+		g.polls[enum.WerewolfFactionId].RemoveElector(player.Id())
 		g.deadPlayerIds = append(g.deadPlayerIds, playerId)
 
 		return player
@@ -349,7 +291,7 @@ func (g *game) RequestAction(req *types.ActionRequest) *types.ActionResponse {
 	if errs := validator.ValidateStruct(req); errs != nil {
 		return &types.ActionResponse{
 			Error: &types.ErrorDetail{
-				Tag: types.InvalidInputErrorTag,
+				Tag: enum.InvalidInputErrorTag,
 				Msg: errs,
 			},
 		}
@@ -358,11 +300,11 @@ func (g *game) RequestAction(req *types.ActionRequest) *types.ActionResponse {
 	if slices.Contains(g.deadPlayerIds, req.ActorId) ||
 		!g.round.IsAllowed(req.ActorId) {
 
-		fmt.Println(g.round.CurrentTurn().PlayerIds())
+		fmt.Println(g.round.CurrentTurn().PlayerIds)
 
 		return &types.ActionResponse{
 			Error: &types.ErrorDetail{
-				Tag:   types.UnauthorizedErrorTag,
+				Tag:   enum.ForbiddenErrorTag,
 				Alert: "Not your turn or you're died!",
 			},
 		}

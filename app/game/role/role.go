@@ -1,31 +1,60 @@
 package role
 
 import (
+	"uwwolf/app/enum"
 	"uwwolf/app/game/contract"
 	"uwwolf/app/types"
 )
 
 type role struct {
-	id        types.RoleId
-	game      contract.Game
-	player    contract.Player
-	phaseId   types.PhaseId
-	factionId types.FactionId
-	skill     *skill
-}
-
-type skill struct {
-	action       contract.Action
+	id           types.RoleId
+	game         contract.Game
+	player       contract.Player
+	phaseId      types.PhaseId
+	factionId    types.FactionId
+	priority     int
+	score        int
+	set          int
+	actions      map[types.ActionId]contract.Action
 	beginRoundId types.RoundId
-	expiration   types.NumberOfTimes
 }
 
 func (r *role) Id() types.RoleId {
 	return r.id
 }
 
+func (r *role) PhaseId() types.PhaseId {
+	return r.phaseId
+}
+
 func (r *role) FactionId() types.FactionId {
 	return r.factionId
+}
+
+func (r *role) Priority() int {
+	return r.priority
+}
+
+func (r *role) Score() int {
+	return r.score
+}
+
+func (r *role) Set() int {
+	return r.set
+}
+
+func (r *role) BeginRound() types.RoundId {
+	return r.beginRoundId
+}
+
+func (r *role) Expiration() types.Expiration {
+	expiration := types.Expiration(0)
+
+	for _, action := range r.actions {
+		expiration += action.Expiration()
+	}
+
+	return expiration
 }
 
 func (r *role) AfterBeingVoted() bool {
@@ -37,24 +66,27 @@ func (r *role) AfterDeath() {
 }
 
 func (r *role) ActivateSkill(req *types.ActionRequest) *types.ActionResponse {
-	if r.skill == nil ||
-		r.skill.expiration == types.OutOfTimes ||
-		r.skill.beginRoundId < r.game.Round().CurrentId() ||
+	if r.beginRoundId < r.game.Round().CurrentId() ||
 		r.phaseId != r.game.Round().CurrentPhaseId() {
 
 		return &types.ActionResponse{
 			Error: &types.ErrorDetail{
-				Tag:   types.UnauthorizedErrorTag,
-				Alert: "Unable to execute action!",
+				Tag:   enum.InvalidInputErrorTag,
+				Alert: "Please wait for your turn!",
 			},
 		}
 	}
 
-	res := r.skill.action.Perform(req)
-
-	if res.Error != nil && r.skill.expiration != types.UnlimitedTimes {
-		r.skill.expiration--
+	for _, action := range r.actions {
+		if req.ActionId == action.Id() {
+			return action.Perform(req)
+		}
 	}
 
-	return res
+	return &types.ActionResponse{
+		Error: &types.ErrorDetail{
+			Tag:   enum.ForbiddenErrorTag,
+			Alert: "Unable to perform this action!",
+		},
+	}
 }

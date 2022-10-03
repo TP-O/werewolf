@@ -9,10 +9,9 @@ import (
 )
 
 var (
-	App   *appConfig   = &appConfig{}
-	Game  *gameConfig  = &gameConfig{}
-	DB    *dbConfig    = &dbConfig{}
-	Cache *cacheConfig = &cacheConfig{}
+	App  *appConfig  = &appConfig{}
+	Game *gameConfig = &gameConfig{}
+	DB   *dbConfig   = &dbConfig{}
 )
 
 type configLoader interface {
@@ -31,7 +30,7 @@ func init() {
 		log.Fatalln("Loading environment variables is failed!", err)
 	}
 
-	load(App, Game, DB, Cache)
+	load(App, Game, DB)
 }
 
 func load(loaders ...configLoader) {

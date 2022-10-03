@@ -1,27 +1,26 @@
 package action
 
 import (
+	"uwwolf/app/enum"
 	"uwwolf/app/game/contract"
-	"uwwolf/app/game/state"
 	"uwwolf/app/types"
 )
 
-const VoteActionName = "Vote"
-
 type vote struct {
-	action[state.Poll]
+	action[contract.Poll]
 }
 
-func NewVote(game contract.Game, factionId types.FactionId, playerId types.PlayerId, weight uint) contract.Action {
+func NewVote(game contract.Game, setting *types.VoteActionSetting) contract.Action {
 	vote := vote{
-		action: action[state.Poll]{
-			name:  VoteActionName,
-			state: game.Poll(factionId),
-			game:  game,
+		action: action[contract.Poll]{
+			id:         enum.VoteActionId,
+			state:      game.Poll(setting.FactionId),
+			game:       game,
+			expiration: enum.UnlimitedTimes,
 		},
 	}
 
-	vote.state.SetWeight(playerId, weight)
+	vote.state.SetWeight(setting.PlayerId, setting.Weight)
 
 	return &vote
 }
@@ -43,7 +42,7 @@ func (v *vote) validate(req *types.ActionRequest) (alert string) {
 }
 
 func (v *vote) execute(req *types.ActionRequest) *types.ActionResponse {
-	poorPlayerId := types.UnknownPlayer
+	var poorPlayerId types.PlayerId
 
 	if !req.IsSkipped {
 		poorPlayerId = req.TargetIds[0]
@@ -52,7 +51,7 @@ func (v *vote) execute(req *types.ActionRequest) *types.ActionResponse {
 	if !v.state.Vote(req.ActorId, poorPlayerId) {
 		return &types.ActionResponse{
 			Error: &types.ErrorDetail{
-				Tag:   types.SystemErrorTag,
+				Tag:   enum.SystemErrorTag,
 				Alert: "Poll isn't been opened yet!",
 			},
 		}

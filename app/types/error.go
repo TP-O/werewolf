@@ -1,9 +1,11 @@
 package types
 
+import "github.com/go-playground/validator/v10"
+
 type ErrorTag = string
 
-const (
-	InvalidInputErrorTag ErrorTag = "INVALID_INPUT"
-	UnauthorizedErrorTag ErrorTag = "UNAUTHORIZED"
-	SystemErrorTag       ErrorTag = "SYSTEM_ERROR"
-)
+type ErrorDetail struct {
+	Tag   ErrorTag
+	Msg   validator.ValidationErrorsTranslations
+	Alert string
+}

@@ -1,10 +1,7 @@
 package main
 
-import (
-	"uwwolf/app/server"
-)
+import "uwwolf/app"
 
 func main() {
-	go server.StartSocketIO()
-	server.StartAPI()
+	app.Init()
 }

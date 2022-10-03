@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"uwwolf/app/util"
+	"uwwolf/util"
 )
 
 func TestRandomInRange(t *testing.T) {

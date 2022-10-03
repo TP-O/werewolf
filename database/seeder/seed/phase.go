@@ -3,23 +3,20 @@ package seed
 import (
 	"gorm.io/gorm"
 
+	"uwwolf/app/enum"
 	"uwwolf/app/model"
-	"uwwolf/app/types"
 )
 
 func SeedPhases(client *gorm.DB) {
 	client.Create([]model.Phase{
 		{
-			Id:   types.NightPhase,
-			Name: "Night",
+			Id: enum.NightPhaseId,
 		},
 		{
-			Id:   types.DayPhase,
-			Name: "Day",
+			Id: enum.DayPhaseId,
 		},
 		{
-			Id:   types.DuskPhase,
-			Name: "Dusk",
+			Id: enum.DuskPhaseId,
 		},
 	})
 }

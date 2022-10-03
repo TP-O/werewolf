@@ -2,8 +2,6 @@ package types
 
 type FactionId uint
 
-const (
-	UnknownFaction FactionId = iota
-	VillagerFaction
-	WerewolfFaction
-)
+func (f FactionId) IsUnknown() bool {
+	return f == 0
+}

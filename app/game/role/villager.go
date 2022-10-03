@@ -1,24 +1,29 @@
 package role
 
 import (
+	"uwwolf/app/enum"
 	"uwwolf/app/game/action"
 	"uwwolf/app/game/contract"
 	"uwwolf/app/types"
 )
 
-func NewVillagerRole(game contract.Game, setting *types.RoleSetting) contract.Role {
-	player := game.Player(setting.OwnerId)
-
+func newVillager(game contract.Game, playerId types.PlayerId) contract.Role {
 	return &role{
-		id:        setting.Id,
-		factionId: setting.FactionId,
-		phaseId:   setting.PhaseId,
-		game:      game,
-		player:    player,
-		skill: &skill{
-			action:       action.NewVote(game, types.VillagerFaction, player.Id(), 1),
-			beginRoundId: setting.BeginRound,
-			expiration:   setting.Expiration,
+		id:           enum.VillagerRoleId,
+		factionId:    enum.VillagerFactionId,
+		phaseId:      enum.DayPhaseId,
+		game:         game,
+		player:       game.Player(playerId),
+		beginRoundId: enum.FirstRound,
+		priority:     1,
+		score:        1,
+		set:          -1,
+		actions: map[uint]contract.Action{
+			enum.VoteActionId: action.NewVote(game, &types.VoteActionSetting{
+				FactionId: enum.VillagerFactionId,
+				PlayerId:  playerId,
+				Weight:    1,
+			}),
 		},
 	}
 }

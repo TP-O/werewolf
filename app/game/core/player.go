@@ -3,9 +3,10 @@ package core
 import (
 	"golang.org/x/exp/maps"
 
+	"uwwolf/app/enum"
 	"uwwolf/app/game/contract"
 	"uwwolf/app/types"
-	"uwwolf/app/util"
+	"uwwolf/util"
 )
 
 type player struct {
@@ -18,7 +19,7 @@ type player struct {
 func NewPlayer(game contract.Game, id types.PlayerId) contract.Player {
 	return &player{
 		id:        id,
-		factionId: types.UnknownFaction,
+		factionId: types.FactionId(0),
 		game:      game,
 		roles:     make(map[types.RoleId]contract.Role),
 	}
@@ -30,6 +31,10 @@ func (p *player) Id() types.PlayerId {
 
 func (p *player) RoleIds() []types.RoleId {
 	return maps.Keys(p.roles)
+}
+
+func (p *player) Roles() map[types.RoleId]contract.Role {
+	return p.roles
 }
 
 func (p *player) FactionId() types.FactionId {
@@ -52,12 +57,12 @@ func (p *player) modifyFaction(factionId types.FactionId) {
 }
 
 func (p *player) UseSkill(req *types.ActionRequest) *types.ActionResponse {
-	if role := p.roles[p.game.Round().CurrentTurn().RoleId()]; role != nil {
+	if role := p.roles[p.game.Round().CurrentTurn().RoleId]; role != nil {
 		return role.ActivateSkill(req)
 	} else {
 		return &types.ActionResponse{
 			Error: &types.ErrorDetail{
-				Tag:   types.UnauthorizedErrorTag,
+				Tag:   enum.ForbiddenErrorTag,
 				Alert: "Unable to activate skill!",
 			},
 		}

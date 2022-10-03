@@ -1,22 +1,22 @@
 package action
 
 import (
+	"uwwolf/app/enum"
 	"uwwolf/app/game/contract"
 	"uwwolf/app/types"
 )
 
-const ShootingActionName = "Shooting"
-
 type shooting struct {
-	action[types.PlayerId]
+	action[*types.PlayerId]
 }
 
 func NewShooting(game contract.Game) contract.Action {
 	shootingAction := shooting{
-		action: action[types.PlayerId]{
-			name:  ShootingActionName,
-			state: nil,
-			game:  game,
+		action: action[*types.PlayerId]{
+			id:         enum.ShootingActionId,
+			state:      nil,
+			game:       game,
+			expiration: enum.OneTimes,
 		},
 	}
 
@@ -51,7 +51,7 @@ func (s *shooting) execute(req *types.ActionRequest) *types.ActionResponse {
 	if s.state.IsUnknown() {
 		return &types.ActionResponse{
 			Error: &types.ErrorDetail{
-				Tag:   types.SystemErrorTag,
+				Tag:   enum.SystemErrorTag,
 				Alert: "Unknown error :(",
 			},
 		}

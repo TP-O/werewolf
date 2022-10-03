@@ -1,22 +1,25 @@
 package role
 
 import (
+	"uwwolf/app/enum"
 	"uwwolf/app/game/action"
 	"uwwolf/app/game/contract"
 	"uwwolf/app/types"
 )
 
-func NewSeerRole(game contract.Game, setting *types.RoleSetting) contract.Role {
+func newSeer(game contract.Game, playerId types.PlayerId) contract.Role {
 	return &role{
-		id:        setting.Id,
-		factionId: setting.FactionId,
-		phaseId:   setting.PhaseId,
-		game:      game,
-		player:    game.Player(setting.OwnerId),
-		skill: &skill{
-			action:       action.NewProphecy(game),
-			beginRoundId: setting.BeginRound,
-			expiration:   setting.Expiration,
+		id:           enum.SeerRoleId,
+		factionId:    enum.VillagerFactionId,
+		phaseId:      enum.NightPhaseId,
+		game:         game,
+		player:       game.Player(playerId),
+		beginRoundId: types.RoundId(2),
+		priority:     2,
+		score:        1,
+		set:          1,
+		actions: map[uint]contract.Action{
+			enum.ProphecyActionId: action.NewProphecy(game),
 		},
 	}
 }

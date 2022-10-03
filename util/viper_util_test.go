@@ -6,7 +6,7 @@ import (
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 
-	"uwwolf/app/util"
+	"uwwolf/util"
 )
 
 const (

@@ -1,17 +1,16 @@
 package contract
 
 import (
-	"uwwolf/app/game/state"
 	"uwwolf/app/types"
 )
 
 type Game interface {
 	// Round returns the in-game turn management state.
-	Round() *state.Round
+	Round() Round
 
 	// Poll returns the in-game poll management state.
 	// Each faction has different poll to interact with.
-	Poll(factionId types.FactionId) *state.Poll
+	Poll(factionId types.FactionId) Poll
 
 	// IsStarted returns true if game is started, false otherwise.
 	IsStarted() bool

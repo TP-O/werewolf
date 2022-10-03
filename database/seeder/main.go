@@ -11,4 +11,6 @@ func main() {
 	seed.SeedPhases(client)
 	seed.SeedFactions(client)
 	seed.SeedRoles(client)
+	seed.SeedActions(client)
+	seed.SeedPlayers(client)
 }

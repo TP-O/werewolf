@@ -1,14 +1,13 @@
 package types
 
-import "github.com/go-playground/validator/v10"
-
-type ActionId = int
+type ActionId = uint
 
 type ActionRequest struct {
-	GameId    GameId     `json:"gameId" validate:"required,number,gt=0"`
-	ActorId   PlayerId   `json:"actorId" validate:"required,len=28"`
-	TargetIds []PlayerId `json:"targetIds" validate:"required,min=1,unique,dive,len=28"`
-	IsSkipped bool       `json:"isSkipped"`
+	GameId    GameId     `validate:"required,number,gt=0"`
+	ActionId  ActionId   `validate:"required,number,gt=0"`
+	ActorId   PlayerId   `validate:"required,len=28"`
+	TargetIds []PlayerId `validate:"required,min=1,unique,dive,len=28"`
+	IsSkipped bool       ``
 }
 
 type ActionResponse struct {
@@ -17,8 +16,8 @@ type ActionResponse struct {
 	Error *ErrorDetail
 }
 
-type ErrorDetail struct {
-	Tag   ErrorTag
-	Msg   validator.ValidationErrorsTranslations
-	Alert string
+type VoteActionSetting struct {
+	FactionId FactionId
+	PlayerId  PlayerId
+	Weight    uint
 }

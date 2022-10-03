@@ -6,8 +6,11 @@ type Player interface {
 	// Id returns player's id.
 	Id() types.PlayerId
 
-	// RoleIds returns list of roles id assigned to player.
+	// RoleIds returns assigned role ids slice.
 	RoleIds() []types.RoleId
+
+	// Roles returns assigned roles map.
+	Roles() map[types.RoleId]Role
 
 	// FactionId returns faction id's player.
 	FactionId() types.FactionId

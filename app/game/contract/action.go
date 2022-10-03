@@ -1,20 +1,17 @@
 package contract
 
-import (
-	"uwwolf/app/types"
-)
+import "uwwolf/app/types"
 
-// Action contains specific state and it's state will be modified
-// by calling Perform.
 type Action interface {
-	// Name returns action name.
-	Name() string
+	// Id returns action id.
+	Id() types.ActionId
+
+	// Expiration returns number of times this action
+	// can be performed.
+	Expiration() types.Expiration
 
 	// State returns current action state.
 	State() any
-
-	// // JsonState returns current action state, but in a JSON string.
-	// JsonState() string
 
 	// Perform makes some changes in state. First, it validates action request,
 	// then executes it if the validation is successful. Returning struct with Ok

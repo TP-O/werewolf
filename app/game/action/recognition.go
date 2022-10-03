@@ -1,24 +1,25 @@
 package action
 
 import (
+	"uwwolf/app/enum"
 	"uwwolf/app/game/contract"
 	"uwwolf/app/types"
 )
 
-const RecognitionActionName = "Recognition"
-
 type recognition struct {
 	action[[]types.PlayerId]
 
+	// knownRoleId is the role id recognized by this action.
 	knownRoleId types.RoleId
 }
 
 func NewRecognition(game contract.Game, roleId types.RoleId) contract.Action {
 	recognition := recognition{
 		action: action[[]types.PlayerId]{
-			name:  RecognitionActionName,
-			state: nil,
-			game:  game,
+			id:         enum.RecognitionActionId,
+			state:      nil,
+			game:       game,
+			expiration: enum.OneTimes,
 		},
 		knownRoleId: roleId,
 	}
@@ -41,7 +42,7 @@ func (r *recognition) validate(req *types.ActionRequest) (alert string) {
 func (r *recognition) execute(req *types.ActionRequest) *types.ActionResponse {
 	playerIds := r.game.PlayerIdsWithRole(r.knownRoleId)
 
-	r.action.state = &playerIds
+	r.action.state = playerIds
 
 	return &types.ActionResponse{
 		Ok:   true,

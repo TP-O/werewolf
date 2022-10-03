@@ -1,35 +1,33 @@
 package action
 
 import (
+	"uwwolf/app/enum"
 	"uwwolf/app/game/contract"
 	"uwwolf/app/types"
 )
 
 type action[S any] struct {
-	name  string
-	state *S
-	game  contract.Game
+	id         types.ActionId
+	state      S
+	game       contract.Game
+	expiration types.Expiration
 }
 
 type validateFnc = func(req *types.ActionRequest) string
 
 type executeFnc = func(req *types.ActionRequest) *types.ActionResponse
 
-func (a *action[S]) Name() string {
-	return a.name
+func (a *action[S]) Id() types.ActionId {
+	return a.id
+}
+
+func (a *action[S]) Expiration() types.Expiration {
+	return a.expiration
 }
 
 func (a *action[S]) State() any {
 	return a.state
 }
-
-// func (a *action[S]) JsonState() string {
-// 	if bytes, err := json.Marshal(a.state); err != nil {
-// 		return "{}"
-// 	} else {
-// 		return string(bytes)
-// 	}
-// }
 
 func (a *action[S]) Perform(req *types.ActionRequest) *types.ActionResponse {
 	return a.perform(a.validate, a.execute, req)
@@ -37,17 +35,28 @@ func (a *action[S]) Perform(req *types.ActionRequest) *types.ActionResponse {
 
 // Execute the action request after it passes the validation.
 func (a *action[S]) perform(validateFnc validateFnc, executeFnc executeFnc, req *types.ActionRequest) *types.ActionResponse {
+	if a.expiration == enum.OutOfTimes {
+		return &types.ActionResponse{
+			Error: &types.ErrorDetail{
+				Tag:   enum.InvalidInputErrorTag,
+				Alert: "This action is expired!",
+			},
+		}
+	}
+
 	// Apply specific validate if general validation is passed
 	alert := validateFnc(req)
 
 	if alert != "" {
 		return &types.ActionResponse{
 			Error: &types.ErrorDetail{
-				Tag:   types.InvalidInputErrorTag,
+				Tag:   enum.InvalidInputErrorTag,
 				Alert: alert,
 			},
 		}
 	}
+
+	a.expiration--
 
 	return executeFnc(req)
 }

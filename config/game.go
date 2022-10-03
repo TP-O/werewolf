@@ -3,7 +3,7 @@ package config
 import (
 	"github.com/spf13/viper"
 
-	"uwwolf/app/util"
+	"uwwolf/util"
 )
 
 type gameConfig struct {

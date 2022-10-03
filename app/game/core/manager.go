@@ -14,7 +14,7 @@ type manager struct {
 
 var mangerInstance *manager
 
-func New() contract.GameManger {
+func NewManager() contract.GameManger {
 	if mangerInstance == nil {
 		mangerInstance = &manager{}
 	}
