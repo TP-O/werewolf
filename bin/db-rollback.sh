@@ -1,4 +1,4 @@
 #!/bin/sh
 set -ex
 
-go run ./database/migration/rollback/main.go
+go run ./db/migration/rollback/main.go

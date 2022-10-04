@@ -1,16 +1,17 @@
 package main
 
 import (
-	"uwwolf/database"
-	"uwwolf/database/seeder/seed"
+	"uwwolf/db"
+	"uwwolf/db/seeder/seed"
 )
 
 func main() {
-	client := database.Client()
+	client := db.Client()
 
 	seed.SeedPhases(client)
 	seed.SeedFactions(client)
 	seed.SeedRoles(client)
 	seed.SeedActions(client)
+	seed.SeedStatus(client)
 	seed.SeedPlayers(client)
 }

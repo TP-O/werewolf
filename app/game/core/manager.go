@@ -7,7 +7,7 @@ import (
 	"uwwolf/app/model"
 	"uwwolf/app/types"
 	"uwwolf/app/validator"
-	"uwwolf/database"
+	"uwwolf/db"
 )
 
 type manager struct {
@@ -36,7 +36,7 @@ func (m *manager) AddGame(setting *types.GameSetting) validate.ValidationErrorsT
 	}
 
 	game := &model.Game{}
-	database.Client().Omit("WinningFactionId").Create(game)
+	db.Client().Omit("WinningFactionId").Create(game)
 	m.games[game.Id] = NewGame(game.Id, setting)
 
 	return nil

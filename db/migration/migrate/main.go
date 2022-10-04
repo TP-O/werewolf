@@ -2,7 +2,7 @@ package main
 
 import (
 	"log"
-	"uwwolf/database/migration"
+	"uwwolf/db/migration"
 )
 
 func main() {

@@ -1,6 +1,7 @@
 package server
 
 import (
+	"errors"
 	"log"
 	"strconv"
 
@@ -18,9 +19,20 @@ func StartAPI() {
 		setting := &types.GameSetting{}
 		c.BodyParser(setting)
 
-		err := service.CreateGame(setting)
+		if service.ArePlayersReadyToPlay(setting.PlayerIds...) {
+			return errors.New("All players must be online and not in any game!")
+		}
 
-		return c.JSON(err)
+		if err := service.CreateGame(setting); err != nil {
+			return c.JSON(fiber.Map{
+				"ok":    false,
+				"error": err,
+			})
+		}
+
+		return c.JSON(fiber.Map{
+			"ok": true,
+		})
 	})
 
 	log.Fatal(app.Listen(":" + strconv.Itoa(config.App.HttpPort)))
