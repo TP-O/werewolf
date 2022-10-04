@@ -15,10 +15,8 @@ func newTwoSister(game contract.Game, playerId types.PlayerId) contract.Role {
 		game:         game,
 		player:       game.Player(playerId),
 		beginRoundId: enum.FirstRound,
-		priority:     1,
-		score:        1,
-		set:          2,
-		actions: map[uint]contract.Action{
+		priority:     enum.TwoSistersPriority,
+		actions: map[types.ActionId]contract.Action{
 			enum.RecognitionActionId: action.NewRecognition(game, enum.TwoSistersRoleId),
 		},
 	}

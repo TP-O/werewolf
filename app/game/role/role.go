@@ -13,8 +13,6 @@ type role struct {
 	phaseId      types.PhaseId
 	factionId    types.FactionId
 	priority     int
-	score        int
-	set          int
 	actions      map[types.ActionId]contract.Action
 	beginRoundId types.RoundId
 }
@@ -33,14 +31,6 @@ func (r *role) FactionId() types.FactionId {
 
 func (r *role) Priority() int {
 	return r.priority
-}
-
-func (r *role) Score() int {
-	return r.score
-}
-
-func (r *role) Set() int {
-	return r.set
 }
 
 func (r *role) BeginRound() types.RoundId {

@@ -15,10 +15,8 @@ func newWerewolf(game contract.Game, playerId types.PlayerId) contract.Role {
 		game:         game,
 		player:       game.Player(playerId),
 		beginRoundId: enum.FirstRound,
-		priority:     3,
-		score:        1,
-		set:          -1,
-		actions: map[uint]contract.Action{
+		priority:     enum.WerewolfPriority,
+		actions: map[types.ActionId]contract.Action{
 			enum.VoteActionId: action.NewVote(game, &types.VoteActionSetting{
 				FactionId: enum.WerewolfFactionId,
 				PlayerId:  playerId,

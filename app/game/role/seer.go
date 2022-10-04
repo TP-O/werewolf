@@ -15,10 +15,8 @@ func newSeer(game contract.Game, playerId types.PlayerId) contract.Role {
 		game:         game,
 		player:       game.Player(playerId),
 		beginRoundId: types.RoundId(2),
-		priority:     2,
-		score:        1,
-		set:          1,
-		actions: map[uint]contract.Action{
+		priority:     enum.SeerPriority,
+		actions: map[types.ActionId]contract.Action{
 			enum.ProphecyActionId: action.NewProphecy(game),
 		},
 	}

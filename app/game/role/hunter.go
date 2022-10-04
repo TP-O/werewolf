@@ -20,10 +20,8 @@ func newHunter(game contract.Game, playerId types.PlayerId) contract.Role {
 			game:         game,
 			player:       game.Player(playerId),
 			beginRoundId: enum.FirstRound,
-			priority:     0,
-			score:        1,
-			set:          1,
-			actions: map[uint]contract.Action{
+			priority:     enum.HunterPriority,
+			actions: map[types.ActionId]contract.Action{
 				enum.ShootingActionId: action.NewShooting(game),
 			},
 		},

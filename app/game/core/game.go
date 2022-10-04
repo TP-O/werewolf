@@ -211,7 +211,7 @@ func (g *game) initRound() {
 		PhaseId:    enum.DayPhaseId,
 		RoleId:     enum.VillagerRoleId,
 		BeginRound: enum.FirstRound,
-		Priority:   1,
+		Priority:   enum.VillagerPriority,
 		Expiration: enum.UnlimitedTimes,
 		Position:   enum.SortedPosition,
 	})
@@ -219,7 +219,7 @@ func (g *game) initRound() {
 		PhaseId:    enum.NightPhaseId,
 		RoleId:     enum.WerewolfRoleId,
 		BeginRound: enum.FirstRound,
-		Priority:   1,
+		Priority:   enum.WerewolfPriority,
 		Expiration: enum.UnlimitedTimes,
 		Position:   enum.SortedPosition,
 	})
@@ -262,14 +262,14 @@ func (g *game) listenTurnSwitching() {
 			defer cancel()
 
 			select {
-			case <-g.switchTurnSignal:
+			case isSkipped := <-g.switchTurnSignal:
 				// fmt.Println("next turn!")
+				g.Round().NextTurn(isSkipped)
 
 			case <-ctx.Done():
 				// fmt.Println("timeout!")
+				g.Round().NextTurn(true)
 			}
-
-			g.Round().NextTurn()
 		}()
 	}
 }
@@ -313,7 +313,7 @@ func (g *game) RequestAction(req *types.ActionRequest) *types.ActionResponse {
 	res := g.Player(req.ActorId).UseSkill(req)
 
 	if res.Ok {
-		g.switchTurnSignal <- true
+		g.switchTurnSignal <- req.IsSkipped
 	}
 
 	return res

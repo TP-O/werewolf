@@ -15,14 +15,6 @@ type Role interface {
 	// Priority returns role priority number in its phase.
 	Priority() int
 
-	// Score returns role score. The higher score role has, the easier
-	// villager faction wins.
-	Score() int
-
-	// Set returns maximum number of this role can be appeared in game.
-	// Returns -1 if it is infinite.
-	Set() int
-
 	// BeginRound return round id that the role can perform its action.
 	BeginRound() types.RoundId
 
