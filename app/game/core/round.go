@@ -72,19 +72,21 @@ func (r *round) Reset() {
 // Move to next turn and delete previous turn if it's times is out.
 // Repeat from the beginning if the end is exceeded and return false
 // if round is empty.
-func (r *round) NextTurn() bool {
+func (r *round) NextTurn(isSkipped bool) bool {
 	if r.IsEmpty() {
 		return false
 	}
 
-	r.passCurrentTurn()
+	if isSkipped {
+		r.passCurrentTurn()
+	}
 
 	if r.currentTurnIndex < len(r.CurrentPhase())-1 {
 		r.currentTurnIndex++
 
 		// Skip turn if not the time
 		if r.CurrentTurn().BeginRound > r.id {
-			return r.NextTurn()
+			return r.NextTurn(true)
 		}
 	} else {
 		r.currentTurnIndex = 0
@@ -97,7 +99,7 @@ func (r *round) NextTurn() bool {
 		}
 
 		if r.CurrentTurn() == nil {
-			return r.NextTurn()
+			return r.NextTurn(true)
 		}
 	}
 

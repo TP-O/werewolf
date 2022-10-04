@@ -27,7 +27,7 @@ type Round interface {
 
 	// NextTurn moves to the next turn. Returns false if
 	// the round is empty.
-	NextTurn() bool
+	NextTurn(isSkipped bool) bool
 
 	// RemoveTurn removes the turn of given role id from
 	// the round.
