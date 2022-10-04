@@ -4,8 +4,10 @@ import (
 	validate "github.com/go-playground/validator/v10"
 
 	"uwwolf/app/game/contract"
+	"uwwolf/app/model"
 	"uwwolf/app/types"
 	"uwwolf/app/validator"
+	"uwwolf/database"
 )
 
 type manager struct {
@@ -16,7 +18,9 @@ var mangerInstance *manager
 
 func NewManager() contract.GameManger {
 	if mangerInstance == nil {
-		mangerInstance = &manager{}
+		mangerInstance = &manager{
+			games: make(map[types.GameId]contract.Game),
+		}
 	}
 
 	return mangerInstance
@@ -31,7 +35,9 @@ func (m *manager) AddGame(setting *types.GameSetting) validate.ValidationErrorsT
 		return err
 	}
 
-	m.games[setting.Id] = NewGame(setting)
+	game := &model.Game{}
+	database.Client().Omit("WinningFactionId").Create(game)
+	m.games[game.Id] = NewGame(game.Id, setting)
 
 	return nil
 }

@@ -45,9 +45,9 @@ type roleSplit struct {
 // NewGame returns an inactive game instance. Only call it
 // directly if you are sure the game setting is valid, otherwise
 // call it through AddGame function of game manager.
-func NewGame(setting *types.GameSetting) contract.Game {
+func NewGame(id types.GameId, setting *types.GameSetting) contract.Game {
 	game := game{
-		id:                 setting.Id,
+		id:                 id,
 		capacity:           len(setting.PlayerIds),
 		numberOfWerewolves: setting.NumberOfWerewolves,
 		switchTurnSignal:   make(chan bool),

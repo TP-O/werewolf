@@ -6,14 +6,21 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 
+	"uwwolf/app/service"
+	"uwwolf/app/types"
 	"uwwolf/config"
 )
 
 func StartAPI() {
 	app := fiber.New()
 
-	app.Get("/", func(c *fiber.Ctx) error {
-		return c.JSON(fiber.Map{"aa": 1, "bb": "aa"})
+	app.Post("/api/v1/games", func(c *fiber.Ctx) error {
+		setting := &types.GameSetting{}
+		c.BodyParser(setting)
+
+		err := service.CreateGame(setting)
+
+		return c.JSON(err)
 	})
 
 	log.Fatal(app.Listen(":" + strconv.Itoa(config.App.HttpPort)))

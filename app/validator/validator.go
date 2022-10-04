@@ -37,7 +37,7 @@ func init() {
 	// Customize rules for fileds
 	validate.RegisterValidation(rule.CapacityTag, rule.ValidateCapacity)
 	validate.RegisterValidation(rule.NumberOfWerewolvesTag, rule.ValidateNumberOfWerewolves)
-	validate.RegisterValidation(rule.RolePoolTag, rule.ValidateRolePool)
+	validate.RegisterValidation(rule.RoleIdTag, rule.ValidateRolePool)
 
 	// Customize rules for structs
 	// ...
@@ -56,7 +56,7 @@ func init() {
 		rule.RegisterNumberOfWerewolvesTagMessage,
 	)
 	validate.RegisterTranslation(
-		rule.RolePoolTag,
+		rule.RoleIdTag,
 		trans,
 		rule.AddRolePoolTag,
 		rule.RegisterRolePoolMessage,

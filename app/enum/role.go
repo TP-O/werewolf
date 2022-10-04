@@ -12,6 +12,17 @@ const (
 	TwoSistersRoleId
 )
 
+var WerewolfRoleIds = []types.RoleId{
+	WerewolfRoleId,
+}
+
+var NonWerewolfRoleIds = []types.RoleId{
+	VillagerRoleId,
+	HunterRoleId,
+	SeerRoleId,
+	TwoSistersRoleId,
+}
+
 var RoleSets = map[types.RoleId]int{
 	VillagerRoleId:   -1,
 	WerewolfRoleId:   -1,
