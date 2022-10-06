@@ -255,7 +255,7 @@ func (g *game) listenTurnSwitching() {
 				}
 			}
 
-			ctx, cancel := context.WithTimeout(context.Background(), duration)
+			ctx, cancel := context.WithTimeout(context.Background(), duration*time.Second)
 			defer cancel()
 
 			select {
