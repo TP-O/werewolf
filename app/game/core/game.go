@@ -124,46 +124,40 @@ func (g *game) Start() (map[types.PlayerId]contract.Player, error) {
 func (g *game) selectRoleIds() {
 	var selectedWerewolfRoleCounter int
 	var selectedNonWerewolfRoleCounter int
+	werewolfRoleIds := slices.Clone(g.werewolfRoleIds)
+	nonWerewolfRoleIds := slices.Clone(g.nonWerewolfRoleIds)
 
-	if len(g.werewolfRoleIds) <= g.numberOfWerewolves {
-		g.selectedRoleIds = append(g.selectedRoleIds, g.werewolfRoleIds...)
-	} else {
-		werewolfRoleIds := slices.Clone(g.werewolfRoleIds)
+	for selectedWerewolfRoleCounter < g.numberOfWerewolves {
+		if len(werewolfRoleIds) == 0 {
+			g.selectedRoleIds = append(g.selectedRoleIds, enum.WerewolfRoleId)
+			selectedWerewolfRoleCounter++
 
-		for selectedWerewolfRoleCounter < g.numberOfWerewolves {
-			if len(werewolfRoleIds) == 0 {
-				g.selectedRoleIds = append(g.selectedRoleIds, enum.WerewolfRoleId)
-				selectedWerewolfRoleCounter++
-			}
+			continue
+		}
 
-			i, roleId := util.RandomElement(werewolfRoleIds)
-			werewolfRoleIds = slices.Delete(werewolfRoleIds, i, i+1)
+		i, roleId := util.RandomElement(werewolfRoleIds)
+		werewolfRoleIds = slices.Delete(werewolfRoleIds, i, i+1)
 
-			for i := 0; i < enum.RoleSets[roleId]; i++ {
-				g.selectedRoleIds = append(g.selectedRoleIds, roleId)
-				selectedWerewolfRoleCounter++
-			}
+		for i := 0; i < enum.RoleSets[roleId]; i++ {
+			g.selectedRoleIds = append(g.selectedRoleIds, roleId)
+			selectedWerewolfRoleCounter++
 		}
 	}
 
-	if len(g.nonWerewolfRoleIds) <= len(g.players)-g.numberOfWerewolves {
-		g.selectedRoleIds = append(g.selectedRoleIds, g.werewolfRoleIds...)
-	} else {
-		nonWerewolfRoleIds := slices.Clone(g.nonWerewolfRoleIds)
+	for selectedNonWerewolfRoleCounter < len(g.players)-g.numberOfWerewolves {
+		if len(nonWerewolfRoleIds) == 0 {
+			g.selectedRoleIds = append(g.selectedRoleIds, enum.VillagerRoleId)
+			selectedNonWerewolfRoleCounter++
 
-		for selectedNonWerewolfRoleCounter < len(g.players)-g.numberOfWerewolves {
-			if len(nonWerewolfRoleIds) == 0 {
-				g.selectedRoleIds = append(g.selectedRoleIds, enum.VillagerRoleId)
-				selectedNonWerewolfRoleCounter++
-			}
+			continue
+		}
 
-			i, roleId := util.RandomElement(nonWerewolfRoleIds)
-			nonWerewolfRoleIds = slices.Delete(nonWerewolfRoleIds, i, i+1)
+		i, roleId := util.RandomElement(nonWerewolfRoleIds)
+		nonWerewolfRoleIds = slices.Delete(nonWerewolfRoleIds, i, i+1)
 
-			for i := 0; i < enum.RoleSets[roleId]; i++ {
-				g.selectedRoleIds = append(g.selectedRoleIds, roleId)
-				selectedNonWerewolfRoleCounter++
-			}
+		for i := 0; i < enum.RoleSets[roleId]; i++ {
+			g.selectedRoleIds = append(g.selectedRoleIds, roleId)
+			selectedNonWerewolfRoleCounter++
 		}
 	}
 }
