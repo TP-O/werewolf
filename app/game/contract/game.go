@@ -5,6 +5,9 @@ import (
 )
 
 type Game interface {
+	// Id returns game id.
+	Id() types.GameId
+
 	// Round returns the in-game turn management state.
 	Round() Round
 
@@ -17,7 +20,7 @@ type Game interface {
 
 	// Start starts game by initializing all needed states and assigning
 	// role for all players.
-	Start() bool
+	Start() (map[types.PlayerId]Player, error)
 
 	// Player returns the player by id.
 	Player(playerId types.PlayerId) Player

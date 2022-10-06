@@ -2,8 +2,6 @@ package contract
 
 import (
 	"uwwolf/app/types"
-
-	"github.com/go-playground/validator/v10"
 )
 
 type GameManger interface {
@@ -12,5 +10,5 @@ type GameManger interface {
 
 	// AddGame inserts new game instance to game manager.
 	// Old instance can be overrided if it has the same game id.
-	AddGame(setting *types.GameSetting) validator.ValidationErrorsTranslations
+	AddGame(gameId types.GameId, setting *types.GameSetting) Game
 }

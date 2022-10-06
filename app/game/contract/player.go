@@ -6,6 +6,9 @@ type Player interface {
 	// Id returns player's id.
 	Id() types.PlayerId
 
+	// MainRoleId returns the main role id of the player.
+	MainRoleId() types.RoleId
+
 	// RoleIds returns assigned role ids slice.
 	RoleIds() []types.RoleId
 

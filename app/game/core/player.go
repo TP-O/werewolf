@@ -10,23 +10,27 @@ import (
 )
 
 type player struct {
-	id        types.PlayerId
-	factionId types.FactionId
-	game      contract.Game
-	roles     map[types.RoleId]contract.Role
+	id         types.PlayerId
+	factionId  types.FactionId
+	mainRoleId types.RoleId
+	game       contract.Game
+	roles      map[types.RoleId]contract.Role
 }
 
 func NewPlayer(game contract.Game, id types.PlayerId) contract.Player {
 	return &player{
-		id:        id,
-		factionId: types.FactionId(0),
-		game:      game,
-		roles:     make(map[types.RoleId]contract.Role),
+		id:    id,
+		game:  game,
+		roles: make(map[types.RoleId]contract.Role),
 	}
 }
 
 func (p *player) Id() types.PlayerId {
 	return p.id
+}
+
+func (p *player) MainRoleId() types.RoleId {
+	return p.mainRoleId
 }
 
 func (p *player) RoleIds() []types.RoleId {
@@ -44,6 +48,10 @@ func (p *player) FactionId() types.FactionId {
 func (p *player) AssignRoles(roles ...contract.Role) {
 	for _, role := range roles {
 		if !util.ExistKeyInMap(p.roles, role.Id()) {
+			if len(p.roles) == 0 {
+				p.mainRoleId = role.Id()
+			}
+
 			p.roles[role.Id()] = role
 			p.modifyFaction(role.FactionId())
 		}

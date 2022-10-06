@@ -2,9 +2,11 @@ package core
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
+	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
 
 	"uwwolf/app/enum"
@@ -42,9 +44,6 @@ type roleSplit struct {
 	reserveVillager *model.Role
 }
 
-// NewGame returns an inactive game instance. Only call it
-// directly if you are sure the game setting is valid, otherwise
-// call it through AddGame function of game manager.
 func NewGame(id types.GameId, setting *types.GameSetting) contract.Game {
 	game := game{
 		id:                 id,
@@ -78,6 +77,10 @@ func (g *game) IsStarted() bool {
 	return g.isStarted
 }
 
+func (g *game) Id() types.GameId {
+	return g.id
+}
+
 func (g *game) Round() contract.Round {
 	return g.round
 }
@@ -98,9 +101,9 @@ func (g *game) PlayerIdsWithFaction(factionId types.FactionId) []types.PlayerId 
 	return g.fId2pIds[factionId]
 }
 
-func (g *game) Start() bool {
+func (g *game) Start() (map[types.PlayerId]contract.Player, error) {
 	if g.IsStarted() {
-		return false
+		return nil, errors.New("Game is starting!")
 	}
 
 	g.selectRoleIds()
@@ -111,11 +114,11 @@ func (g *game) Start() bool {
 	g.polls[enum.VillagerFactionId].AddElectors(g.fId2pIds[enum.VillagerFactionId])
 	g.polls[enum.WerewolfFactionId].AddElectors(g.fId2pIds[enum.WerewolfFactionId])
 
-	go g.listenTurnSwitching()
+	time.AfterFunc(10*time.Second, g.listenTurnSwitching)
 
 	g.isStarted = true
 
-	return true
+	return maps.Clone(g.players), nil
 }
 
 func (g *game) selectRoleIds() {
@@ -173,12 +176,12 @@ func (g *game) assignRoles() {
 		selectedRoleIds = slices.Delete(selectedRoleIds, i, i+1)
 		selectedRole := role.New(selectedRoleId, g, player.Id())
 
-		g.rId2pIds[enum.VillagerRoleId] = append(
-			g.rId2pIds[enum.VillagerRoleId],
-			player.Id(),
-		)
 		g.rId2pIds[selectedRoleId] = append(
 			g.rId2pIds[selectedRoleId],
+			player.Id(),
+		)
+		g.rId2pIds[enum.VillagerRoleId] = append(
+			g.rId2pIds[enum.VillagerRoleId],
 			player.Id(),
 		)
 

@@ -1,16 +1,18 @@
 package service
 
 import (
-	"github.com/go-playground/validator/v10"
-
+	"uwwolf/app/game/contract"
 	"uwwolf/app/game/core"
+	"uwwolf/app/model"
 	"uwwolf/app/types"
+	"uwwolf/db"
 )
 
 var gameManger = core.NewManager()
 
-func CreateGame(setting *types.GameSetting) validator.ValidationErrorsTranslations {
-	err := gameManger.AddGame(setting)
+func CreateGame(setting *types.GameSetting) contract.Game {
+	game := &model.Game{}
+	db.Client().Omit("WinningFactionId").Create(game)
 
-	return err
+	return gameManger.AddGame(game.Id, setting)
 }
