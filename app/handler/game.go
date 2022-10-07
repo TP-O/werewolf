@@ -2,10 +2,8 @@ package handler
 
 import (
 	"uwwolf/app/enum"
-	"uwwolf/app/model"
 	"uwwolf/app/service"
 	"uwwolf/app/types"
-	"uwwolf/db"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -29,17 +27,7 @@ func StartGame(c *fiber.Ctx) error {
 			"error":   err,
 		})
 	} else {
-		var roleAssignments []*model.RoleAssignment
-
-		for _, player := range players {
-			roleAssignments = append(roleAssignments, &model.RoleAssignment{
-				GameId:   game.Id(),
-				PlayerId: player.Id(),
-				RoleId:   player.MainRoleId(),
-			})
-		}
-
-		db.Client().Omit("FactionId").Create(roleAssignments)
+		service.AddPlayersToGame(game.Id(), players)
 	}
 
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{

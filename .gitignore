@@ -5,3 +5,4 @@
 tmp/
 mock/*
 !mock/.gitkeep
+firebase-service-account.json
