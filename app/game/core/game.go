@@ -181,8 +181,8 @@ func (g *game) assignRoles() {
 
 		// Villager role is always assigned to the player
 		player.AssignRoles(
-			role.New(enum.VillagerRoleId, g, player.Id()),
 			selectedRole,
+			role.New(enum.VillagerRoleId, g, player.Id()),
 		)
 
 		// Werewolf role is always assigned to the player belongs
