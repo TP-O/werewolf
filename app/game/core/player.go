@@ -3,7 +3,6 @@ package core
 import (
 	"golang.org/x/exp/maps"
 
-	"uwwolf/app/enum"
 	"uwwolf/app/game/contract"
 	"uwwolf/app/types"
 	"uwwolf/util"
@@ -69,10 +68,8 @@ func (p *player) UseSkill(req *types.ActionRequest) *types.ActionResponse {
 		return role.ActivateSkill(req)
 	} else {
 		return &types.ActionResponse{
-			Error: &types.ErrorDetail{
-				Tag:   enum.ForbiddenErrorTag,
-				Alert: "Unable to activate skill!",
-			},
+			Ok:           false,
+			PerformError: "Please wait for your turn!",
 		}
 	}
 }

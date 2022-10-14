@@ -8,23 +8,28 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func StartGame(c *fiber.Ctx) error {
-	payload := c.Locals(enum.FiberLocalDataKey).(*types.GameSetting)
+func CreateGame(c *fiber.Ctx) error {
+	payload := c.Locals(enum.FiberLocalPayloadKey).(*types.GameSetting)
 
 	if service.ArePlayersReadyToPlay(payload.PlayerIds...) {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"ok":      false,
-			"message": enum.InvalidInputErrorTag,
-			"error":   "All players must be online and not in any game!",
+			"ok": false,
+			"error": fiber.Map{
+				"tag":     enum.InvalidInputErrorTag,
+				"message": "All players must be online and not in any game!",
+			},
 		})
 	}
 
 	game := service.CreateGame(payload)
+
 	if players, err := game.Start(); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"ok":      false,
-			"message": enum.SystemErrorTag,
-			"error":   err,
+			"ok": false,
+			"error": fiber.Map{
+				"tag":     enum.SystemErrorTag,
+				"message": err.Error(),
+			},
 		})
 	} else {
 		service.AddPlayersToGame(game.Id(), players)

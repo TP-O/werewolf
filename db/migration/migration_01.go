@@ -1,10 +1,10 @@
 package migration
 
 import (
-	"uwwolf/app/model"
-
 	"github.com/go-gormigrate/gormigrate/v2"
 	"gorm.io/gorm"
+
+	"uwwolf/app/model"
 )
 
 var migration01 = &gormigrate.Migration{

@@ -11,9 +11,10 @@ type ActionRequest struct {
 }
 
 type ActionResponse struct {
-	Ok    bool
-	Data  any
-	Error *ErrorDetail
+	Ok              bool
+	Data            any
+	PerformError    string
+	ValidationError ValidationError
 }
 
 type VoteActionSetting struct {

@@ -46,18 +46,7 @@ func (s *shooting) execute(req *types.ActionRequest) *types.ActionResponse {
 		}
 	}
 
-	s.state = &req.TargetIds[0]
-
-	if s.state.IsUnknown() {
-		return &types.ActionResponse{
-			Error: &types.ErrorDetail{
-				Tag:   enum.SystemErrorTag,
-				Alert: "Unknown error :(",
-			},
-		}
-	}
-
-	killedPlayer := s.game.KillPlayer(*s.state)
+	killedPlayer := s.game.KillPlayer(req.TargetIds[0])
 
 	return &types.ActionResponse{
 		Ok:   true,

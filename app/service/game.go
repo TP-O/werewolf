@@ -21,6 +21,10 @@ func CreateGame(setting *types.GameSetting) contract.Game {
 }
 
 func AddPlayersToGame(gameId types.GameId, players map[types.PlayerId]contract.Player) {
+	if gameManger.Game(gameId) == nil {
+		return
+	}
+
 	var roleAssignments []*model.RoleAssignment
 	redisPipe := instance.RedisClient.Pipeline()
 

@@ -1,7 +1,14 @@
 package main
 
-import "uwwolf/app"
+import (
+	"fmt"
+	"strings"
+)
 
 func main() {
-	app.Init()
+	// app.Init()
+
+	a := "aaa"
+
+	fmt.Println(strings.Split(a, "Bearer")[1])
 }

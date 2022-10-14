@@ -1,35 +1,37 @@
 package middleware
 
 import (
-	"fmt"
+	"github.com/gofiber/fiber/v2"
+
 	"uwwolf/app/enum"
 	"uwwolf/app/validator"
-
-	"github.com/gofiber/fiber/v2"
 )
 
 func Validation[T any](c *fiber.Ctx) error {
-	parsedData := new(T)
+	parsedPayload := new(T)
 
-	if err := c.BodyParser(parsedData); err != nil {
-		fmt.Println(err)
-
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"ok":      false,
-			"message": enum.InvalidInputErrorTag,
-			"error":   "Unknown error!",
-		})
-	}
-
-	if err := validator.ValidateStruct(parsedData); err != nil {
+	if err := c.BodyParser(parsedPayload); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"ok":      false,
-			"message": enum.InvalidInputErrorTag,
-			"error":   err,
+			"ok": false,
+			"error": fiber.Map{
+				"tag":     enum.InvalidInputErrorTag,
+				"message": "Invalid payload!",
+			},
 		})
 	}
 
-	c.Locals(enum.FiberLocalDataKey, parsedData)
+	if err := validator.ValidateStruct(parsedPayload); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"ok": false,
+			"error": fiber.Map{
+				"tag":     enum.InvalidInputErrorTag,
+				"message": err,
+			},
+		})
+	}
+
+	// Store the parsed payload for use in next handlers
+	c.Locals(enum.FiberLocalPayloadKey, parsedPayload)
 
 	return c.Next()
 }

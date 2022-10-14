@@ -13,7 +13,7 @@ func ArePlayersReadyToPlay(playerIds ...types.PlayerId) bool {
 		Where(
 			"id IN (?) AND statusId NOT NULL AND statusId <> ?",
 			playerIds,
-			enum.InGameStatus,
+			enum.OnlineStatus,
 		)
 
 	return len(playerIds) == int(numberOfReadyPlayers)

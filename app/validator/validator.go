@@ -9,6 +9,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	en_translations "github.com/go-playground/validator/v10/translations/en"
 
+	"uwwolf/app/types"
 	"uwwolf/app/validator/rule"
 )
 
@@ -71,15 +72,15 @@ func SimpleValidateStruct(data any) bool {
 	return validate.Struct(data) != nil
 }
 
-func ValidateVar(data any, tag string) validator.ValidationErrorsTranslations {
+func ValidateVar(data any, tag string) types.ValidationError {
 	return handleError(validate.Var(data, tag))
 }
 
-func ValidateStruct(data any) validator.ValidationErrorsTranslations {
+func ValidateStruct(data any) types.ValidationError {
 	return handleError(validate.Struct(data))
 }
 
-func handleError(err error) validator.ValidationErrorsTranslations {
+func handleError(err error) types.ValidationError {
 	if err == nil {
 		return nil
 	}

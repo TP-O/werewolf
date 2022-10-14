@@ -102,9 +102,10 @@ func (p *poll) Vote(electorId types.PlayerId, targetId types.PlayerId) bool {
 		currentpollRound[targetId] = &types.PollRecord{}
 	}
 
-	if targetId.IsUnknown() ||
-		(!targetId.IsUnknown() && p.Weights[electorId] == 0) {
-
+	// Vote for an empty target means skip voting
+	if targetId.IsUnknown() || (!targetId.IsUnknown() && !slices.Contains(p.ElectorIds, targetId)) {
+		currentpollRound[""].Votes++
+	} else if p.Weights[electorId] == 0 {
 		currentpollRound[targetId].Votes++
 	} else {
 		currentpollRound[targetId].Votes += p.Weights[electorId]

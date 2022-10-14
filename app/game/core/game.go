@@ -3,7 +3,6 @@ package core
 import (
 	"context"
 	"errors"
-	"fmt"
 	"time"
 
 	"golang.org/x/exp/maps"
@@ -285,25 +284,19 @@ func (g *game) KillPlayer(playerId types.PlayerId) contract.Player {
 }
 
 func (g *game) RequestAction(req *types.ActionRequest) *types.ActionResponse {
-	if errs := validator.ValidateStruct(req); errs != nil {
+	if err := validator.ValidateStruct(req); err != nil {
 		return &types.ActionResponse{
-			Error: &types.ErrorDetail{
-				Tag: enum.InvalidInputErrorTag,
-				Msg: errs,
-			},
+			Ok:              false,
+			ValidationError: err,
 		}
 	}
 
 	if slices.Contains(g.deadPlayerIds, req.ActorId) ||
 		!g.round.IsAllowed(req.ActorId) {
 
-		fmt.Println(g.round.CurrentTurn().PlayerIds)
-
 		return &types.ActionResponse{
-			Error: &types.ErrorDetail{
-				Tag:   enum.ForbiddenErrorTag,
-				Alert: "Not your turn or you're died!",
-			},
+			Ok:           false,
+			PerformError: "Not your turn or you're died!",
 		}
 	}
 

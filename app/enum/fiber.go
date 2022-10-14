@@ -1,5 +1,5 @@
 package enum
 
 const (
-	FiberLocalDataKey = "data"
+	FiberLocalPayloadKey = "payload"
 )

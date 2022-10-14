@@ -37,10 +37,8 @@ func (a *action[S]) Perform(req *types.ActionRequest) *types.ActionResponse {
 func (a *action[S]) perform(validateFnc validateFnc, executeFnc executeFnc, req *types.ActionRequest) *types.ActionResponse {
 	if a.expiration == enum.OutOfTimes {
 		return &types.ActionResponse{
-			Error: &types.ErrorDetail{
-				Tag:   enum.InvalidInputErrorTag,
-				Alert: "This action is expired!",
-			},
+			Ok:           false,
+			PerformError: "This action exceeds the max number of uses!",
 		}
 	}
 
@@ -49,10 +47,8 @@ func (a *action[S]) perform(validateFnc validateFnc, executeFnc executeFnc, req 
 
 	if alert != "" {
 		return &types.ActionResponse{
-			Error: &types.ErrorDetail{
-				Tag:   enum.InvalidInputErrorTag,
-				Alert: alert,
-			},
+			Ok:           false,
+			PerformError: alert,
 		}
 	}
 

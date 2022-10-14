@@ -50,10 +50,8 @@ func (v *vote) execute(req *types.ActionRequest) *types.ActionResponse {
 
 	if !v.state.Vote(req.ActorId, poorPlayerId) {
 		return &types.ActionResponse{
-			Error: &types.ErrorDetail{
-				Tag:   enum.SystemErrorTag,
-				Alert: "Poll isn't been opened yet!",
-			},
+			Ok:           false,
+			PerformError: "Poll is not opened yet!",
 		}
 	}
 

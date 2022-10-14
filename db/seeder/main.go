@@ -14,4 +14,5 @@ func main() {
 	seed.SeedActions(client)
 	seed.SeedStatus(client)
 	seed.SeedPlayers(client)
+	seed.SeedGames(client)
 }

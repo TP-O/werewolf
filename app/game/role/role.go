@@ -1,7 +1,6 @@
 package role
 
 import (
-	"uwwolf/app/enum"
 	"uwwolf/app/game/contract"
 	"uwwolf/app/types"
 )
@@ -56,17 +55,6 @@ func (r *role) AfterDeath() {
 }
 
 func (r *role) ActivateSkill(req *types.ActionRequest) *types.ActionResponse {
-	if r.beginRoundId < r.game.Round().CurrentId() ||
-		r.phaseId != r.game.Round().CurrentPhaseId() {
-
-		return &types.ActionResponse{
-			Error: &types.ErrorDetail{
-				Tag:   enum.InvalidInputErrorTag,
-				Alert: "Please wait for your turn!",
-			},
-		}
-	}
-
 	for _, action := range r.actions {
 		if req.ActionId == action.Id() {
 			return action.Perform(req)
@@ -74,9 +62,7 @@ func (r *role) ActivateSkill(req *types.ActionRequest) *types.ActionResponse {
 	}
 
 	return &types.ActionResponse{
-		Error: &types.ErrorDetail{
-			Tag:   enum.ForbiddenErrorTag,
-			Alert: "Unable to perform this action!",
-		},
+		Ok:           false,
+		PerformError: "Unable to perform this action!",
 	}
 }
