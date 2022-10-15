@@ -14,9 +14,6 @@ type Poll interface {
 	// vote the current poll.
 	IsAllowed(electorId types.PlayerId) bool
 
-	// CurrentRound returns the current round poll.
-	CurrentRound() types.PollRound
-
 	// AddElectors adds the electors to the poll. This method
 	// does not check unique elector id.
 	AddElectors(electorIds []types.PlayerId)
@@ -30,10 +27,13 @@ type Poll interface {
 	Open() bool
 
 	// Close stops the current poll round and return closed round.
-	Close() types.PollRound
+	Close() types.PollRecord
 
 	// Vote adds vote to current poll round.
 	Vote(electorId types.PlayerId, targetId types.PlayerId) bool
+
+	// Skip vote in the current round
+	Skip(electorId types.PlayerId) bool
 
 	// Winner returns the winner of the latest closed poll round.
 	Winner() types.PlayerId
