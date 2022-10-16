@@ -2,13 +2,11 @@ package main
 
 import (
 	"fmt"
-	"strings"
+	"uwwolf/config"
 )
 
 func main() {
 	// app.Init()
 
-	a := "aaa"
-
-	fmt.Println(strings.Split(a, "Bearer")[1])
+	fmt.Println(config.Game.MaxStartTime)
 }

@@ -15,15 +15,12 @@ type Game interface {
 	// Each faction has different poll to interact with.
 	Poll(factionId types.FactionId) Poll
 
-	// IsStarted returns true if game is started, false otherwise.
-	IsStarted() bool
-
 	// Init create game state by initializing all needed states and
 	// assigning role for all players.
 	Init() (map[types.PlayerId]Player, error)
 
-	// Start starts game by turn-switching automation.
-	Start() (bool, error)
+	// Start emits the signal to start game.
+	Start()
 
 	// Player returns the player by id.
 	Player(playerId types.PlayerId) Player

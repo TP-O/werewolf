@@ -14,15 +14,17 @@ import (
 	"uwwolf/app/model"
 	"uwwolf/app/types"
 	"uwwolf/app/validator"
+	"uwwolf/config"
 	"uwwolf/util"
 )
 
 type game struct {
 	id                 types.GameId
-	isStarted          bool
+	isInitialized      bool
 	capacity           int
 	numberOfWerewolves int
 	switchTurnSignal   chan bool
+	startSignal        chan bool
 	turnDuration       time.Duration
 	discussionDuration time.Duration
 	round              contract.Round
@@ -49,8 +51,8 @@ func NewGame(id types.GameId, setting *types.GameSetting) contract.Game {
 		capacity:           len(setting.PlayerIds),
 		numberOfWerewolves: setting.NumberOfWerewolves,
 		switchTurnSignal:   make(chan bool),
-		turnDuration:       setting.TurnDuration,
-		discussionDuration: setting.DiscussionDuration,
+		turnDuration:       setting.TurnDuration * time.Second,
+		discussionDuration: setting.DiscussionDuration * time.Second,
 		werewolfRoleIds:    setting.WerewolfRoleIds,
 		nonWerewolfRoleIds: setting.NonWerewolfRoleIds,
 		round:              NewRound(),
@@ -70,10 +72,6 @@ func NewGame(id types.GameId, setting *types.GameSetting) contract.Game {
 	game.polls[enum.WerewolfFactionId] = NewPoll()
 
 	return &game
-}
-
-func (g *game) IsStarted() bool {
-	return g.isStarted
 }
 
 func (g *game) Id() types.GameId {
@@ -215,23 +213,24 @@ func (g *game) initRound() {
 	}
 }
 
-func (g *game) Init() (map[types.PlayerId]contract.Player, error) {
-	if g.IsStarted() {
-		return nil, errors.New("Game is starting!")
+func (g *game) waitForStarting() {
+	ctx, cancel := context.WithTimeout(
+		context.Background(),
+		time.Duration(time.Duration(config.Game.MaxStartTime).Seconds()),
+	)
+	defer cancel()
+
+	select {
+	case <-g.startSignal:
+		close(g.startSignal)
+	case <-ctx.Done():
+		close(g.startSignal)
 	}
-
-	g.selectRoleIds()
-	g.assignRoles()
-	g.initRound()
-
-	// Create polls for villagers and werewolves
-	g.polls[enum.VillagerFactionId].AddElectors(g.fId2pIds[enum.VillagerFactionId])
-	g.polls[enum.WerewolfFactionId].AddElectors(g.fId2pIds[enum.WerewolfFactionId])
-
-	return maps.Clone(g.players), nil
 }
 
 func (g *game) listenTurnSwitching() {
+	g.waitForStarting()
+
 	for {
 		func() {
 			var duration time.Duration
@@ -250,7 +249,7 @@ func (g *game) listenTurnSwitching() {
 				}
 			}
 
-			ctx, cancel := context.WithTimeout(context.Background(), duration*time.Second)
+			ctx, cancel := context.WithTimeout(context.Background(), duration)
 			defer cancel()
 
 			select {
@@ -266,15 +265,27 @@ func (g *game) listenTurnSwitching() {
 	}
 }
 
-func (g *game) Start() (bool, error) {
-	if g.IsStarted() {
-		return false, errors.New("Game has already started!")
+func (g *game) Init() (map[types.PlayerId]contract.Player, error) {
+	if g.isInitialized {
+		return nil, errors.New("Game has been initialized!")
 	}
 
-	go g.listenTurnSwitching()
-	g.isStarted = true
+	g.selectRoleIds()
+	g.assignRoles()
+	g.initRound()
 
-	return true, nil
+	// Create polls for villagers and werewolves
+	g.polls[enum.VillagerFactionId].AddElectors(g.fId2pIds[enum.VillagerFactionId])
+	g.polls[enum.WerewolfFactionId].AddElectors(g.fId2pIds[enum.WerewolfFactionId])
+	g.isInitialized = true
+
+	go g.listenTurnSwitching()
+
+	return maps.Clone(g.players), nil
+}
+
+func (g *game) Start() {
+	g.startSignal <- true
 }
 
 func (g *game) KillPlayer(playerId types.PlayerId) contract.Player {
