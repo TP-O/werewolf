@@ -9,10 +9,6 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	socketio "github.com/googollee/go-socket.io"
-	"github.com/googollee/go-socket.io/engineio"
-	"github.com/googollee/go-socket.io/engineio/transport"
-	"github.com/googollee/go-socket.io/engineio/transport/polling"
-	"github.com/googollee/go-socket.io/engineio/transport/websocket"
 
 	"uwwolf/app/enum"
 	"uwwolf/app/instance"
@@ -20,24 +16,10 @@ import (
 	"uwwolf/config"
 )
 
-var allowOriginFunc = func(r *http.Request) bool {
-	return true
-}
-
 func StartSocketIO() {
-	server := socketio.NewServer(&engineio.Options{
-		Transports: []transport.Transport{
-			&polling.Transport{
-				CheckOrigin: allowOriginFunc,
-			},
-			&websocket.Transport{
-				CheckOrigin: allowOriginFunc,
-			},
-		},
-	})
-	defer server.Close()
+	defer instance.SocketIOServer.Close()
 
-	server.OnConnect("/", func(client socketio.Conn) error {
+	instance.SocketIOServer.OnConnect("/", func(client socketio.Conn) error {
 		if playerId, err := service.Verify(client.RemoteHeader().Get("Authorization")); err != nil {
 			return err
 		} else {
@@ -82,7 +64,7 @@ func StartSocketIO() {
 		return nil
 	})
 
-	server.OnDisconnect("/", func(client socketio.Conn, reason string) {
+	instance.SocketIOServer.OnDisconnect("/", func(client socketio.Conn, reason string) {
 		a := instance.RedisClient.HGetAll(
 			context.Background(),
 			enum.SocketIdCacheNamespace+client.ID(),
@@ -94,28 +76,28 @@ func StartSocketIO() {
 		redisPipe.Del(context.Background(), enum.SocketIdCacheNamespace+client.ID())
 		redisPipe.Exec(context.Background())
 
-		server.BroadcastToRoom("", gameId, "leave", fiber.Map{
+		instance.SocketIOServer.BroadcastToRoom("", gameId, "leave", fiber.Map{
 			"id":      playerId,
 			"message": "Leave room",
 		})
 	})
 
-	server.OnError("/", func(client socketio.Conn, e error) {
+	instance.SocketIOServer.OnError("/", func(client socketio.Conn, e error) {
 		log.Println("meet error:", e)
 	})
 
-	server.OnEvent("/", "notice", func(client socketio.Conn, msg string) {
+	instance.SocketIOServer.OnEvent("/", "notice", func(client socketio.Conn, msg string) {
 		log.Println("notice:", msg)
 		client.Emit("reply", "have "+msg)
 	})
 
 	go func() {
-		if err := server.Serve(); err != nil {
+		if err := instance.SocketIOServer.Serve(); err != nil {
 			log.Fatalf("Socketio listen error: %s\n", err)
 		}
 	}()
 
-	http.Handle("/socket.io/", server)
+	http.Handle("/socket.io/", instance.SocketIOServer)
 
 	log.Println("SocketIO Server is running at http://127.0.0.1:" + strconv.Itoa(config.App.WsPort))
 	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(config.App.WsPort), nil))

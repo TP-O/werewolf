@@ -23,7 +23,7 @@ func CreateGame(c *fiber.Ctx) error {
 
 	game := service.CreateGame(payload)
 
-	if players, err := game.Start(); err != nil {
+	if players, err := game.Init(); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"ok": false,
 			"error": fiber.Map{

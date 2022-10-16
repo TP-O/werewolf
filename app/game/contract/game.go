@@ -18,9 +18,12 @@ type Game interface {
 	// IsStarted returns true if game is started, false otherwise.
 	IsStarted() bool
 
-	// Start starts game by initializing all needed states and assigning
-	// role for all players.
-	Start() (map[types.PlayerId]Player, error)
+	// Init create game state by initializing all needed states and
+	// assigning role for all players.
+	Init() (map[types.PlayerId]Player, error)
+
+	// Start starts game by turn-switching automation.
+	Start() (bool, error)
 
 	// Player returns the player by id.
 	Player(playerId types.PlayerId) Player

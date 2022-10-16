@@ -100,26 +100,6 @@ func (g *game) PlayerIdsWithFaction(factionId types.FactionId) []types.PlayerId 
 	return g.fId2pIds[factionId]
 }
 
-func (g *game) Start() (map[types.PlayerId]contract.Player, error) {
-	if g.IsStarted() {
-		return nil, errors.New("Game is starting!")
-	}
-
-	g.selectRoleIds()
-	g.assignRoles()
-	g.initRound()
-
-	// Create polls for villagers and werewolves
-	g.polls[enum.VillagerFactionId].AddElectors(g.fId2pIds[enum.VillagerFactionId])
-	g.polls[enum.WerewolfFactionId].AddElectors(g.fId2pIds[enum.WerewolfFactionId])
-
-	time.AfterFunc(10*time.Second, g.listenTurnSwitching)
-
-	g.isStarted = true
-
-	return maps.Clone(g.players), nil
-}
-
 func (g *game) selectRoleIds() {
 	var selectedWerewolfRoleCounter int
 	var selectedNonWerewolfRoleCounter int
@@ -235,6 +215,22 @@ func (g *game) initRound() {
 	}
 }
 
+func (g *game) Init() (map[types.PlayerId]contract.Player, error) {
+	if g.IsStarted() {
+		return nil, errors.New("Game is starting!")
+	}
+
+	g.selectRoleIds()
+	g.assignRoles()
+	g.initRound()
+
+	// Create polls for villagers and werewolves
+	g.polls[enum.VillagerFactionId].AddElectors(g.fId2pIds[enum.VillagerFactionId])
+	g.polls[enum.WerewolfFactionId].AddElectors(g.fId2pIds[enum.WerewolfFactionId])
+
+	return maps.Clone(g.players), nil
+}
+
 func (g *game) listenTurnSwitching() {
 	for {
 		func() {
@@ -268,6 +264,17 @@ func (g *game) listenTurnSwitching() {
 			}
 		}()
 	}
+}
+
+func (g *game) Start() (bool, error) {
+	if g.IsStarted() {
+		return false, errors.New("Game has already started!")
+	}
+
+	go g.listenTurnSwitching()
+	g.isStarted = true
+
+	return true, nil
 }
 
 func (g *game) KillPlayer(playerId types.PlayerId) contract.Player {

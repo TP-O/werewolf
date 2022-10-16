@@ -15,7 +15,7 @@ import (
 func StartAPI() {
 	app := fiber.New()
 
-	app.Post("/api/v1/create", middleware.Validation[types.GameSetting], handler.CreateGame)
+	app.Post("/api/v1/init", middleware.Validation[types.GameSetting], handler.CreateGame)
 
 	log.Fatal(app.Listen(":" + strconv.Itoa(config.App.HttpPort)))
 }
