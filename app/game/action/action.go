@@ -4,6 +4,7 @@ import (
 	"uwwolf/app/enum"
 	"uwwolf/app/game/contract"
 	"uwwolf/app/types"
+	"uwwolf/app/validator"
 )
 
 type action[S any] struct {
@@ -34,7 +35,7 @@ func (a *action[S]) Perform(req *types.ActionRequest) *types.ActionResponse {
 }
 
 // Execute the action request after it passes the validation.
-func (a *action[S]) perform(validateFnc validateFnc, executeFnc executeFnc, req *types.ActionRequest) *types.ActionResponse {
+func (a *action[S]) perform(validate validateFnc, execute executeFnc, req *types.ActionRequest) *types.ActionResponse {
 	if a.expiration == enum.OutOfTimes {
 		return &types.ActionResponse{
 			Ok:           false,
@@ -42,19 +43,26 @@ func (a *action[S]) perform(validateFnc validateFnc, executeFnc executeFnc, req 
 		}
 	}
 
-	// Apply specific validate if general validation is passed
-	alert := validateFnc(req)
+	if err := validator.ValidateStruct(req); err != nil {
+		return &types.ActionResponse{
+			Ok:              false,
+			ValidationError: err,
+		}
+	}
 
-	if alert != "" {
+	// Apply specific validate if general validation is passed
+	if alert := validate(req); alert != "" {
 		return &types.ActionResponse{
 			Ok:           false,
 			PerformError: alert,
 		}
 	}
 
-	a.expiration--
+	if a.expiration != enum.UnlimitedTimes && !req.IsSkipped {
+		a.expiration--
+	}
 
-	return executeFnc(req)
+	return execute(req)
 }
 
 // Validate the action request. Each action has different rules

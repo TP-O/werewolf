@@ -13,29 +13,29 @@ import (
 	"uwwolf/app/game/role"
 	"uwwolf/app/model"
 	"uwwolf/app/types"
-	"uwwolf/app/validator"
 	"uwwolf/config"
 	"uwwolf/util"
 )
 
 type game struct {
-	id                 types.GameId
-	isInitialized      bool
-	capacity           int
-	numberOfWerewolves int
-	switchTurnSignal   chan bool
-	startSignal        chan bool
-	turnDuration       time.Duration
-	discussionDuration time.Duration
-	round              contract.Round
-	werewolfRoleIds    []types.RoleId
-	nonWerewolfRoleIds []types.RoleId
-	selectedRoleIds    []types.RoleId
-	deadPlayerIds      []types.PlayerId
-	fId2pIds           map[types.FactionId][]types.PlayerId
-	rId2pIds           map[types.RoleId][]types.PlayerId
-	players            map[types.PlayerId]contract.Player
-	polls              map[types.FactionId]contract.Poll
+	id                    types.GameId
+	isInitialized         bool
+	capacity              int
+	numberOfWerewolves    int
+	switchTurnSignal      chan bool
+	startSignal           chan bool
+	turnDuration          time.Duration
+	discussionDuration    time.Duration
+	round                 contract.Round
+	werewolfRoleIds       []types.RoleId
+	nonWerewolfRoleIds    []types.RoleId
+	selectedRoleIds       []types.RoleId
+	deadPlayerIds         []types.PlayerId
+	disconnectedPlayerIds []types.PlayerId
+	fId2pIds              map[types.FactionId][]types.PlayerId
+	rId2pIds              map[types.RoleId][]types.PlayerId
+	players               map[types.PlayerId]contract.Player
+	polls                 map[types.FactionId]contract.Poll
 }
 
 type roleSplit struct {
@@ -233,6 +233,13 @@ func (g *game) listenTurnSwitching() {
 
 	for {
 		func() {
+			// Skip turn if all its player are disconnected
+			if util.ExistInArray(g.disconnectedPlayerIds, g.rId2pIds[g.Round().CurrentTurn().RoleId]...) {
+				g.Round().NextTurn(true)
+
+				return
+			}
+
 			var duration time.Duration
 
 			if g.Round().CurrentTurn().RoleId == enum.VillagerRoleId {
@@ -302,13 +309,6 @@ func (g *game) KillPlayer(playerId types.PlayerId) contract.Player {
 }
 
 func (g *game) RequestAction(req *types.ActionRequest) *types.ActionResponse {
-	if err := validator.ValidateStruct(req); err != nil {
-		return &types.ActionResponse{
-			Ok:              false,
-			ValidationError: err,
-		}
-	}
-
 	if slices.Contains(g.deadPlayerIds, req.ActorId) ||
 		!g.round.IsAllowed(req.ActorId) {
 
@@ -319,10 +319,7 @@ func (g *game) RequestAction(req *types.ActionRequest) *types.ActionResponse {
 	}
 
 	res := g.Player(req.ActorId).UseSkill(req)
-
-	if res.Ok {
-		g.switchTurnSignal <- req.IsSkipped
-	}
+	g.switchTurnSignal <- req.IsSkipped
 
 	return res
 }
