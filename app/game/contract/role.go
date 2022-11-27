@@ -1,26 +1,26 @@
 package contract
 
-import "uwwolf/app/types"
+import "uwwolf/app/game/types"
 
 type Role interface {
 	// Id returns role's id.
-	Id() types.RoleId
+	ID() types.RoleID
 
 	// PhaseId returns active phase of the role.
-	PhaseId() types.PhaseId
+	PhaseID() types.PhaseID
 
 	// FactionId returns id of faction to which role belongs.
-	FactionId() types.FactionId
+	FactionID() types.FactionID
 
 	// Priority returns role priority number in its phase.
-	Priority() int
+	Priority() types.Priority
 
 	// BeginRound return round id that the role can perform its action.
-	BeginRound() types.RoundId
+	BeginRound() types.Round
 
 	// Expiration return number of times that this role can perform
 	// its actions.
-	Expiration() types.Expiration
+	ActiveLimit() types.Limit
 
 	// AfterBeingVoted is called after being voted. Return false
 	// if exonerated, otherwise return true. Do something before
@@ -30,9 +30,9 @@ type Role interface {
 	// AfterDeath is called after player dies. Do something after it.
 	AfterDeath()
 
-	// ActivateSkill checks condition is satisfied then performs
+	// UseAbility checks condition is satisfied then performs
 	// action corresponding to this role if everything is ok.
 	// Each time a skill is successfully activated, its expiration
 	// will be reduced by 1.
-	ActivateSkill(req *types.ActionRequest) *types.ActionResponse
+	UseAbility(req *types.UseRoleRequest) *types.ActionResponse
 }

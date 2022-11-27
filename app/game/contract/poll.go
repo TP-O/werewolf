@@ -1,44 +1,41 @@
 package contract
 
-import "uwwolf/app/types"
+import "uwwolf/app/game/types"
 
 type Poll interface {
 	// IsOpen returns true if current poll round is opening.
-	IsOpen() bool
+	IsOpen() (bool, types.Round)
 
-	// IsVoted returns true if the elector voted the current
+	// CanVote returns true if the elector voted the current
 	// poll round.
-	IsVoted(electorId types.PlayerId) bool
+	CanVote(electorID types.PlayerID) bool
 
-	// IsAllowed returns true if the elector is allowed to
-	// vote the current poll.
-	IsAllowed(electorId types.PlayerId) bool
-
-	// AddElectors adds the electors to the poll. This method
-	// does not check unique elector id.
-	AddElectors(electorIds []types.PlayerId)
-
-	// SetWeight sets the vote weight for the elector. Default
-	// weight is 0.
-	SetWeight(electorId types.PlayerId, weight uint) bool
+	// Winner returns the winner of the latest closed poll round.
+	Record(round types.Round) *types.PollRecord
 
 	// Open starts the new poll round if the current poll round is
 	// closed. Returns fasle if current round is still opening.
-	Open() bool
+	Open() (bool, types.Round)
 
 	// Close stops the current poll round and return closed round.
-	Close() types.PollRecord
+	Close() (bool, *types.PollRecord)
 
-	// Vote adds vote to current poll round.
-	Vote(electorId types.PlayerId, targetId types.PlayerId) bool
+	AddCandidates(candidateIDs ...types.PlayerID)
 
-	// Skip vote in the current round
-	Skip(electorId types.PlayerId) bool
+	RemoveCandidate(candidateID types.PlayerID) bool
 
-	// Winner returns the winner of the latest closed poll round.
-	Winner() types.PlayerId
+	// AddElectors adds the electors to the poll. This method
+	// does not check unique elector id.
+	AddElectors(electorIDs ...types.PlayerID) bool
 
 	// RemoveElector removes the elector from the poll. Returns
 	// false if elector does not exist.
-	RemoveElector(electorId types.PlayerId) bool
+	RemoveElector(electorID types.PlayerID) bool
+
+	// SetWeight sets the vote weight for the elector. Default
+	// weight is 0.
+	SetWeight(electorID types.PlayerID, weight uint) bool
+
+	// Vote adds vote to current poll round.
+	Vote(electorID types.PlayerID, candidateID types.PlayerID) bool
 }

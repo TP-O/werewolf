@@ -1,41 +1,45 @@
 package contract
 
 import (
-	"uwwolf/app/types"
+	"uwwolf/app/game/types"
 )
 
 type Game interface {
 	// Id returns game id.
-	Id() types.GameId
-
-	// Round returns the in-game turn management state.
-	Round() Round
+	ID() types.GameID
 
 	// Poll returns the in-game poll management state.
 	// Each faction has different poll to interact with.
-	Poll(factionId types.FactionId) Poll
+	Poll(factionID types.FactionID) Poll
 
-	// Init create game state by initializing all needed states and
-	// assigning role for all players.
-	Init() (map[types.PlayerId]Player, error)
-
-	// Start emits the signal to start game.
-	Start()
+	Scheduler() Scheduler
 
 	// Player returns the player by id.
-	Player(playerId types.PlayerId) Player
+	Player(playerID types.PlayerID) Player
 
-	// PlayersWithRole return all players in a role.
-	PlayerIdsWithRole(roleId types.RoleId) []types.PlayerId
+	PlayerIDsByRoleID(roleID types.RoleID) []types.PlayerID
 
 	// PlayersWithFaction return all players in a faction.
-	PlayerIdsWithFaction(factionId types.FactionId) []types.PlayerId
+	PlayerIDsByFactionID(factionID types.FactionID) []types.PlayerID
 
-	// KillPlayer marks the player as died then does something based on
-	// he/she roles, if any.
-	KillPlayer(playerId types.PlayerId) Player
+	WerewolfPlayerIDs() []types.PlayerID
+
+	NonWerewolfPlayerIDs() []types.PlayerID
+
+	AlivePlayerIDs(roleID types.RoleID) []types.PlayerID
+
+	// Start emits the signal to start game.
+	Start() int64
+
+	Finish() bool
 
 	// RequestAction validates the request with its actor and then executes action
 	// if everything is ok.
-	RequestAction(req *types.ActionRequest) *types.ActionResponse
+	UsePlayerRole(playerID types.PlayerID, req *types.UseRoleRequest) *types.ActionResponse
+
+	ConnectPlayer(playerID types.PlayerID, isConnected bool) bool
+
+	ExitPlayer(playerID types.PlayerID) bool
+
+	KillPlayer(playerID types.PlayerID) Player
 }

@@ -1,14 +1,10 @@
 package contract
 
-import "uwwolf/app/types"
+import "uwwolf/app/game/types"
 
 type Action interface {
 	// Id returns action id.
-	Id() types.ActionId
-
-	// Expiration returns number of times this action
-	// can be performed.
-	Expiration() types.Expiration
+	ID() types.ActionID
 
 	// State returns current action state.
 	State() any

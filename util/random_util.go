@@ -5,6 +5,10 @@ import (
 	"time"
 )
 
+func randomSeed() {
+	rand.Seed(time.Now().UnixNano())
+}
+
 func RandomInRange(max int, min int) int {
 	randomSeed()
 
@@ -33,8 +37,4 @@ func RandomElement[T any](arr []T) (int, T) {
 	}
 
 	return randomIndex, arr[randomIndex]
-}
-
-func randomSeed() {
-	rand.Seed(time.Now().UnixNano())
 }
