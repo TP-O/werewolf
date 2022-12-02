@@ -18,9 +18,14 @@ type scheduler struct {
 
 func NewScheduler(beginPhaseID types.PhaseID) contract.Scheduler {
 	return &scheduler{
-		round:   config.FirstRound,
-		phaseID: beginPhaseID,
-		phases:  make(map[types.PhaseID][]*types.Turn),
+		round:        config.FirstRound,
+		beginPhaseID: beginPhaseID,
+		phaseID:      beginPhaseID,
+		phases: map[types.PhaseID][]*types.Turn{
+			config.DayPhaseID:   {},
+			config.NightPhaseID: {},
+			config.DuskPhaseID:  {},
+		},
 	}
 }
 
@@ -37,7 +42,9 @@ func (s *scheduler) Phase() []*types.Turn {
 }
 
 func (s *scheduler) Turn() *types.Turn {
-	if len(s.Phase()) == 0 || s.turnIndex >= len(s.Phase()) {
+	if len(s.Phase()) == 0 ||
+		s.turnIndex >= len(s.Phase()) ||
+		s.turnIndex < 0 {
 		return nil
 	}
 
@@ -59,7 +66,7 @@ func (s *scheduler) IsEmpty(phaseID types.PhaseID) bool {
 }
 
 func (s *scheduler) isValidPhaseID(phaseID types.PhaseID) bool {
-	return phaseID >= config.NightPhaseID && phaseID <= config.DuskPhaseID
+	return phaseID > config.LowerPhaseID && phaseID < config.UpperPhaseID
 }
 
 func (s *scheduler) existRole(roleID types.RoleID) bool {
@@ -147,7 +154,11 @@ func (s *scheduler) RemoveTurn(roleID types.RoleID) bool {
 	for phaseID, phase := range s.phases {
 		for removedTurnIndex, turn := range phase {
 			if turn.RoleID == roleID {
-				phase = slices.Delete(phase, removedTurnIndex, removedTurnIndex+1)
+				s.phases[phaseID] = slices.Delete(
+					s.phases[phaseID],
+					removedTurnIndex,
+					removedTurnIndex+1,
+				)
 
 				// Decrease current turn index by 1 if removed turn's position
 				// is less than or equal to current turn index
@@ -157,12 +168,18 @@ func (s *scheduler) RemoveTurn(roleID types.RoleID) bool {
 					// Move the current turn index to the previous phase's last turn
 					// if the current phase is empty
 					for s.turnIndex == -1 && !s.IsEmpty(types.PhaseID(0)) {
+						if s.phaseID == config.LowerPhaseID+1 && s.round == 1 {
+							s.phaseID = s.beginPhaseID
+
+							break
+						}
+
 						s.phaseID--
 
 						// Back to previous round
-						if s.phaseID == 0 {
+						if s.phaseID == config.LowerPhaseID {
 							s.round--
-							s.phaseID = config.DuskPhaseID
+							s.phaseID = config.UpperPhaseID - 1
 						}
 
 						s.turnIndex = len(s.Phase()) - 1
@@ -170,8 +187,7 @@ func (s *scheduler) RemoveTurn(roleID types.RoleID) bool {
 
 					// Reset if current turn index is still -1
 					if s.turnIndex == -1 {
-						s.phaseID = phaseID
-						s.turnIndex = 0
+						s.phaseID = s.beginPhaseID
 					}
 				}
 
@@ -191,10 +207,10 @@ func (s *scheduler) defrostCurrentTurn() bool {
 			turn.FrozenLimit--
 		}
 
-		return s.NextTurn(false)
+		return true
 	}
 
-	return true
+	return false
 }
 
 // Move to next turn and delete previous turn if it's times is out.
@@ -205,10 +221,15 @@ func (s *scheduler) NextTurn(isRemoved bool) bool {
 		return false
 	}
 
-	if !isRemoved {
+	if isRemoved {
 		s.RemoveTurn(s.Turn().RoleID)
+
+		// Avoid next turn if the scheduler is empty after removing
+		return s.NextTurn(false)
 	}
 
+	// Increase turn index by 1 if the new one does not
+	// reach the length of the current phase
 	if s.turnIndex < len(s.Phase())-1 {
 		s.turnIndex++
 
@@ -218,12 +239,12 @@ func (s *scheduler) NextTurn(isRemoved bool) bool {
 		}
 	} else {
 		s.turnIndex = 0
-		s.phaseID = (s.phaseID + 1) % (config.DuskPhaseID + 1)
+		s.phaseID = (s.phaseID + 1) % (config.UpperPhaseID)
 
 		// Start new round
 		if s.phaseID == 0 {
 			s.round++
-			s.phaseID = config.NightPhaseID
+			s.phaseID = config.LowerPhaseID + 1
 		}
 
 		if s.Turn() == nil {
@@ -231,7 +252,12 @@ func (s *scheduler) NextTurn(isRemoved bool) bool {
 		}
 	}
 
-	return s.defrostCurrentTurn()
+	// Skip turn if it's frozen
+	if s.defrostCurrentTurn() {
+		return s.NextTurn(false)
+	}
+
+	return true
 }
 
 func (s *scheduler) FreezeTurn(roleID types.RoleID, limit types.Limit) bool {

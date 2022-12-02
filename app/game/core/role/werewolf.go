@@ -7,7 +7,17 @@ import (
 	"uwwolf/app/game/types"
 )
 
-func NewWerewolf(game contract.Game, playerID types.PlayerID) contract.Role {
+func NewWerewolf(game contract.Game, playerID types.PlayerID) (contract.Role, error) {
+	voteAction, err := action.NewVote(game, &types.VoteActionSetting{
+		FactionID: config.WerewolfFactionID,
+		PlayerID:  playerID,
+		Weight:    1,
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
 	return &role{
 		id:         config.WerewolfRoleID,
 		factionID:  config.WerewolfFactionID,
@@ -18,13 +28,9 @@ func NewWerewolf(game contract.Game, playerID types.PlayerID) contract.Role {
 		player:     game.Player(playerID),
 		abilities: map[types.ActionID]*ability{
 			config.VoteActionID: {
-				action: action.NewVote(game, &types.VoteActionSetting{
-					FactionID: config.WerewolfFactionID,
-					PlayerID:  playerID,
-					Weight:    1,
-				}),
+				action:      voteAction,
 				activeLimit: config.Unlimited,
 			},
 		},
-	}
+	}, nil
 }

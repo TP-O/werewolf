@@ -6,13 +6,8 @@ import (
 	"uwwolf/app/game/types"
 )
 
-type memory struct {
-	Role    []types.PlayerID `json:"role"`
-	Faction []types.PlayerID `json:"faction"`
-}
-
 type recognize struct {
-	*action[*memory]
+	*action[*types.RecognizeState]
 	isRecognized        bool
 	recognizedRoleID    types.RoleID
 	recognizedFactionID types.FactionID
@@ -20,10 +15,10 @@ type recognize struct {
 
 func NewRoleRecognize(game contract.Game, roleID types.RoleID) contract.Action {
 	return &recognize{
-		action: &action[*memory]{
+		action: &action[*types.RecognizeState]{
 			id:   config.RecognizeActionID,
 			game: game,
-			state: &memory{
+			state: &types.RecognizeState{
 				Role: make([]types.PlayerID, 0),
 			},
 		},
@@ -33,10 +28,10 @@ func NewRoleRecognize(game contract.Game, roleID types.RoleID) contract.Action {
 
 func NewFactionRecognize(game contract.Game, factionID types.FactionID) contract.Action {
 	return &recognize{
-		action: &action[*memory]{
+		action: &action[*types.RecognizeState]{
 			id:   config.RecognizeActionID,
 			game: game,
-			state: &memory{
+			state: &types.RecognizeState{
 				Faction: make([]types.PlayerID, 0),
 			},
 		},
@@ -44,11 +39,11 @@ func NewFactionRecognize(game contract.Game, factionID types.FactionID) contract
 	}
 }
 
-func (r *recognize) Perform(req *types.ActionRequest) *types.ActionResponse {
-	return r.action.perform(r.validate, r.execute, r.skip, req)
+func (r *recognize) Execute(req *types.ActionRequest) *types.ActionResponse {
+	return r.action.combine(r.Skip, r.Validate, r.Perform, req)
 }
 
-func (r *recognize) execute(req *types.ActionRequest) *types.ActionResponse {
+func (r *recognize) Perform(req *types.ActionRequest) *types.ActionResponse {
 	if !r.isRecognized {
 		if !r.recognizedFactionID.IsUnknown() {
 			r.state.Faction = r.game.PlayerIDsByFactionID(r.recognizedFactionID)
@@ -64,8 +59,15 @@ func (r *recognize) execute(req *types.ActionRequest) *types.ActionResponse {
 		r.isRecognized = true
 	}
 
+	if !r.recognizedFactionID.IsUnknown() {
+		return &types.ActionResponse{
+			Ok:   true,
+			Data: r.state.Faction,
+		}
+	}
+
 	return &types.ActionResponse{
 		Ok:   true,
-		Data: r.state,
+		Data: r.state.Role,
 	}
 }

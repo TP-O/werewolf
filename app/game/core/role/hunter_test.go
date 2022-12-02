@@ -1,73 +1,86 @@
-package role_test
+package role
 
-// import (
-// 	"testing"
-// 	"uwwolf/app/game/role"
-// 	"uwwolf/app/game/state"
-// 	"uwwolf/mock/game"
-// 	"uwwolf/types"
+import (
+	"testing"
+	"uwwolf/app/game/config"
+	"uwwolf/app/game/contract"
+	"uwwolf/app/game/types"
+	gamemock "uwwolf/mock/game"
 
-// 	"github.com/golang/mock/gomock"
-// 	"github.com/stretchr/testify/assert"
-// )
+	"github.com/golang/mock/gomock"
+	"github.com/stretchr/testify/assert"
+)
 
-// func TestHunterAfterDeath(t *testing.T) {
-// 	//========================MOCK================================
-// 	ctrl := gomock.NewController(t)
-// 	defer ctrl.Finish()
+func TestNewHunter(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockGame := gamemock.NewMockGame(ctrl)
+	mockPlayer := gamemock.NewMockPlayer(ctrl)
 
-// 	mockGame := game.NewMockGame(ctrl)
-// 	mockPlayer := game.NewMockPlayer(ctrl)
+	playerID := types.PlayerID("1")
+	mockGame.EXPECT().Player(playerID).Return(mockPlayer).Times(1)
 
-// 	//=============================================================
-// 	round := state.NewRound()
-// 	round.AddTurn(&types.TurnSetting{
-// 		PhaseId: types.DayPhase,
-// 		RoleId:  types.VillagerRole,
-// 	})
-// 	round.AddTurn(&types.TurnSetting{
-// 		PhaseId: types.NightPhase,
-// 		RoleId:  types.WerewolfRole,
-// 	})
+	hunter, _ := NewHunter(mockGame, playerID)
 
-// 	mockGame.
-// 		EXPECT().
-// 		Player(gomock.Any()).
-// 		Return(mockPlayer)
-// 	mockGame.
-// 		EXPECT().
-// 		Round().
-// 		Return(round).
-// 		Times(4)
+	assert.Equal(t, config.HunterRoleID, hunter.ID())
+	assert.Equal(t, config.DayPhaseID, hunter.PhaseID())
+	assert.Equal(t, config.VillagerFactionID, hunter.FactionID())
+	assert.Equal(t, config.HunterTurnPriority, hunter.Priority())
+	assert.Equal(t, config.FirstRound, hunter.BeginRound())
+	assert.Equal(t, config.ReachedLimit, hunter.ActiveLimit(config.KillActionID))
+}
 
-// 	mockPlayer.
-// 		EXPECT().
-// 		Id().
-// 		Return(types.PlayerId("1")).
-// 		Times(2)
+func TestHunterAfterDeath(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockGame := gamemock.NewMockGame(ctrl)
+	mockPlayer := gamemock.NewMockPlayer(ctrl)
+	mockScheduler := gamemock.NewMockScheduler(ctrl)
 
-// 	roleSetting := &types.RoleSetting{
-// 		Id:         types.HunterRole,
-// 		PhaseId:    types.DayPhase,
-// 		Expiration: types.OneTimes,
-// 	}
-// 	h := role.NewHunterRole(mockGame, roleSetting)
+	playerID := types.PlayerID("1")
 
-// 	//=============================================================
-// 	// Die at other phases (current is night)
-// 	h.AfterDeath()
+	tests := []struct {
+		name  string
+		setup func(contract.Role)
+	}{
+		{
+			name: "Die at unactive phase",
+			setup: func(hunter contract.Role) {
+				mockGame.EXPECT().Scheduler().Return(mockScheduler).Times(1)
+				mockScheduler.EXPECT().PhaseID().Return(config.NightPhaseID).Times(1)
+				mockGame.EXPECT().Scheduler().Return(mockScheduler).Times(1)
+				mockScheduler.EXPECT().AddTurn(&types.TurnSetting{
+					PhaseID:    hunter.PhaseID(),
+					RoleID:     hunter.ID(),
+					BeginRound: hunter.BeginRound(),
+					Position:   config.SortedPosition,
+				}).Times(1)
+			},
+		},
+		{
+			name: "Die at active phase",
+			setup: func(hunter contract.Role) {
+				mockGame.EXPECT().Scheduler().Return(mockScheduler).Times(1)
+				mockScheduler.EXPECT().PhaseID().Return(hunter.PhaseID()).Times(1)
+				mockGame.EXPECT().Scheduler().Return(mockScheduler).Times(1)
+				mockScheduler.EXPECT().AddTurn(&types.TurnSetting{
+					PhaseID:    hunter.PhaseID(),
+					RoleID:     hunter.ID(),
+					BeginRound: hunter.BeginRound(),
+					Position:   config.NextPosition,
+				}).Times(1)
+			},
+		},
+	}
 
-// 	round.NextTurn() // hunter turn
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			mockGame.EXPECT().Player(playerID).Return(mockPlayer).Times(1)
+			hunter, _ := NewHunter(mockGame, playerID)
+			test.setup(hunter)
+			hunter.AfterDeath()
 
-// 	assert.Equal(t, roleSetting.Id, round.CurrentTurn().RoleId())
-
-// 	//=============================================================
-// 	// Die at his phase
-// 	round.NextTurn() // villager turn
-
-// 	h.AfterDeath()
-
-// 	round.NextTurn()
-
-// 	assert.Equal(t, roleSetting.Id, round.CurrentTurn().RoleId())
-// }
+			assert.Equal(t, config.OneMore, hunter.ActiveLimit(config.KillActionID))
+		})
+	}
+}

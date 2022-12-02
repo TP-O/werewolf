@@ -10,8 +10,6 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-const MinPollCapacity = 3
-
 type poll struct {
 	Round                 types.Round                       `json:"round"`
 	CandidateIDs          []types.PlayerID                  `json:"candidateIDs"`
@@ -25,8 +23,8 @@ type poll struct {
 }
 
 func NewPoll(capacity uint) (contract.Poll, error) {
-	if capacity < MinPollCapacity {
-		return nil, errors.New("The capacity is too small.")
+	if capacity < config.MinPollCapacity {
+		return nil, errors.New("The capacity is too small ¬_¬")
 	}
 
 	return &poll{
@@ -37,7 +35,9 @@ func NewPoll(capacity uint) (contract.Poll, error) {
 }
 
 func (p *poll) IsOpen() (bool, types.Round) {
-	isOpen := p.Round.IsStarted() && !p.Records[p.Round].IsClosed
+	isOpen := p.Round.IsStarted() &&
+		p.Records[p.Round] != nil &&
+		!p.Records[p.Round].IsClosed
 
 	return isOpen, p.Round
 }
@@ -61,15 +61,21 @@ func (p *poll) Record(round types.Round) *types.PollRecord {
 }
 
 func (p *poll) Open() (bool, types.Round) {
-	if isOpen, _ := p.IsOpen(); isOpen || len(p.ElectorIDs) < int(p.Capacity) {
+	if isOpen, _ := p.IsOpen(); isOpen ||
+		len(p.RemainingElectorIDs) < int(p.Capacity) {
 		return false, p.Round
 	}
 
 	p.Round++
 	p.Records[p.Round] = &types.PollRecord{
-		VoteRecords: make(map[types.PlayerID]*types.VoteRecord),
+		VoteRecords: map[types.PlayerID]*types.VoteRecord{
+			// Empty vote
+			"": {
+				ElectorIDs: []types.PlayerID{},
+			},
+		},
 	}
-	p.VotedElectorIDs = make([]types.PlayerID, len(p.RemainingElectorIDs))
+	p.VotedElectorIDs = make([]types.PlayerID, 0, len(p.RemainingElectorIDs))
 
 	return true, p.Round
 }
@@ -141,7 +147,7 @@ func (p *poll) RemoveCandidate(candidateID types.PlayerID) bool {
 }
 
 func (p *poll) AddElectors(electorIDs ...types.PlayerID) bool {
-	if len(p.ElectorIDs)+len(electorIDs) > int(p.Capacity) {
+	if len(p.RemainingElectorIDs)+len(electorIDs) > int(p.Capacity) {
 		return false
 	}
 
@@ -180,11 +186,9 @@ func (p *poll) SetWeight(electorID types.PlayerID, weight uint) bool {
 }
 
 func (p *poll) Vote(electorID types.PlayerID, candidateID types.PlayerID) bool {
-	if isOpen, _ := p.IsOpen(); !isOpen ||
-		p.CanVote(electorID) ||
+	if !p.CanVote(electorID) ||
 		!(candidateID.IsUnknown() ||
 			slices.Contains(p.RemainingCandidateIDs, candidateID)) {
-
 		return false
 	}
 
@@ -192,7 +196,13 @@ func (p *poll) Vote(electorID types.PlayerID, candidateID types.PlayerID) bool {
 		p.Records[p.Round].VoteRecords[candidateID] = &types.VoteRecord{}
 	}
 
-	p.Records[p.Round].VoteRecords[candidateID].Weights += p.Weights[electorID]
+	// Empty votes always have weight of 1
+	if candidateID.IsUnknown() {
+		p.Records[p.Round].VoteRecords[candidateID].Weights++
+	} else {
+		p.Records[p.Round].VoteRecords[candidateID].Weights += p.Weights[electorID]
+	}
+
 	p.Records[p.Round].VoteRecords[candidateID].ElectorIDs = append(
 		p.Records[p.Round].VoteRecords[candidateID].ElectorIDs,
 		electorID,

@@ -66,7 +66,7 @@ func (p *player) SetFactionID(factionID types.FactionID) {
 func (p *player) AssignRoles(roleIDs ...types.RoleID) {
 	for _, roleID := range roleIDs {
 		if !slices.Contains(p.RoleIDs(), roleID) {
-			newRole := factory.NewRole(roleID, p.game, p.id)
+			newRole, _ := factory.NewRole(roleID, p.game, p.id)
 			p.roles[roleID] = newRole
 
 			if config.RolePriorities[newRole.ID()] > config.RolePriorities[p.mainRoleID] {

@@ -3,14 +3,12 @@ package validator
 import (
 	"reflect"
 	"strings"
+	"uwwolf/app/validator/rule"
 
 	"github.com/go-playground/locales/en"
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
 	en_translations "github.com/go-playground/validator/v10/translations/en"
-
-	"uwwolf/app/types"
-	"uwwolf/app/validator/rule"
 )
 
 var (
@@ -72,15 +70,15 @@ func SimpleValidateStruct(data any) bool {
 	return validate.Struct(data) != nil
 }
 
-func ValidateVar(data any, tag string) types.ValidationError {
+func ValidateVar(data any, tag string) ValidationError {
 	return handleError(validate.Var(data, tag))
 }
 
-func ValidateStruct(data any) types.ValidationError {
+func ValidateStruct(data any) ValidationError {
 	return handleError(validate.Struct(data))
 }
 
-func handleError(err error) types.ValidationError {
+func handleError(err error) ValidationError {
 	if err == nil {
 		return nil
 	}

@@ -2,37 +2,35 @@ package contract
 
 import "uwwolf/app/game/types"
 
+// Role represents a specific role in the game.
 type Role interface {
-	// Id returns role's id.
+	// ID returns role's ID.
 	ID() types.RoleID
 
-	// PhaseId returns active phase of the role.
+	// PhaseID returns role's active phase ID.
 	PhaseID() types.PhaseID
 
-	// FactionId returns id of faction to which role belongs.
+	// FactionID returns role's faction ID.
 	FactionID() types.FactionID
 
-	// Priority returns role priority number in its phase.
+	// Priority returns role's priority in active phase.
 	Priority() types.Priority
 
-	// BeginRound return round id that the role can perform its action.
+	// BeginRound returns round in which the role be able to
+	// use the abilities.
 	BeginRound() types.Round
 
-	// Expiration return number of times that this role can perform
-	// its actions.
-	ActiveLimit() types.Limit
+	// ActiveLimit returns remaining times the role can use the abilities.
+	ActiveLimit(actionID types.ActionID) types.Limit
 
-	// AfterBeingVoted is called after being voted. Return false
-	// if exonerated, otherwise return true. Do something before
-	// death.
-	AfterBeingVoted() bool
+	// BeforeDeath does something special before killing the role.
+	// Return false if saved, otherwise return true.
+	BeforeDeath() bool
 
-	// AfterDeath is called after player dies. Do something after it.
+	// AfterDeath does something special after killing the role.
 	AfterDeath()
 
-	// UseAbility checks condition is satisfied then performs
-	// action corresponding to this role if everything is ok.
-	// Each time a skill is successfully activated, its expiration
-	// will be reduced by 1.
+	// UseAbility looks up the ability containing the required action and
+	// then uses it.
 	UseAbility(req *types.UseRoleRequest) *types.ActionResponse
 }

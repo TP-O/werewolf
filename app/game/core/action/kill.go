@@ -1,44 +1,49 @@
 package action
 
 import (
+	"errors"
 	"uwwolf/app/game/config"
 	"uwwolf/app/game/contract"
 	"uwwolf/app/game/types"
 )
 
 type kill struct {
-	*action[[]types.PlayerID]
+	*action[types.KillState]
 }
 
 func NewKill(game contract.Game) contract.Action {
 	return &kill{
-		&action[[]types.PlayerID]{
+		&action[types.KillState]{
 			id:    config.KillActionID,
 			game:  game,
-			state: make([]types.PlayerID, 0),
+			state: make(types.KillState),
 		},
 	}
 }
 
-func (k *kill) Perform(req *types.ActionRequest) *types.ActionResponse {
-	return k.action.perform(k.validate, k.execute, k.skip, req)
+func (k *kill) Execute(req *types.ActionRequest) *types.ActionResponse {
+	return k.action.combine(k.Skip, k.Validate, k.Perform, req)
 }
 
-func (k *kill) validate(req *types.ActionRequest) (msg string) {
+func (k *kill) Validate(req *types.ActionRequest) error {
+	if err := k.action.Validate(req); err != nil {
+		return err
+	}
+
 	targetID := req.TargetIDs[0]
 
 	if req.ActorID == targetID {
-		msg = "Appreciate your own life <3"
+		return errors.New("Appreciate your own life (｡´ ‿｀♡)")
 	} else if player := k.game.Player(targetID); player == nil || player.IsDead() {
-		msg = "Unable to kill this player!"
+		return errors.New("Unable to kill this player!")
 	}
 
-	return
+	return nil
 }
 
-func (k *kill) execute(req *types.ActionRequest) *types.ActionResponse {
+func (k *kill) Perform(req *types.ActionRequest) *types.ActionResponse {
 	killedPlayer := k.game.KillPlayer(req.TargetIDs[0])
-	k.state = append(k.state, killedPlayer.ID())
+	k.state[killedPlayer.ID()]++
 
 	return &types.ActionResponse{
 		Ok:   true,

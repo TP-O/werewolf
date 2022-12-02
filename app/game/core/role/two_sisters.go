@@ -7,7 +7,7 @@ import (
 	"uwwolf/app/game/types"
 )
 
-func NewTwoSister(game contract.Game, playerID types.PlayerID) contract.Role {
+func NewTwoSister(game contract.Game, playerID types.PlayerID) (contract.Role, error) {
 	return &role{
 		id:         config.TwoSistersRoleID,
 		factionID:  config.VillagerFactionID,
@@ -25,5 +25,5 @@ func NewTwoSister(game contract.Game, playerID types.PlayerID) contract.Role {
 				activeLimit: config.OneMore,
 			},
 		},
-	}
+	}, nil
 }

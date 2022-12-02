@@ -2,11 +2,18 @@ package main
 
 import (
 	"fmt"
-	"uwwolf/config"
 )
 
-func main() {
-	// app.Init()
+type AA map[string]uint
 
-	fmt.Println(config.Game.MaxStartTime)
+type BB struct {
+	aa AA
+	bb map[int]int
+}
+
+func main() {
+	var a *BB
+	var b *BB
+
+	fmt.Println(a == b)
 }

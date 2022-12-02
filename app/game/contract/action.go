@@ -2,16 +2,30 @@ package contract
 
 import "uwwolf/app/game/types"
 
+// Action executes specific action with its state.
 type Action interface {
-	// Id returns action id.
+	// ID returns action's ID.
 	ID() types.ActionID
 
-	// State returns current action state.
+	// State returns action's current state. It records the result
+	// of each successful execution, so the state can be changed after
+	// each execution.
 	State() any
 
-	// Perform makes some changes in state. First, it validates action request,
-	// then executes it if the validation is successful. Returning struct with Ok
-	// field is false means the request could not be fulfilled, otherwise execution
-	// is successful.
+	// Validate checks if the action request is valid.
+	Validate(req *types.ActionRequest) error
+
+	// Skip skips the task performing and may make some state changes.
+	Skip(req *types.ActionRequest) *types.ActionResponse
+
+	// Perform performs the specific task assigned to the action wihtout
+	// any validation and makes some state changes if successful.
 	Perform(req *types.ActionRequest) *types.ActionResponse
+
+	// Execute combines `Skip`, `Validate`, and `Perform` in order to execute
+	// the action:
+	//      1. Skip
+	//      2. Validate
+	//      3. Perform
+	Execute(req *types.ActionRequest) *types.ActionResponse
 }

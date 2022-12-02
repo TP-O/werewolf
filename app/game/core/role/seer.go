@@ -7,7 +7,7 @@ import (
 	"uwwolf/app/game/types"
 )
 
-func NewSeer(game contract.Game, playerID types.PlayerID) contract.Role {
+func NewSeer(game contract.Game, playerID types.PlayerID) (contract.Role, error) {
 	return &role{
 		id:         config.SeerRoleID,
 		factionID:  config.VillagerFactionID,
@@ -25,5 +25,5 @@ func NewSeer(game contract.Game, playerID types.PlayerID) contract.Role {
 				activeLimit: config.Unlimited,
 			},
 		},
-	}
+	}, nil
 }

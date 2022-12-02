@@ -20,3 +20,15 @@ type VoteActionSetting struct {
 	PlayerID  PlayerID
 	Weight    uint
 }
+
+type KillState map[PlayerID]uint
+
+type PredictState struct {
+	Role    map[PlayerID]RoleID
+	Faction map[PlayerID]FactionID
+}
+
+type RecognizeState struct {
+	Role    []PlayerID
+	Faction []PlayerID
+}

@@ -11,12 +11,12 @@ type hunter struct {
 	*role
 }
 
-func NewHunter(game contract.Game, playerID types.PlayerID) contract.Role {
+func NewHunter(game contract.Game, playerID types.PlayerID) (contract.Role, error) {
 	return &hunter{
 		&role{
 			id:         config.HunterRoleID,
 			phaseID:    config.DayPhaseID,
-			factionID:  config.WerewolfFactionID,
+			factionID:  config.VillagerFactionID,
 			beginRound: config.FirstRound,
 			priority:   config.HunterTurnPriority,
 			game:       game,
@@ -28,7 +28,7 @@ func NewHunter(game contract.Game, playerID types.PlayerID) contract.Role {
 				},
 			},
 		},
-	}
+	}, nil
 }
 
 func (h *hunter) AfterDeath() {

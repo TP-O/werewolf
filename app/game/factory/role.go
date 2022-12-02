@@ -1,13 +1,14 @@
 package factory
 
 import (
+	"errors"
 	"uwwolf/app/game/config"
 	"uwwolf/app/game/contract"
 	"uwwolf/app/game/core/role"
 	"uwwolf/app/game/types"
 )
 
-func NewRole(id types.RoleID, game contract.Game, playerID types.PlayerID) contract.Role {
+func NewRole(id types.RoleID, game contract.Game, playerID types.PlayerID) (contract.Role, error) {
 	switch id {
 	case config.VillagerRoleID:
 		return role.NewVillager(game, playerID)
@@ -25,6 +26,6 @@ func NewRole(id types.RoleID, game contract.Game, playerID types.PlayerID) contr
 		return role.NewTwoSister(game, playerID)
 
 	default:
-		return nil
+		return nil, errors.New("Non-existent role ¯\\_ಠ_ಠ_/¯")
 	}
 }

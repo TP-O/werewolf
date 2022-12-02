@@ -42,17 +42,17 @@ func (r *role) BeginRound() types.Round {
 	return r.beginRound
 }
 
-func (r *role) ActiveLimit() types.Limit {
-	limit := types.Limit(0)
+func (r *role) ActiveLimit(actionID types.ActionID) types.Limit {
+	limit := config.ReachedLimit
 
-	for _, ability := range r.abilities {
-		limit += ability.activeLimit
+	if ability := r.abilities[actionID]; ability != nil {
+		limit = ability.activeLimit
 	}
 
 	return limit
 }
 
-func (r *role) AfterBeingVoted() bool {
+func (r *role) BeforeDeath() bool {
 	return true
 }
 
@@ -66,11 +66,11 @@ func (r *role) UseAbility(req *types.UseRoleRequest) *types.ActionResponse {
 			if ability.activeLimit == config.ReachedLimit {
 				return &types.ActionResponse{
 					Ok:      false,
-					Message: "Unable to perform this ability anymore!",
+					Message: "Unable to use this ability anymore ¯\\(º_o)/¯",
 				}
 			}
 
-			res := ability.action.Perform(&types.ActionRequest{
+			res := ability.action.Execute(&types.ActionRequest{
 				ActorID:   r.player.ID(),
 				TargetIDs: req.TargetIDs,
 				IsSkipped: req.IsSkipped,
@@ -88,6 +88,6 @@ func (r *role) UseAbility(req *types.UseRoleRequest) *types.ActionResponse {
 
 	return &types.ActionResponse{
 		Ok:      false,
-		Message: "This is beyond your ability!",
+		Message: "This is beyond your ability (╥﹏╥)",
 	}
 }

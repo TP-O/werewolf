@@ -3,9 +3,11 @@ package config
 import "uwwolf/app/game/types"
 
 const (
-	NightPhaseID types.PhaseID = iota + 1
+	LowerPhaseID types.PhaseID = iota
+	NightPhaseID
 	DayPhaseID
 	DuskPhaseID
+	UpperPhaseID
 )
 
 const PreparationTime = 10 // (seconds)
@@ -16,3 +18,5 @@ const (
 	Starting
 	Finished
 )
+
+const MinPollCapacity = 3

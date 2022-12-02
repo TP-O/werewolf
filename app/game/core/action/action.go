@@ -1,15 +1,10 @@
 package action
 
 import (
+	"errors"
 	"uwwolf/app/game/contract"
 	"uwwolf/app/game/types"
 )
-
-type validateFnc = func(req *types.ActionRequest) string
-
-type skipFnc = func(req *types.ActionRequest) *types.ActionResponse
-
-type executeFnc = func(req *types.ActionRequest) *types.ActionResponse
 
 type action[S any] struct {
 	state S
@@ -25,48 +20,50 @@ func (a *action[S]) State() any {
 	return a.state
 }
 
-func (a *action[S]) Perform(req *types.ActionRequest) *types.ActionResponse {
-	return a.perform(a.validate, a.execute, a.skip, req)
-}
-
-// Execute the action types.ActionRequest after it passes the validation.
-func (a *action[S]) perform(
-	validate validateFnc,
-	execute executeFnc,
-	skip skipFnc,
-	req *types.ActionRequest,
-) *types.ActionResponse {
-	if req.IsSkipped {
-		return skip(req)
-	}
-
-	if msg := validate(req); msg == "" {
-		return &types.ActionResponse{
-			Ok:      false,
-			Message: msg,
-		}
-	}
-
-	return execute(req)
-}
-
-// Validate the action types.ActionRequest. Each action has different rules
-// for validation. Return empty string if everything is ok.
-func (a *action[S]) validate(req *types.ActionRequest) (msg string) {
-	return
-}
-
-// Skip action
-func (a *action[S]) skip(req *types.ActionRequest) *types.ActionResponse {
+func (a *action[S]) Skip(req *types.ActionRequest) *types.ActionResponse {
 	return &types.ActionResponse{
 		Ok:        true,
 		IsSkipped: true,
 	}
 }
 
-// Execute action types.ActionRequest with receied data. Returning struct with Ok
-// field is false means the types.ActionRequest could not be fulfilled, otherwise execution
-// is successful.
-func (a *action[S]) execute(req *types.ActionRequest) *types.ActionResponse {
+func (a *action[S]) Validate(req *types.ActionRequest) error {
+	if req == nil {
+		return errors.New("Action request can not be empty (⊙＿⊙')")
+	}
+
 	return nil
+}
+
+func (a *action[S]) Perform(req *types.ActionRequest) *types.ActionResponse {
+	return &types.ActionResponse{
+		Ok:      false,
+		Message: "Nothing to do ¯\\_(ツ)_/¯",
+	}
+}
+
+// combine makes `Skip`, `Validate`, and `Perform` functions work
+// together.
+func (a *action[S]) combine(
+	skip func(*types.ActionRequest) *types.ActionResponse,
+	validate func(*types.ActionRequest) error,
+	perform func(*types.ActionRequest) *types.ActionResponse,
+	req *types.ActionRequest,
+) *types.ActionResponse {
+	if req != nil && req.IsSkipped {
+		return skip(req)
+	}
+
+	if err := validate(req); err != nil {
+		return &types.ActionResponse{
+			Ok:      false,
+			Message: err.Error(),
+		}
+	}
+
+	return perform(req)
+}
+
+func (a *action[S]) Execute(req *types.ActionRequest) *types.ActionResponse {
+	return a.combine(a.Skip, a.Validate, a.Perform, req)
 }

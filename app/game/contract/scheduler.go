@@ -3,31 +3,34 @@ package contract
 import "uwwolf/app/game/types"
 
 type Scheduler interface {
-	// CurrentId returns the current round id.
+	// Round returns the latest round.
 	Round() types.Round
 
-	// CurrentPhaseId returns the current phase id.
+	// CurrentPhaseId returns the current phase ID.
 	PhaseID() types.PhaseID
 
+	// Phase returns array of turns in the current phase.
 	Phase() []*types.Turn
 
-	// CurrentTurn returns the current turn instance.
+	// Turn returns the current turn.
 	Turn() *types.Turn
 
-	// IsEmpty returns true if all phases in round are empty.
+	// IsEmpty check if specific phase is empty.
+	// Check if scheduler is empty if phaseID is 0.
 	IsEmpty(phaseID types.PhaseID) bool
 
-	// AddTurn adds new turn to the round. Returns false if
-	// new turn is invalid.
+	// AddTurn adds new turn to the scheduler.
 	AddTurn(setting *types.TurnSetting) bool
 
-	// RemoveTurn removes the turn of given role id from
-	// the round.
+	// RemoveTurn removes given role ID's the turn
+	// from the scheduler
 	RemoveTurn(roleID types.RoleID) bool
 
 	// NextTurn moves to the next turn. Returns false if
-	// the round is empty.
+	// the scheduler is empty.
 	NextTurn(isRemoved bool) bool
 
+	// FreezeTurn freezes sepecific role ID's turn in given
+	// times.
 	FreezeTurn(roleID types.RoleID, limit types.Limit) bool
 }
