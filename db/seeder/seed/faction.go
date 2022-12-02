@@ -1,19 +1,19 @@
 package seed
 
 import (
-	"gorm.io/gorm"
+	"uwwolf/game/enum"
+	"uwwolf/model"
 
-	"uwwolf/app/enum"
-	"uwwolf/app/model"
+	"gorm.io/gorm"
 )
 
 func SeedFactions(client *gorm.DB) {
 	client.Create([]model.Faction{
 		{
-			Id: enum.VillagerFactionId,
+			ID: enum.VillagerFactionID,
 		},
 		{
-			Id: enum.WerewolfFactionId,
+			ID: enum.WerewolfFactionID,
 		},
 	})
 }

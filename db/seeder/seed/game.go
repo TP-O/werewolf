@@ -1,18 +1,18 @@
 package seed
 
 import (
-	"gorm.io/gorm"
+	"uwwolf/model"
 
-	"uwwolf/app/model"
+	"gorm.io/gorm"
 )
 
 func SeedGames(client *gorm.DB) {
-	client.Omit("WinningFactionId").Create([]model.Game{
+	client.Omit("WinningFactionID").Create([]model.Game{
 		{
-			Id: 1,
+			ID: "1",
 		},
 		{
-			Id: 2,
+			ID: "2",
 		},
 	})
 }

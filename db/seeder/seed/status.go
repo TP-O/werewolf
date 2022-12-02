@@ -1,22 +1,22 @@
 package seed
 
 import (
-	"uwwolf/app/enum"
-	"uwwolf/app/model"
+	"uwwolf/game/enum"
+	"uwwolf/model"
 
 	"gorm.io/gorm"
 )
 
 func SeedStatus(client *gorm.DB) {
-	client.Create([]model.Status{
+	client.Create([]model.PlayerStatus{
 		{
-			Id: enum.OnlineStatus,
+			ID: enum.OnlineStatus,
 		},
 		{
-			Id: enum.BusyStatus,
+			ID: enum.BusyStatus,
 		},
 		{
-			Id: enum.InGameStatus,
+			ID: enum.InGameStatus,
 		},
 	})
 }

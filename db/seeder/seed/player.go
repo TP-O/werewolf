@@ -1,9 +1,8 @@
 package seed
 
 import (
-	"uwwolf/app/enum"
-	"uwwolf/app/model"
-	"uwwolf/app/types"
+	"uwwolf/game/enum"
+	"uwwolf/model"
 
 	"gorm.io/gorm"
 )
@@ -11,36 +10,36 @@ import (
 func SeedPlayers(client *gorm.DB) {
 	client.Create([]model.Player{
 		{
-			Id:       types.PlayerId("1111111111111111111111111111"),
-			StatusId: enum.OnlineStatus,
+			ID:       enum.PlayerID("1111111111111111111111111111"),
+			StatusID: enum.OnlineStatus,
 		},
 		{
-			Id:       types.PlayerId("2222222222222222222222222222"),
-			StatusId: enum.OnlineStatus,
+			ID:       enum.PlayerID("2222222222222222222222222222"),
+			StatusID: enum.OnlineStatus,
 		},
 		{
-			Id:       types.PlayerId("3333333333333333333333333333"),
-			StatusId: enum.OnlineStatus,
+			ID:       enum.PlayerID("3333333333333333333333333333"),
+			StatusID: enum.OnlineStatus,
 		},
 		{
-			Id:       types.PlayerId("4444444444444444444444444444"),
-			StatusId: enum.OnlineStatus,
+			ID:       enum.PlayerID("4444444444444444444444444444"),
+			StatusID: enum.OnlineStatus,
 		},
 		{
-			Id:       types.PlayerId("5555555555555555555555555555"),
-			StatusId: enum.OnlineStatus,
+			ID:       enum.PlayerID("5555555555555555555555555555"),
+			StatusID: enum.OnlineStatus,
 		},
 	})
 
-	client.Omit("StatusId").Create([]model.Player{
+	client.Omit("StatusID").Create([]model.Player{
 		{
-			Id: types.PlayerId("6666666666666666666666666666"),
+			ID: enum.PlayerID("6666666666666666666666666666"),
 		},
 		{
-			Id: types.PlayerId("7777777777777777777777777777"),
+			ID: enum.PlayerID("7777777777777777777777777777"),
 		},
 		{
-			Id: types.PlayerId("8888888888888888888888888888"),
+			ID: enum.PlayerID("8888888888888888888888888888"),
 		},
 	})
 }

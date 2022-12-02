@@ -1,9 +1,9 @@
 package config
 
 import (
-	"github.com/spf13/viper"
-
 	"uwwolf/util"
+
+	"github.com/spf13/viper"
 )
 
 type dbConfig struct {
@@ -23,5 +23,5 @@ func (c *dbConfig) load() {
 		"DB_NAME":     "db",
 	})
 
-	viper.Unmarshal(&c)
+	viper.Unmarshal(c)
 }

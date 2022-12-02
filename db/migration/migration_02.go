@@ -1,7 +1,7 @@
 package migration
 
 import (
-	"uwwolf/app/enum"
+	"uwwolf/game/enum"
 
 	"github.com/go-gormigrate/gormigrate/v2"
 	"gorm.io/gorm"

@@ -1,8 +1,8 @@
 package seed
 
 import (
-	"uwwolf/app/enum"
-	"uwwolf/app/model"
+	"uwwolf/game/enum"
+	"uwwolf/model"
 
 	"gorm.io/gorm"
 )
@@ -10,16 +10,16 @@ import (
 func SeedActions(client *gorm.DB) {
 	client.Create([]model.Action{
 		{
-			Id: enum.ShootingActionId,
+			ID: enum.KillActionID,
 		},
 		{
-			Id: enum.ProphecyActionId,
+			ID: enum.PredictActionID,
 		},
 		{
-			Id: enum.RecognitionActionId,
+			ID: enum.RecognizeActionID,
 		},
 		{
-			Id: enum.VoteActionId,
+			ID: enum.VoteActionID,
 		},
 	})
 }

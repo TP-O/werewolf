@@ -10,8 +10,8 @@ import (
 
 var (
 	App  *appConfig  = &appConfig{}
-	Game *gameConfig = &gameConfig{}
 	DB   *dbConfig   = &dbConfig{}
+	Game *gameConfig = &gameConfig{}
 )
 
 type configLoader interface {
@@ -27,10 +27,10 @@ func init() {
 	viper.SetConfigFile(rootPath + "/../.env")
 
 	if err := viper.ReadInConfig(); err != nil {
-		log.Fatalln("Loading environment variables is failed!", err)
+		log.Fatalln("Unable to load .env:", err)
 	}
 
-	load(App, Game, DB)
+	load(App, DB, Game)
 }
 
 func load(loaders ...configLoader) {

@@ -3,8 +3,8 @@ package seed
 import (
 	"gorm.io/gorm"
 
-	"uwwolf/app/enum"
-	"uwwolf/app/model"
+	"uwwolf/game/enum"
+	"uwwolf/model"
 )
 
 func SeedRoles(client *gorm.DB) {
@@ -12,31 +12,31 @@ func SeedRoles(client *gorm.DB) {
 		[]model.Role{
 			// Night
 			{
-				Id:        enum.TwoSistersRoleId,
-				FactionId: enum.VillagerFactionId,
-				PhaseId:   enum.NightPhaseId,
+				ID:        enum.TwoSistersRoleID,
+				FactionID: enum.VillagerFactionID,
+				PhaseID:   enum.NightPhaseID,
 			},
 			{
-				Id:        enum.SeerRoleId,
-				FactionId: enum.VillagerFactionId,
-				PhaseId:   enum.NightPhaseId,
+				ID:        enum.SeerRoleID,
+				FactionID: enum.VillagerFactionID,
+				PhaseID:   enum.NightPhaseID,
 			},
 			{
-				Id:        enum.WerewolfRoleId,
-				FactionId: enum.WerewolfFactionId,
-				PhaseId:   enum.NightPhaseId,
+				ID:        enum.WerewolfRoleID,
+				FactionID: enum.WerewolfFactionID,
+				PhaseID:   enum.NightPhaseID,
 			},
 
 			// Day
 			{
-				Id:        enum.HunterRoleId,
-				FactionId: enum.VillagerFactionId,
-				PhaseId:   enum.DayPhaseId,
+				ID:        enum.HunterRoleID,
+				FactionID: enum.VillagerFactionID,
+				PhaseID:   enum.DayPhaseID,
 			},
 			{
-				Id:        enum.VillagerRoleId,
-				FactionId: enum.VillagerFactionId,
-				PhaseId:   enum.DayPhaseId,
+				ID:        enum.VillagerRoleID,
+				FactionID: enum.VillagerFactionID,
+				PhaseID:   enum.DayPhaseID,
 			},
 		})
 }

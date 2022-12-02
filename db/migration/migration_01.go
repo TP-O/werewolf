@@ -1,10 +1,10 @@
 package migration
 
 import (
+	"uwwolf/model"
+
 	"github.com/go-gormigrate/gormigrate/v2"
 	"gorm.io/gorm"
-
-	"uwwolf/app/model"
 )
 
 var migration01 = &gormigrate.Migration{
@@ -15,7 +15,7 @@ var migration01 = &gormigrate.Migration{
 			&model.Faction{},
 			&model.Role{},
 			&model.Action{},
-			&model.Status{},
+			&model.PlayerStatus{},
 			&model.Player{},
 			&model.Game{},
 			&model.GameRecord{},
