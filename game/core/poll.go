@@ -24,7 +24,7 @@ type poll struct {
 }
 
 func NewPoll(capacity uint) (contract.Poll, error) {
-	if capacity < config.Game.MinPollCapacity {
+	if capacity < config.Game().MinPollCapacity {
 		return nil, errors.New("The capacity is too small ¬_¬")
 	}
 

@@ -1,0 +1,16 @@
+app:
+  debug: true
+  env: "development"
+  api_port: 8080
+  ws_port: 8081
+database:
+  username: "user"
+  password: "pass"
+  keyspace: "space"
+  hosts:
+    - "localhost"
+game:
+  min_capacity: 5
+  max_capacity: 20
+  max_poll_capacity: 3
+  preparation_time: 10

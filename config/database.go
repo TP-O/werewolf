@@ -1,27 +1,21 @@
 package config
 
 import (
-	"uwwolf/util"
-
 	"github.com/spf13/viper"
 )
 
 type dbConfig struct {
-	Host     string `mapstructure:"DB_HOST"`
-	Port     int    `mapstructure:"DB_PORT"`
-	Username string `mapstructure:"DB_USERNAME"`
-	Password string `mapstructure:"DB_PASSWORD"`
-	Name     string `mapstructure:"DB_NAME"`
+	Username string   `mapstructure:"username"`
+	Password string   `mapstructure:"password"`
+	Keyspace string   `mapstructure:"keyspace"`
+	Hosts    []string `mapstructure:"hosts"`
 }
 
-func (c *dbConfig) load() {
-	util.LoadDefaultConfigValues(map[string]any{
-		"DB_HOST":     "postgres",
-		"DB_PORT":     5432,
-		"DB_USERNAME": "username",
-		"DB_PASSWORD": "password",
-		"DB_NAME":     "db",
+func loadDefaultDB() {
+	viper.SetDefault("database", map[string]interface{}{
+		"username": "username",
+		"password": "password",
+		"keyspace": "default_ns",
+		"hosts":    []string{"locahost"},
 	})
-
-	viper.Unmarshal(c)
 }

@@ -2,22 +2,20 @@ package config
 
 import (
 	"github.com/spf13/viper"
-
-	"uwwolf/util"
 )
 
 type appConfig struct {
-	Debug    bool `mapstructure:"APP_DEBUG"`
-	HttpPort int  `mapstructure:"APP_HTTP_PORT"`
-	WsPort   int  `mapstructure:"APP_WS_PORT"`
+	Debug    bool   `mapstructure:"debug"`
+	Env      string `mapstructure:"env"`
+	GrpcPort uint16 `mapstructure:"api_port"`
+	WsPort   uint16 `mapstructure:"ws_port"`
 }
 
-func (c *appConfig) load() {
-	util.LoadDefaultConfigValues(map[string]any{
-		"APP_DEBUG":     false,
-		"APP_HTTP_PORT": 80,
-		"APP_WS_PORT":   81,
+func loadDefaultApp() {
+	viper.SetDefault("app", map[string]interface{}{
+		"debug":    true,
+		"env":      "development",
+		"api_port": 8080,
+		"ws_port":  8081,
 	})
-
-	viper.Unmarshal(&c)
 }

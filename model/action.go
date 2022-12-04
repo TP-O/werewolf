@@ -3,5 +3,6 @@ package model
 import "uwwolf/game/enum"
 
 type Action struct {
-	ID enum.ActionID `gorm:"primaryKey;type:int" json:"id"`
+	ID   enum.ActionID `cql:"id" json:"id"`
+	Name string        `cql:"name" json:"name"`
 }

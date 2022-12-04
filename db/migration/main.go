@@ -1,17 +1,17 @@
 package migration
 
-import (
-	"uwwolf/db"
+// import (
+// 	"uwwolf/db"
 
-	"github.com/go-gormigrate/gormigrate/v2"
-)
+// 	"github.com/go-gormigrate/gormigrate/v2"
+// )
 
-func Migrations() *gormigrate.Gormigrate {
-	client := db.Client()
-	migration := gormigrate.New(client, gormigrate.DefaultOptions, []*gormigrate.Migration{
-		migration01,
-		migration02,
-	})
+// func Migrations() *gormigrate.Gormigrate {
+// 	client := db.Client()
+// 	migration := gormigrate.New(client, gormigrate.DefaultOptions, []*gormigrate.Migration{
+// 		migration01,
+// 		migration02,
+// 	})
 
-	return migration
-}
+// 	return migration
+// }

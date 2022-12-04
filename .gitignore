@@ -1,4 +1,4 @@
-.env
+config.yml
 *.db
 .docker/*
 !.docker/.gitkeep
@@ -6,3 +6,4 @@ tmp/
 mock/*
 !mock/.gitkeep
 firebase-service-account.json
+!.docker/cassandra/.gitkeep

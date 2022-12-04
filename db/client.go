@@ -1,30 +1,28 @@
 package db
 
 import (
-	"strconv"
 	"uwwolf/config"
 
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
+	"github.com/gocql/gocql"
 )
 
-var client *gorm.DB
+var session *gocql.Session
 
 func init() {
-	dsn := "host=" + config.DB.Host +
-		" user=" + config.DB.Username +
-		" password=" + config.DB.Password +
-		" dbname=" + config.DB.Name +
-		" port=" + strconv.Itoa(config.DB.Port) +
-		" sslmode=disable TimeZone=Asia/Ho_Chi_Minh"
+	cluster := gocql.NewCluster(config.DB().Hosts...)
+	cluster.Keyspace = config.DB().Keyspace
+	cluster.Authenticator = gocql.PasswordAuthenticator{
+		Username: config.DB().Username,
+		Password: config.DB().Password,
+	}
 
-	if db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{}); err != nil {
+	if ss, err := cluster.CreateSession(); err != nil {
 		panic(err)
 	} else {
-		client = db
+		session = ss
 	}
 }
 
-func Client() *gorm.DB {
-	return client
+func Client() *gocql.Session {
+	return session
 }

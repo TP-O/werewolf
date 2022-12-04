@@ -2,24 +2,20 @@ package config
 
 import (
 	"github.com/spf13/viper"
-
-	"uwwolf/util"
 )
 
 type gameConfig struct {
-	MinCapacity     int  `mapstructure:"GAME_MIN_CAPACITY"`
-	MaxCapacity     int  `mapstructure:"GAME_MIN_CAPACITY"`
-	MinPollCapacity uint `mapstructure:"GAME_MIN_POLL_CAPACITY"`
-	PreparationTime int  `mapstructure:"GAME_PREPARATION_TIME"`
+	MinCapacity     uint8 `mapstructure:"min_capacity"`
+	MaxCapacity     uint8 `mapstructure:"min_capacity"`
+	MinPollCapacity uint8 `mapstructure:"min_poll_capacity"`
+	PreparationTime uint8 `mapstructure:"preparation_time"`
 }
 
-func (c *gameConfig) load() {
-	util.LoadDefaultConfigValues(map[string]any{
-		"GAME_MIN_CAPACITY":      5,
-		"GAME_MAX_CAPACITY":      20,
-		"GAME_MIN_POLL_CAPACITY": 3,
-		"GAME_PREPARATION_TIME":  10,
+func loadDefaultGame() {
+	viper.SetDefault("game", map[string]interface{}{
+		"min_capacity":      5,
+		"max_capacicty":     20,
+		"min_poll_capacity": 3,
+		"preparation_time":  10,
 	})
-
-	viper.Unmarshal(&c)
 }

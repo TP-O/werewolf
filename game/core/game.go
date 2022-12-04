@@ -263,7 +263,7 @@ func (g *game) addCandidatesToPolls() {
 func (g *game) waitForPreparation() {
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
-		time.Duration(time.Duration(config.Game.PreparationTime).Seconds()),
+		time.Duration(time.Duration(config.Game().PreparationTime).Seconds()),
 	)
 	defer cancel()
 

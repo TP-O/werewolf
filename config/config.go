@@ -8,33 +8,40 @@ import (
 	"github.com/spf13/viper"
 )
 
-var (
-	App  *appConfig  = &appConfig{}
-	DB   *dbConfig   = &dbConfig{}
-	Game *gameConfig = &gameConfig{}
-)
-
-type configLoader interface {
-	load()
+type config struct {
+	App  appConfig  `mapstructure:"app"`
+	Game gameConfig `mapstructure:"game"`
+	DB   dbConfig   `mapstructure:"database"`
 }
+
+var cfg config
 
 func init() {
 	_, filePath, _, _ := runtime.Caller(0)
-
-	// Current directory
-	rootPath := filepath.Dir(filePath)
-
-	viper.SetConfigFile(rootPath + "/../.env")
+	currentPath := filepath.Dir(filePath)
+	viper.AddConfigPath(currentPath + "/../")
+	viper.SetConfigName("config")
+	viper.SetConfigType("yml")
 
 	if err := viper.ReadInConfig(); err != nil {
-		log.Fatalln("Unable to load .env:", err)
+		log.Fatalln("Unable to load config:", err)
 	}
 
-	load(App, DB, Game)
+	loadDefaultApp()
+	loadDefaultDB()
+	loadDefaultGame()
+
+	viper.Unmarshal(&cfg)
 }
 
-func load(loaders ...configLoader) {
-	for _, loader := range loaders {
-		loader.load()
-	}
+func App() appConfig {
+	return cfg.App
+}
+
+func DB() dbConfig {
+	return cfg.DB
+}
+
+func Game() gameConfig {
+	return cfg.Game
 }
