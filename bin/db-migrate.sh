@@ -1,4 +1,4 @@
 #!/bin/sh
 set -ex
 
-go run ./db/migration/migrate/main.go
+go run ./db/migration/main.go $@

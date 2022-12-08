@@ -1,15 +1,16 @@
 package enum
 
-type PlayerStatus uint
+type PlayerStatus = uint8
 
 const (
-	OnlineStatus PlayerStatus = iota + 1
+	OfflineStatus PlayerStatus = iota
+	OnlineStatus
 	BusyStatus
 	InGameStatus
 )
 
-type PlayerID string
+type PlayerID = string
 
-func (p PlayerID) IsUnknown() bool {
+func IsUnknownPlayerID(p PlayerID) bool {
 	return p == ""
 }

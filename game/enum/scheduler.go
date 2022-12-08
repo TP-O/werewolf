@@ -1,8 +1,8 @@
 package enum
 
-type Round int
+type Round = int8
 
-func (r Round) IsStarted() bool {
+func IsStartedRound(r Round) bool {
 	return r != 0
 }
 
@@ -12,7 +12,7 @@ const (
 	FirstRound
 )
 
-type Position int
+type Position = int8
 
 const (
 	NextPosition Position = iota - 3

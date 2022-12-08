@@ -1,12 +1,12 @@
 package enum
 
-type GameID string
+type GameID = string
 
-func (g GameID) IsValid() bool {
+func IsValidGameID(g GameID) bool {
 	return len(g) == 28
 }
 
-type PhaseID uint
+type PhaseID = uint8
 
 const (
 	LowerPhaseID PhaseID = iota
@@ -16,11 +16,11 @@ const (
 	UpperPhaseID
 )
 
-func (p PhaseID) IsUnknown() bool {
+func IsUnknownPhaseID(p PhaseID) bool {
 	return p == 0
 }
 
-func (p PhaseID) NextPhase() PhaseID {
+func NextPhasePhaseID(p PhaseID) PhaseID {
 	if p+1 >= UpperPhaseID {
 		return LowerPhaseID + 1
 	}
@@ -28,7 +28,7 @@ func (p PhaseID) NextPhase() PhaseID {
 	return p + 1
 }
 
-func (p PhaseID) PreviousPhase() PhaseID {
+func PreviousPhaseID(p PhaseID) PhaseID {
 	if p-1 <= LowerPhaseID {
 		return UpperPhaseID - 1
 	}
@@ -36,7 +36,7 @@ func (p PhaseID) PreviousPhase() PhaseID {
 	return p - 1
 }
 
-type GameStatus uint
+type GameStatus = uint8
 
 const (
 	Idle GameStatus = iota

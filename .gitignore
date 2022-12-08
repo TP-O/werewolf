@@ -1,9 +1,7 @@
 config.yml
-*.db
-.docker/*
-!.docker/.gitkeep
+firebase-service-account.json
 tmp/
 mock/*
 !mock/.gitkeep
-firebase-service-account.json
-!.docker/cassandra/.gitkeep
+.docker/cassandra/data
+.docker/go

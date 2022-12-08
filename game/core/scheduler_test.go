@@ -643,7 +643,7 @@ func TestRemoveTurnScheduler(t *testing.T) {
 						RoleID: enum.HunterRoleID,
 					},
 				}
-				myScheduler.phases[beginPhaseID.NextPhase()] = []*types.Turn{
+				myScheduler.phases[enum.NextPhasePhaseID(beginPhaseID)] = []*types.Turn{
 					{
 						RoleID: enum.VillagerRoleID,
 					},
@@ -654,7 +654,7 @@ func TestRemoveTurnScheduler(t *testing.T) {
 			name:           "Ok (Removes current turn which is the first turn of the second round)",
 			roleID:         enum.HunterRoleID,
 			expectedStatus: true,
-			newPhaseID:     beginPhaseID.NextPhase(),
+			newPhaseID:     enum.NextPhasePhaseID(beginPhaseID),
 			newTurnIndex:   0,
 			newRound:       1,
 			setup: func(myScheduler *scheduler) {
@@ -665,7 +665,7 @@ func TestRemoveTurnScheduler(t *testing.T) {
 						RoleID: enum.HunterRoleID,
 					},
 				}
-				myScheduler.phases[beginPhaseID.NextPhase()] = []*types.Turn{
+				myScheduler.phases[enum.NextPhasePhaseID(beginPhaseID)] = []*types.Turn{
 					{
 						RoleID: enum.VillagerRoleID,
 					},
@@ -680,7 +680,7 @@ func TestRemoveTurnScheduler(t *testing.T) {
 			newTurnIndex:   1,
 			newRound:       2,
 			setup: func(myScheduler *scheduler) {
-				myScheduler.phaseID = beginPhaseID.NextPhase()
+				myScheduler.phaseID = enum.NextPhasePhaseID(beginPhaseID)
 				myScheduler.turnIndex = 0
 				myScheduler.round = 2
 				myScheduler.phases[beginPhaseID] = []*types.Turn{
@@ -691,7 +691,7 @@ func TestRemoveTurnScheduler(t *testing.T) {
 						RoleID: enum.VillagerRoleID,
 					},
 				}
-				myScheduler.phases[beginPhaseID.NextPhase()] = []*types.Turn{
+				myScheduler.phases[enum.NextPhasePhaseID(beginPhaseID)] = []*types.Turn{
 					{
 						RoleID: enum.HunterRoleID,
 					},
@@ -713,10 +713,10 @@ func TestRemoveTurnScheduler(t *testing.T) {
 						RoleID: enum.HunterRoleID,
 					},
 				}
-				myScheduler.phases[beginPhaseID.NextPhase()] = []*types.Turn{
+				myScheduler.phases[enum.NextPhasePhaseID(beginPhaseID)] = []*types.Turn{
 					//
 				}
-				myScheduler.phases[beginPhaseID.NextPhase()] = []*types.Turn{
+				myScheduler.phases[enum.NextPhasePhaseID(enum.NextPhasePhaseID(beginPhaseID))] = []*types.Turn{
 					//
 				}
 			},
@@ -907,7 +907,7 @@ func TestNextTurnScheduler(t *testing.T) {
 			isRemoved:      false,
 			expectedStatus: true,
 			newRound:       1,
-			newPhaseID:     beginPhaseID.NextPhase(),
+			newPhaseID:     enum.NextPhasePhaseID(beginPhaseID),
 			newTurnIndex:   0,
 			setup: func(myScheduler *scheduler) {
 				myScheduler.turnIndex = 0
@@ -916,7 +916,7 @@ func TestNextTurnScheduler(t *testing.T) {
 						RoleID: enum.SeerRoleID,
 					},
 				}
-				myScheduler.phases[beginPhaseID.NextPhase()] = []*types.Turn{
+				myScheduler.phases[enum.NextPhasePhaseID(beginPhaseID)] = []*types.Turn{
 					{
 						RoleID: enum.HunterRoleID,
 					},
@@ -931,9 +931,9 @@ func TestNextTurnScheduler(t *testing.T) {
 			newPhaseID:     beginPhaseID,
 			newTurnIndex:   0,
 			setup: func(myScheduler *scheduler) {
-				myScheduler.phaseID = beginPhaseID.PreviousPhase()
+				myScheduler.phaseID = enum.NextPhasePhaseID(beginPhaseID)
 				myScheduler.turnIndex = 0
-				myScheduler.phases[beginPhaseID.PreviousPhase()] = []*types.Turn{
+				myScheduler.phases[enum.NextPhasePhaseID(beginPhaseID)] = []*types.Turn{
 					{
 						RoleID: enum.SeerRoleID,
 					},
@@ -999,7 +999,7 @@ func TestNextTurnScheduler(t *testing.T) {
 			assert.Equal(t, test.newTurnIndex, myScheduler.(*scheduler).turnIndex)
 
 			// Check if role ID is removed
-			if !test.expectedRemovedRoleID.IsUnknown() {
+			if !enum.IsUnknownRoleID(test.expectedRemovedRoleID) {
 				assert.False(t, myScheduler.RemoveTurn(test.expectedRemovedRoleID))
 			}
 		})

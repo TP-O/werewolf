@@ -2,44 +2,38 @@ version: "3.8"
 
 services:
     app:
-        image: cosmtrek/air:v1.40.4
+        image: werewolf-server:dev
+        build:
+            context: .
+            dockerfile: Dockerfile.dev
         ports:
             - 8080:8080
-        working_dir: /app
-        env_file:
-            - .env
-        environment:
-            - air_wd=/app
-            - GOPATH=/go
         volumes:
             - ./:/app
-            - $GOPATH/pkg/mod:/go/pkg/mod
-        command: go run main.go
+            - .docker/go/pkg/mod:/go/pkg/mod
         networks:
-            - postgres-network
+            - cassandra-network
         restart: unless-stopped
 
-    postgres:
-        image: postgres:14.1-alpine3.15
-        environment:
-            - POSTGRES_DB=${DB_NAME}
-            - POSTGRES_USER=${DB_USERNAME}
-            - POSTGRES_PASSWORD=${DB_PASSWORD}
+    cassandra1:
+        image: cassandra:3.11.14
         volumes:
-            - ./.docker/postgres/data:/var/lib/postgresql/data
+            - .docker/cassandra/cassandra1.yaml:/etc/cassandra/cassandra.yaml
+            - .docker/cassandra/data/n1:/var/lib/cassandra
         networks:
-            - postgres-network
+            - cassandra-network
         restart: unless-stopped
-
-    adminer:
-        image: dockette/adminer:pgsql
-        ports:
-            - 8081:80
-        networks:
-            - postgres-network
-        depends_on:
-            - postgres
-        restart: unless-stopped
+    #
+    # cassandra2:
+    #     image: cassandra:3.11.14
+    #     volumes:
+    #         - .docker/cassandra/cassandra2.yaml:/etc/cassandra/cassandra.yaml
+    #         - .docker/cassandra/data/n2:/var/lib/cassandra
+    #     environment:
+    #         - CASSANDRA_SEEDS=cassandra1
+    #     networks:
+    #         - cassandra-network
+    #     restart: unless-stopped
 
 networks:
-    postgres-network:
+    cassandra-network:

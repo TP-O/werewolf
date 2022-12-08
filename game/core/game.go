@@ -2,6 +2,7 @@ package core
 
 import (
 	"context"
+	"sync"
 	"time"
 	"uwwolf/config"
 	"uwwolf/game/contract"
@@ -16,8 +17,9 @@ import (
 
 type game struct {
 	id                    enum.GameID
-	numberOfWerewolves    int
+	numberOfWerewolves    uint8
 	nextTurnSignal        chan bool
+	mutex                 sync.Mutex
 	status                enum.GameStatus
 	turnDuration          time.Duration
 	discussionDuration    time.Duration
@@ -54,15 +56,16 @@ func NewGame(id enum.GameID, setting *types.GameSetting) contract.Game {
 	}
 
 	for _, id := range setting.PlayerIDs {
-		game.players[id] = NewPlayer(&game, id)
+		playerID := enum.PlayerID(id)
+		game.players[playerID] = NewPlayer(&game, playerID)
 	}
 
 	// Create polls for villagers and werewolves
 	game.polls[enum.VillagerFactionID], _ = NewPoll(
-		uint(len(game.players)),
+		uint8(len(game.players)),
 	)
 	game.polls[enum.WerewolfFactionID], _ = NewPoll(
-		uint(len(game.fID2pIDs[enum.WerewolfFactionID])),
+		uint8(len(game.fID2pIDs[enum.WerewolfFactionID])),
 	)
 
 	return &game
@@ -128,8 +131,8 @@ func (g *game) selectRoleID(werewolfCounter *int, nonWerewolfCounter *int, roleI
 	)
 
 	for i := 0; i < int(types.RoleIDSets[roleID]); i++ {
-		isMissingWerewolf := *werewolfCounter < g.numberOfWerewolves
-		isMissingNonWerewolf := *nonWerewolfCounter < len(g.players)-g.numberOfWerewolves
+		isMissingWerewolf := *werewolfCounter < int(g.numberOfWerewolves)
+		isMissingNonWerewolf := *nonWerewolfCounter < len(g.players)-int(g.numberOfWerewolves)
 
 		if !isMissingWerewolf && !isMissingNonWerewolf {
 			return false
@@ -339,6 +342,9 @@ func (g *game) Finish() bool {
 }
 
 func (g *game) UsePlayerRole(playerID enum.PlayerID, req *types.UseRoleRequest) *types.ActionResponse {
+	g.mutex.Lock()
+	defer g.mutex.Unlock()
+
 	if g.status != enum.Starting ||
 		g.Player(playerID) == nil ||
 		slices.Contains(g.playedPlayerIDs, playerID) ||

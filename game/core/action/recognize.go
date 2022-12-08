@@ -45,9 +45,9 @@ func (r *recognize) Execute(req *types.ActionRequest) *types.ActionResponse {
 
 func (r *recognize) Perform(req *types.ActionRequest) *types.ActionResponse {
 	if !r.isRecognized {
-		if !r.recognizedFactionID.IsUnknown() {
+		if !enum.IsUnknownFactionID(r.recognizedFactionID) {
 			r.state.Faction = r.game.PlayerIDsByFactionID(r.recognizedFactionID)
-		} else if !r.recognizedRoleID.IsUnknown() {
+		} else if !enum.IsUnknownRoleID(r.recognizedRoleID) {
 			r.state.Role = r.game.PlayerIDsByRoleID(r.recognizedRoleID)
 		} else {
 			return &types.ActionResponse{
@@ -59,7 +59,7 @@ func (r *recognize) Perform(req *types.ActionRequest) *types.ActionResponse {
 		r.isRecognized = true
 	}
 
-	if !r.recognizedFactionID.IsUnknown() {
+	if !enum.IsUnknownFactionID(r.recognizedFactionID) {
 		return &types.ActionResponse{
 			Ok:   true,
 			Data: r.state.Faction,

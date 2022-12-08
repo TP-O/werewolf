@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+option go_package = "grpc/pb";
+
+message GameRequest {
+    uint32 number_of_werewolves = 1;
+    uint32 turn_duration = 2;
+    uint32 discussion_duration = 3;
+    repeated uint32 role_ids = 4;
+    repeated uint32 required_role_ids = 5;
+    repeated string player_ids = 6;
+}
+
+message GameResponse {
+    string id = 1;
+    uint32 started_at = 2;
+    uint32 prepration_time = 3;
+}
+
+service Game {
+    rpc CreateGame (GameRequest) returns (GameResponse) {}
+}

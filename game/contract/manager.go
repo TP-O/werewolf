@@ -10,6 +10,9 @@ type GameManger interface {
 	Game(gameID enum.GameID) Game
 
 	// AddGame inserts new game instance to the game manager.
-	// The old one can be overrided if it has the same game ID.
+	// Returns nil if the old one is existed.
 	AddGame(gameID enum.GameID, setting *types.GameSetting) Game
+
+	// Remove removes the game with the given ID.
+	RemoveGame(gameID enum.GameID) bool
 }

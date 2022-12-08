@@ -18,12 +18,12 @@ type poll struct {
 	ElectorIDs            []enum.PlayerID
 	RemainingElectorIDs   []enum.PlayerID
 	VotedElectorIDs       []enum.PlayerID
-	Capacity              uint
+	Capacity              uint8
 	Weights               map[enum.PlayerID]uint
 	Records               map[enum.Round]*types.PollRecord
 }
 
-func NewPoll(capacity uint) (contract.Poll, error) {
+func NewPoll(capacity uint8) (contract.Poll, error) {
 	if capacity < config.Game().MinPollCapacity {
 		return nil, errors.New("The capacity is too small ¬_¬")
 	}
@@ -36,7 +36,7 @@ func NewPoll(capacity uint) (contract.Poll, error) {
 }
 
 func (p *poll) IsOpen() (bool, enum.Round) {
-	isOpen := p.Round.IsStarted() &&
+	isOpen := enum.IsStartedRound(p.Round) &&
 		p.Records[p.Round] != nil &&
 		!p.Records[p.Round].IsClosed
 
@@ -52,7 +52,7 @@ func (p *poll) CanVote(electorID enum.PlayerID) bool {
 }
 
 func (p *poll) Record(round enum.Round) *types.PollRecord {
-	if !p.Round.IsStarted() || round > p.Round {
+	if !enum.IsStartedRound(p.Round) || round > p.Round {
 		return nil
 	} else if round == enum.LastRound {
 		return p.Records[p.Round]
@@ -87,7 +87,7 @@ func (p *poll) currentWinnerID() enum.PlayerID {
 
 	for candidateID, record := range p.Records[p.Round].VoteRecords {
 		if record.Weights >= halfVotes {
-			if winnerID.IsUnknown() {
+			if enum.IsUnknownPlayerID(winnerID) {
 				winnerID = candidateID
 			} else {
 				// Draw if 2 candidates have overwhelming votes
@@ -188,7 +188,7 @@ func (p *poll) SetWeight(electorID enum.PlayerID, weight uint) bool {
 
 func (p *poll) Vote(electorID enum.PlayerID, candidateID enum.PlayerID) bool {
 	if !p.CanVote(electorID) ||
-		!(candidateID.IsUnknown() ||
+		!(enum.IsUnknownPlayerID(candidateID) ||
 			slices.Contains(p.RemainingCandidateIDs, candidateID)) {
 		return false
 	}
@@ -198,7 +198,7 @@ func (p *poll) Vote(electorID enum.PlayerID, candidateID enum.PlayerID) bool {
 	}
 
 	// Empty votes always have weight of 1
-	if candidateID.IsUnknown() {
+	if enum.IsUnknownPlayerID(candidateID) {
 		p.Records[p.Round].VoteRecords[candidateID].Weights++
 	} else {
 		p.Records[p.Round].VoteRecords[candidateID].Weights += p.Weights[electorID]

@@ -8,7 +8,7 @@ database:
   password: "pass"
   keyspace: "space"
   hosts:
-    - "localhost"
+    - "cassandra1"
 game:
   min_capacity: 5
   max_capacity: 20

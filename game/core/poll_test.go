@@ -11,7 +11,7 @@ import (
 func TestNewPoll(t *testing.T) {
 	tests := []struct {
 		name        string
-		capacity    uint
+		capacity    uint8
 		expectedErr string
 	}{
 		{
@@ -240,7 +240,7 @@ func TestRecordPoll(t *testing.T) {
 }
 
 func TestOpenPoll(t *testing.T) {
-	capacity := uint(3)
+	capacity := uint8(5)
 	tests := []struct {
 		name           string
 		expectedStatus bool
@@ -267,7 +267,7 @@ func TestOpenPoll(t *testing.T) {
 				myPoll.Records[myPoll.Round] = &types.PollRecord{
 					IsClosed: true,
 				}
-				myPoll.RemainingElectorIDs = []enum.PlayerID{}
+				myPoll.RemainingElectorIDs = []enum.PlayerID{"1", "2", "3"}
 			},
 		},
 		{
@@ -279,7 +279,8 @@ func TestOpenPoll(t *testing.T) {
 				myPoll.Records[myPoll.Round] = &types.PollRecord{
 					IsClosed: true,
 				}
-				myPoll.RemainingElectorIDs = []enum.PlayerID{"1", "2", "3"}
+				myPoll.VotedElectorIDs = []enum.PlayerID{"1", "2", "3", "4", "5"}
+				myPoll.RemainingElectorIDs = []enum.PlayerID{"1", "2", "3", "4", "5"}
 			},
 		},
 	}
@@ -708,7 +709,7 @@ func TestRemoveCandidatePoll(t *testing.T) {
 }
 
 func TestAddElectorsPoll(t *testing.T) {
-	capacity := uint(5)
+	capacity := uint8(5)
 	tests := []struct {
 		name                   string
 		electorIDs             []enum.PlayerID

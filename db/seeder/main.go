@@ -1,18 +1,28 @@
 package main
 
-// import (
-// 	"uwwolf/db"
-// 	"uwwolf/db/seeder/seed"
-// )
+import (
+	"uwwolf/db"
+	"uwwolf/db/seeder/seed"
 
-// func main() {
-// 	client := db.Client()
+	"github.com/gocql/gocql"
+)
 
-// 	seed.SeedPhases(client)
-// 	seed.SeedFactions(client)
-// 	seed.SeedRoles(client)
-// 	seed.SeedActions(client)
-// 	seed.SeedStatus(client)
-// 	seed.SeedPlayers(client)
-// 	seed.SeedGames(client)
-// }
+type seeder = func(*gocql.Session) error
+
+func main() {
+	client := db.Client()
+	seeders := []seeder{
+		seed.SeedActions,
+		seed.SeedFactions,
+		seed.SeedPhases,
+		seed.SeedRoles,
+		seed.SeedPlayerStatus,
+		seed.SeedPlayers,
+	}
+
+	for _, seeder := range seeders {
+		if err := seeder(client); err != nil {
+			panic(err)
+		}
+	}
+}

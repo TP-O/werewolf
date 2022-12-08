@@ -14,8 +14,8 @@ const CapacityTag = "capacity"
 func ValidateCapacity(fl validator.FieldLevel) bool {
 	capacity := len(fl.Field().Interface().([]enum.PlayerID))
 
-	if capacity > config.Game().MaxCapacity ||
-		capacity < config.Game().MinCapacity {
+	if capacity > int(config.Game().MaxCapacity) ||
+		capacity < int(config.Game().MinCapacity) {
 
 		return false
 	}
@@ -25,9 +25,9 @@ func ValidateCapacity(fl validator.FieldLevel) bool {
 
 func AddCapacityTag(ut ut.Translator) error {
 	message := "{0} must have length from " +
-		strconv.Itoa(config.Game().MinCapacity) +
+		strconv.Itoa(int(config.Game().MinCapacity)) +
 		" to " +
-		strconv.Itoa(config.Game().MaxCapacity)
+		strconv.Itoa(int(config.Game().MaxCapacity))
 
 	return ut.Add(CapacityTag, message, true)
 }

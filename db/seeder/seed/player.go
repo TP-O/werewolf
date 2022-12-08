@@ -1,45 +1,47 @@
 package seed
 
-// import (
-// 	"uwwolf/game/enum"
-// 	"uwwolf/model"
+import (
+	"log"
+	"uwwolf/db"
+	"uwwolf/model"
 
-// 	"gorm.io/gorm"
-// )
+	"github.com/gocql/gocql"
+)
 
-// func SeedPlayers(client *gorm.DB) {
-// 	client.Create([]model.Player{
-// 		{
-// 			ID:       enum.PlayerID("1111111111111111111111111111"),
-// 			StatusID: enum.OnlineStatus,
-// 		},
-// 		{
-// 			ID:       enum.PlayerID("2222222222222222222222222222"),
-// 			StatusID: enum.OnlineStatus,
-// 		},
-// 		{
-// 			ID:       enum.PlayerID("3333333333333333333333333333"),
-// 			StatusID: enum.OnlineStatus,
-// 		},
-// 		{
-// 			ID:       enum.PlayerID("4444444444444444444444444444"),
-// 			StatusID: enum.OnlineStatus,
-// 		},
-// 		{
-// 			ID:       enum.PlayerID("5555555555555555555555555555"),
-// 			StatusID: enum.OnlineStatus,
-// 		},
-// 	})
+func SeedPlayers(client *gocql.Session) error {
+	batch := client.NewBatch(0)
+	models := []model.Player{
+		{
+			ID:       "11111111111111111111",
+			StatusID: 0,
+		},
+		{
+			ID:       "22222222222222222222",
+			StatusID: 0,
+		},
+		{
+			ID:       "33333333333333333333",
+			StatusID: 0,
+		},
+		{
+			ID:       "44444444444444444444",
+			StatusID: 0,
+		},
+		{
+			ID:       "55555555555555555555",
+			StatusID: 0,
+		},
+	}
 
-// 	client.Omit("StatusID").Create([]model.Player{
-// 		{
-// 			ID: enum.PlayerID("6666666666666666666666666666"),
-// 		},
-// 		{
-// 			ID: enum.PlayerID("7777777777777777777777777777"),
-// 		},
-// 		{
-// 			ID: enum.PlayerID("8888888888888888888888888888"),
-// 		},
-// 	})
-// }
+	for _, model := range models {
+		batch.Query(
+			"INSERT INTO players (id, status_id) VALUES (?, ?)",
+			model.ID,
+			model.StatusID,
+		)
+	}
+
+	log.Println("PlayerSeeder is completed!")
+
+	return db.Client().ExecuteBatch(batch)
+}

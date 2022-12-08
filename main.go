@@ -1,16 +1,34 @@
 package main
 
 import (
-	"uwwolf/config"
+	"context"
+	"fmt"
+	"log"
+	"uwwolf/db"
 )
 
 func main() {
-	// cluster := gocql.NewCluster("192.168.1.1", "192.168.1.2", "192.168.1.3")
-	// cluster.Keyspace = "example"
-	// session, _ := cluster.CreateSession()
+	// handler.APIRouter().Run(":" + strconv.Itoa(config.App().ApiPort))
+	// grpc.Run()
 
-	// session.Query("aaa").GetConsistency().MarshalText()
+	// println(db.Client())
 
-	println(config.DB().Username)
-	println(config.Game().MinCapacity)
+	scanner := db.Client().Query(`SELECT id, name FROM phases WHERE id = ?`,
+		"1").WithContext(context.Background()).Iter().Scanner()
+
+	for scanner.Next() {
+		var (
+			id   int
+			name string
+		)
+		err := scanner.Scan(&id, &name)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println("Tweet:", id, name)
+	}
+	// scanner.Err() closes the iterator, so scanner nor iter should be used afterwards.
+	if err := scanner.Err(); err != nil {
+		log.Fatal(err)
+	}
 }

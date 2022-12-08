@@ -1,6 +1,6 @@
 package enum
 
-type Limit int
+type Limit = int8
 
 const (
 	Unlimited Limit = iota - 1
@@ -8,7 +8,7 @@ const (
 	OneMore
 )
 
-type Priority int
+type Priority = uint8
 
 // Day phase
 const (
@@ -23,7 +23,7 @@ const (
 	TwoSistersTurnPriority
 )
 
-type RoleID uint
+type RoleID = uint32
 
 const (
 	VillagerRoleID RoleID = iota + 1
@@ -33,17 +33,17 @@ const (
 	TwoSistersRoleID
 )
 
-func (r RoleID) IsUnknown() bool {
+func IsUnknownRoleID(r RoleID) bool {
 	return r == 0
 }
 
-type FactionID uint
+type FactionID = uint8
 
 const (
 	VillagerFactionID FactionID = iota + 1
 	WerewolfFactionID
 )
 
-func (f FactionID) IsUnknown() bool {
+func IsUnknownFactionID(f FactionID) bool {
 	return f == 0
 }

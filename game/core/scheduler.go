@@ -53,7 +53,7 @@ func (s *scheduler) Turn() *types.Turn {
 }
 
 func (s *scheduler) IsEmpty(phaseID enum.PhaseID) bool {
-	if !phaseID.IsUnknown() {
+	if !enum.IsUnknownPhaseID(phaseID) {
 		return len(s.phases[phaseID]) == 0
 	}
 
@@ -176,7 +176,7 @@ func (s *scheduler) RemoveTurn(roleID enum.RoleID) bool {
 							}
 						}
 
-						s.phaseID = s.phaseID.PreviousPhase()
+						s.phaseID = enum.PreviousPhaseID(s.phaseID)
 						s.turnIndex = len(s.Phase()) - 1
 					}
 
@@ -234,7 +234,7 @@ func (s *scheduler) NextTurn(isRemoved bool) bool {
 		}
 	} else {
 		s.turnIndex = 0
-		s.phaseID = s.phaseID.NextPhase()
+		s.phaseID = enum.NextPhasePhaseID(s.phaseID)
 
 		// Start new round
 		if s.phaseID == s.beginPhaseID {
