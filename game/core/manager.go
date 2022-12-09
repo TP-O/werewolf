@@ -1,9 +1,13 @@
 package core
 
 import (
+	"errors"
+	"uwwolf/db"
 	"uwwolf/game/contract"
 	"uwwolf/game/enum"
 	"uwwolf/game/types"
+
+	"github.com/google/uuid"
 )
 
 type manager struct {
@@ -26,22 +30,30 @@ func (m *manager) Game(gameID enum.GameID) contract.Game {
 	return m.games[gameID]
 }
 
-func (m *manager) AddGame(gameID enum.GameID, setting *types.GameSetting) contract.Game {
-	if m.games[gameID] != nil {
-		return nil
+func (m *manager) NewGame(setting *types.GameSetting) (contract.Game, error) {
+	game := NewGame(uuid.NewString(), setting)
+
+	if err := db.Client().Query(
+		`INSERT INTO games (id) VALUES (?)`,
+		game.ID(),
+	).Exec(); err != nil {
+		game.Finish()
+
+		return nil, errors.New("Unable to create game (╯°□°)╯︵ ┻━┻")
 	}
 
-	m.games[gameID] = NewGame(gameID, setting)
+	m.games[game.ID()] = game
 
-	return m.games[gameID]
+	return game, nil
 }
 
-func (m *manager) RemoveGame(gameID enum.GameID) bool {
-	if m.games[gameID] == nil {
-		return false
+func (m *manager) RemoveGame(gameID enum.GameID) (bool, error) {
+	if removedGame := m.games[gameID]; removedGame == nil {
+		return false, errors.New("Game does not exist (• ε •)")
+	} else {
+		removedGame.Finish()
+		delete(m.games, gameID)
+
+		return true, nil
 	}
-
-	delete(m.games, gameID)
-
-	return true
 }

@@ -1,9 +1,9 @@
 package validator
 
 import (
-	"reflect"
-	"strings"
-	"uwwolf/validator/rule"
+	"uwwolf/game/types"
+	"uwwolf/validator/strct"
+	"uwwolf/validator/tag"
 
 	"github.com/go-playground/locales/en"
 	ut "github.com/go-playground/universal-translator"
@@ -26,40 +26,57 @@ func init() {
 
 	en_translations.RegisterDefaultTranslations(validate, trans)
 
-	// Rewrite struct fields as JSON
-	validate.RegisterTagNameFunc(func(fl reflect.StructField) string {
-		name := strings.SplitN(fl.Tag.Get("json"), ",", 2)
+	// // Rewrite struct field as JSON tag
+	// validate.RegisterTagNameFunc(func(fl reflect.StructField) string {
+	// 	name := strings.SplitN(fl.Tag.Get("json"), ",", 2)
 
-		return name[0]
-	})
+	// 	return name[0]
+	// })
 
-	// Customize rules for fileds
-	validate.RegisterValidation(rule.CapacityTag, rule.ValidateCapacity)
-	validate.RegisterValidation(rule.NumberOfWerewolvesTag, rule.ValidateNumberOfWerewolves)
-	validate.RegisterValidation(rule.RoleIdTag, rule.ValidateRolePool)
+	addCutomizedValidationTags(validate)
+	addCustomizedFieldRules(validate)
+	addCustomizedStructRules(validate)
+}
 
-	// Customize rules for structs
-	// ...
-
-	// Custom crror messages
+func addCutomizedValidationTags(validate *validator.Validate) {
 	validate.RegisterTranslation(
-		rule.CapacityTag,
+		tag.TurnDurationTag,
 		trans,
-		rule.AddCapacityTag,
-		rule.RegisterCapacityMessage,
+		tag.AddTurnDurationTag,
+		tag.RegisterTurnDurationMessage,
 	)
 	validate.RegisterTranslation(
-		rule.NumberOfWerewolvesTag,
+		tag.DiscussionDurationTag,
 		trans,
-		rule.AddNumberOfWerewolvesTag,
-		rule.RegisterNumberOfWerewolvesTagMessage,
+		tag.AddDiscussionDurationTag,
+		tag.RegisterDiscussionDurationMessage,
 	)
 	validate.RegisterTranslation(
-		rule.RoleIdTag,
+		tag.GameCapacityTag,
 		trans,
-		rule.AddRolePoolTag,
-		rule.RegisterRolePoolMessage,
+		tag.AddGameCapacityTag,
+		tag.RegisterGameCapacityMessage,
 	)
+	validate.RegisterTranslation(
+		tag.RoleIDTag,
+		trans,
+		tag.AddRoleIDsTag,
+		tag.RegisterRoleIDsMessage,
+	)
+	validate.RegisterTranslation(
+		tag.NumberWerewolvesTag,
+		trans,
+		tag.AddNumberWerewolvesTag,
+		tag.RegisterNumberWerewolvesMessage,
+	)
+}
+
+func addCustomizedFieldRules(validate *validator.Validate) {
+	//
+}
+
+func addCustomizedStructRules(validate *validator.Validate) {
+	validate.RegisterStructValidation(strct.ValidateGameSetting, types.GameSetting{})
 }
 
 func SimpleValidateVar(data any, tag string) bool {
@@ -70,20 +87,18 @@ func SimpleValidateStruct(data any) bool {
 	return validate.Struct(data) != nil
 }
 
-func ValidateVar(data any, tag string) ValidationError {
+func ValidateVar(data any, tag string) ValidationErrors {
 	return handleError(validate.Var(data, tag))
 }
 
-func ValidateStruct(data any) ValidationError {
+func ValidateStruct(data any) ValidationErrors {
 	return handleError(validate.Struct(data))
 }
 
-func handleError(err error) ValidationError {
+func handleError(err error) ValidationErrors {
 	if err == nil {
 		return nil
 	}
 
-	errs := err.(validator.ValidationErrors)
-
-	return errs.Translate(trans)
+	return err.(validator.ValidationErrors).Translate(trans)
 }

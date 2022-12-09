@@ -41,6 +41,6 @@ type GameStatus = uint8
 const (
 	Idle GameStatus = iota
 	Waiting
-	Starting
+	Running
 	Finished
 )

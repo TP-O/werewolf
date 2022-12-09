@@ -6,7 +6,6 @@ import (
 	"time"
 	"uwwolf/config"
 	"uwwolf/game/contract"
-	"uwwolf/game/core/role"
 	"uwwolf/game/enum"
 	"uwwolf/game/factory"
 	"uwwolf/game/types"
@@ -17,8 +16,9 @@ import (
 
 type game struct {
 	id                    enum.GameID
-	numberOfWerewolves    uint8
+	numberWerewolves      uint8
 	nextTurnSignal        chan bool
+	finishSignal          chan bool
 	mutex                 sync.Mutex
 	status                enum.GameStatus
 	turnDuration          time.Duration
@@ -40,11 +40,12 @@ type game struct {
 func NewGame(id enum.GameID, setting *types.GameSetting) contract.Game {
 	game := game{
 		id:                 id,
-		numberOfWerewolves: setting.NumberOfWerewolves,
+		numberWerewolves:   setting.NumberWerewolves,
 		nextTurnSignal:     make(chan bool),
+		finishSignal:       make(chan bool),
 		status:             enum.Idle,
-		turnDuration:       setting.TurnDuration * time.Second,
-		discussionDuration: setting.DiscussionDuration * time.Second,
+		turnDuration:       time.Duration(setting.TurnDuration) * time.Second,
+		discussionDuration: time.Duration(setting.DiscussionDuration) * time.Second,
 		roleIDs:            setting.RoleIDs,
 		requiredRoleIDs:    setting.RequiredRoleIDs,
 		scheduler:          NewScheduler(enum.NightPhaseID),
@@ -65,7 +66,7 @@ func NewGame(id enum.GameID, setting *types.GameSetting) contract.Game {
 		uint8(len(game.players)),
 	)
 	game.polls[enum.WerewolfFactionID], _ = NewPoll(
-		uint8(len(game.fID2pIDs[enum.WerewolfFactionID])),
+		game.numberWerewolves,
 	)
 
 	return &game
@@ -131,8 +132,8 @@ func (g *game) selectRoleID(werewolfCounter *int, nonWerewolfCounter *int, roleI
 	)
 
 	for i := 0; i < int(types.RoleIDSets[roleID]); i++ {
-		isMissingWerewolf := *werewolfCounter < int(g.numberOfWerewolves)
-		isMissingNonWerewolf := *nonWerewolfCounter < len(g.players)-int(g.numberOfWerewolves)
+		isMissingWerewolf := *werewolfCounter < int(g.numberWerewolves)
+		isMissingNonWerewolf := *nonWerewolfCounter < len(g.players)-int(g.numberWerewolves)
 
 		if !isMissingWerewolf && !isMissingNonWerewolf {
 			return false
@@ -226,33 +227,31 @@ func (g *game) randomRoleIDs() {
 	// Select random roles
 	for {
 		i, randomRoleID := util.RandomElement(roleIDs)
-		roleIDs = slices.Delete(roleIDs, i, i+1)
 
 		if i == -1 ||
 			!g.selectRoleID(&werewolfCounter, &nonWerewolfCounter, randomRoleID) {
 			break
 		}
+
+		roleIDs = slices.Delete(roleIDs, i, i+1)
 	}
 
 	g.assignRoles()
 }
 
 func (g *game) addDefaultTurnsToSchedule() {
-	villager, _ := role.NewVillager(nil, enum.PlayerID(""))
-	werewolf, _ := role.NewWerewolf(nil, enum.PlayerID(""))
-
 	g.scheduler.AddTurn(&types.TurnSetting{
-		PhaseID:    villager.PhaseID(),
-		RoleID:     villager.ID(),
-		BeginRound: villager.BeginRound(),
-		Priority:   villager.Priority(),
+		PhaseID:    enum.DayPhaseID,
+		RoleID:     enum.VillagerRoleID,
+		BeginRound: enum.FirstRound,
+		Priority:   enum.VillagerTurnPriority,
 		Position:   enum.SortedPosition,
 	})
 	g.scheduler.AddTurn(&types.TurnSetting{
-		PhaseID:    werewolf.PhaseID(),
-		RoleID:     werewolf.ID(),
-		BeginRound: werewolf.BeginRound(),
-		Priority:   werewolf.Priority(),
+		PhaseID:    enum.NightPhaseID,
+		RoleID:     enum.WerewolfRoleID,
+		BeginRound: enum.FirstRound,
+		Priority:   enum.WerewolfTurnPriority,
 		Position:   enum.SortedPosition,
 	})
 }
@@ -272,17 +271,19 @@ func (g *game) waitForPreparation() {
 
 	// Wait for timeout
 	select {
+	case <-g.finishSignal:
+		// Finish game
 	case <-ctx.Done():
+		g.status = enum.Running
 	}
-
-	g.status = enum.Starting
 }
 
 func (g *game) runScheduler() {
 	// Wait a little bit for the player to prepare
 	g.waitForPreparation()
+	g.scheduler.NextTurn(false)
 
-	for g.status == enum.Starting {
+	for g.status == enum.Running {
 		g.playedPlayerIDs = make([]enum.PlayerID, 0)
 
 		func() {
@@ -308,10 +309,12 @@ func (g *game) runScheduler() {
 			// Wait for signal or timeout
 			select {
 			case <-g.nextTurnSignal:
+				g.scheduler.NextTurn(false)
 			case <-ctx.Done():
+				g.scheduler.NextTurn(false)
+			case <-g.finishSignal:
+				// Finish game
 			}
-
-			g.scheduler.NextTurn(false)
 		}()
 	}
 }
@@ -322,21 +325,23 @@ func (g *game) Start() int64 {
 	}
 
 	g.randomRoleIDs()
-	g.addDefaultTurnsToSchedule()
 	g.addCandidatesToPolls()
+	g.addDefaultTurnsToSchedule()
 
 	go g.runScheduler()
 
-	return time.Now().UnixMilli()
+	return time.Now().Unix()
 }
 
 func (g *game) Finish() bool {
-	if g.status != enum.Starting {
+	if g.status == enum.Finished {
 		return false
 	}
 
+	g.finishSignal <- true
 	g.status = enum.Finished
 	close(g.nextTurnSignal)
+	close(g.finishSignal)
 
 	return true
 }
@@ -345,7 +350,7 @@ func (g *game) UsePlayerRole(playerID enum.PlayerID, req *types.UseRoleRequest) 
 	g.mutex.Lock()
 	defer g.mutex.Unlock()
 
-	if g.status != enum.Starting ||
+	if g.status != enum.Running ||
 		g.Player(playerID) == nil ||
 		slices.Contains(g.playedPlayerIDs, playerID) ||
 		slices.Contains(g.deadPlayerIDs, playerID) ||
@@ -372,7 +377,7 @@ func (g *game) UsePlayerRole(playerID enum.PlayerID, req *types.UseRoleRequest) 
 }
 
 func (g *game) ConnectPlayer(playerID enum.PlayerID, isConnected bool) bool {
-	if g.status != enum.Starting || g.players[playerID] == nil {
+	if g.status != enum.Running || g.players[playerID] == nil {
 		return false
 	}
 
@@ -394,7 +399,7 @@ func (g *game) ConnectPlayer(playerID enum.PlayerID, isConnected bool) bool {
 }
 
 func (g *game) ExitPlayer(playerID enum.PlayerID) bool {
-	if g.status != enum.Starting ||
+	if g.status != enum.Running ||
 		g.players[playerID] == nil ||
 		slices.Contains(g.exitedPlayerIDs, playerID) {
 		return false
@@ -409,7 +414,7 @@ func (g *game) ExitPlayer(playerID enum.PlayerID) bool {
 func (g *game) KillPlayer(playerID enum.PlayerID, isExited bool) contract.Player {
 	player := g.players[playerID]
 
-	if g.status != enum.Starting ||
+	if g.status != enum.Running ||
 		player == nil ||
 		slices.Contains(g.deadPlayerIDs, playerID) ||
 		!player.Die(isExited) {

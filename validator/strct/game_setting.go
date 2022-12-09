@@ -1,0 +1,106 @@
+package strct
+
+import (
+	"math"
+	"uwwolf/config"
+	"uwwolf/game/types"
+	"uwwolf/validator/tag"
+
+	"github.com/go-playground/validator/v10"
+	"golang.org/x/exp/maps"
+	"golang.org/x/exp/slices"
+)
+
+func validateGameCapacity(sl validator.StructLevel, setting *types.GameSetting) {
+	if len(setting.PlayerIDs) < int(config.Game().MinCapacity) ||
+		len(setting.PlayerIDs) > int(config.Game().MaxCapacity) {
+		sl.ReportError(
+			setting.PlayerIDs,
+			"PlayerIDs",
+			"PlayerIDs",
+			tag.GameCapacityTag,
+			"",
+		)
+	}
+}
+
+func validateTurnDuration(sl validator.StructLevel, setting *types.GameSetting) {
+	if setting.TurnDuration < config.Game().MinTurnDuration ||
+		setting.TurnDuration > config.Game().MaxTurnDuration {
+		sl.ReportError(
+			setting.TurnDuration,
+			"TurnDuration",
+			"TurnDuration",
+			tag.TurnDurationTag,
+			"",
+		)
+	}
+}
+
+func validateDiscussionDuration(sl validator.StructLevel, setting *types.GameSetting) {
+	if setting.DiscussionDuration < config.Game().MinDiscussionDuration ||
+		setting.DiscussionDuration > config.Game().MaxDiscussionDuration {
+		sl.ReportError(
+			setting.DiscussionDuration,
+			"DiscussionDuration",
+			"DiscussionDuration",
+			tag.DiscussionDurationTag,
+			"",
+		)
+	}
+}
+
+func validateRoleID(sl validator.StructLevel, setting *types.GameSetting) {
+	for _, roleID := range setting.RoleIDs {
+		if !slices.Contains(maps.Keys(types.RoleIDSets), roleID) {
+			sl.ReportError(
+				setting.RoleIDs,
+				"RoleIDs",
+				"RoleIDs",
+				tag.RoleIDTag,
+				"",
+			)
+
+			break
+		}
+	}
+
+	for _, roleID := range setting.RequiredRoleIDs {
+		if !slices.Contains(setting.RoleIDs, roleID) {
+			sl.ReportError(
+				setting.RequiredRoleIDs,
+				"RequiredRoleIDs",
+				"RequiredRoleIDs",
+				tag.RoleIDTag,
+				"",
+			)
+
+			break
+		}
+	}
+}
+
+func validateNumberWerewolves(sl validator.StructLevel, setting *types.GameSetting) {
+	capacity := len(setting.PlayerIDs)
+	maxNumberWerewolves := uint8(math.Round(float64(capacity)/2)) - 2
+
+	if capacity < 5 && setting.NumberWerewolves != 1 ||
+		(capacity > 4 && setting.NumberWerewolves > maxNumberWerewolves) {
+		sl.ReportError(
+			setting.NumberWerewolves,
+			"NumberWerewolves",
+			"NumberWerewolves",
+			tag.NumberWerewolvesTag,
+			"",
+		)
+	}
+}
+
+func ValidateGameSetting(sl validator.StructLevel) {
+	setting := sl.Current().Interface().(types.GameSetting)
+	validateGameCapacity(sl, &setting)
+	validateTurnDuration(sl, &setting)
+	validateDiscussionDuration(sl, &setting)
+	validateRoleID(sl, &setting)
+	validateNumberWerewolves(sl, &setting)
+}

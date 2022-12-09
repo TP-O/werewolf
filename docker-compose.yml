@@ -11,6 +11,8 @@ services:
         volumes:
             - ./:/app
             - .docker/go/pkg/mod:/go/pkg/mod
+        depends_on:
+            - cassandra1
         networks:
             - cassandra-network
         restart: unless-stopped
