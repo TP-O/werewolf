@@ -2,6 +2,7 @@ package core
 
 import (
 	"context"
+	"fmt"
 	"sync"
 	"time"
 	"uwwolf/config"
@@ -269,6 +270,8 @@ func (g *game) waitForPreparation() {
 	)
 	defer cancel()
 
+	fmt.Println("Preparing...")
+
 	// Wait for timeout
 	select {
 	case <-g.finishSignal:
@@ -283,11 +286,15 @@ func (g *game) runScheduler() {
 	g.waitForPreparation()
 	g.scheduler.NextTurn(false)
 
+	fmt.Println("Starttttttttttttt")
+
 	for g.status == enum.Running {
 		g.playedPlayerIDs = make([]enum.PlayerID, 0)
 
 		func() {
 			var duration time.Duration
+
+			fmt.Println("turn of", g.scheduler.Turn().RoleID)
 
 			if g.scheduler.Turn().RoleID == enum.VillagerRoleID {
 				duration = g.discussionDuration
@@ -310,10 +317,12 @@ func (g *game) runScheduler() {
 			select {
 			case <-g.nextTurnSignal:
 				g.scheduler.NextTurn(false)
+				fmt.Println("Time up")
 			case <-ctx.Done():
 				g.scheduler.NextTurn(false)
+				fmt.Println("Done")
 			case <-g.finishSignal:
-				// Finish game
+				fmt.Println("Finished")
 			}
 		}()
 	}

@@ -16,7 +16,7 @@ func validateGameCapacity(sl validator.StructLevel, setting *types.GameSetting) 
 		len(setting.PlayerIDs) > int(config.Game().MaxCapacity) {
 		sl.ReportError(
 			setting.PlayerIDs,
-			"PlayerIDs",
+			"player_ids",
 			"PlayerIDs",
 			tag.GameCapacityTag,
 			"",
@@ -29,7 +29,7 @@ func validateTurnDuration(sl validator.StructLevel, setting *types.GameSetting) 
 		setting.TurnDuration > config.Game().MaxTurnDuration {
 		sl.ReportError(
 			setting.TurnDuration,
-			"TurnDuration",
+			"turn_duration",
 			"TurnDuration",
 			tag.TurnDurationTag,
 			"",
@@ -42,7 +42,7 @@ func validateDiscussionDuration(sl validator.StructLevel, setting *types.GameSet
 		setting.DiscussionDuration > config.Game().MaxDiscussionDuration {
 		sl.ReportError(
 			setting.DiscussionDuration,
-			"DiscussionDuration",
+			"discussion_duration",
 			"DiscussionDuration",
 			tag.DiscussionDurationTag,
 			"",
@@ -55,7 +55,7 @@ func validateRoleID(sl validator.StructLevel, setting *types.GameSetting) {
 		if !slices.Contains(maps.Keys(types.RoleIDSets), roleID) {
 			sl.ReportError(
 				setting.RoleIDs,
-				"RoleIDs",
+				"role_ids",
 				"RoleIDs",
 				tag.RoleIDTag,
 				"",
@@ -69,7 +69,7 @@ func validateRoleID(sl validator.StructLevel, setting *types.GameSetting) {
 		if !slices.Contains(setting.RoleIDs, roleID) {
 			sl.ReportError(
 				setting.RequiredRoleIDs,
-				"RequiredRoleIDs",
+				"required_role_ids",
 				"RequiredRoleIDs",
 				tag.RoleIDTag,
 				"",
@@ -88,7 +88,7 @@ func validateNumberWerewolves(sl validator.StructLevel, setting *types.GameSetti
 		(capacity > 4 && setting.NumberWerewolves > maxNumberWerewolves) {
 		sl.ReportError(
 			setting.NumberWerewolves,
-			"NumberWerewolves",
+			"number_werewolves",
 			"NumberWerewolves",
 			tag.NumberWerewolvesTag,
 			"",

@@ -5,7 +5,7 @@ import "uwwolf/game/enum"
 type UseRoleRequest struct {
 	ActionID  enum.ActionID
 	TargetIDs []enum.PlayerID
-	IsSkipped bool
+	IsSkipped bool ``
 }
 
 var RoleIDsByFactionID = map[enum.FactionID][]enum.RoleID{

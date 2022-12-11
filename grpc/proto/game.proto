@@ -2,8 +2,8 @@ syntax = "proto3";
 
 option go_package = "grpc/pb";
 
-message GameRequest {
-    uint32 number_of_werewolves = 1;
+message CreateGameRequest {
+    uint32 number_werewolves = 1;
     uint32 turn_duration = 2;
     uint32 discussion_duration = 3;
     repeated uint32 role_ids = 4;
@@ -11,12 +11,40 @@ message GameRequest {
     repeated string player_ids = 6;
 }
 
-message GameResponse {
+message CreateGameResponse {
     string id = 1;
     uint32 started_at = 2;
     uint32 prepration_time = 3;
 }
 
+message UseRoleRequest {
+    string game_id = 1;
+    string player_id = 2;
+    bool is_skipped = 3;
+    uint32 action_id = 4;
+    repeated string target_ids = 5;
+}
+
+message UseRoleResponse {
+    bool ok = 1;
+    bool is_skipped = 2;
+    string message = 3;
+    string data = 4;
+}
+
+message ConnectPlayerRequest {
+    string game_id = 1;
+    string player_id = 2;
+    bool is_connected = 3;
+    bool is_exited = 4;
+}
+
+message ConnectPlayerResponse {
+    bool ok = 1;
+}
+
 service Game {
-    rpc CreateGame (GameRequest) returns (GameResponse) {}
+    rpc CreateGame (CreateGameRequest) returns (CreateGameResponse) {}
+    rpc UseRole (UseRoleRequest) returns (UseRoleResponse) {}
+    rpc ConnectPlayer (ConnectPlayerRequest) returns (ConnectPlayerResponse) {}
 }

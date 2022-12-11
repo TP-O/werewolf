@@ -1,5 +1,5 @@
 package validator
 
-import "github.com/go-playground/validator/v10"
+import "google.golang.org/genproto/googleapis/rpc/errdetails"
 
-type ValidationErrors = validator.ValidationErrorsTranslations
+type ValidationErrors = errdetails.BadRequest

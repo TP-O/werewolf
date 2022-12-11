@@ -1,6 +1,8 @@
 package validator
 
 import (
+	"reflect"
+	"strings"
 	"uwwolf/game/types"
 	"uwwolf/validator/strct"
 	"uwwolf/validator/tag"
@@ -9,6 +11,7 @@ import (
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
 	en_translations "github.com/go-playground/validator/v10/translations/en"
+	"google.golang.org/genproto/googleapis/rpc/errdetails"
 )
 
 var (
@@ -18,20 +21,17 @@ var (
 )
 
 func init() {
-	en := en.New()
-	uni = ut.New(en, en)
+	uni = ut.New(en.New())
 	trans, _ = uni.GetTranslator("en")
-
 	validate = validator.New()
-
 	en_translations.RegisterDefaultTranslations(validate, trans)
 
-	// // Rewrite struct field as JSON tag
-	// validate.RegisterTagNameFunc(func(fl reflect.StructField) string {
-	// 	name := strings.SplitN(fl.Tag.Get("json"), ",", 2)
+	// Rewrite struct field as JSON tag
+	validate.RegisterTagNameFunc(func(fl reflect.StructField) string {
+		name := strings.SplitN(fl.Tag.Get("json"), ",", 2)
 
-	// 	return name[0]
-	// })
+		return name[0]
+	})
 
 	addCutomizedValidationTags(validate)
 	addCustomizedFieldRules(validate)
@@ -87,18 +87,29 @@ func SimpleValidateStruct(data any) bool {
 	return validate.Struct(data) != nil
 }
 
-func ValidateVar(data any, tag string) ValidationErrors {
+func ValidateVar(data any, tag string) *ValidationErrors {
 	return handleError(validate.Var(data, tag))
 }
 
-func ValidateStruct(data any) ValidationErrors {
+func ValidateStruct(data any) *ValidationErrors {
 	return handleError(validate.Struct(data))
 }
 
-func handleError(err error) ValidationErrors {
+func handleError(err error) *ValidationErrors {
+	fieldErrors := new(ValidationErrors)
+
 	if err == nil {
-		return nil
+		return fieldErrors
 	}
 
-	return err.(validator.ValidationErrors).Translate(trans)
+	for _, e := range err.(validator.ValidationErrors) {
+		fieldErrors.FieldViolations = append(
+			fieldErrors.FieldViolations,
+			&errdetails.BadRequest_FieldViolation{
+				Field:       e.Field(),
+				Description: e.Translate(trans),
+			})
+	}
+
+	return fieldErrors
 }

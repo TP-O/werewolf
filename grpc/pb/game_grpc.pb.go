@@ -22,7 +22,9 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type GameClient interface {
-	CreateGame(ctx context.Context, in *GameRequest, opts ...grpc.CallOption) (*GameResponse, error)
+	CreateGame(ctx context.Context, in *CreateGameRequest, opts ...grpc.CallOption) (*CreateGameResponse, error)
+	UseRole(ctx context.Context, in *UseRoleRequest, opts ...grpc.CallOption) (*UseRoleResponse, error)
+	ConnectPlayer(ctx context.Context, in *ConnectPlayerRequest, opts ...grpc.CallOption) (*ConnectPlayerResponse, error)
 }
 
 type gameClient struct {
@@ -33,9 +35,27 @@ func NewGameClient(cc grpc.ClientConnInterface) GameClient {
 	return &gameClient{cc}
 }
 
-func (c *gameClient) CreateGame(ctx context.Context, in *GameRequest, opts ...grpc.CallOption) (*GameResponse, error) {
-	out := new(GameResponse)
+func (c *gameClient) CreateGame(ctx context.Context, in *CreateGameRequest, opts ...grpc.CallOption) (*CreateGameResponse, error) {
+	out := new(CreateGameResponse)
 	err := c.cc.Invoke(ctx, "/Game/CreateGame", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *gameClient) UseRole(ctx context.Context, in *UseRoleRequest, opts ...grpc.CallOption) (*UseRoleResponse, error) {
+	out := new(UseRoleResponse)
+	err := c.cc.Invoke(ctx, "/Game/UseRole", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *gameClient) ConnectPlayer(ctx context.Context, in *ConnectPlayerRequest, opts ...grpc.CallOption) (*ConnectPlayerResponse, error) {
+	out := new(ConnectPlayerResponse)
+	err := c.cc.Invoke(ctx, "/Game/ConnectPlayer", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +66,9 @@ func (c *gameClient) CreateGame(ctx context.Context, in *GameRequest, opts ...gr
 // All implementations must embed UnimplementedGameServer
 // for forward compatibility
 type GameServer interface {
-	CreateGame(context.Context, *GameRequest) (*GameResponse, error)
+	CreateGame(context.Context, *CreateGameRequest) (*CreateGameResponse, error)
+	UseRole(context.Context, *UseRoleRequest) (*UseRoleResponse, error)
+	ConnectPlayer(context.Context, *ConnectPlayerRequest) (*ConnectPlayerResponse, error)
 	mustEmbedUnimplementedGameServer()
 }
 
@@ -54,8 +76,14 @@ type GameServer interface {
 type UnimplementedGameServer struct {
 }
 
-func (UnimplementedGameServer) CreateGame(context.Context, *GameRequest) (*GameResponse, error) {
+func (UnimplementedGameServer) CreateGame(context.Context, *CreateGameRequest) (*CreateGameResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateGame not implemented")
+}
+func (UnimplementedGameServer) UseRole(context.Context, *UseRoleRequest) (*UseRoleResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UseRole not implemented")
+}
+func (UnimplementedGameServer) ConnectPlayer(context.Context, *ConnectPlayerRequest) (*ConnectPlayerResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ConnectPlayer not implemented")
 }
 func (UnimplementedGameServer) mustEmbedUnimplementedGameServer() {}
 
@@ -71,7 +99,7 @@ func RegisterGameServer(s grpc.ServiceRegistrar, srv GameServer) {
 }
 
 func _Game_CreateGame_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GameRequest)
+	in := new(CreateGameRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -83,7 +111,43 @@ func _Game_CreateGame_Handler(srv interface{}, ctx context.Context, dec func(int
 		FullMethod: "/Game/CreateGame",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GameServer).CreateGame(ctx, req.(*GameRequest))
+		return srv.(GameServer).CreateGame(ctx, req.(*CreateGameRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Game_UseRole_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UseRoleRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GameServer).UseRole(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/Game/UseRole",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GameServer).UseRole(ctx, req.(*UseRoleRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Game_ConnectPlayer_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ConnectPlayerRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GameServer).ConnectPlayer(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/Game/ConnectPlayer",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GameServer).ConnectPlayer(ctx, req.(*ConnectPlayerRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -98,6 +162,14 @@ var Game_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateGame",
 			Handler:    _Game_CreateGame_Handler,
+		},
+		{
+			MethodName: "UseRole",
+			Handler:    _Game_UseRole_Handler,
+		},
+		{
+			MethodName: "ConnectPlayer",
+			Handler:    _Game_ConnectPlayer_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
