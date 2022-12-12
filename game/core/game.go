@@ -200,6 +200,7 @@ func (g *game) assignRoles() {
 				RoleID:     selectedRole.ID(),
 				BeginRound: selectedRole.BeginRound(),
 				Priority:   selectedRole.Priority(),
+				Limit:      selectedRole.ActiveLimit(0),
 				Position:   enum.SortedPosition,
 			})
 		}
@@ -246,6 +247,7 @@ func (g *game) addDefaultTurnsToSchedule() {
 		RoleID:     enum.VillagerRoleID,
 		BeginRound: enum.FirstRound,
 		Priority:   enum.VillagerTurnPriority,
+		Limit:      enum.Unlimited,
 		Position:   enum.SortedPosition,
 	})
 	g.scheduler.AddTurn(&types.TurnSetting{
@@ -253,6 +255,7 @@ func (g *game) addDefaultTurnsToSchedule() {
 		RoleID:     enum.WerewolfRoleID,
 		BeginRound: enum.FirstRound,
 		Priority:   enum.WerewolfTurnPriority,
+		Limit:      enum.Unlimited,
 		Position:   enum.SortedPosition,
 	})
 }
@@ -266,7 +269,7 @@ func (g *game) addCandidatesToPolls() {
 func (g *game) waitForPreparation() {
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
-		time.Duration(time.Duration(config.Game().PreparationTime).Seconds()),
+		time.Duration(config.Game().PreparationTime)*time.Second,
 	)
 	defer cancel()
 
@@ -295,6 +298,8 @@ func (g *game) runScheduler() {
 			var duration time.Duration
 
 			fmt.Println("turn of", g.scheduler.Turn().RoleID)
+
+			// if g.
 
 			if g.scheduler.Turn().RoleID == enum.VillagerRoleID {
 				duration = g.discussionDuration
@@ -359,6 +364,7 @@ func (g *game) UsePlayerRole(playerID enum.PlayerID, req *types.UseRoleRequest) 
 	g.mutex.Lock()
 	defer g.mutex.Unlock()
 
+	// Check actor + target
 	if g.status != enum.Running ||
 		g.Player(playerID) == nil ||
 		slices.Contains(g.playedPlayerIDs, playerID) ||

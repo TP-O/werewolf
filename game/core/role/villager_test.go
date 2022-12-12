@@ -6,17 +6,39 @@ import (
 	gamemock "uwwolf/mock/game"
 
 	"github.com/golang/mock/gomock"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
 )
 
-func TestNewVillager(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-	mockGame := gamemock.NewMockGame(ctrl)
-	mockPlayer := gamemock.NewMockPlayer(ctrl)
-	mockPoll := gamemock.NewMockPoll(ctrl)
+type VillagerSuite struct {
+	suite.Suite
+	ctrl     *gomock.Controller
+	game     *gamemock.MockGame
+	player   *gamemock.MockPlayer
+	poll     *gamemock.MockPoll
+	playerID enum.PlayerID
+}
 
-	playerID := enum.PlayerID("1")
+func TestVillagerSuite(t *testing.T) {
+	suite.Run(t, new(VillagerSuite))
+}
+
+func (vs *VillagerSuite) SetupSuite() {
+	vs.playerID = "1"
+}
+
+func (vs *VillagerSuite) SetupTest() {
+	vs.ctrl = gomock.NewController(vs.T())
+	vs.game = gamemock.NewMockGame(vs.ctrl)
+	vs.player = gamemock.NewMockPlayer(vs.ctrl)
+	vs.poll = gamemock.NewMockPoll(vs.ctrl)
+	vs.game.EXPECT().Player(vs.playerID).Return(vs.player).AnyTimes()
+}
+
+func (vs *VillagerSuite) TearDownTest() {
+	vs.ctrl.Finish()
+}
+
+func (vs *VillagerSuite) TestNewVillager() {
 	tests := []struct {
 		name        string
 		expectedErr string
@@ -28,7 +50,7 @@ func TestNewVillager(t *testing.T) {
 			returnNil:   true,
 			expectedErr: "Poll does not exist ¯\\_(ツ)_/¯",
 			setup: func() {
-				mockGame.EXPECT().Poll(enum.VillagerFactionID).Return(nil).Times(1)
+				vs.game.EXPECT().Poll(enum.VillagerFactionID).Return(nil).Times(1)
 			},
 		},
 		{
@@ -36,39 +58,38 @@ func TestNewVillager(t *testing.T) {
 			returnNil:   true,
 			expectedErr: "Unable to join to the poll ಠ_ಠ",
 			setup: func() {
-				mockGame.EXPECT().Poll(enum.VillagerFactionID).Return(mockPoll).Times(1)
-				mockPoll.EXPECT().AddElectors(playerID).Return(false).Times(1)
+				vs.game.EXPECT().Poll(enum.VillagerFactionID).Return(vs.poll).Times(1)
+				vs.poll.EXPECT().AddElectors(vs.playerID).Return(false).Times(1)
 			},
 		},
 		{
 			name:      "Ok",
 			returnNil: false,
 			setup: func() {
-				mockGame.EXPECT().Poll(enum.VillagerFactionID).Return(mockPoll).Times(1)
-				mockPoll.EXPECT().AddElectors(playerID).Return(true).Times(1)
-				mockPoll.EXPECT().SetWeight(playerID, uint(1)).Times(1)
-				mockGame.EXPECT().Player(playerID).Return(mockPlayer).Times(1)
+				vs.game.EXPECT().Poll(enum.VillagerFactionID).Return(vs.poll).Times(1)
+				vs.poll.EXPECT().AddElectors(vs.playerID).Return(true).Times(1)
+				vs.poll.EXPECT().SetWeight(vs.playerID, uint(1)).Times(1)
 			},
 		},
 	}
 
 	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
+		vs.Run(test.name, func() {
 			test.setup()
-			villager, err := NewVillager(mockGame, playerID)
+			villager, err := NewVillager(vs.game, vs.playerID)
 
 			if test.returnNil {
-				assert.Nil(t, villager)
-				assert.NotNil(t, err)
-				assert.Equal(t, test.expectedErr, err.Error())
+				vs.Nil(villager)
+				vs.NotNil(err)
+				vs.Equal(test.expectedErr, err.Error())
 			} else {
-				assert.Nil(t, err)
-				assert.Equal(t, enum.VillagerRoleID, villager.ID())
-				assert.Equal(t, enum.DayPhaseID, villager.PhaseID())
-				assert.Equal(t, enum.VillagerFactionID, villager.FactionID())
-				assert.Equal(t, enum.VillagerTurnPriority, villager.Priority())
-				assert.Equal(t, enum.FirstRound, villager.BeginRound())
-				assert.Equal(t, enum.Unlimited, villager.ActiveLimit(enum.VoteActionID))
+				vs.Nil(err)
+				vs.Equal(enum.VillagerRoleID, villager.ID())
+				vs.Equal(enum.DayPhaseID, villager.PhaseID())
+				vs.Equal(enum.VillagerFactionID, villager.FactionID())
+				vs.Equal(enum.VillagerTurnPriority, villager.Priority())
+				vs.Equal(enum.FirstRound, villager.BeginRound())
+				vs.Equal(enum.Unlimited, villager.ActiveLimit(enum.VoteActionID))
 			}
 		})
 	}

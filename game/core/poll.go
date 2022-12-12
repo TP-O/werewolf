@@ -1,7 +1,7 @@
 package core
 
 import (
-	"errors"
+	"fmt"
 	"math"
 	"uwwolf/config"
 	"uwwolf/game/contract"
@@ -25,7 +25,7 @@ type poll struct {
 
 func NewPoll(capacity uint8) (contract.Poll, error) {
 	if capacity < config.Game().MinPollCapacity {
-		return nil, errors.New("The capacity is too small ¬_¬")
+		return nil, fmt.Errorf("The capacity is too small ¬_¬")
 	}
 
 	return &poll{
@@ -43,12 +43,16 @@ func (p *poll) IsOpen() (bool, enum.Round) {
 	return isOpen, p.Round
 }
 
-func (p *poll) CanVote(electorID enum.PlayerID) bool {
-	isOpen, _ := p.IsOpen()
-
-	return isOpen &&
-		slices.Contains(p.RemainingElectorIDs, electorID) &&
-		!slices.Contains(p.VotedElectorIDs, electorID)
+func (p *poll) CanVote(electorID enum.PlayerID) (bool, error) {
+	if isOpen, round := p.IsOpen(); !isOpen {
+		return false, fmt.Errorf("Poll (%v) is closed ᕙ(⇀‸↼‶)ᕗ", round)
+	} else if !slices.Contains(p.RemainingElectorIDs, electorID) {
+		return false, fmt.Errorf("You're not allowed to vote ノ(ジ)ー'")
+	} else if slices.Contains(p.VotedElectorIDs, electorID) {
+		return false, fmt.Errorf("Wait for the next round ಠ_ಠ")
+	} else {
+		return true, nil
+	}
 }
 
 func (p *poll) Record(round enum.Round) *types.PollRecord {
@@ -186,11 +190,12 @@ func (p *poll) SetWeight(electorID enum.PlayerID, weight uint) bool {
 	return true
 }
 
-func (p *poll) Vote(electorID enum.PlayerID, candidateID enum.PlayerID) bool {
-	if !p.CanVote(electorID) ||
-		!(enum.IsUnknownPlayerID(candidateID) ||
-			slices.Contains(p.RemainingCandidateIDs, candidateID)) {
-		return false
+func (p *poll) Vote(electorID enum.PlayerID, candidateID enum.PlayerID) (bool, error) {
+	if can, err := p.CanVote(electorID); !can {
+		return false, err
+	} else if !(enum.IsUnknownPlayerID(candidateID) ||
+		slices.Contains(p.RemainingCandidateIDs, candidateID)) {
+		return false, fmt.Errorf("Your vote is not valid ¬_¬")
 	}
 
 	if p.Records[p.Round].VoteRecords[candidateID] == nil {
@@ -211,5 +216,5 @@ func (p *poll) Vote(electorID enum.PlayerID, candidateID enum.PlayerID) bool {
 	p.Records[p.Round].VoteRecords[candidateID].Votes++
 	p.VotedElectorIDs = append(p.VotedElectorIDs, electorID)
 
-	return true
+	return true, nil
 }

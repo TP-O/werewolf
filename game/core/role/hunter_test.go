@@ -8,37 +8,50 @@ import (
 	gamemock "uwwolf/mock/game"
 
 	"github.com/golang/mock/gomock"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
 )
 
-func TestNewHunter(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-	mockGame := gamemock.NewMockGame(ctrl)
-	mockPlayer := gamemock.NewMockPlayer(ctrl)
-
-	playerID := enum.PlayerID("1")
-	mockGame.EXPECT().Player(playerID).Return(mockPlayer).Times(1)
-
-	hunter, _ := NewHunter(mockGame, playerID)
-
-	assert.Equal(t, enum.HunterRoleID, hunter.ID())
-	assert.Equal(t, enum.DayPhaseID, hunter.PhaseID())
-	assert.Equal(t, enum.VillagerFactionID, hunter.FactionID())
-	assert.Equal(t, enum.HunterTurnPriority, hunter.Priority())
-	assert.Equal(t, enum.FirstRound, hunter.BeginRound())
-	assert.Equal(t, enum.ReachedLimit, hunter.ActiveLimit(enum.KillActionID))
+type HunterSuite struct {
+	suite.Suite
+	ctrl      *gomock.Controller
+	game      *gamemock.MockGame
+	player    *gamemock.MockPlayer
+	scheduler *gamemock.MockScheduler
+	playerID  enum.PlayerID
 }
 
-func TestHunterAfterDeath(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-	mockGame := gamemock.NewMockGame(ctrl)
-	mockPlayer := gamemock.NewMockPlayer(ctrl)
-	mockScheduler := gamemock.NewMockScheduler(ctrl)
+func TestHunterSuite(t *testing.T) {
+	suite.Run(t, new(HunterSuite))
+}
 
-	playerID := enum.PlayerID("1")
+func (hs *HunterSuite) SetupSuite() {
+	hs.playerID = "1"
+}
 
+func (hs *HunterSuite) SetupTest() {
+	hs.ctrl = gomock.NewController(hs.T())
+	hs.game = gamemock.NewMockGame(hs.ctrl)
+	hs.player = gamemock.NewMockPlayer(hs.ctrl)
+	hs.scheduler = gamemock.NewMockScheduler(hs.ctrl)
+	hs.game.EXPECT().Player(hs.playerID).Return(hs.player).AnyTimes()
+}
+
+func (hs *HunterSuite) TearDownTest() {
+	hs.ctrl.Finish()
+}
+
+func (hs *HunterSuite) TestNewHunter() {
+	hunter, _ := NewHunter(hs.game, hs.playerID)
+
+	hs.Equal(enum.HunterRoleID, hunter.ID())
+	hs.Equal(enum.DayPhaseID, hunter.PhaseID())
+	hs.Equal(enum.VillagerFactionID, hunter.FactionID())
+	hs.Equal(enum.HunterTurnPriority, hunter.Priority())
+	hs.Equal(enum.FirstRound, hunter.BeginRound())
+	hs.Equal(enum.ReachedLimit, hunter.ActiveLimit(enum.KillActionID))
+}
+
+func (hs *HunterSuite) TestHunterAfterDeath() {
 	tests := []struct {
 		name  string
 		setup func(contract.Role)
@@ -46,10 +59,10 @@ func TestHunterAfterDeath(t *testing.T) {
 		{
 			name: "Ok (Die at unactive phase)",
 			setup: func(hunter contract.Role) {
-				mockGame.EXPECT().Scheduler().Return(mockScheduler).Times(1)
-				mockScheduler.EXPECT().PhaseID().Return(enum.NightPhaseID).Times(1)
-				mockGame.EXPECT().Scheduler().Return(mockScheduler).Times(1)
-				mockScheduler.EXPECT().AddTurn(&types.TurnSetting{
+				hs.game.EXPECT().Scheduler().Return(hs.scheduler).Times(1)
+				hs.scheduler.EXPECT().PhaseID().Return(enum.NightPhaseID).Times(1)
+				hs.game.EXPECT().Scheduler().Return(hs.scheduler).Times(1)
+				hs.scheduler.EXPECT().AddTurn(&types.TurnSetting{
 					PhaseID:    hunter.PhaseID(),
 					RoleID:     hunter.ID(),
 					BeginRound: hunter.BeginRound(),
@@ -60,10 +73,10 @@ func TestHunterAfterDeath(t *testing.T) {
 		{
 			name: "Ok (Die at active phase)",
 			setup: func(hunter contract.Role) {
-				mockGame.EXPECT().Scheduler().Return(mockScheduler).Times(1)
-				mockScheduler.EXPECT().PhaseID().Return(hunter.PhaseID()).Times(1)
-				mockGame.EXPECT().Scheduler().Return(mockScheduler).Times(1)
-				mockScheduler.EXPECT().AddTurn(&types.TurnSetting{
+				hs.game.EXPECT().Scheduler().Return(hs.scheduler).Times(1)
+				hs.scheduler.EXPECT().PhaseID().Return(hunter.PhaseID()).Times(1)
+				hs.game.EXPECT().Scheduler().Return(hs.scheduler).Times(1)
+				hs.scheduler.EXPECT().AddTurn(&types.TurnSetting{
 					PhaseID:    hunter.PhaseID(),
 					RoleID:     hunter.ID(),
 					BeginRound: hunter.BeginRound(),
@@ -74,13 +87,12 @@ func TestHunterAfterDeath(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			mockGame.EXPECT().Player(playerID).Return(mockPlayer).Times(1)
-			hunter, _ := NewHunter(mockGame, playerID)
+		hs.Run(test.name, func() {
+			hunter, _ := NewHunter(hs.game, hs.playerID)
 			test.setup(hunter)
 			hunter.AfterDeath()
 
-			assert.Equal(t, enum.OneMore, hunter.ActiveLimit(enum.KillActionID))
+			hs.Equal(enum.OneMore, hunter.ActiveLimit(enum.KillActionID))
 		})
 	}
 }

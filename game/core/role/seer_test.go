@@ -6,24 +6,43 @@ import (
 	gamemock "uwwolf/mock/game"
 
 	"github.com/golang/mock/gomock"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
 )
 
-func TestNewSeer(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-	mockGame := gamemock.NewMockGame(ctrl)
-	mockPlayer := gamemock.NewMockPlayer(ctrl)
+type SeerSuite struct {
+	suite.Suite
+	ctrl     *gomock.Controller
+	game     *gamemock.MockGame
+	player   *gamemock.MockPlayer
+	playerID enum.PlayerID
+}
 
-	playerID := enum.PlayerID("1")
-	mockGame.EXPECT().Player(playerID).Return(mockPlayer).Times(1)
+func TestSeerSuite(t *testing.T) {
+	suite.Run(t, new(SeerSuite))
+}
 
-	seer, _ := NewSeer(mockGame, playerID)
+func (ss *SeerSuite) SetupSuite() {
+	ss.playerID = "1"
+}
 
-	assert.Equal(t, enum.SeerRoleID, seer.ID())
-	assert.Equal(t, enum.NightPhaseID, seer.PhaseID())
-	assert.Equal(t, enum.VillagerFactionID, seer.FactionID())
-	assert.Equal(t, enum.SeerTurnPriority, seer.Priority())
-	assert.Equal(t, enum.Round(2), seer.BeginRound())
-	assert.Equal(t, enum.Unlimited, seer.ActiveLimit(enum.PredictActionID))
+func (ss *SeerSuite) SetupTest() {
+	ss.ctrl = gomock.NewController(ss.T())
+	ss.game = gamemock.NewMockGame(ss.ctrl)
+	ss.player = gamemock.NewMockPlayer(ss.ctrl)
+	ss.game.EXPECT().Player(ss.playerID).Return(ss.player).AnyTimes()
+}
+
+func (ss *SeerSuite) TearDownTest() {
+	ss.ctrl.Finish()
+}
+
+func (ss *SeerSuite) TestNewSeer() {
+	seer, _ := NewSeer(ss.game, ss.playerID)
+
+	ss.Equal(enum.SeerRoleID, seer.ID())
+	ss.Equal(enum.NightPhaseID, seer.PhaseID())
+	ss.Equal(enum.VillagerFactionID, seer.FactionID())
+	ss.Equal(enum.SeerTurnPriority, seer.Priority())
+	ss.Equal(enum.Round(2), seer.BeginRound())
+	ss.Equal(enum.Unlimited, seer.ActiveLimit(enum.PredictActionID))
 }

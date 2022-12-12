@@ -5,32 +5,42 @@ import (
 	"uwwolf/game/enum"
 	"uwwolf/game/types"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/golang/mock/gomock"
+	"github.com/stretchr/testify/suite"
 )
 
-func TestNewScheduler(t *testing.T) {
-	scheduler := NewScheduler(enum.DuskPhaseID)
-
-	assert.NotNil(t, scheduler)
+type SchudulerSuite struct {
+	suite.Suite
+	ctrl *gomock.Controller
 }
 
-func TestRoundScheduler(t *testing.T) {
+func TestSchudulerSuite(t *testing.T) {
+	suite.Run(t, new(SchudulerSuite))
+}
+
+func (ss *SchudulerSuite) TestNew() {
+	scheduler := NewScheduler(enum.DuskPhaseID)
+
+	ss.NotNil(scheduler)
+}
+
+func (ss *SchudulerSuite) TestRound() {
 	myScheduler := NewScheduler(enum.DuskPhaseID)
 	expectedRound := enum.Round(99)
 	myScheduler.(*scheduler).round = expectedRound
 
-	assert.Equal(t, expectedRound, myScheduler.Round())
+	ss.Equal(expectedRound, myScheduler.Round())
 }
 
-func TestPhaseIDScheduler(t *testing.T) {
+func (ss *SchudulerSuite) TestPhaseID() {
 	myScheduler := NewScheduler(enum.DuskPhaseID)
 	expectedPhaseID := enum.PhaseID(98)
 	myScheduler.(*scheduler).phaseID = expectedPhaseID
 
-	assert.Equal(t, expectedPhaseID, myScheduler.PhaseID())
+	ss.Equal(expectedPhaseID, myScheduler.PhaseID())
 }
 
-func TestPhaseScheduler(t *testing.T) {
+func (ss *SchudulerSuite) TestPhase() {
 	myScheduler := NewScheduler(enum.DuskPhaseID)
 	// Update current phase
 	phaseID := enum.NightPhaseID
@@ -42,10 +52,10 @@ func TestPhaseScheduler(t *testing.T) {
 		expectedTurn,
 	}
 
-	assert.Equal(t, expectedTurn, myScheduler.Phase()[0])
+	ss.Equal(expectedTurn, myScheduler.Phase()[0])
 }
 
-func TestTurnScheduler(t *testing.T) {
+func (ss *SchudulerSuite) TestTurn() {
 	beginPhaseID := enum.NightPhaseID
 	tests := []struct {
 		name         string
@@ -100,22 +110,22 @@ func TestTurnScheduler(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
+		ss.Run(test.name, func() {
 			myScheduler := NewScheduler(beginPhaseID)
 			test.setup(myScheduler.(*scheduler))
 			turn := myScheduler.Turn()
 
 			if test.returnNil {
-				assert.Nil(t, turn)
+				ss.Nil(turn)
 			} else {
-				assert.NotNil(t, turn)
-				assert.Equal(t, test.expectedTurn, turn)
+				ss.NotNil(turn)
+				ss.Equal(test.expectedTurn, turn)
 			}
 		})
 	}
 }
 
-func TestIsEmptyScheduler(t *testing.T) {
+func (ss *SchudulerSuite) TestIsEmpty() {
 	beginPhaseID := enum.NightPhaseID
 	tests := []struct {
 		name           string
@@ -176,28 +186,28 @@ func TestIsEmptyScheduler(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
+		ss.Run(test.name, func() {
 			myScheduler := NewScheduler(beginPhaseID)
 			test.setup(myScheduler.(*scheduler))
 			ok := myScheduler.IsEmpty(test.phaseID)
 
-			assert.Equal(t, test.expectedStatus, ok)
+			ss.Equal(test.expectedStatus, ok)
 		})
 	}
 }
 
-func TestIsValidPhaseIDScheduler(t *testing.T) {
+func (ss *SchudulerSuite) TestIsValidPhaseID() {
 	myScheduler := NewScheduler(enum.NightPhaseID)
 
 	for i := enum.NightPhaseID; i <= enum.DuskPhaseID; i++ {
-		assert.True(t, myScheduler.(*scheduler).isValidPhaseID(i))
+		ss.True(myScheduler.(*scheduler).isValidPhaseID(i))
 	}
 
-	assert.False(t, myScheduler.(*scheduler).isValidPhaseID(0))
-	assert.False(t, myScheduler.(*scheduler).isValidPhaseID(enum.DuskPhaseID+1))
+	ss.False(myScheduler.(*scheduler).isValidPhaseID(0))
+	ss.False(myScheduler.(*scheduler).isValidPhaseID(enum.DuskPhaseID + 1))
 }
 
-func TestExistRoleScheduler(t *testing.T) {
+func (ss *SchudulerSuite) TestExistRole() {
 	tests := []struct {
 		name           string
 		roleID         enum.RoleID
@@ -231,17 +241,17 @@ func TestExistRoleScheduler(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
+		ss.Run(test.name, func() {
 			myScheduler := NewScheduler(enum.NightPhaseID)
 			test.setup(myScheduler.(*scheduler))
 			ok := myScheduler.(*scheduler).existRole(test.roleID)
 
-			assert.Equal(t, test.expectedStatus, ok)
+			ss.Equal(test.expectedStatus, ok)
 		})
 	}
 }
 
-func TestCalculateTurnIndexScheduler(t *testing.T) {
+func (ss *SchudulerSuite) TestCalculateTurnIndex() {
 	beginPhaseID := enum.NightPhaseID
 	tests := []struct {
 		name              string
@@ -410,20 +420,20 @@ func TestCalculateTurnIndexScheduler(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
+		ss.Run(test.name, func() {
 			myScheduler := NewScheduler(beginPhaseID)
 			test.setup(myScheduler.(*scheduler))
 			phaseID, turnIndex := myScheduler.(*scheduler).calculateTurnIndex(
 				test.setting,
 			)
 
-			assert.Equal(t, test.expectedPhaseID, phaseID)
-			assert.Equal(t, test.expectedTurnIndex, turnIndex)
+			ss.Equal(test.expectedPhaseID, phaseID)
+			ss.Equal(test.expectedTurnIndex, turnIndex)
 		})
 	}
 }
 
-func TestAddTurnScheduler(t *testing.T) {
+func (ss *SchudulerSuite) TestAddTurn() {
 	beginPhaseID := enum.NightPhaseID
 	tests := []struct {
 		name                string
@@ -526,27 +536,26 @@ func TestAddTurnScheduler(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
+		ss.Run(test.name, func() {
 			myScheduler := NewScheduler(beginPhaseID)
 			test.setup(myScheduler.(*scheduler))
 			ok := myScheduler.AddTurn(test.setting)
 
-			assert.Equal(t, test.expectedStatus, ok)
+			ss.Equal(test.expectedStatus, ok)
 
 			if test.expectedStatus == true {
-				assert.Equal(
-					t,
+				ss.Equal(
 					test.setting.RoleID,
 					myScheduler.(*scheduler).
 						phases[test.setting.PhaseID][test.expectedTurnIndex].RoleID,
 				)
-				assert.Equal(t, test.newCurrentTurnIndex, myScheduler.(*scheduler).turnIndex)
+				ss.Equal(test.newCurrentTurnIndex, myScheduler.(*scheduler).turnIndex)
 			}
 		})
 	}
 }
 
-func TestRemoveTurnScheduler(t *testing.T) {
+func (ss *SchudulerSuite) TestRemoveTurn() {
 	beginPhaseID := enum.NightPhaseID
 	tests := []struct {
 		name           string
@@ -724,22 +733,22 @@ func TestRemoveTurnScheduler(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
+		ss.Run(test.name, func() {
 			myScheduler := NewScheduler(beginPhaseID)
 			test.setup(myScheduler.(*scheduler))
 			ok := myScheduler.RemoveTurn(test.roleID)
 
-			assert.Equal(t, test.expectedStatus, ok)
-			assert.Equal(t, test.newRound, myScheduler.Round())
-			assert.Equal(t, test.newPhaseID, myScheduler.PhaseID())
-			assert.Equal(t, test.newTurnIndex, myScheduler.(*scheduler).turnIndex)
+			ss.Equal(test.expectedStatus, ok)
+			ss.Equal(test.newRound, myScheduler.Round())
+			ss.Equal(test.newPhaseID, myScheduler.PhaseID())
+			ss.Equal(test.newTurnIndex, myScheduler.(*scheduler).turnIndex)
 			// Check if role ID exists
-			assert.False(t, myScheduler.RemoveTurn(test.roleID))
+			ss.False(myScheduler.RemoveTurn(test.roleID))
 		})
 	}
 }
 
-func TestDefrostCurrentTurnScheduler(t *testing.T) {
+func (ss *SchudulerSuite) TestDefrostCurrentTurn() {
 	beginPhaseID := enum.NightPhaseID
 	tests := []struct {
 		name           string
@@ -789,19 +798,19 @@ func TestDefrostCurrentTurnScheduler(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
+		ss.Run(test.name, func() {
 
 			myScheduler := NewScheduler(beginPhaseID)
 			test.setup(myScheduler.(*scheduler))
 			ok := myScheduler.(*scheduler).defrostCurrentTurn()
 
-			assert.Equal(t, test.expectedStatus, ok)
-			assert.Equal(t, test.newFrozenLimit, myScheduler.Turn().FrozenLimit)
+			ss.Equal(test.expectedStatus, ok)
+			ss.Equal(test.newFrozenLimit, myScheduler.Turn().FrozenLimit)
 		})
 	}
 }
 
-func TestNextTurnScheduler(t *testing.T) {
+func (ss *SchudulerSuite) TestNextTurn() {
 	beginPhaseID := enum.NightPhaseID
 	tests := []struct {
 		name                  string
@@ -834,9 +843,11 @@ func TestNextTurnScheduler(t *testing.T) {
 				myScheduler.phases[beginPhaseID] = []*types.Turn{
 					{
 						RoleID: enum.HunterRoleID,
+						Limit:  1,
 					},
 					{
 						RoleID: enum.TwoSistersRoleID,
+						Limit:  1,
 					},
 				}
 			},
@@ -854,9 +865,11 @@ func TestNextTurnScheduler(t *testing.T) {
 				myScheduler.phases[beginPhaseID] = []*types.Turn{
 					{
 						RoleID: enum.HunterRoleID,
+						Limit:  1,
 					},
 					{
 						RoleID: enum.TwoSistersRoleID,
+						Limit:  1,
 					},
 				}
 			},
@@ -875,12 +888,13 @@ func TestNextTurnScheduler(t *testing.T) {
 				myScheduler.phases[beginPhaseID] = []*types.Turn{
 					{
 						RoleID: enum.HunterRoleID,
+						Limit:  1,
 					},
 				}
 			},
 		},
 		{
-			name:           "Ok (Skip round having begin round which is greater than the current round)",
+			name:           "Ok (Next turn because the current has BeginRound which is greater than the current round)",
 			isRemoved:      false,
 			expectedStatus: true,
 			newRound:       1,
@@ -891,15 +905,66 @@ func TestNextTurnScheduler(t *testing.T) {
 				myScheduler.phases[beginPhaseID] = []*types.Turn{
 					{
 						RoleID: enum.SeerRoleID,
+						Limit:  1,
 					},
 					{
 						RoleID:     enum.TwoSistersRoleID,
 						BeginRound: 5,
+						Limit:      1,
 					},
 					{
 						RoleID: enum.VillagerRoleID,
+						Limit:  1,
 					},
 				}
+			},
+		},
+		{
+			name:           "Ok (Next turn because the current reaches limit)",
+			isRemoved:      false,
+			expectedStatus: true,
+			newRound:       1,
+			newPhaseID:     beginPhaseID,
+			newTurnIndex:   2,
+			setup: func(myScheduler *scheduler) {
+				myScheduler.turnIndex = 0
+				myScheduler.phases[beginPhaseID] = []*types.Turn{
+					{
+						RoleID: enum.SeerRoleID,
+						Limit:  1,
+					},
+					{
+						RoleID: enum.TwoSistersRoleID,
+						Limit:  0,
+					},
+					{
+						RoleID: enum.VillagerRoleID,
+						Limit:  1,
+					},
+				}
+			},
+		},
+		{
+			name:           "Ok (Reduces turn limit)",
+			isRemoved:      false,
+			expectedStatus: true,
+			newRound:       3,
+			newPhaseID:     beginPhaseID,
+			newTurnIndex:   0,
+			setup: func(myScheduler *scheduler) {
+				myScheduler.turnIndex = 0
+				myScheduler.phases[beginPhaseID] = []*types.Turn{
+					{
+						RoleID: enum.SeerRoleID,
+						Limit:  5,
+					},
+					{
+						RoleID: enum.TwoSistersRoleID,
+						Limit:  1,
+					},
+				}
+				myScheduler.NextTurn(false)
+				myScheduler.NextTurn(false)
 			},
 		},
 		{
@@ -914,11 +979,13 @@ func TestNextTurnScheduler(t *testing.T) {
 				myScheduler.phases[beginPhaseID] = []*types.Turn{
 					{
 						RoleID: enum.SeerRoleID,
+						Limit:  1,
 					},
 				}
 				myScheduler.phases[enum.NextPhasePhaseID(beginPhaseID)] = []*types.Turn{
 					{
 						RoleID: enum.HunterRoleID,
+						Limit:  1,
 					},
 				}
 			},
@@ -936,11 +1003,13 @@ func TestNextTurnScheduler(t *testing.T) {
 				myScheduler.phases[enum.NextPhasePhaseID(beginPhaseID)] = []*types.Turn{
 					{
 						RoleID: enum.SeerRoleID,
+						Limit:  1,
 					},
 				}
 				myScheduler.phases[beginPhaseID] = []*types.Turn{
 					{
 						RoleID: enum.SeerRoleID,
+						Limit:  1,
 					},
 				}
 			},
@@ -957,6 +1026,7 @@ func TestNextTurnScheduler(t *testing.T) {
 				myScheduler.phases[beginPhaseID] = []*types.Turn{
 					{
 						RoleID: enum.SeerRoleID,
+						Limit:  1,
 					},
 					{
 						RoleID:      enum.HunterRoleID,
@@ -964,6 +1034,7 @@ func TestNextTurnScheduler(t *testing.T) {
 					},
 					{
 						RoleID: enum.VillagerRoleID,
+						Limit:  1,
 					},
 				}
 			},
@@ -981,6 +1052,7 @@ func TestNextTurnScheduler(t *testing.T) {
 					{
 						RoleID:      enum.SeerRoleID,
 						FrozenLimit: 1,
+						Limit:       1,
 					},
 				}
 			},
@@ -988,25 +1060,25 @@ func TestNextTurnScheduler(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
+		ss.Run(test.name, func() {
 			myScheduler := NewScheduler(beginPhaseID)
 			test.setup(myScheduler.(*scheduler))
 			ok := myScheduler.NextTurn(test.isRemoved)
 
-			assert.Equal(t, test.expectedStatus, ok)
-			assert.Equal(t, test.newPhaseID, myScheduler.PhaseID())
-			assert.Equal(t, test.newRound, myScheduler.Round())
-			assert.Equal(t, test.newTurnIndex, myScheduler.(*scheduler).turnIndex)
+			ss.Equal(test.expectedStatus, ok)
+			ss.Equal(test.newPhaseID, myScheduler.PhaseID())
+			ss.Equal(test.newRound, myScheduler.Round())
+			ss.Equal(test.newTurnIndex, myScheduler.(*scheduler).turnIndex)
 
 			// Check if role ID is removed
 			if !enum.IsUnknownRoleID(test.expectedRemovedRoleID) {
-				assert.False(t, myScheduler.RemoveTurn(test.expectedRemovedRoleID))
+				ss.False(myScheduler.RemoveTurn(test.expectedRemovedRoleID))
 			}
 		})
 	}
 }
 
-func TestFreezeTurnScheduler(t *testing.T) {
+func (ss *SchudulerSuite) TestFreezeTurn() {
 	beginPaseID := enum.NightPhaseID
 	tests := []struct {
 		name           string
@@ -1039,14 +1111,16 @@ func TestFreezeTurnScheduler(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		myScheduler := NewScheduler(beginPaseID)
-		test.setup(myScheduler.(*scheduler))
-		ok := myScheduler.FreezeTurn(test.roleID, test.frozenLimit)
+		ss.Run(test.name, func() {
+			myScheduler := NewScheduler(beginPaseID)
+			test.setup(myScheduler.(*scheduler))
+			ok := myScheduler.FreezeTurn(test.roleID, test.frozenLimit)
 
-		assert.Equal(t, test.expectedStatus, ok)
+			ss.Equal(test.expectedStatus, ok)
 
-		if test.expectedStatus == true {
-			assert.Equal(t, test.frozenLimit, myScheduler.Turn().FrozenLimit)
-		}
+			if test.expectedStatus == true {
+				ss.Equal(test.frozenLimit, myScheduler.Turn().FrozenLimit)
+			}
+		})
 	}
 }

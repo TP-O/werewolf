@@ -24,6 +24,7 @@ type Role interface {
 	BeginRound() enum.Round
 
 	// ActiveLimit returns remaining times the role can use the abilities.
+	// Returns total limit if the `actionID`` is 0.
 	ActiveLimit(actionID enum.ActionID) enum.Limit
 
 	// BeforeDeath does something special before killing the role.

@@ -3,8 +3,8 @@ package types
 import "uwwolf/game/enum"
 
 type ActionRequest struct {
-	ActorID   enum.PlayerID
-	TargetIDs []enum.PlayerID
+	ActorID   enum.PlayerID   `json:"actor_id" validate:"required,len=20"`
+	TargetIDs []enum.PlayerID `json:"target_ids" validate:"required,min=1,unique,dive,len=20"`
 	IsSkipped bool
 }
 

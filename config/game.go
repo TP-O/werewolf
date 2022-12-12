@@ -8,7 +8,7 @@ type gameConfig struct {
 	MinCapacity           uint8  `mapstructure:"min_capacity"`
 	MaxCapacity           uint8  `mapstructure:"max_capacity"`
 	MinPollCapacity       uint8  `mapstructure:"min_poll_capacity"`
-	PreparationTime       uint8  `mapstructure:"preparation_time"`
+	PreparationTime       uint16 `mapstructure:"preparation_time"`
 	MinTurnDuration       uint16 `mapstructure:"min_turn_duration"`
 	MaxTurnDuration       uint16 `mapstructure:"max_turn_duration"`
 	MinDiscussionDuration uint16 `mapstructure:"min_discussion_duration"`

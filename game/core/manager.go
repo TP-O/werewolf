@@ -2,7 +2,6 @@ package core
 
 import (
 	"errors"
-	"uwwolf/db"
 	"uwwolf/game/contract"
 	"uwwolf/game/enum"
 	"uwwolf/game/types"
@@ -33,14 +32,14 @@ func (m *manager) Game(gameID enum.GameID) contract.Game {
 func (m *manager) NewGame(setting *types.GameSetting) (contract.Game, error) {
 	game := NewGame(uuid.NewString(), setting)
 
-	if err := db.Client().Query(
-		`INSERT INTO games (id) VALUES (?)`,
-		game.ID(),
-	).Exec(); err != nil {
-		game.Finish()
+	// if err := db.Client().Query(
+	// 	`INSERT INTO games (id) VALUES (?)`,
+	// 	game.ID(),
+	// ).Exec(); err != nil {
+	// 	game.Finish()
 
-		return nil, errors.New("Unable to create game (╯°□°)╯︵ ┻━┻")
-	}
+	// 	return nil, errors.New("Unable to create game (╯°□°)╯︵ ┻━┻")
+	// }
 
 	m.games[game.ID()] = game
 

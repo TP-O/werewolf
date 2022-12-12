@@ -1,7 +1,7 @@
 package action
 
 import (
-	"errors"
+	"fmt"
 	"uwwolf/game/contract"
 	"uwwolf/game/enum"
 	"uwwolf/game/types"
@@ -30,7 +30,7 @@ func (a *action[S]) Skip(req *types.ActionRequest) *types.ActionResponse {
 
 func (a *action[S]) Validate(req *types.ActionRequest) error {
 	if req == nil {
-		return errors.New("Action request can not be empty (⊙＿⊙')")
+		return fmt.Errorf("Action request can not be empty (⊙＿⊙')")
 	}
 
 	return nil

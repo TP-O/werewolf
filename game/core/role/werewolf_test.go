@@ -6,17 +6,39 @@ import (
 	gamemock "uwwolf/mock/game"
 
 	"github.com/golang/mock/gomock"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
 )
 
-func TestNewWerewolf(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-	mockGame := gamemock.NewMockGame(ctrl)
-	mockPlayer := gamemock.NewMockPlayer(ctrl)
-	mockPoll := gamemock.NewMockPoll(ctrl)
+type WerewolfSuite struct {
+	suite.Suite
+	ctrl     *gomock.Controller
+	game     *gamemock.MockGame
+	player   *gamemock.MockPlayer
+	poll     *gamemock.MockPoll
+	playerID enum.PlayerID
+}
 
-	playerID := enum.PlayerID("1")
+func TestWerewolfSuite(t *testing.T) {
+	suite.Run(t, new(WerewolfSuite))
+}
+
+func (ws *WerewolfSuite) SetupSuite() {
+	ws.playerID = "1"
+}
+
+func (ws *WerewolfSuite) SetupTest() {
+	ws.ctrl = gomock.NewController(ws.T())
+	ws.game = gamemock.NewMockGame(ws.ctrl)
+	ws.player = gamemock.NewMockPlayer(ws.ctrl)
+	ws.poll = gamemock.NewMockPoll(ws.ctrl)
+	ws.game.EXPECT().Player(ws.playerID).Return(ws.player).AnyTimes()
+}
+
+func (ws *WerewolfSuite) TearDownTest() {
+	ws.ctrl.Finish()
+}
+
+func (ws *WerewolfSuite) TestNewWerewolf() {
 	tests := []struct {
 		name        string
 		returnNil   bool
@@ -28,7 +50,7 @@ func TestNewWerewolf(t *testing.T) {
 			returnNil:   true,
 			expectedRrr: "Poll does not exist ¯\\_(ツ)_/¯",
 			setup: func() {
-				mockGame.EXPECT().Poll(enum.WerewolfFactionID).Return(nil).Times(1)
+				ws.game.EXPECT().Poll(enum.WerewolfFactionID).Return(nil).Times(1)
 			},
 		},
 		{
@@ -36,39 +58,38 @@ func TestNewWerewolf(t *testing.T) {
 			returnNil:   true,
 			expectedRrr: "Unable to join to the poll ಠ_ಠ",
 			setup: func() {
-				mockGame.EXPECT().Poll(enum.WerewolfFactionID).Return(mockPoll).Times(1)
-				mockPoll.EXPECT().AddElectors(playerID).Return(false).Times(1)
+				ws.game.EXPECT().Poll(enum.WerewolfFactionID).Return(ws.poll).Times(1)
+				ws.poll.EXPECT().AddElectors(ws.playerID).Return(false).Times(1)
 			},
 		},
 		{
 			name:      "Ok",
 			returnNil: false,
 			setup: func() {
-				mockGame.EXPECT().Poll(enum.WerewolfFactionID).Return(mockPoll).Times(1)
-				mockPoll.EXPECT().AddElectors(playerID).Return(true).Times(1)
-				mockPoll.EXPECT().SetWeight(playerID, uint(1)).Times(1)
-				mockGame.EXPECT().Player(playerID).Return(mockPlayer).Times(1)
+				ws.game.EXPECT().Poll(enum.WerewolfFactionID).Return(ws.poll).Times(1)
+				ws.poll.EXPECT().AddElectors(ws.playerID).Return(true).Times(1)
+				ws.poll.EXPECT().SetWeight(ws.playerID, uint(1)).Times(1)
 			},
 		},
 	}
 
 	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
+		ws.Run(test.name, func() {
 			test.setup()
-			werewolf, err := NewWerewolf(mockGame, playerID)
+			werewolf, err := NewWerewolf(ws.game, ws.playerID)
 
 			if test.returnNil {
-				assert.Nil(t, werewolf)
-				assert.NotNil(t, err)
-				assert.Equal(t, test.expectedRrr, err.Error())
+				ws.Nil(werewolf)
+				ws.NotNil(err)
+				ws.Equal(test.expectedRrr, err.Error())
 			} else {
-				assert.Nil(t, err)
-				assert.Equal(t, enum.WerewolfRoleID, werewolf.ID())
-				assert.Equal(t, enum.NightPhaseID, werewolf.PhaseID())
-				assert.Equal(t, enum.WerewolfFactionID, werewolf.FactionID())
-				assert.Equal(t, enum.WerewolfTurnPriority, werewolf.Priority())
-				assert.Equal(t, enum.FirstRound, werewolf.BeginRound())
-				assert.Equal(t, enum.Unlimited, werewolf.ActiveLimit(enum.VoteActionID))
+				ws.Nil(err)
+				ws.Equal(enum.WerewolfRoleID, werewolf.ID())
+				ws.Equal(enum.NightPhaseID, werewolf.PhaseID())
+				ws.Equal(enum.WerewolfFactionID, werewolf.FactionID())
+				ws.Equal(enum.WerewolfTurnPriority, werewolf.Priority())
+				ws.Equal(enum.FirstRound, werewolf.BeginRound())
+				ws.Equal(enum.Unlimited, werewolf.ActiveLimit(enum.VoteActionID))
 			}
 		})
 	}

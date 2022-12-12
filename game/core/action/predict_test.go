@@ -1,47 +1,71 @@
-package action_test
+package action
 
 import (
 	"testing"
 	"uwwolf/game/contract"
-	"uwwolf/game/core/action"
 	"uwwolf/game/enum"
 	"uwwolf/game/types"
 	gamemock "uwwolf/mock/game"
 
 	"github.com/golang/mock/gomock"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
 )
 
-func TestNewFactionPredict(t *testing.T) {
-	predict := action.NewFactionPredict(nil, enum.WerewolfFactionID)
+type PredictSuite struct {
+	suite.Suite
+	ctrl           *gomock.Controller
+	game           *gamemock.MockGame
+	targetedPlayer *gamemock.MockPlayer
+	actorID        enum.PlayerID
+	targetID       enum.PlayerID
+	factionID      enum.FactionID
+	roleID         enum.RoleID
+}
 
-	assert.Equal(t, enum.PredictActionID, predict.ID())
-	assert.NotNil(t, predict.State())
-	assert.IsType(t, &types.PredictState{}, predict.State())
-	assert.NotNil(t, predict.State().(*types.PredictState).Faction)
-	assert.Nil(t, predict.State().(*types.PredictState).Role)
+func TestPredictSuite(t *testing.T) {
+	suite.Run(t, new(PredictSuite))
+}
+
+func (ps *PredictSuite) SetupSuite() {
+	ps.actorID = "1"
+	ps.targetID = "2"
+	ps.factionID = enum.WerewolfFactionID
+	ps.roleID = enum.WerewolfRoleID
+}
+
+func (ps *PredictSuite) SetupTest() {
+	ps.ctrl = gomock.NewController(ps.T())
+	ps.game = gamemock.NewMockGame(ps.ctrl)
+	ps.targetedPlayer = gamemock.NewMockPlayer(ps.ctrl)
+}
+
+func (ps *PredictSuite) TearDownTest() {
+	ps.ctrl.Finish()
+}
+
+func (ps *PredictSuite) TestNewFactionPredict() {
+	factionPredict := NewFactionPredict(ps.game, ps.factionID)
+
+	ps.Equal(enum.PredictActionID, factionPredict.ID())
+	ps.NotNil(factionPredict.State())
+	ps.IsType(new(types.PredictState), factionPredict.State())
+	ps.NotNil(factionPredict.State().(*types.PredictState).Faction)
+	ps.Nil(factionPredict.State().(*types.PredictState).Role)
 
 }
 
-func TestNewRolePredict(t *testing.T) {
-	predict := action.NewRolePredict(nil, enum.WerewolfRoleID)
+func (ps *PredictSuite) TestNewRolePredict() {
+	rolePredict := NewRolePredict(ps.game, ps.roleID)
 
-	assert.Equal(t, enum.PredictActionID, predict.ID())
-	assert.NotNil(t, predict.State())
-	assert.IsType(t, &types.PredictState{}, predict.State())
-	assert.NotNil(t, predict.State().(*types.PredictState).Role)
-	assert.Nil(t, predict.State().(*types.PredictState).Faction)
+	ps.Equal(enum.PredictActionID, rolePredict.ID())
+	ps.NotNil(rolePredict.State())
+	ps.IsType(new(types.PredictState), rolePredict.State())
+	ps.NotNil(rolePredict.State().(*types.PredictState).Role)
+	ps.Nil(rolePredict.State().(*types.PredictState).Faction)
 
 }
 
-func TestValidatePredict(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-	mockGame := gamemock.NewMockGame(ctrl)
-
-	actorID := enum.PlayerID("1")
-	targetID := enum.PlayerID("2")
-	factionID := enum.WerewolfFactionID
+func (ps *PredictSuite) TestValidateFactionPredict() {
 	tests := []struct {
 		name        string
 		req         *types.ActionRequest
@@ -57,8 +81,8 @@ func TestValidatePredict(t *testing.T) {
 		{
 			name: "Failure (Cannot predict myself)",
 			req: &types.ActionRequest{
-				ActorID:   actorID,
-				TargetIDs: []enum.PlayerID{actorID},
+				ActorID:   ps.actorID,
+				TargetIDs: []enum.PlayerID{ps.actorID},
 			},
 			expectedErr: "WTF! You don't know who you are? (╯°□°)╯︵ ┻━┻",
 			setup:       func(contract.Action) {},
@@ -66,49 +90,97 @@ func TestValidatePredict(t *testing.T) {
 		{
 			name: "Failure (Cannot predict known player)",
 			req: &types.ActionRequest{
-				ActorID:   actorID,
-				TargetIDs: []enum.PlayerID{targetID},
+				ActorID:   ps.actorID,
+				TargetIDs: []enum.PlayerID{ps.targetID},
 			},
 			expectedErr: "You already knew this player ¯\\(º_o)/¯",
 			setup: func(predict contract.Action) {
-				predict.State().(*types.PredictState).Faction[targetID] = factionID
+				predict.State().(*types.PredictState).Faction[ps.targetID] = ps.factionID
 			},
 		},
 		{
 			name: "Failure (Cannot predict non-existent player)",
 			req: &types.ActionRequest{
-				ActorID:   actorID,
-				TargetIDs: []enum.PlayerID{targetID},
+				ActorID:   ps.actorID,
+				TargetIDs: []enum.PlayerID{"-99"},
 			},
 			expectedErr: "Non-existent player ¯\\_(ツ)_/¯",
-			setup: func(contract.Action) {
-				mockGame.EXPECT().Player(targetID).Return(nil).Times(1)
+			setup: func(predict contract.Action) {
+				ps.game.EXPECT().Player("-99").Return(nil).Times(1)
 			},
 		},
 	}
 
 	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			predict := action.NewFactionPredict(mockGame, factionID)
-			test.setup(predict)
-			err := predict.Validate(test.req)
+		ps.Run(test.name, func() {
+			factionPredict := NewFactionPredict(ps.game, ps.factionID)
+			test.setup(factionPredict)
+			err := factionPredict.Validate(test.req)
 
-			assert.Equal(t, test.expectedErr, err.Error())
+			ps.Equal(test.expectedErr, err.Error())
 		})
 	}
 }
 
-func TestPerformFactionPredict(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-	mockGame := gamemock.NewMockGame(ctrl)
-	mockTarget := gamemock.NewMockPlayer(ctrl)
+func (ps *PredictSuite) TestValidateRolePredict() {
+	tests := []struct {
+		name        string
+		req         *types.ActionRequest
+		expectedErr string
+		setup       func(contract.Action)
+	}{
+		{
+			name:        "Failure (Empty action request)",
+			req:         nil,
+			expectedErr: "Action request can not be empty (⊙＿⊙')",
+			setup:       func(contract.Action) {},
+		},
+		{
+			name: "Failure (Cannot predict myself)",
+			req: &types.ActionRequest{
+				ActorID:   ps.actorID,
+				TargetIDs: []enum.PlayerID{ps.actorID},
+			},
+			expectedErr: "WTF! You don't know who you are? (╯°□°)╯︵ ┻━┻",
+			setup:       func(contract.Action) {},
+		},
+		{
+			name: "Failure (Cannot predict known player)",
+			req: &types.ActionRequest{
+				ActorID:   ps.actorID,
+				TargetIDs: []enum.PlayerID{ps.targetID},
+			},
+			expectedErr: "You already knew this player ¯\\(º_o)/¯",
+			setup: func(predict contract.Action) {
+				predict.State().(*types.PredictState).Role[ps.targetID] = ps.roleID
+			},
+		},
+		{
+			name: "Failure (Cannot predict non-existent player)",
+			req: &types.ActionRequest{
+				ActorID:   ps.actorID,
+				TargetIDs: []enum.PlayerID{"-99"},
+			},
+			expectedErr: "Non-existent player ¯\\_(ツ)_/¯",
+			setup: func(predict contract.Action) {
+				ps.game.EXPECT().Player("-99").Return(nil).Times(1)
+			},
+		},
+	}
 
-	actorID := enum.PlayerID("1")
-	targetID := enum.PlayerID("2")
-	factionID := enum.WerewolfFactionID
+	for _, test := range tests {
+		ps.Run(test.name, func() {
+			rolePredict := NewRolePredict(ps.game, ps.roleID)
+			test.setup(rolePredict)
+			err := rolePredict.Validate(test.req)
 
-	mockGame.EXPECT().Player(targetID).Return(mockTarget).AnyTimes()
+			ps.Equal(test.expectedErr, err.Error())
+		})
+	}
+}
+
+func (ps *PredictSuite) TestPerformFactionPredict() {
+	ps.game.EXPECT().Player(ps.targetID).Return(ps.targetedPlayer).AnyTimes()
 
 	tests := []struct {
 		name        string
@@ -120,8 +192,8 @@ func TestPerformFactionPredict(t *testing.T) {
 		{
 			name: "Ok (Incorrect prediction)",
 			req: &types.ActionRequest{
-				ActorID:   actorID,
-				TargetIDs: []enum.PlayerID{targetID},
+				ActorID:   ps.actorID,
+				TargetIDs: []enum.PlayerID{ps.targetID},
 			},
 			expectedRes: &types.ActionResponse{
 				Ok:        true,
@@ -130,18 +202,18 @@ func TestPerformFactionPredict(t *testing.T) {
 				Message:   "",
 			},
 			newState: map[enum.PlayerID]enum.FactionID{
-				targetID: enum.FactionID(0),
+				ps.targetID: enum.FactionID(0),
 			},
 			setup: func(contract.Action) {
-				mockTarget.EXPECT().FactionID().Return(enum.VillagerFactionID)
-				mockTarget.EXPECT().ID().Return(targetID)
+				ps.targetedPlayer.EXPECT().FactionID().Return(enum.VillagerFactionID)
+				ps.targetedPlayer.EXPECT().ID().Return(ps.targetID)
 			},
 		},
 		{
 			name: "Ok (Correct prediction)",
 			req: &types.ActionRequest{
-				ActorID:   actorID,
-				TargetIDs: []enum.PlayerID{targetID},
+				ActorID:   ps.actorID,
+				TargetIDs: []enum.PlayerID{ps.targetID},
 			},
 			expectedRes: &types.ActionResponse{
 				Ok:        true,
@@ -150,38 +222,29 @@ func TestPerformFactionPredict(t *testing.T) {
 				Message:   "",
 			},
 			newState: map[enum.PlayerID]enum.FactionID{
-				targetID: factionID,
+				ps.targetID: ps.factionID,
 			},
 			setup: func(contract.Action) {
-				mockTarget.EXPECT().FactionID().Return(enum.WerewolfFactionID)
-				mockTarget.EXPECT().ID().Return(targetID)
+				ps.targetedPlayer.EXPECT().FactionID().Return(enum.WerewolfFactionID)
+				ps.targetedPlayer.EXPECT().ID().Return(ps.targetID)
 			},
 		},
 	}
 
 	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			predict := action.NewFactionPredict(mockGame, factionID)
-			test.setup(predict)
-			res := predict.Perform(test.req)
+		ps.Run(test.name, func() {
+			factionPredict := NewFactionPredict(ps.game, ps.factionID)
+			test.setup(factionPredict)
+			res := factionPredict.Perform(test.req)
 
-			assert.Equal(t, test.expectedRes, res)
-			assert.Equal(t, test.newState, predict.State().(*types.PredictState).Faction)
+			ps.Equal(test.expectedRes, res)
+			ps.Equal(test.newState, factionPredict.State().(*types.PredictState).Faction)
 		})
 	}
 }
 
-func TestPerformRolePredict(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-	mockGame := gamemock.NewMockGame(ctrl)
-	mockTarget := gamemock.NewMockPlayer(ctrl)
-
-	actorID := enum.PlayerID("1")
-	targetID := enum.PlayerID("2")
-	roleID := enum.WerewolfRoleID
-
-	mockGame.EXPECT().Player(targetID).Return(mockTarget).AnyTimes()
+func (ps *PredictSuite) TestPerformRolePredict() {
+	ps.game.EXPECT().Player(ps.targetID).Return(ps.targetedPlayer).AnyTimes()
 
 	tests := []struct {
 		name        string
@@ -193,8 +256,8 @@ func TestPerformRolePredict(t *testing.T) {
 		{
 			name: "Ok (Incorrect prediction)",
 			req: &types.ActionRequest{
-				ActorID:   actorID,
-				TargetIDs: []enum.PlayerID{targetID},
+				ActorID:   ps.actorID,
+				TargetIDs: []enum.PlayerID{ps.targetID},
 			},
 			expectedRes: &types.ActionResponse{
 				Ok:        true,
@@ -203,20 +266,20 @@ func TestPerformRolePredict(t *testing.T) {
 				Message:   "",
 			},
 			newState: map[enum.PlayerID]enum.RoleID{
-				targetID: enum.RoleID(0),
+				ps.targetID: enum.RoleID(0),
 			},
 			setup: func(contract.Action) {
-				mockTarget.EXPECT().RoleIDs().Return([]enum.RoleID{
+				ps.targetedPlayer.EXPECT().RoleIDs().Return([]enum.RoleID{
 					enum.VillagerRoleID,
 				})
-				mockTarget.EXPECT().ID().Return(targetID)
+				ps.targetedPlayer.EXPECT().ID().Return(ps.targetID)
 			},
 		},
 		{
 			name: "Ok (Correct prediction)",
 			req: &types.ActionRequest{
-				ActorID:   actorID,
-				TargetIDs: []enum.PlayerID{targetID},
+				ActorID:   ps.actorID,
+				TargetIDs: []enum.PlayerID{ps.targetID},
 			},
 			expectedRes: &types.ActionResponse{
 				Ok:        true,
@@ -225,25 +288,25 @@ func TestPerformRolePredict(t *testing.T) {
 				Message:   "",
 			},
 			newState: map[enum.PlayerID]enum.RoleID{
-				targetID: roleID,
+				ps.targetID: ps.roleID,
 			},
 			setup: func(contract.Action) {
-				mockTarget.EXPECT().RoleIDs().Return([]enum.RoleID{
+				ps.targetedPlayer.EXPECT().RoleIDs().Return([]enum.RoleID{
 					enum.WerewolfRoleID,
 				})
-				mockTarget.EXPECT().ID().Return(targetID)
+				ps.targetedPlayer.EXPECT().ID().Return(ps.targetID)
 			},
 		},
 	}
 
 	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			predict := action.NewRolePredict(mockGame, roleID)
-			test.setup(predict)
-			res := predict.Perform(test.req)
+		ps.Run(test.name, func() {
+			rolePredict := NewRolePredict(ps.game, ps.roleID)
+			test.setup(rolePredict)
+			res := rolePredict.Perform(test.req)
 
-			assert.Equal(t, test.expectedRes, res)
-			assert.Equal(t, test.newState, predict.State().(*types.PredictState).Role)
+			ps.Equal(test.expectedRes, res)
+			ps.Equal(test.newState, rolePredict.State().(*types.PredictState).Role)
 		})
 	}
 }

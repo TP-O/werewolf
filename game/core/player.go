@@ -51,7 +51,7 @@ func (p *player) FactionID() enum.FactionID {
 }
 
 func (p *player) IsDead() bool {
-	return false
+	return p.isDead
 }
 
 func (p *player) Die(isExited bool) bool {
@@ -90,7 +90,7 @@ func (p *player) SetFactionID(factionID enum.FactionID) {
 
 func (p *player) AssignRole(roleID enum.RoleID) (bool, error) {
 	if slices.Contains(p.RoleIDs(), roleID) {
-		return false, errors.New("Non-existent role ID ¯\\_(ツ)_/¯")
+		return false, errors.New("This role is already assigned ¯\\_(ツ)_/¯")
 	}
 
 	if newRole, err := factory.NewRole(roleID, p.game, p.id); err != nil {
@@ -131,12 +131,17 @@ func (p *player) RevokeRole(roleID enum.RoleID) (bool, error) {
 }
 
 func (p *player) UseAbility(req *types.UseRoleRequest) *types.ActionResponse {
-	if turn := p.game.Scheduler().Turn(); turn != nil && p.roles[turn.RoleID] != nil {
+	if turn := p.game.Scheduler().Turn(); turn == nil {
+		return &types.ActionResponse{
+			Ok:      false,
+			Message: "Wait until game starts ノ(ジ)ー'",
+		}
+	} else if p.roles[turn.RoleID] == nil {
+		return &types.ActionResponse{
+			Ok:      false,
+			Message: "Wait for your turn, OK??",
+		}
+	} else {
 		return p.roles[turn.RoleID].UseAbility(req)
-	}
-
-	return &types.ActionResponse{
-		Ok:      false,
-		Message: "Wait for your turn, OK??",
 	}
 }

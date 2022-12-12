@@ -1,7 +1,7 @@
 package action
 
 import (
-	"errors"
+	"fmt"
 	"uwwolf/game/contract"
 	"uwwolf/game/enum"
 	"uwwolf/game/types"
@@ -33,9 +33,11 @@ func (k *kill) Validate(req *types.ActionRequest) error {
 	targetID := req.TargetIDs[0]
 
 	if req.ActorID == targetID {
-		return errors.New("Appreciate your own life (｡´ ‿｀♡)")
-	} else if player := k.game.Player(targetID); player == nil || player.IsDead() {
-		return errors.New("Unable to kill this player!")
+		return fmt.Errorf("Appreciate your own life (｡´ ‿｀♡)")
+	} else if player := k.game.Player(targetID); player == nil {
+		return fmt.Errorf("Player does not exist (⊙＿⊙')")
+	} else if player.IsDead() {
+		return fmt.Errorf("Player is dead [¬º-°]¬")
 	}
 
 	return nil

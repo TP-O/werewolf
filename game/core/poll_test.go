@@ -1,14 +1,23 @@
 package core
 
 import (
+	"fmt"
 	"testing"
 	"uwwolf/game/enum"
 	"uwwolf/game/types"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
 )
 
-func TestNewPoll(t *testing.T) {
+type PollSuite struct {
+	suite.Suite
+}
+
+func TestPollSuite(t *testing.T) {
+	suite.Run(t, new(PollSuite))
+}
+
+func (ps *PollSuite) TestNewPoll() {
 	tests := []struct {
 		name        string
 		capacity    uint8
@@ -16,7 +25,7 @@ func TestNewPoll(t *testing.T) {
 	}{
 		{
 			name:        "Failure (Too small capacity)",
-			capacity:    2,
+			capacity:    0,
 			expectedErr: "The capacity is too small ¬_¬",
 		},
 		{
@@ -26,22 +35,23 @@ func TestNewPoll(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
+		ps.Run(test.name, func() {
 			myPoll, err := NewPoll(test.capacity)
 
 			if test.expectedErr != "" {
-				assert.Equal(t, test.expectedErr, err.Error())
+				ps.NotNil(err)
+				ps.Equal(test.expectedErr, err.Error())
 			} else {
-				assert.NotNil(t, myPoll)
-				assert.NotNil(t, myPoll.(*poll).Weights)
-				assert.NotNil(t, myPoll.(*poll).Records)
-				assert.Equal(t, test.capacity, myPoll.(*poll).Capacity)
+				ps.NotNil(myPoll)
+				ps.NotNil(myPoll.(*poll).Weights)
+				ps.NotNil(myPoll.(*poll).Records)
+				ps.Equal(test.capacity, myPoll.(*poll).Capacity)
 			}
 		})
 	}
 }
 
-func TestIsOpenPoll(t *testing.T) {
+func (ps *PollSuite) TestIsOpen() {
 	tests := []struct {
 		name           string
 		expectedStatus bool
@@ -89,37 +99,40 @@ func TestIsOpenPoll(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
+		ps.Run(test.name, func() {
 			myPoll, _ := NewPoll(9)
 			test.setup(myPoll.(*poll))
 			isOpen, round := myPoll.IsOpen()
 
-			assert.Equal(t, test.expectedStatus, isOpen)
-			assert.Equal(t, test.expectedRound, round)
+			ps.Equal(test.expectedStatus, isOpen)
+			ps.Equal(test.expectedRound, round)
 		})
 	}
 }
 
-func TestCanVotePoll(t *testing.T) {
+func (ps *PollSuite) TestCanVote() {
 	electorID := enum.PlayerID("1")
 	tests := []struct {
-		name        string
-		electorID   enum.PlayerID
-		expectedRes bool
-		setup       func(*poll)
+		name           string
+		electorID      enum.PlayerID
+		expectedStatus bool
+		expectedErr    string
+		setup          func(*poll)
 	}{
 		{
-			name:        "Cannot vote (Poll was closed)",
-			electorID:   electorID,
-			expectedRes: false,
+			name:           "Cannot vote (Poll was closed)",
+			electorID:      electorID,
+			expectedStatus: false,
+			expectedErr:    fmt.Sprintf("Poll (%v) is closed ᕙ(⇀‸↼‶)ᕗ", 0),
 			setup: func(myPoll *poll) {
 				myPoll.Round = 0
 			},
 		},
 		{
-			name:        "Cannot vote (Not an elector)",
-			electorID:   electorID,
-			expectedRes: false,
+			name:           "Cannot vote (Not an elector)",
+			electorID:      electorID,
+			expectedStatus: false,
+			expectedErr:    "You're not allowed to vote ノ(ジ)ー'",
 			setup: func(myPoll *poll) {
 				// Open poll
 				myPoll.Round = 1
@@ -129,9 +142,10 @@ func TestCanVotePoll(t *testing.T) {
 			},
 		},
 		{
-			name:        "Cannot vote (Already voted)",
-			electorID:   electorID,
-			expectedRes: false,
+			name:           "Cannot vote (Already voted)",
+			electorID:      electorID,
+			expectedStatus: false,
+			expectedErr:    "Wait for the next round ಠ_ಠ",
 			setup: func(myPoll *poll) {
 				// Open poll
 				myPoll.Round = 1
@@ -139,6 +153,10 @@ func TestCanVotePoll(t *testing.T) {
 					IsClosed: false,
 				}
 
+				myPoll.RemainingElectorIDs = append(
+					myPoll.RemainingElectorIDs,
+					electorID,
+				)
 				myPoll.VotedElectorIDs = append(
 					myPoll.VotedElectorIDs,
 					electorID,
@@ -146,9 +164,9 @@ func TestCanVotePoll(t *testing.T) {
 			},
 		},
 		{
-			name:        "Ok",
-			electorID:   electorID,
-			expectedRes: true,
+			name:           "Ok",
+			electorID:      electorID,
+			expectedStatus: true,
 			setup: func(myPoll *poll) {
 				// Open poll
 				myPoll.Round = 1
@@ -165,17 +183,21 @@ func TestCanVotePoll(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
+		ps.Run(test.name, func() {
 			myPoll, _ := NewPoll(9)
 			test.setup(myPoll.(*poll))
-			res := myPoll.CanVote(test.electorID)
+			res, err := myPoll.CanVote(test.electorID)
 
-			assert.Equal(t, test.expectedRes, res)
+			ps.Equal(test.expectedStatus, res)
+
+			if res == false {
+				ps.Equal(test.expectedErr, err.Error())
+			}
 		})
 	}
 }
 
-func TestRecordPoll(t *testing.T) {
+func (ps *PollSuite) TestRecord() {
 	tests := []struct {
 		name           string
 		round          enum.Round
@@ -229,17 +251,17 @@ func TestRecordPoll(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
+		ps.Run(test.name, func() {
 			myPoll, _ := NewPoll(9)
 			test.setup(myPoll.(*poll))
 			record := myPoll.Record(test.round)
 
-			assert.Equal(t, test.expectedRecord, record)
+			ps.Equal(test.expectedRecord, record)
 		})
 	}
 }
 
-func TestOpenPoll(t *testing.T) {
+func (ps *PollSuite) TestOpen() {
 	capacity := uint8(5)
 	tests := []struct {
 		name           string
@@ -286,23 +308,23 @@ func TestOpenPoll(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
+		ps.Run(test.name, func() {
 			myPoll, _ := NewPoll(capacity)
 			test.setup(myPoll.(*poll))
 			ok, round := myPoll.Open()
 
-			assert.Equal(t, test.expectedStatus, ok)
-			assert.Equal(t, test.expectedRound, round)
+			ps.Equal(test.expectedStatus, ok)
+			ps.Equal(test.expectedRound, round)
 
 			if test.expectedStatus == true {
-				assert.Empty(t, myPoll.(*poll).VotedElectorIDs)
-				assert.False(t, myPoll.Record(enum.LastRound).IsClosed)
+				ps.Empty(myPoll.(*poll).VotedElectorIDs)
+				ps.False(myPoll.Record(enum.LastRound).IsClosed)
 			}
 		})
 	}
 }
 
-func TestClosePoll(t *testing.T) {
+func (ps *PollSuite) TestClose() {
 	tests := []struct {
 		name           string
 		expectedStatus bool
@@ -503,29 +525,28 @@ func TestClosePoll(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
+		ps.Run(test.name, func() {
 			myPoll, _ := NewPoll(9)
 			test.setup(myPoll.(*poll))
 			ok, record := myPoll.Close()
 
-			assert.Equal(t, test.expectedStatus, ok)
-			assert.Equal(t, test.expectedRecord, record)
+			ps.Equal(test.expectedStatus, ok)
+			ps.Equal(test.expectedRecord, record)
 
 			if test.expectedStatus == true {
-				assert.Equal(
-					t,
+				ps.Equal(
 					len(myPoll.(*poll).RemainingElectorIDs),
 					len(myPoll.(*poll).VotedElectorIDs),
 				)
 
 				isOpen, _ := myPoll.IsOpen()
-				assert.False(t, isOpen)
+				ps.False(isOpen)
 			}
 		})
 	}
 }
 
-func TestAddCandidatesPoll(t *testing.T) {
+func (ps *PollSuite) TestAddCandidates() {
 	tests := []struct {
 		name                     string
 		candidateIDs             []enum.PlayerID
@@ -620,18 +641,18 @@ func TestAddCandidatesPoll(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
+		ps.Run(test.name, func() {
 			myPoll, _ := NewPoll(9)
 			test.setup(myPoll.(*poll))
 			myPoll.AddCandidates(test.candidateIDs...)
 
-			assert.Equal(t, test.newCandidateIDs, myPoll.(*poll).CandidateIDs)
-			assert.Equal(t, test.newRemainingCandidateIDs, myPoll.(*poll).RemainingCandidateIDs)
+			ps.Equal(test.newCandidateIDs, myPoll.(*poll).CandidateIDs)
+			ps.Equal(test.newRemainingCandidateIDs, myPoll.(*poll).RemainingCandidateIDs)
 		})
 	}
 }
 
-func TestRemoveCandidatePoll(t *testing.T) {
+func (ps *PollSuite) TestRemoveCandidate() {
 	tests := []struct {
 		name                     string
 		candidateID              enum.PlayerID
@@ -696,19 +717,19 @@ func TestRemoveCandidatePoll(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
+		ps.Run(test.name, func() {
 			myPoll, _ := NewPoll(9)
 			test.setup(myPoll.(*poll))
 			ok := myPoll.RemoveCandidate(test.candidateID)
 
-			assert.Equal(t, test.expectedStatus, ok)
-			assert.Equal(t, test.newCandidateIDs, myPoll.(*poll).CandidateIDs)
-			assert.Equal(t, test.newRemainingCandidateIDs, myPoll.(*poll).RemainingCandidateIDs)
+			ps.Equal(test.expectedStatus, ok)
+			ps.Equal(test.newCandidateIDs, myPoll.(*poll).CandidateIDs)
+			ps.Equal(test.newRemainingCandidateIDs, myPoll.(*poll).RemainingCandidateIDs)
 		})
 	}
 }
 
-func TestAddElectorsPoll(t *testing.T) {
+func (ps *PollSuite) TestAddElectors() {
 	capacity := uint8(5)
 	tests := []struct {
 		name                   string
@@ -838,19 +859,19 @@ func TestAddElectorsPoll(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
+		ps.Run(test.name, func() {
 			myPoll, _ := NewPoll(capacity)
 			test.setup(myPoll.(*poll))
 			ok := myPoll.AddElectors(test.electorIDs...)
 
-			assert.Equal(t, test.expectedStatus, ok)
-			assert.Equal(t, test.newElectorIDs, myPoll.(*poll).ElectorIDs)
-			assert.Equal(t, test.newRemainingElectorIDs, myPoll.(*poll).RemainingElectorIDs)
+			ps.Equal(test.expectedStatus, ok)
+			ps.Equal(test.newElectorIDs, myPoll.(*poll).ElectorIDs)
+			ps.Equal(test.newRemainingElectorIDs, myPoll.(*poll).RemainingElectorIDs)
 		})
 	}
 }
 
-func TestRemoveElectorPoll(t *testing.T) {
+func (ps *PollSuite) TestRemoveElector() {
 	tests := []struct {
 		name                   string
 		electorID              enum.PlayerID
@@ -915,19 +936,19 @@ func TestRemoveElectorPoll(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
+		ps.Run(test.name, func() {
 			myPoll, _ := NewPoll(9)
 			test.setup(myPoll.(*poll))
 			ok := myPoll.RemoveElector(test.electorID)
 
-			assert.Equal(t, test.expectedStatus, ok)
-			assert.Equal(t, test.newElectorIDs, myPoll.(*poll).ElectorIDs)
-			assert.Equal(t, test.newRemainingElectorIDs, myPoll.(*poll).RemainingElectorIDs)
+			ps.Equal(test.expectedStatus, ok)
+			ps.Equal(test.newElectorIDs, myPoll.(*poll).ElectorIDs)
+			ps.Equal(test.newRemainingElectorIDs, myPoll.(*poll).RemainingElectorIDs)
 		})
 	}
 }
 
-func TestSetWeightPoll(t *testing.T) {
+func (ps *PollSuite) TestSetWeight() {
 	tests := []struct {
 		name           string
 		electorID      enum.PlayerID
@@ -962,26 +983,27 @@ func TestSetWeightPoll(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
+		ps.Run(test.name, func() {
 			myPoll, _ := NewPoll(9)
 			test.setup(myPoll.(*poll))
 			ok := myPoll.SetWeight(test.electorID, test.weight)
 
-			assert.Equal(t, test.expectedStatus, ok)
+			ps.Equal(test.expectedStatus, ok)
 
 			if test.expectedStatus == true {
-				assert.Equal(t, myPoll.(*poll).Weights[test.electorID], test.weight)
+				ps.Equal(myPoll.(*poll).Weights[test.electorID], test.weight)
 			}
 		})
 	}
 }
 
-func TestVotePoll(t *testing.T) {
+func (ps *PollSuite) TestVote() {
 	tests := []struct {
 		name           string
 		electorID      enum.PlayerID
 		candidateID    enum.PlayerID
 		expectedStatus bool
+		expectedErr    string
 		newWeight      uint
 		newVotes       uint
 		setup          func(*poll)
@@ -991,6 +1013,7 @@ func TestVotePoll(t *testing.T) {
 			electorID:      "99",
 			candidateID:    "2",
 			expectedStatus: false,
+			expectedErr:    "You're not allowed to vote ノ(ジ)ー'",
 			setup: func(myPoll *poll) {
 				// Open poll
 				myPoll.Round = 1
@@ -1007,6 +1030,7 @@ func TestVotePoll(t *testing.T) {
 			electorID:      "1",
 			candidateID:    "99",
 			expectedStatus: false,
+			expectedErr:    "Your vote is not valid ¬_¬",
 			setup: func(myPoll *poll) {
 				// Open poll
 				myPoll.Round = 1
@@ -1061,28 +1085,30 @@ func TestVotePoll(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
+		ps.Run(test.name, func() {
 			myPoll, _ := NewPoll(9)
 			test.setup(myPoll.(*poll))
-			ok := myPoll.Vote(test.electorID, test.candidateID)
+			ok, err := myPoll.Vote(test.electorID, test.candidateID)
 
-			assert.Equal(t, test.expectedStatus, ok)
+			ps.Equal(test.expectedStatus, ok)
 
 			if test.expectedStatus == true {
-				assert.Equal(t,
+				ps.Equal(
 					test.newVotes,
 					myPoll.Record(enum.LastRound).VoteRecords[test.candidateID].Votes,
 				)
-				assert.Equal(t,
+				ps.Equal(
 					test.newWeight,
 					myPoll.Record(enum.LastRound).VoteRecords[test.candidateID].Weights,
 				)
-				assert.Contains(
-					t,
+				ps.Contains(
 					myPoll.Record(enum.LastRound).VoteRecords[test.candidateID].ElectorIDs,
 					test.electorID,
 				)
-				assert.Contains(t, myPoll.(*poll).VotedElectorIDs, test.electorID)
+				ps.Contains(myPoll.(*poll).VotedElectorIDs, test.electorID)
+			} else {
+				ps.NotNil(err)
+				ps.Equal(test.expectedErr, err.Error())
 			}
 		})
 	}

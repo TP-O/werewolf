@@ -7,94 +7,126 @@ import (
 	gamemock "uwwolf/mock/game"
 
 	"github.com/golang/mock/gomock"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
 )
 
-func TestRoleID(t *testing.T) {
+type RoleSuite struct {
+	suite.Suite
+	ctrl      *gomock.Controller
+	game      *gamemock.MockGame
+	player    *gamemock.MockPlayer
+	action1   *gamemock.MockAction
+	action2   *gamemock.MockAction
+	playerID  enum.PlayerID
+	actionID1 enum.ActionID
+	actionID2 enum.ActionID
+}
+
+func TestRoleSuite(t *testing.T) {
+	suite.Run(t, new(RoleSuite))
+}
+
+func (rs *RoleSuite) SetupSuite() {
+	rs.playerID = "1"
+	rs.actionID1 = 1
+	rs.actionID2 = 2
+}
+
+func (rs *RoleSuite) BeforeTest(_, test string) {
+	if test == "TestRoleUseAbility" {
+		rs.ctrl = gomock.NewController(rs.T())
+		rs.player = gamemock.NewMockPlayer(rs.ctrl)
+		rs.action1 = gamemock.NewMockAction(rs.ctrl)
+		rs.action2 = gamemock.NewMockAction(rs.ctrl)
+		rs.action1.EXPECT().ID().Return(rs.actionID1).AnyTimes()
+		rs.action2.EXPECT().ID().Return(rs.actionID2).AnyTimes()
+	}
+
+}
+
+func (rs *RoleSuite) AfterTest(_, test string) {
+	if test == "TestRoleUseAbility" {
+		rs.ctrl.Finish()
+	}
+}
+
+func (rs *RoleSuite) TestRoleID() {
 	id := enum.HunterRoleID
 	role := role{
 		id: id,
 	}
 
-	assert.Equal(t, id, role.ID())
+	rs.Equal(id, role.ID())
 }
 
-func TestRolePhaseID(t *testing.T) {
+func (rs *RoleSuite) TestRolePhaseID() {
 	phaseID := enum.DuskPhaseID
 	role := role{
 		phaseID: phaseID,
 	}
 
-	assert.Equal(t, phaseID, role.PhaseID())
+	rs.Equal(phaseID, role.PhaseID())
 }
 
-func TestRoleFactionID(t *testing.T) {
+func (rs *RoleSuite) TestRoleFactionID() {
 	factionID := enum.WerewolfFactionID
 	role := role{
 		factionID: factionID,
 	}
 
-	assert.Equal(t, factionID, role.FactionID())
+	rs.Equal(factionID, role.FactionID())
 }
 
-func TestRolePriority(t *testing.T) {
+func (rs *RoleSuite) TestRolePriority() {
 	priority := enum.VillagerTurnPriority
 	role := role{
 		priority: priority,
 	}
 
-	assert.Equal(t, priority, role.Priority())
+	rs.Equal(priority, role.Priority())
 }
 
-func TestRoleBeginRound(t *testing.T) {
+func (rs *RoleSuite) TestRoleBeginRound() {
 	round := enum.Round(9)
 	role := role{
 		beginRound: round,
 	}
 
-	assert.Equal(t, round, role.BeginRound())
+	rs.Equal(round, role.BeginRound())
 }
 
-func TestRoleActiveLimit(t *testing.T) {
-	actionID := enum.KillActionID
-	expectedActionLimit := enum.Limit(2)
+func (rs *RoleSuite) TestRoleActiveLimit() {
+	killLimit := enum.Limit(1)
+	predictLimit := enum.Limit(1)
 	role := role{
 		abilities: map[enum.ActionID]*ability{
-			actionID: {
+			enum.KillActionID: {
 				action:      nil,
-				activeLimit: expectedActionLimit,
+				activeLimit: killLimit,
+			},
+			enum.PredictActionID: {
+				action:      nil,
+				activeLimit: predictLimit,
 			},
 		},
 	}
 
-	assert.Equal(t, expectedActionLimit, role.ActiveLimit(actionID))
-	assert.Equal(t, enum.ReachedLimit, role.ActiveLimit(enum.ActionID(99)))
+	rs.Equal(killLimit, role.ActiveLimit(enum.KillActionID))
+	rs.Equal(killLimit+predictLimit, role.ActiveLimit(0))
+	rs.Equal(enum.ReachedLimit, role.ActiveLimit(99))
 }
 
-func TestRoleBeforeDeath(t *testing.T) {
-	role := role{}
+func (rs *RoleSuite) TestRoleBeforeDeath() {
+	role := new(role)
 
-	assert.True(t, role.BeforeDeath())
+	rs.True(role.BeforeDeath())
 }
 
-func TestRoleAfterDeath(t *testing.T) {
+func (rs *RoleSuite) TestRoleAfterDeath() {
 	//
 }
 
-func TestRoleUseAbility(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-	mockPlayer := gamemock.NewMockPlayer(ctrl)
-	mockAction1 := gamemock.NewMockAction(ctrl)
-	mockAction2 := gamemock.NewMockAction(ctrl)
-
-	playerID := enum.PlayerID("1")
-	actionID1 := enum.ActionID(1)
-	actionID2 := enum.ActionID(2)
-
-	mockAction1.EXPECT().ID().Return(actionID1).AnyTimes()
-	mockAction2.EXPECT().ID().Return(actionID2).AnyTimes()
-
+func (rs *RoleSuite) TestRoleUseAbility() {
 	tests := []struct {
 		name           string
 		req            *types.UseRoleRequest
@@ -120,7 +152,7 @@ func TestRoleUseAbility(t *testing.T) {
 		{
 			name: "Failure (Ability is out of use)",
 			req: &types.UseRoleRequest{
-				ActionID: actionID1,
+				ActionID: rs.actionID1,
 			},
 			expectedRes: &types.ActionResponse{
 				Ok:        false,
@@ -130,13 +162,13 @@ func TestRoleUseAbility(t *testing.T) {
 			},
 			newActiveLimit: 0,
 			setup: func(role role) {
-				role.abilities[actionID1].activeLimit = 0
+				role.abilities[rs.actionID1].activeLimit = 0
 			},
 		},
 		{
 			name: "Ok (Skip action -> Doesn't change active limit)",
 			req: &types.UseRoleRequest{
-				ActionID:  actionID1,
+				ActionID:  rs.actionID1,
 				IsSkipped: true,
 			},
 			expectedRes: &types.ActionResponse{
@@ -145,9 +177,9 @@ func TestRoleUseAbility(t *testing.T) {
 			},
 			newActiveLimit: 5,
 			setup: func(role role) {
-				role.abilities[actionID1].activeLimit = 5
-				mockAction1.EXPECT().Execute(&types.ActionRequest{
-					ActorID:   playerID,
+				role.abilities[rs.actionID1].activeLimit = 5
+				rs.action1.EXPECT().Execute(&types.ActionRequest{
+					ActorID:   rs.playerID,
 					IsSkipped: true,
 				}).
 					Return(&types.ActionResponse{
@@ -155,34 +187,34 @@ func TestRoleUseAbility(t *testing.T) {
 						IsSkipped: true,
 					}).
 					Times(1)
-				mockPlayer.EXPECT().ID().Return(playerID).Times(1)
+				rs.player.EXPECT().ID().Return(rs.playerID).Times(1)
 			},
 		},
 		{
 			name: "Ok (Action execution is failed -> Doesn't change active limit)",
 			req: &types.UseRoleRequest{
-				ActionID: actionID1,
+				ActionID: rs.actionID1,
 			},
 			expectedRes: &types.ActionResponse{
 				Ok: false,
 			},
 			newActiveLimit: 5,
 			setup: func(role role) {
-				role.abilities[actionID1].activeLimit = 5
-				mockAction1.EXPECT().Execute(&types.ActionRequest{
-					ActorID: playerID,
+				role.abilities[rs.actionID1].activeLimit = 5
+				rs.action1.EXPECT().Execute(&types.ActionRequest{
+					ActorID: rs.playerID,
 				}).
 					Return(&types.ActionResponse{
 						Ok: false,
 					}).
 					Times(1)
-				mockPlayer.EXPECT().ID().Return(playerID).Times(1)
+				rs.player.EXPECT().ID().Return(rs.playerID).Times(1)
 			},
 		},
 		{
 			name: "Ok (Use unlimited ability -> Doesn't change active limit)",
 			req: &types.UseRoleRequest{
-				ActionID: actionID1,
+				ActionID: rs.actionID1,
 			},
 			expectedRes: &types.ActionResponse{
 				Ok:        true,
@@ -190,22 +222,22 @@ func TestRoleUseAbility(t *testing.T) {
 			},
 			newActiveLimit: enum.Unlimited,
 			setup: func(role role) {
-				role.abilities[actionID1].activeLimit = enum.Unlimited
-				mockAction1.EXPECT().Execute(&types.ActionRequest{
-					ActorID: playerID,
+				role.abilities[rs.actionID1].activeLimit = enum.Unlimited
+				rs.action1.EXPECT().Execute(&types.ActionRequest{
+					ActorID: rs.playerID,
 				}).
 					Return(&types.ActionResponse{
 						Ok:        true,
 						IsSkipped: false,
 					}).
 					Times(1)
-				mockPlayer.EXPECT().ID().Return(playerID).Times(1)
+				rs.player.EXPECT().ID().Return(rs.playerID).Times(1)
 			},
 		},
 		{
 			name: "Ok (Action execution is successful -> reduce active limit by 1)",
 			req: &types.UseRoleRequest{
-				ActionID: actionID1,
+				ActionID: rs.actionID1,
 			},
 			expectedRes: &types.ActionResponse{
 				Ok:        true,
@@ -213,43 +245,43 @@ func TestRoleUseAbility(t *testing.T) {
 			},
 			newActiveLimit: 4,
 			setup: func(role role) {
-				role.abilities[actionID1].activeLimit = 5
-				mockAction1.EXPECT().Execute(&types.ActionRequest{
-					ActorID: playerID,
+				role.abilities[rs.actionID1].activeLimit = 5
+				rs.action1.EXPECT().Execute(&types.ActionRequest{
+					ActorID: rs.playerID,
 				}).
 					Return(&types.ActionResponse{
 						Ok:        true,
 						IsSkipped: false,
 					}).
 					Times(1)
-				mockPlayer.EXPECT().ID().Return(playerID).Times(1)
+				rs.player.EXPECT().ID().Return(rs.playerID).Times(1)
 			},
 		},
 	}
 
 	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
+		rs.Run(test.name, func() {
 			role := role{
-				player: mockPlayer,
+				player: rs.player,
 				abilities: map[enum.ActionID]*ability{
-					actionID1: {
-						action: mockAction1,
+					rs.actionID1: {
+						action: rs.action1,
 					},
-					actionID2: {
-						action: mockAction2,
+					rs.actionID2: {
+						action: rs.action2,
 					},
 				},
 			}
 			test.setup(role)
 			res := role.UseAbility(test.req)
 
-			assert.Equal(t, test.expectedRes, res)
+			rs.Equal(test.expectedRes, res)
 
 			// Invalid ability
 			if test.isInvalidRole {
-				assert.Nil(t, role.abilities[test.req.ActionID])
+				rs.Nil(role.abilities[test.req.ActionID])
 			} else {
-				assert.Equal(t, test.newActiveLimit, role.abilities[test.req.ActionID].activeLimit)
+				rs.Equal(test.newActiveLimit, role.abilities[test.req.ActionID].activeLimit)
 			}
 		})
 	}

@@ -142,6 +142,7 @@ func (s *scheduler) AddTurn(setting *types.TurnSetting) bool {
 			RoleID:     setting.RoleID,
 			BeginRound: setting.BeginRound,
 			Priority:   setting.Priority,
+			Limit:      setting.Limit,
 		},
 	)
 
@@ -227,11 +228,6 @@ func (s *scheduler) NextTurn(isRemoved bool) bool {
 	// reach the length of the current phase
 	if s.turnIndex < len(s.Phase())-1 {
 		s.turnIndex++
-
-		// Skip turn if not the time
-		if s.Turn().BeginRound > s.round {
-			return s.NextTurn(false)
-		}
 	} else {
 		s.turnIndex = 0
 		s.phaseID = enum.NextPhasePhaseID(s.phaseID)
@@ -246,9 +242,18 @@ func (s *scheduler) NextTurn(isRemoved bool) bool {
 		}
 	}
 
+	// Skip turn if not the time
+	if s.Turn().BeginRound > s.round || s.Turn().Limit == enum.ReachedLimit {
+		return s.NextTurn(false)
+	}
+
 	// Skip turn if it's frozen
 	if s.defrostCurrentTurn() {
 		return s.NextTurn(false)
+	}
+
+	if s.Turn().Limit != enum.Unlimited {
+		s.Turn().Limit--
 	}
 
 	return true

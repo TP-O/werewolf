@@ -46,7 +46,11 @@ func (r *role) ActiveLimit(actionID enum.ActionID) enum.Limit {
 	limit := enum.ReachedLimit
 
 	if ability := r.abilities[actionID]; ability != nil {
-		limit = ability.activeLimit
+		return ability.activeLimit
+	} else if actionID == 0 {
+		for _, ability := range r.abilities {
+			limit += ability.activeLimit
+		}
 	}
 
 	return limit

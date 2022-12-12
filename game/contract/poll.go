@@ -11,7 +11,7 @@ type Poll interface {
 
 	// CanVote returns true if the elector can vote for the current
 	// poll round.
-	CanVote(electorID enum.PlayerID) bool
+	CanVote(electorID enum.PlayerID) (bool, error)
 
 	// Record returns the specific poll round's record.
 	Record(round enum.Round) *types.PollRecord
@@ -44,5 +44,5 @@ type Poll interface {
 	SetWeight(electorID enum.PlayerID, weight uint) bool
 
 	// Vote votes or skips for the current poll round.
-	Vote(electorID enum.PlayerID, candidateID enum.PlayerID) bool
+	Vote(electorID enum.PlayerID, candidateID enum.PlayerID) (bool, error)
 }

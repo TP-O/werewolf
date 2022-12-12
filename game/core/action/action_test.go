@@ -5,19 +5,27 @@ import (
 	"uwwolf/game/enum"
 	"uwwolf/game/types"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
 )
 
-func TestActionID(t *testing.T) {
+type ActionSuite struct {
+	suite.Suite
+}
+
+func TestActionSuiteSuite(t *testing.T) {
+	suite.Run(t, new(ActionSuite))
+}
+
+func (as *ActionSuite) TestActionID() {
 	id := enum.KillActionID
 	action := action[any]{
 		id: id,
 	}
 
-	assert.Equal(t, id, action.ID())
+	as.Equal(id, action.ID())
 }
 
-func TestActionState(t *testing.T) {
+func (as *ActionSuite) TestActionState() {
 	type strt struct {
 		key string
 	}
@@ -49,18 +57,18 @@ func TestActionState(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
+		as.Run(test.name, func() {
 			action := action[any]{
 				state: test.expectedState,
 			}
 
-			assert.Equal(t, test.expectedState, action.State())
-			assert.IsType(t, test.expectedState, action.State())
+			as.Equal(test.expectedState, action.State())
+			as.IsType(test.expectedState, action.State())
 		})
 	}
 }
 
-func TestActionValidate(t *testing.T) {
+func (as *ActionSuite) TestActionValidate() {
 	tests := []struct {
 		name        string
 		req         *types.ActionRequest
@@ -78,40 +86,40 @@ func TestActionValidate(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
+		as.Run(test.name, func() {
 			action := action[any]{}
 			err := action.Validate(test.req)
 
 			if test.expectedErr == "" {
-				assert.Nil(t, err)
+				as.Nil(err)
 			} else {
-				assert.Equal(t, test.expectedErr, err.Error())
+				as.Equal(test.expectedErr, err.Error())
 			}
 		})
 	}
 }
 
-func TestActionSkip(t *testing.T) {
+func (as *ActionSuite) TestActionSkip() {
 	action := action[any]{}
 	expectedRes := &types.ActionResponse{
 		Ok:        true,
 		IsSkipped: true,
 	}
 
-	assert.Equal(t, expectedRes, action.Skip(&types.ActionRequest{}))
+	as.Equal(expectedRes, action.Skip(&types.ActionRequest{}))
 }
 
-func TestActionPerform(t *testing.T) {
+func (as *ActionSuite) TestActionPerform() {
 	action := action[any]{}
 	expectedRes := &types.ActionResponse{
 		Ok:      false,
 		Message: "Nothing to do ¯\\_(ツ)_/¯",
 	}
 
-	assert.Equal(t, expectedRes, action.Perform(&types.ActionRequest{}))
+	as.Equal(expectedRes, action.Perform(&types.ActionRequest{}))
 }
 
-func TestActionExecute(t *testing.T) {
+func (as *ActionSuite) TestActionExecute() {
 	tests := []struct {
 		name        string
 		req         *types.ActionRequest
@@ -154,11 +162,11 @@ func TestActionExecute(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
+		as.Run(test.name, func() {
 			action := action[any]{}
 			res := action.Execute(test.req)
 
-			assert.Equal(t, test.expectedRes, res)
+			as.Equal(test.expectedRes, res)
 		})
 	}
 }

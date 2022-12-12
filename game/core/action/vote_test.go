@@ -1,25 +1,47 @@
-package action_test
+package action
 
 import (
+	"fmt"
 	"testing"
-	"uwwolf/game/core/action"
 	"uwwolf/game/enum"
 	"uwwolf/game/types"
 	gamemock "uwwolf/mock/game"
 
 	"github.com/golang/mock/gomock"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
 )
 
-func TestNewVote(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-	mockGame := gamemock.NewMockGame(ctrl)
-	mockPoll := gamemock.NewMockPoll(ctrl)
+type VoteSuite struct {
+	suite.Suite
+	ctrl      *gomock.Controller
+	game      *gamemock.MockGame
+	poll      *gamemock.MockPoll
+	actorID   enum.PlayerID
+	targetID  enum.PlayerID
+	factionID enum.FactionID
+}
 
-	factionID := enum.WerewolfFactionID
-	playerID := enum.PlayerID("1")
-	weight := uint(5)
+func TestVoteSuite(t *testing.T) {
+	suite.Run(t, new(VoteSuite))
+}
+
+func (vs *VoteSuite) SetupSuite() {
+	vs.actorID = "2"
+	vs.targetID = "2"
+}
+
+func (vs *VoteSuite) SetupTest() {
+	vs.ctrl = gomock.NewController(vs.T())
+	vs.game = gamemock.NewMockGame(vs.ctrl)
+	vs.poll = gamemock.NewMockPoll(vs.ctrl)
+}
+
+func (vs *VoteSuite) TearDownTest() {
+	vs.ctrl.Finish()
+}
+
+func (vs *VoteSuite) TestNewVote() {
+	weight := uint(2)
 	tests := []struct {
 		name        string
 		setting     *types.VoteActionSetting
@@ -29,130 +51,67 @@ func TestNewVote(t *testing.T) {
 		{
 			name: "Failure (Poll does not exist)",
 			setting: &types.VoteActionSetting{
-				FactionID: factionID,
-				PlayerID:  playerID,
+				FactionID: vs.factionID,
+				PlayerID:  vs.actorID,
 				Weight:    weight,
 			},
 			expectedErr: "Poll does not exist ¯\\_(ツ)_/¯",
 			setup: func() {
-				mockGame.EXPECT().Poll(factionID).Return(nil).Times(1)
+				vs.game.EXPECT().Poll(vs.factionID).Return(nil).Times(1)
 			},
 		},
 		{
 			name: "Failure (Cannot add player as elector to poll)",
 			setting: &types.VoteActionSetting{
-				FactionID: factionID,
-				PlayerID:  playerID,
+				FactionID: vs.factionID,
+				PlayerID:  vs.actorID,
 				Weight:    weight,
 			},
 			expectedErr: "Unable to join to the poll ಠ_ಠ",
 			setup: func() {
-				mockGame.EXPECT().Poll(factionID).Return(mockPoll).Times(1)
-				mockPoll.EXPECT().AddElectors(playerID).Return(false).Times(1)
+				vs.game.EXPECT().Poll(vs.factionID).Return(vs.poll).Times(1)
+				vs.poll.EXPECT().AddElectors(vs.actorID).Return(false).Times(1)
 			},
 		},
 		{
 			name: "Ok",
 			setting: &types.VoteActionSetting{
-				FactionID: factionID,
-				PlayerID:  playerID,
+				FactionID: vs.factionID,
+				PlayerID:  vs.actorID,
 				Weight:    weight,
 			},
 			expectedErr: "",
 			setup: func() {
-				mockGame.EXPECT().Poll(factionID).Return(mockPoll).Times(1)
-				mockPoll.EXPECT().AddElectors(playerID).Return(true).Times(1)
-				mockPoll.EXPECT().SetWeight(playerID, weight).Return(true).Times(1)
+				vs.game.EXPECT().Poll(vs.factionID).Return(vs.poll).Times(1)
+				vs.poll.EXPECT().AddElectors(vs.actorID).Return(true).Times(1)
+				vs.poll.EXPECT().SetWeight(vs.actorID, weight).Return(true).Times(1)
 			},
 		},
 	}
 
 	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
+		vs.Run(test.name, func() {
 			test.setup()
-			vote, err := action.NewVote(mockGame, test.setting)
+			vote, err := NewVote(vs.game, test.setting)
 
 			if test.expectedErr != "" {
-				assert.Nil(t, vote)
-				assert.Equal(t, test.expectedErr, err.Error())
+				vs.Nil(vote)
+				vs.Equal(test.expectedErr, err.Error())
 			} else {
-				assert.Equal(t, enum.VoteActionID, vote.ID())
-				assert.NotNil(t, vote.State())
+				vs.Equal(enum.VoteActionID, vote.ID())
+				vs.NotNil(vote.State())
 			}
 		})
 	}
 }
 
-func TestValidateVote(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-	mockGame := gamemock.NewMockGame(ctrl)
-	mockPoll := gamemock.NewMockPoll(ctrl)
-
-	factionID := enum.WerewolfFactionID
-	actorID := enum.PlayerID("1")
-	targetID := enum.PlayerID("2")
-	weight := uint(1)
-	tests := []struct {
-		name        string
-		req         *types.ActionRequest
-		expectedErr string
-		setup       func()
-	}{
-		{
-			name:        "Failure (Empty action request)",
-			req:         nil,
-			expectedErr: "Action request can not be empty (⊙＿⊙')",
-			setup:       func() {},
-		},
-		{
-			name: "Failure (Not allowed to vote)",
-			req: &types.ActionRequest{
-				ActorID:   actorID,
-				TargetIDs: []enum.PlayerID{targetID},
-			},
-			expectedErr: "Not allowed to vote ¯\\_(ツ)_/¯",
-			setup: func() {
-				mockPoll.EXPECT().CanVote(actorID).Times(1).Return(false).Times(1)
-			},
-		},
-	}
-
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			// Mock for vote action initialization
-			mockGame.EXPECT().Poll(factionID).Return(mockPoll).Times(1)
-			mockPoll.EXPECT().AddElectors(actorID).Return(true).Times(1)
-			mockPoll.EXPECT().SetWeight(actorID, weight).Return(true).Times(1)
-
-			vote, _ := action.NewVote(mockGame, &types.VoteActionSetting{
-				FactionID: factionID,
-				PlayerID:  actorID,
-				Weight:    weight,
-			})
-			test.setup()
-			err := vote.Validate(test.req)
-
-			assert.Equal(t, test.expectedErr, err.Error())
-		})
-	}
-}
-
-func TestSkipVote(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-	mockGame := gamemock.NewMockGame(ctrl)
-	mockPoll := gamemock.NewMockPoll(ctrl)
-
-	factionID := enum.WerewolfFactionID
-	actorID := enum.PlayerID("1")
-	weight := uint(1)
-
+func (vs *VoteSuite) TestSkipVote() {
 	// Mock for vote action initialization
-	mockGame.EXPECT().Poll(factionID).Return(mockPoll).Times(1)
-	mockPoll.EXPECT().AddElectors(actorID).Return(true).Times(1)
-	mockPoll.EXPECT().SetWeight(actorID, weight).Return(true).Times(1)
-	mockPoll.EXPECT().Vote(actorID, enum.PlayerID("")).Times(1)
+	weight := uint(2)
+	vs.game.EXPECT().Poll(vs.factionID).Return(vs.poll).Times(1)
+	vs.poll.EXPECT().AddElectors(vs.actorID).Return(true).Times(1)
+	vs.poll.EXPECT().SetWeight(vs.actorID, weight).Return(true).Times(1)
+	vs.poll.EXPECT().Vote(vs.actorID, enum.PlayerID("")).Times(1)
 
 	expectedRes := &types.ActionResponse{
 		Ok:        true,
@@ -160,29 +119,21 @@ func TestSkipVote(t *testing.T) {
 		Data:      nil,
 		Message:   "",
 	}
-	vote, _ := action.NewVote(mockGame, &types.VoteActionSetting{
-		FactionID: factionID,
-		PlayerID:  actorID,
+	vote, _ := NewVote(vs.game, &types.VoteActionSetting{
+		FactionID: vs.factionID,
+		PlayerID:  vs.actorID,
 		Weight:    weight,
 	})
 	res := vote.Skip(&types.ActionRequest{
-		ActorID:   actorID,
+		ActorID:   vs.actorID,
 		IsSkipped: true,
 	})
 
-	assert.Equal(t, expectedRes, res)
+	vs.Equal(expectedRes, res)
 }
 
-func TestPerformVote(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-	mockGame := gamemock.NewMockGame(ctrl)
-	mockPoll := gamemock.NewMockPoll(ctrl)
-
-	factionID := enum.WerewolfFactionID
-	actorID := enum.PlayerID("1")
-	targetID := enum.PlayerID("2")
-	weight := uint(1)
+func (vs *VoteSuite) TestPerformVote() {
+	weight := uint(2)
 	tests := []struct {
 		name        string
 		req         *types.ActionRequest
@@ -193,53 +144,61 @@ func TestPerformVote(t *testing.T) {
 		{
 			name: "Vote failed",
 			req: &types.ActionRequest{
-				ActorID:   actorID,
-				TargetIDs: []enum.PlayerID{targetID},
+				ActorID:   vs.actorID,
+				TargetIDs: []enum.PlayerID{vs.targetID},
 			},
 			expectedRes: &types.ActionResponse{
 				Ok:        false,
 				IsSkipped: false,
 				Data:      nil,
-				Message:   "Unable to vote (╯°□°)╯︵ ┻━┻",
+				Message:   "CANT_VOTE error",
 			},
 			setup: func() {
-				mockPoll.EXPECT().Vote(actorID, targetID).Times(1).Return(false).Times(1)
+				vs.poll.
+					EXPECT().
+					Vote(vs.actorID, vs.targetID).
+					Return(false, fmt.Errorf("CANT_VOTE error")).
+					Times(1)
 			},
 		},
 		{
 			name: "Ok",
 			req: &types.ActionRequest{
-				ActorID:   actorID,
-				TargetIDs: []enum.PlayerID{targetID},
+				ActorID:   vs.actorID,
+				TargetIDs: []enum.PlayerID{vs.targetID},
 			},
 			expectedRes: &types.ActionResponse{
 				Ok:        true,
 				IsSkipped: false,
-				Data:      targetID,
+				Data:      vs.targetID,
 				Message:   "",
 			},
 			setup: func() {
-				mockPoll.EXPECT().Vote(actorID, targetID).Times(1).Return(true).Times(1)
+				vs.poll.
+					EXPECT().
+					Vote(vs.actorID, vs.targetID).
+					Return(true, nil).
+					Times(1)
 			},
 		},
 	}
 
 	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
+		vs.Run(test.name, func() {
 			// Mock for vote action initialization
-			mockGame.EXPECT().Poll(factionID).Return(mockPoll).Times(1)
-			mockPoll.EXPECT().AddElectors(actorID).Return(true).Times(1)
-			mockPoll.EXPECT().SetWeight(actorID, weight).Return(true).Times(1)
+			vs.game.EXPECT().Poll(vs.factionID).Return(vs.poll).Times(1)
+			vs.poll.EXPECT().AddElectors(vs.actorID).Return(true).Times(1)
+			vs.poll.EXPECT().SetWeight(vs.actorID, weight).Return(true).Times(1)
 
-			vote, _ := action.NewVote(mockGame, &types.VoteActionSetting{
-				FactionID: factionID,
-				PlayerID:  actorID,
+			vote, _ := NewVote(vs.game, &types.VoteActionSetting{
+				FactionID: vs.factionID,
+				PlayerID:  vs.actorID,
 				Weight:    weight,
 			})
 			test.setup()
 			res := vote.Perform(test.req)
 
-			assert.Equal(t, test.expectedRes, res)
+			vs.Equal(test.expectedRes, res)
 		})
 	}
 }
