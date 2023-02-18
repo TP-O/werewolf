@@ -1,0 +1,25 @@
+name: cheat-blocker
+
+on: 
+  pull_request:
+    paths: 
+      - 'cheat-blocker/**'
+
+jobs: 
+  build: 
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install packages
+        working-directory: cheat-blocker
+        run: go mod download
+
+      - name: Create cofig
+        working-directory: cheat-blocker
+        run: cp config.example.yml config.yml
+
+      - name: Run test
+        working-directory: cheat-blocker
+        run: go test ./...
