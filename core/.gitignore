@@ -1,7 +1,5 @@
 config.yml
 firebase-service-account.json
 tmp/
-mock/*
-!mock/.gitkeep
 .docker/cassandra/data
 .docker/go
