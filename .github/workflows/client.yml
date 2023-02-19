@@ -31,7 +31,7 @@ jobs:
 
       - uses: actions/cache@v2
         with:
-          path: path/to/your/project/Library
+          path: client/Werewolf/Library
           key: Library-MyProjectName-TargetPlatform
           restore-keys: |
             Library-MyProjectName-

@@ -1,0 +1,20 @@
+# https://game.ci/docs/github/builder
+name: client
+
+on:
+  pull_request:
+    paths: 
+      - client/**
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - uses: game-ci/unity-test-runner@v2
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        with:
+          projectPath: client/Werewolf
