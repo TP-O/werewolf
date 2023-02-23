@@ -15,7 +15,7 @@ func main() {
 		"-database",
 		"cassandra://"+
 			config.DB().Hosts[0]+
-			":9042/"+
+			"/"+
 			config.DB().Keyspace+
 			"?username="+
 			config.DB().Username+

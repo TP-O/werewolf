@@ -3,4 +3,4 @@ CREATE KEYSPACE IF NOT EXISTS werewolf WITH
         'class': 'SimpleStrategy',
         'replication_factor': 1,
     }
-AND DURABLE_WRITEs = false;
+AND DURABLE_WRITES = false;
