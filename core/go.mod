@@ -8,6 +8,7 @@ require (
 	github.com/go-playground/validator/v10 v10.11.0
 	github.com/gocql/gocql v1.3.0
 	github.com/golang/mock v1.6.0
+	github.com/golang/protobuf v1.5.2
 	github.com/google/uuid v1.3.0
 	github.com/spf13/viper v1.12.0
 	github.com/stretchr/testify v1.8.0
@@ -20,7 +21,6 @@ require (
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
-	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/hailocab/go-hostpool v0.0.0-20160125115350-e80d13ce29ed // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect

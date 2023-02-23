@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package pb;
+
+import "start_game.proto";
+import "exit_game.proto";
+import "perform_action.proto";
+
+option go_package = "grpc/pb";
+
+service Game {
+    rpc StartGame (StartGameRequest) returns (StartGameResponse) {}
+    rpc PerformAction (PerformActionRequest) returns (PerformActionResponse) {}
+    rpc ExitPlayer (ExitGameRequest) returns (ExitGameResponse) {}
+}
