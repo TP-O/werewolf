@@ -1,7 +1,7 @@
 package db
 
 import (
-	"uwwolf/config"
+	"uwwolf/util"
 
 	"github.com/gocql/gocql"
 )
@@ -9,11 +9,11 @@ import (
 var session *gocql.Session
 
 func init() {
-	cluster := gocql.NewCluster(config.DB().Hosts...)
-	cluster.Keyspace = config.DB().Keyspace
+	cluster := gocql.NewCluster(util.Config().DB.Hosts...)
+	cluster.Keyspace = util.Config().DB.Keyspace
 	cluster.Authenticator = gocql.PasswordAuthenticator{
-		Username: config.DB().Username,
-		Password: config.DB().Password,
+		Username: util.Config().DB.Username,
+		Password: util.Config().DB.Password,
 	}
 
 	if ss, err := cluster.CreateSession(); err != nil {

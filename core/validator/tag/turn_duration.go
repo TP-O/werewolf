@@ -2,7 +2,7 @@ package tag
 
 import (
 	"strconv"
-	"uwwolf/config"
+	"uwwolf/util"
 
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
@@ -12,9 +12,9 @@ const TurnDurationTag = "turn_duration"
 
 func AddTurnDurationTag(ut ut.Translator) error {
 	message := "{0} must be from " +
-		strconv.Itoa(int(config.Game().MinTurnDuration)) +
+		strconv.Itoa(int(util.Config().Game.MinTurnDuration)) +
 		" to " +
-		strconv.Itoa(int(config.Game().MaxTurnDuration)) +
+		strconv.Itoa(int(util.Config().Game.MaxTurnDuration)) +
 		" seconds"
 
 	return ut.Add(TurnDurationTag, message, true)

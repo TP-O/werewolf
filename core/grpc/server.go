@@ -5,10 +5,10 @@ import (
 	"log"
 	"net"
 	"strconv"
-	"uwwolf/config"
 	"uwwolf/game/core"
 	"uwwolf/game/types"
 	"uwwolf/grpc/pb"
+	"uwwolf/util"
 	"uwwolf/validator"
 
 	"github.com/golang/protobuf/proto"
@@ -50,7 +50,7 @@ func (s *server) StartGame(ctx context.Context, req *pb.StartGameRequest) (*pb.S
 		return &pb.StartGameResponse{
 			GameId:              game.ID(),
 			StartedAt:           uint32(startedAt),
-			PreparationDuration: uint32(config.Game().PreparationTime),
+			PreparationDuration: uint32(util.Config().Game.PreparationDuration),
 		}, nil
 	}
 }
@@ -94,7 +94,7 @@ func (s *server) PerformAction(ctx context.Context, req *pb.PerformActionRequest
 }
 
 func Start() {
-	port := strconv.Itoa(int(config.App().Port))
+	port := strconv.Itoa(int(util.Config().App.Port))
 	listener, err := net.Listen("tcp", ":"+port)
 
 	if err != nil {

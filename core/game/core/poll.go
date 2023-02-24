@@ -3,10 +3,10 @@ package core
 import (
 	"fmt"
 	"math"
-	"uwwolf/config"
 	"uwwolf/game/contract"
 	"uwwolf/game/enum"
 	"uwwolf/game/types"
+	"uwwolf/util"
 
 	"golang.org/x/exp/slices"
 )
@@ -24,7 +24,7 @@ type poll struct {
 }
 
 func NewPoll(capacity uint8) (contract.Poll, error) {
-	if capacity < config.Game().MinPollCapacity {
+	if capacity < util.Config().Game.MinPollCapacity {
 		return nil, fmt.Errorf("The capacity is too small ¬_¬")
 	}
 

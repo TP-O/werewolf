@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"sync"
 	"time"
-	"uwwolf/config"
 	"uwwolf/game/contract"
 	"uwwolf/game/enum"
 	"uwwolf/game/factory"
@@ -269,7 +268,7 @@ func (g *game) addCandidatesToPolls() {
 func (g *game) waitForPreparation() {
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
-		time.Duration(config.Game().PreparationTime)*time.Second,
+		time.Duration(util.Config().Game.PreparationDuration)*time.Second,
 	)
 	defer cancel()
 

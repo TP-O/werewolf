@@ -6,7 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"strings"
-	"uwwolf/config"
+	"uwwolf/util"
 )
 
 func main() {
@@ -14,13 +14,13 @@ func main() {
 		"migrate",
 		"-database",
 		"cassandra://"+
-			config.DB().Hosts[0]+
+			util.Config().DB.Hosts[0]+
 			"/"+
-			config.DB().Keyspace+
+			util.Config().DB.Keyspace+
 			"?username="+
-			config.DB().Username+
+			util.Config().DB.Username+
 			"&password="+
-			config.DB().Password+
+			util.Config().DB.Password+
 			"",
 		"-path",
 		"db/migration",

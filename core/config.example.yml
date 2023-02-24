@@ -12,7 +12,7 @@ game:
   min_capacity: 5
   max_capacity: 20
   min_poll_capacity: 1
-  preparation_time: 10
+  preparation_duration: 10
   min_turn_duration: 20,
   max_turn_duration: 60,
   min_discussion_duration: 60,

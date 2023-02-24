@@ -2,8 +2,8 @@ package strct
 
 import (
 	"math"
-	"uwwolf/config"
 	"uwwolf/game/types"
+	"uwwolf/util"
 	"uwwolf/validator/tag"
 
 	"github.com/go-playground/validator/v10"
@@ -12,8 +12,8 @@ import (
 )
 
 func validateGameCapacity(sl validator.StructLevel, setting *types.GameSetting) {
-	if len(setting.PlayerIDs) < int(config.Game().MinCapacity) ||
-		len(setting.PlayerIDs) > int(config.Game().MaxCapacity) {
+	if len(setting.PlayerIDs) < int(util.Config().Game.MinCapacity) ||
+		len(setting.PlayerIDs) > int(util.Config().Game.MaxCapacity) {
 		sl.ReportError(
 			setting.PlayerIDs,
 			"player_ids",
@@ -25,8 +25,8 @@ func validateGameCapacity(sl validator.StructLevel, setting *types.GameSetting) 
 }
 
 func validateTurnDuration(sl validator.StructLevel, setting *types.GameSetting) {
-	if setting.TurnDuration < config.Game().MinTurnDuration ||
-		setting.TurnDuration > config.Game().MaxTurnDuration {
+	if setting.TurnDuration < util.Config().Game.MinTurnDuration ||
+		setting.TurnDuration > util.Config().Game.MaxTurnDuration {
 		sl.ReportError(
 			setting.TurnDuration,
 			"turn_duration",
@@ -38,8 +38,8 @@ func validateTurnDuration(sl validator.StructLevel, setting *types.GameSetting) 
 }
 
 func validateDiscussionDuration(sl validator.StructLevel, setting *types.GameSetting) {
-	if setting.DiscussionDuration < config.Game().MinDiscussionDuration ||
-		setting.DiscussionDuration > config.Game().MaxDiscussionDuration {
+	if setting.DiscussionDuration < util.Config().Game.MinDiscussionDuration ||
+		setting.DiscussionDuration > util.Config().Game.MaxDiscussionDuration {
 		sl.ReportError(
 			setting.DiscussionDuration,
 			"discussion_duration",
