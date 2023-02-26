@@ -1,37 +1,21 @@
 package types
 
-import "uwwolf/game/enum"
+type FactionID uint8
 
-type UseRoleRequest struct {
-	ActionID  enum.ActionID
-	TargetIDs []enum.PlayerID
-	IsSkipped bool ``
+func (f FactionID) IsUnknown() bool {
+	return f == 0
 }
 
-var RoleIDsByFactionID = map[enum.FactionID][]enum.RoleID{
-	enum.WerewolfFactionID: {
-		enum.WerewolfRoleID,
-	},
-	enum.VillagerFactionID: {
-		enum.VillagerRoleID,
-		enum.HunterRoleID,
-		enum.SeerRoleID,
-		enum.TwoSistersRoleID,
-	},
+type RoleID uint8
+
+func (r RoleID) IsUnknown() bool {
+	return r == 0
 }
 
-var RoleIDSets = map[enum.RoleID]enum.Limit{
-	enum.VillagerRoleID:   enum.Unlimited,
-	enum.WerewolfRoleID:   enum.Unlimited,
-	enum.HunterRoleID:     enum.OneMore,
-	enum.SeerRoleID:       enum.OneMore,
-	enum.TwoSistersRoleID: 2,
+type ActivateAbilityRequest struct {
+	AbilityIndex uint8
+	TargetID     PlayerID
+	IsSkipped    bool
 }
 
-var RoleIDRanks = map[enum.RoleID]enum.Priority{
-	enum.VillagerRoleID:   0,
-	enum.WerewolfRoleID:   1,
-	enum.TwoSistersRoleID: 2,
-	enum.SeerRoleID:       3,
-	enum.HunterRoleID:     4,
-}
+type Limit int8

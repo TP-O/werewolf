@@ -1,20 +1,15 @@
 package types
 
-import "uwwolf/game/enum"
-
 type TurnSetting struct {
-	PhaseID    enum.PhaseID
-	RoleID     enum.RoleID
-	BeginRound enum.Round
-	Priority   enum.Priority
-	Position   enum.Position
-	Limit      enum.Limit
+	PhaseID
+	TurnID
+	BeginRoundID RoundID
+	PlayerIDs    []PlayerID
 }
 
 type Turn struct {
-	RoleID      enum.RoleID
-	BeginRound  enum.Round
-	Priority    enum.Priority
-	Limit       enum.Limit
-	FrozenLimit enum.Limit
+	ID           TurnID
+	RoleID       RoleID
+	BeginRoundID RoundID
+	FrozenLimit  Limit
 }

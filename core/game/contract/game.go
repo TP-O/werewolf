@@ -1,40 +1,39 @@
 package contract
 
 import (
-	"uwwolf/game/enum"
 	"uwwolf/game/types"
 )
 
 type Game interface {
 	// ID returns game's ID.
-	ID() enum.GameID
+	ID() types.GameID
 
 	// Poll returns the in-game poll management state.
 	// Each specific faction has different poll to interact with.
-	Poll(factionID enum.FactionID) Poll
+	Poll(factionID types.FactionID) Poll
 
 	// Scheduler returns turn manager.
 	Scheduler() Scheduler
 
 	// Player returns the player by given player ID.
-	Player(playerID enum.PlayerID) Player
+	Player(playerID types.PlayerID) Player
 
 	// PlayerIDsByRoleID returns an array of player IDs by the
 	// given role ID.
-	PlayerIDsByRoleID(roleID enum.RoleID) []enum.PlayerID
+	PlayerIDsByRoleID(roleID types.RoleID) []types.PlayerID
 
 	// PlayerIDsByFactionID returns an array of player IDs by the
 	// given faction ID.
-	PlayerIDsByFactionID(factionID enum.FactionID) []enum.PlayerID
+	PlayerIDsByFactionID(factionID types.FactionID) []types.PlayerID
 
 	// WerewolfPlayerIDs returns an array of werewolf player IDs.
-	WerewolfPlayerIDs() []enum.PlayerID
+	WerewolfPlayerIDs() []types.PlayerID
 
 	// NonWerewolfPlayerIDs returns an array of non-werewolf player IDs.
-	NonWerewolfPlayerIDs() []enum.PlayerID
+	NonWerewolfPlayerIDs() []types.PlayerID
 
 	// AlivePlayerIDs returns an array of alive player IDs.
-	AlivePlayerIDs(roleID enum.RoleID) []enum.PlayerID
+	AlivePlayerIDs(roleID types.RoleID) []types.PlayerID
 
 	// Start starts the game and returns starting time in milisecond.
 	Start() int64
@@ -43,14 +42,14 @@ type Game interface {
 	Finish() bool
 
 	// UsePlayerRole uses player's role if the current turn is its.
-	UsePlayerRole(playerID enum.PlayerID, req *types.UseRoleRequest) *types.ActionResponse
+	UsePlayerRole(playerID types.PlayerID, req types.ExecuteActionRequest) types.ActionResponse
 
 	// ConnectPlayer connects or disconnects the player from the game.
-	ConnectPlayer(playerID enum.PlayerID, isConnected bool) bool
+	ConnectPlayer(playerID types.PlayerID, isConnected bool) bool
 
 	// ExitPlayer exited the player from the game and marks as dead.
-	ExitPlayer(playerID enum.PlayerID) bool
+	ExitPlayer(playerID types.PlayerID) bool
 
 	// KillPlayer kills the player by given player ID.
-	KillPlayer(playerID enum.PlayerID, isExited bool) Player
+	KillPlayer(playerID types.PlayerID) Player
 }

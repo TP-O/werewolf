@@ -1,40 +1,37 @@
 package contract
 
-import (
-	"uwwolf/game/enum"
-	"uwwolf/game/types"
-)
+import "uwwolf/game/types"
 
-// Role represents a specific role in the game.
+// Role represents a particular role in the game.
 type Role interface {
 	// ID returns role's ID.
-	ID() enum.RoleID
+	ID() types.RoleID
 
 	// PhaseID returns role's active phase ID.
-	PhaseID() enum.PhaseID
+	PhaseID() types.PhaseID
 
 	// FactionID returns role's faction ID.
-	FactionID() enum.FactionID
+	FactionID() types.FactionID
 
-	// Priority returns role's priority in active phase.
-	Priority() enum.Priority
+	// TurnID returns role's turn order in active phase.
+	TurnID() types.TurnID
 
-	// BeginRound returns round in which the role be able to
-	// use the abilities.
-	BeginRound() enum.Round
+	// BeginRoundID returns round in which this role be able to
+	// use its abilities.
+	BeginRoundID() types.RoundID
 
-	// ActiveLimit returns remaining times the role can use the abilities.
-	// Returns total limit if the `actionID`` is 0.
-	ActiveLimit(actionID enum.ActionID) enum.Limit
+	// ActiveLimit returns remaining times this role can use the particular ability.
+	// Returns total limit if the `index` is -1.
+	ActiveLimit(index int) types.Limit
 
-	// BeforeDeath does something special before killing the role.
-	// Return false if saved, otherwise return true.
+	// BeforeDeath is triggered before killing this role.
+	// If returns false, the player assigned it is saved.
 	BeforeDeath() bool
 
-	// AfterDeath does something special after killing the role.
+	// AfterDeath is triggered after killing this role.
 	AfterDeath()
 
-	// UseAbility looks up the ability containing the required action and
-	// then uses it.
-	UseAbility(req *types.UseRoleRequest) *types.ActionResponse
+	// ActivateAbility executes the action corresponding to the required
+	// ability.
+	ActivateAbility(req types.ActivateAbilityRequest) types.ActionResponse
 }

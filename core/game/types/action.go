@@ -1,34 +1,24 @@
 package types
 
-import "uwwolf/game/enum"
+type ActionID uint8
 
 type ActionRequest struct {
-	ActorID   enum.PlayerID   `json:"actor_id" validate:"required,len=20"`
-	TargetIDs []enum.PlayerID `json:"target_ids" validate:"required,min=1,unique,dive,len=20"`
-	IsSkipped bool
+	ActorID   PlayerID `json:"actor_id" validate:"required,len=20"`
+	TargetID  PlayerID `json:"target_id" validate:"required,min=1,unique,dive,len=20"`
+	IsSkipped bool     `json:"is_skipped"`
+}
+
+type StateChanges struct {
+	DeadPlayerID          PlayerID
+	VotedPlayerID         PlayerID
+	RolePrediction        bool
+	FactionPrediction     bool
+	RoleIdentification    []PlayerID
+	FactionIdentification []PlayerID
 }
 
 type ActionResponse struct {
-	Ok        bool
-	IsSkipped bool
-	Data      any
-	Message   string
-}
-
-type VoteActionSetting struct {
-	FactionID enum.FactionID
-	PlayerID  enum.PlayerID
-	Weight    uint
-}
-
-type KillState map[enum.PlayerID]uint
-
-type PredictState struct {
-	Role    map[enum.PlayerID]enum.RoleID
-	Faction map[enum.PlayerID]enum.FactionID
-}
-
-type RecognizeState struct {
-	Role    []enum.PlayerID
-	Faction []enum.PlayerID
+	Ok           bool
+	Message      string
+	StateChanges StateChanges
 }
