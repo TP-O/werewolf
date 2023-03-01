@@ -10,7 +10,7 @@ import (
 )
 
 // predict predicts whether a player in game belongs to a
-// particular role or faction.
+// specific role or faction.
 type predict struct {
 	action
 

@@ -33,22 +33,33 @@ func NewHunter(game contract.Game, playerID types.PlayerID) (contract.Role, erro
 
 func (h *hunter) AfterDeath() {
 	diedAtPhaseID := h.game.Scheduler().PhaseID()
-	turnSetting := types.TurnSetting{
-		PhaseID:   h.phaseID,
-		PlayerIDs: []types.PlayerID{h.player.ID()},
+	playerTurn := types.NewPlayerTurn{
+		PhaseID:  h.phaseID,
+		PlayerID: h.player.ID(),
+		RoleID:   h.id,
 	}
-
 	if diedAtPhaseID == h.phaseID {
 		// Hunter can play in next turn if he dies at his phase
-		turnSetting.BeginRoundID = h.game.Scheduler().RoundID()
-		turnSetting.TurnID = h.game.Scheduler().Turn().ID + 1
+		playerTurn.BeginRoundID = h.game.Scheduler().RoundID()
+		playerTurn.TurnID = h.game.Scheduler().TurnID() + 1
 	} else {
 		// Hunter can play in his turn of the next day
 		// if he dies at a time which is not his phase
-		turnSetting.BeginRoundID = h.game.Scheduler().RoundID() + 1
-		turnSetting.TurnID = HunterTurnID
+		playerTurn.BeginRoundID = h.game.Scheduler().RoundID() + 1
+		playerTurn.TurnID = HunterTurnID
 	}
 
 	h.abilities[action.KillActionID].activeLimit = One
-	h.game.Scheduler().AddTurn(turnSetting)
+	h.game.Scheduler().AddPlayerTurn(playerTurn)
+}
+
+func (h *hunter) AfterSaved() {
+	// Undo `AfterDeath`
+	h.abilities[action.KillActionID].activeLimit = ReachedLimit
+	h.game.Scheduler().RemovePlayerTurn(types.RemovedPlayerTurn{
+		PhaseID:  h.phaseID,
+		TurnID:   types.TurnID(-1),
+		PlayerID: h.player.ID(),
+		RoleID:   h.id,
+	})
 }

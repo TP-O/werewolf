@@ -1,27 +1,25 @@
 package contract
 
-import (
-	"uwwolf/game/types"
-)
+import "uwwolf/game/types"
 
+// Poll manages the voting functionality of a game.
 type Poll interface {
-	// IsOpen returns true if latest poll round is open.
-	IsOpen() (bool, types.Round)
+	// IsOpen checks if a poll round is opening.
+	IsOpen() bool
 
-	// CanVote returns true if the elector can vote for the current
-	// poll round.
+	// CanVote checks if the elector can vote for the current poll round.
+	// Returns the result and an error if any
 	CanVote(electorID types.PlayerID) (bool, error)
 
-	// Record returns the specific poll round's record.
-	Record(round types.Round) *types.PollRecord
+	// Record returns the record of given round ID.
+	Record(roundID types.RoundID) types.PollRecord
 
-	// Open opens the new poll round if the current one was
-	// closed. Returns open status and latest round number.
-	Open() (bool, types.Round)
+	// Open starts a new poll round if the current one was
+	// closed.
+	Open() bool
 
-	// Close closes the current poll round. Returns close
-	// status and recent closed poll round's record.
-	Close() (bool, *types.PollRecord)
+	// Close ends the current poll round.
+	Close() bool
 
 	// AddCandidates adds new candidate to the poll.
 	AddCandidates(candidateIDs ...types.PlayerID)
@@ -31,14 +29,13 @@ type Poll interface {
 	RemoveCandidate(candidateID types.PlayerID) bool
 
 	// AddElectors adds new electors to the poll.
-	// Returns false if the poll's capacity is overloaded.
-	AddElectors(electorIDs ...types.PlayerID) bool
+	AddElectors(electorIDs ...types.PlayerID)
 
 	// RemoveElector removes the elector from the poll.
 	// Return true if successful
 	RemoveElector(electorID types.PlayerID) bool
 
-	// SetWeight sets the vote weight for the elector.
+	// SetWeight sets the voting weight for the elector.
 	// Default weight is 0.
 	SetWeight(electorID types.PlayerID, weight uint) bool
 

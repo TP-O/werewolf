@@ -1,15 +1,24 @@
 package types
 
-type TurnSetting struct {
+type PlayerTurn struct {
+	BeginRoundID RoundID
+	FrozenLimit  Limit
+	RoleID
+}
+
+type Turn map[PlayerID]*PlayerTurn
+
+type NewPlayerTurn struct {
 	PhaseID
 	TurnID
 	BeginRoundID RoundID
-	PlayerIDs    []PlayerID
+	PlayerID
+	RoleID
 }
 
-type Turn struct {
-	ID           TurnID
-	RoleID       RoleID
-	BeginRoundID RoundID
-	FrozenLimit  Limit
+type RemovedPlayerTurn struct {
+	PhaseID
+	TurnID
+	PlayerID
+	RoleID
 }

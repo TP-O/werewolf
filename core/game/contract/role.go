@@ -2,7 +2,7 @@ package contract
 
 import "uwwolf/game/types"
 
-// Role represents a particular role in the game.
+// Role represents a specific role in a game.
 type Role interface {
 	// ID returns role's ID.
 	ID() types.RoleID
@@ -20,7 +20,7 @@ type Role interface {
 	// use its abilities.
 	BeginRoundID() types.RoundID
 
-	// ActiveLimit returns remaining times this role can use the particular ability.
+	// ActiveLimit returns remaining times this role can use the specific ability.
 	// Returns total limit if the `index` is -1.
 	ActiveLimit(index int) types.Limit
 
@@ -30,6 +30,9 @@ type Role interface {
 
 	// AfterDeath is triggered after killing this role.
 	AfterDeath()
+
+	// AfterSaved is triggered after saving this role.
+	AfterSaved()
 
 	// ActivateAbility executes the action corresponding to the required
 	// ability.

@@ -42,7 +42,7 @@ func (k kill) validate(req types.ActionRequest) error {
 }
 
 func (k *kill) perform(req types.ActionRequest) types.ActionResponse {
-	killedPlayer := k.game.KillPlayer(req.TargetID)
+	killedPlayer := k.game.KillPlayer(req.TargetID, false)
 	k.Kills[killedPlayer.ID()]++
 
 	return types.ActionResponse{

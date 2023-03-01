@@ -28,6 +28,9 @@ type executable interface {
 	perform(req types.ActionRequest) types.ActionResponse
 }
 
+var _ contract.Action = (*action)(nil)
+var _ executable = (*action)(nil)
+
 // ID returns action's ID.
 func (a action) ID() types.ActionID {
 	return a.id

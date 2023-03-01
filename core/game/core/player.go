@@ -1,22 +1,16 @@
-package game
+package core
 
 import (
-	"errors"
+	"fmt"
+	"uwwolf/game/contract"
+	"uwwolf/game/role"
+	"uwwolf/game/types"
 
 	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
-
-	"uwwolf/game/contract"
-	"uwwolf/game/types"
 )
 
-const (
-	OfflineStatus types.PlayerStatus = iota
-	OnlineStatus
-	BusyStatus
-	InGameStatus
-)
-
+// player represents the player in a game.
 type player struct {
 	id         types.PlayerID
 	factionID  types.FactionID
@@ -26,36 +20,38 @@ type player struct {
 	roles      map[types.RoleID]contract.Role
 }
 
+var _ contract.Player = (*player)(nil)
+
 func NewPlayer(game contract.Game, id types.PlayerID) contract.Player {
 	return &player{
 		id:        id,
 		game:      game,
-		factionID: VillagerFactionID,
+		factionID: role.VillagerFactionID,
 		roles:     make(map[types.RoleID]contract.Role),
 	}
 }
 
-func (p *player) ID() types.PlayerID {
+func (p player) ID() types.PlayerID {
 	return p.id
 }
 
-func (p *player) MainRoleID() types.RoleID {
-	return p.mainRoleID
-}
+// func (p player) MainRoleID() types.RoleID {
+// 	return p.mainRoleID
+// }
 
-func (p *player) RoleIDs() []types.RoleID {
+func (p player) RoleIDs() []types.RoleID {
 	return maps.Keys(p.roles)
 }
 
-func (p *player) Roles() map[types.RoleID]contract.Role {
+func (p player) Roles() map[types.RoleID]contract.Role {
 	return p.roles
 }
 
-func (p *player) FactionID() types.FactionID {
+func (p player) FactionID() types.FactionID {
 	return p.factionID
 }
 
-func (p *player) IsDead() bool {
+func (p player) IsDead() bool {
 	return p.isDead
 }
 
@@ -71,7 +67,6 @@ func (p *player) Die(isExited bool) bool {
 	}
 
 	p.isDead = true
-
 	for _, role := range p.roles {
 		role.AfterDeath()
 	}
@@ -85,6 +80,9 @@ func (p *player) Revive() bool {
 	}
 
 	p.isDead = false
+	for _, role := range p.roles {
+		role.AfterSaved()
+	}
 
 	return true
 }
@@ -95,15 +93,14 @@ func (p *player) SetFactionID(factionID types.FactionID) {
 
 func (p *player) AssignRole(roleID types.RoleID) (bool, error) {
 	if slices.Contains(p.RoleIDs(), roleID) {
-		return false, errors.New("This role is already assigned ¯\\_(ツ)_/¯")
+		return false, fmt.Errorf("This role is already assigned ¯\\_(ツ)_/¯")
 	}
 
 	if newRole, err := NewRole(roleID, p.game, p.id); err != nil {
 		return false, err
 	} else {
 		p.roles[roleID] = newRole
-
-		if RoleIDWeights[newRole.ID()] > RoleIDWeights[p.mainRoleID] {
+		if role.RoleWeights[newRole.ID()] > role.RoleWeights[p.mainRoleID] {
 			p.mainRoleID = newRole.ID()
 			p.factionID = newRole.FactionID()
 		}
@@ -112,41 +109,20 @@ func (p *player) AssignRole(roleID types.RoleID) (bool, error) {
 	return true, nil
 }
 
-func (p *player) RevokeRole(roleID types.RoleID) (bool, error) {
-	if len(p.roles) == 1 {
-		return false, errors.New("Player must player at least one role ヾ(⌐■_■)ノ♪")
-	} else if p.roles[roleID] == nil {
-		return false, errors.New("Non-existent role ID  ¯\\_(ツ)_/¯")
-	}
-
-	delete(p.roles, roleID)
-	var newMainRole contract.Role
-
-	for _, rolee := range p.roles {
-		if newMainRole == nil ||
-			RoleIDWeights[rolee.ID()] > RoleIDWeights[newMainRole.ID()] {
-			newMainRole = rolee
-		}
-	}
-
-	p.mainRoleID = newMainRole.ID()
-	p.factionID = newMainRole.FactionID()
-
-	return true, nil
-}
-
-func (p *player) ExecuteAction(req types.ExecuteActionRequest) types.ActionResponse {
+func (p *player) ActivateAbility(req types.ActivateAbilityRequest) types.ActionResponse {
 	if turn := p.game.Scheduler().Turn(); turn == nil {
 		return types.ActionResponse{
 			Ok:      false,
-			Message: "Wait until game starts ノ(ジ)ー'",
+			Message: "The game is about to start ノ(ジ)ー'",
 		}
-	} else if p.roles[turn.RoleID] == nil {
+	} else if playerTurn := turn[p.id]; playerTurn == nil ||
+		playerTurn.FrozenLimit != role.ReachedLimit ||
+		p.game.Scheduler().RoundID() < playerTurn.BeginRoundID {
 		return types.ActionResponse{
 			Ok:      false,
 			Message: "Wait for your turn, OK??",
 		}
 	} else {
-		return p.roles[turn.RoleID].ExecuteAction(req)
+		return p.roles[playerTurn.RoleID].ActivateAbility(req)
 	}
 }

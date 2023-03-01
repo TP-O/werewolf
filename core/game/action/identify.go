@@ -6,7 +6,7 @@ import (
 	"uwwolf/game/types"
 )
 
-// identify gets a list of players with a particular role or faction.
+// identify gets a player list with a specific role or faction.
 type identify struct {
 	action
 

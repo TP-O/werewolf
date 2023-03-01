@@ -7,7 +7,6 @@ package gamemock
 import (
 	reflect "reflect"
 	contract "uwwolf/game/contract"
-	enum "uwwolf/game/enum"
 	types "uwwolf/game/types"
 
 	gomock "github.com/golang/mock/gomock"
@@ -36,48 +35,6 @@ func (m *MockGame) EXPECT() *MockGameMockRecorder {
 	return m.recorder
 }
 
-// AlivePlayerIDs mocks base method.
-func (m *MockGame) AlivePlayerIDs(roleID enum.RoleID) []enum.PlayerID {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AlivePlayerIDs", roleID)
-	ret0, _ := ret[0].([]enum.PlayerID)
-	return ret0
-}
-
-// AlivePlayerIDs indicates an expected call of AlivePlayerIDs.
-func (mr *MockGameMockRecorder) AlivePlayerIDs(roleID interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AlivePlayerIDs", reflect.TypeOf((*MockGame)(nil).AlivePlayerIDs), roleID)
-}
-
-// ConnectPlayer mocks base method.
-func (m *MockGame) ConnectPlayer(playerID enum.PlayerID, isConnected bool) bool {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ConnectPlayer", playerID, isConnected)
-	ret0, _ := ret[0].(bool)
-	return ret0
-}
-
-// ConnectPlayer indicates an expected call of ConnectPlayer.
-func (mr *MockGameMockRecorder) ConnectPlayer(playerID, isConnected interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConnectPlayer", reflect.TypeOf((*MockGame)(nil).ConnectPlayer), playerID, isConnected)
-}
-
-// ExitPlayer mocks base method.
-func (m *MockGame) ExitPlayer(playerID enum.PlayerID) bool {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ExitPlayer", playerID)
-	ret0, _ := ret[0].(bool)
-	return ret0
-}
-
-// ExitPlayer indicates an expected call of ExitPlayer.
-func (mr *MockGameMockRecorder) ExitPlayer(playerID interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExitPlayer", reflect.TypeOf((*MockGame)(nil).ExitPlayer), playerID)
-}
-
 // Finish mocks base method.
 func (m *MockGame) Finish() bool {
 	m.ctrl.T.Helper()
@@ -93,10 +50,10 @@ func (mr *MockGameMockRecorder) Finish() *gomock.Call {
 }
 
 // ID mocks base method.
-func (m *MockGame) ID() enum.GameID {
+func (m *MockGame) ID() types.GameID {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ID")
-	ret0, _ := ret[0].(enum.GameID)
+	ret0, _ := ret[0].(types.GameID)
 	return ret0
 }
 
@@ -107,7 +64,7 @@ func (mr *MockGameMockRecorder) ID() *gomock.Call {
 }
 
 // KillPlayer mocks base method.
-func (m *MockGame) KillPlayer(playerID enum.PlayerID, isExited bool) contract.Player {
+func (m *MockGame) KillPlayer(playerID types.PlayerID, isExited bool) contract.Player {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "KillPlayer", playerID, isExited)
 	ret0, _ := ret[0].(contract.Player)
@@ -121,10 +78,10 @@ func (mr *MockGameMockRecorder) KillPlayer(playerID, isExited interface{}) *gomo
 }
 
 // NonWerewolfPlayerIDs mocks base method.
-func (m *MockGame) NonWerewolfPlayerIDs() []enum.PlayerID {
+func (m *MockGame) NonWerewolfPlayerIDs() []types.PlayerID {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "NonWerewolfPlayerIDs")
-	ret0, _ := ret[0].([]enum.PlayerID)
+	ret0, _ := ret[0].([]types.PlayerID)
 	return ret0
 }
 
@@ -134,8 +91,22 @@ func (mr *MockGameMockRecorder) NonWerewolfPlayerIDs() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NonWerewolfPlayerIDs", reflect.TypeOf((*MockGame)(nil).NonWerewolfPlayerIDs))
 }
 
+// Play mocks base method.
+func (m *MockGame) Play(playerID types.PlayerID, req types.ActivateAbilityRequest) types.ActionResponse {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Play", playerID, req)
+	ret0, _ := ret[0].(types.ActionResponse)
+	return ret0
+}
+
+// Play indicates an expected call of Play.
+func (mr *MockGameMockRecorder) Play(playerID, req interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Play", reflect.TypeOf((*MockGame)(nil).Play), playerID, req)
+}
+
 // Player mocks base method.
-func (m *MockGame) Player(playerID enum.PlayerID) contract.Player {
+func (m *MockGame) Player(playerID types.PlayerID) contract.Player {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Player", playerID)
 	ret0, _ := ret[0].(contract.Player)
@@ -149,10 +120,10 @@ func (mr *MockGameMockRecorder) Player(playerID interface{}) *gomock.Call {
 }
 
 // PlayerIDsByFactionID mocks base method.
-func (m *MockGame) PlayerIDsByFactionID(factionID enum.FactionID) []enum.PlayerID {
+func (m *MockGame) PlayerIDsByFactionID(factionID types.FactionID) []types.PlayerID {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "PlayerIDsByFactionID", factionID)
-	ret0, _ := ret[0].([]enum.PlayerID)
+	ret0, _ := ret[0].([]types.PlayerID)
 	return ret0
 }
 
@@ -163,10 +134,10 @@ func (mr *MockGameMockRecorder) PlayerIDsByFactionID(factionID interface{}) *gom
 }
 
 // PlayerIDsByRoleID mocks base method.
-func (m *MockGame) PlayerIDsByRoleID(roleID enum.RoleID) []enum.PlayerID {
+func (m *MockGame) PlayerIDsByRoleID(roleID types.RoleID) []types.PlayerID {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "PlayerIDsByRoleID", roleID)
-	ret0, _ := ret[0].([]enum.PlayerID)
+	ret0, _ := ret[0].([]types.PlayerID)
 	return ret0
 }
 
@@ -177,7 +148,7 @@ func (mr *MockGameMockRecorder) PlayerIDsByRoleID(roleID interface{}) *gomock.Ca
 }
 
 // Poll mocks base method.
-func (m *MockGame) Poll(factionID enum.FactionID) contract.Poll {
+func (m *MockGame) Poll(factionID types.FactionID) contract.Poll {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Poll", factionID)
 	ret0, _ := ret[0].(contract.Poll)
@@ -218,25 +189,11 @@ func (mr *MockGameMockRecorder) Start() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Start", reflect.TypeOf((*MockGame)(nil).Start))
 }
 
-// UsePlayerRole mocks base method.
-func (m *MockGame) UsePlayerRole(playerID enum.PlayerID, req *types.UseRoleRequest) *types.ActionResponse {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UsePlayerRole", playerID, req)
-	ret0, _ := ret[0].(*types.ActionResponse)
-	return ret0
-}
-
-// UsePlayerRole indicates an expected call of UsePlayerRole.
-func (mr *MockGameMockRecorder) UsePlayerRole(playerID, req interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UsePlayerRole", reflect.TypeOf((*MockGame)(nil).UsePlayerRole), playerID, req)
-}
-
 // WerewolfPlayerIDs mocks base method.
-func (m *MockGame) WerewolfPlayerIDs() []enum.PlayerID {
+func (m *MockGame) WerewolfPlayerIDs() []types.PlayerID {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "WerewolfPlayerIDs")
-	ret0, _ := ret[0].([]enum.PlayerID)
+	ret0, _ := ret[0].([]types.PlayerID)
 	return ret0
 }
 

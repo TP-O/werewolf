@@ -4,6 +4,7 @@ import (
 	"uwwolf/game/types"
 )
 
+// Game is game instace.
 type Game interface {
 	// ID returns game's ID.
 	ID() types.GameID
@@ -18,38 +19,32 @@ type Game interface {
 	// Player returns the player by given player ID.
 	Player(playerID types.PlayerID) Player
 
-	// PlayerIDsByRoleID returns an array of player IDs by the
+	// PlayerIDsByRoleID returns the player ID list by the
 	// given role ID.
 	PlayerIDsByRoleID(roleID types.RoleID) []types.PlayerID
 
-	// PlayerIDsByFactionID returns an array of player IDs by the
+	// PlayerIDsByFactionID returns the player ID list by the
 	// given faction ID.
 	PlayerIDsByFactionID(factionID types.FactionID) []types.PlayerID
 
-	// WerewolfPlayerIDs returns an array of werewolf player IDs.
+	// WerewolfPlayerIDs returns the werewolf player ID list.
 	WerewolfPlayerIDs() []types.PlayerID
 
-	// NonWerewolfPlayerIDs returns an array of non-werewolf player IDs.
+	// NonWerewolfPlayerIDs returns the non-werewolf player ID list.
 	NonWerewolfPlayerIDs() []types.PlayerID
 
-	// AlivePlayerIDs returns an array of alive player IDs.
-	AlivePlayerIDs(roleID types.RoleID) []types.PlayerID
+	// AlivePlayerIDs returns the alive player ID list.
+	// AlivePlayerIDs(roleID types.RoleID) []types.PlayerID
 
-	// Start starts the game and returns starting time in milisecond.
+	// Start starts the game and returns the started time in milisecond.
 	Start() int64
 
-	// Finish finishes the game.
+	// Finish fishes the game.
 	Finish() bool
 
-	// UsePlayerRole uses player's role if the current turn is its.
-	UsePlayerRole(playerID types.PlayerID, req types.ExecuteActionRequest) types.ActionResponse
+	// Play activates the player's ability.
+	Play(playerID types.PlayerID, req types.ActivateAbilityRequest) types.ActionResponse
 
-	// ConnectPlayer connects or disconnects the player from the game.
-	ConnectPlayer(playerID types.PlayerID, isConnected bool) bool
-
-	// ExitPlayer exited the player from the game and marks as dead.
-	ExitPlayer(playerID types.PlayerID) bool
-
-	// KillPlayer kills the player by given player ID.
-	KillPlayer(playerID types.PlayerID) Player
+	// KillPlayer kills the player by the given player ID.
+	KillPlayer(playerID types.PlayerID, isExited bool) Player
 }

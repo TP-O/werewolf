@@ -9,7 +9,7 @@ type GameManger interface {
 	Game(gameID types.GameID) Game
 
 	// NewGame inserts new game instance to the game manager.
-	NewGame(setting *types.GameSetting) (Game, error)
+	CreateGame(setting *types.GameSetting) (Game, error)
 
 	// Remove removes the game with the given ID.
 	RemoveGame(gameID types.GameID) (bool, error)

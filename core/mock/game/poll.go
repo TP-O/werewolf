@@ -6,7 +6,6 @@ package gamemock
 
 import (
 	reflect "reflect"
-	enum "uwwolf/game/enum"
 	types "uwwolf/game/types"
 
 	gomock "github.com/golang/mock/gomock"
@@ -36,7 +35,7 @@ func (m *MockPoll) EXPECT() *MockPollMockRecorder {
 }
 
 // AddCandidates mocks base method.
-func (m *MockPoll) AddCandidates(candidateIDs ...enum.PlayerID) {
+func (m *MockPoll) AddCandidates(candidateIDs ...types.PlayerID) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{}
 	for _, a := range candidateIDs {
@@ -52,15 +51,13 @@ func (mr *MockPollMockRecorder) AddCandidates(candidateIDs ...interface{}) *gomo
 }
 
 // AddElectors mocks base method.
-func (m *MockPoll) AddElectors(electorIDs ...enum.PlayerID) bool {
+func (m *MockPoll) AddElectors(electorIDs ...types.PlayerID) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{}
 	for _, a := range electorIDs {
 		varargs = append(varargs, a)
 	}
-	ret := m.ctrl.Call(m, "AddElectors", varargs...)
-	ret0, _ := ret[0].(bool)
-	return ret0
+	m.ctrl.Call(m, "AddElectors", varargs...)
 }
 
 // AddElectors indicates an expected call of AddElectors.
@@ -70,7 +67,7 @@ func (mr *MockPollMockRecorder) AddElectors(electorIDs ...interface{}) *gomock.C
 }
 
 // CanVote mocks base method.
-func (m *MockPoll) CanVote(electorID enum.PlayerID) (bool, error) {
+func (m *MockPoll) CanVote(electorID types.PlayerID) (bool, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CanVote", electorID)
 	ret0, _ := ret[0].(bool)
@@ -85,12 +82,11 @@ func (mr *MockPollMockRecorder) CanVote(electorID interface{}) *gomock.Call {
 }
 
 // Close mocks base method.
-func (m *MockPoll) Close() (bool, *types.PollRecord) {
+func (m *MockPoll) Close() bool {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Close")
 	ret0, _ := ret[0].(bool)
-	ret1, _ := ret[1].(*types.PollRecord)
-	return ret0, ret1
+	return ret0
 }
 
 // Close indicates an expected call of Close.
@@ -100,12 +96,11 @@ func (mr *MockPollMockRecorder) Close() *gomock.Call {
 }
 
 // IsOpen mocks base method.
-func (m *MockPoll) IsOpen() (bool, enum.Round) {
+func (m *MockPoll) IsOpen() bool {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "IsOpen")
 	ret0, _ := ret[0].(bool)
-	ret1, _ := ret[1].(enum.Round)
-	return ret0, ret1
+	return ret0
 }
 
 // IsOpen indicates an expected call of IsOpen.
@@ -115,12 +110,11 @@ func (mr *MockPollMockRecorder) IsOpen() *gomock.Call {
 }
 
 // Open mocks base method.
-func (m *MockPoll) Open() (bool, enum.Round) {
+func (m *MockPoll) Open() bool {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Open")
 	ret0, _ := ret[0].(bool)
-	ret1, _ := ret[1].(enum.Round)
-	return ret0, ret1
+	return ret0
 }
 
 // Open indicates an expected call of Open.
@@ -130,21 +124,21 @@ func (mr *MockPollMockRecorder) Open() *gomock.Call {
 }
 
 // Record mocks base method.
-func (m *MockPoll) Record(round enum.Round) *types.PollRecord {
+func (m *MockPoll) Record(roundID types.RoundID) types.PollRecord {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Record", round)
-	ret0, _ := ret[0].(*types.PollRecord)
+	ret := m.ctrl.Call(m, "Record", roundID)
+	ret0, _ := ret[0].(types.PollRecord)
 	return ret0
 }
 
 // Record indicates an expected call of Record.
-func (mr *MockPollMockRecorder) Record(round interface{}) *gomock.Call {
+func (mr *MockPollMockRecorder) Record(roundID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Record", reflect.TypeOf((*MockPoll)(nil).Record), round)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Record", reflect.TypeOf((*MockPoll)(nil).Record), roundID)
 }
 
 // RemoveCandidate mocks base method.
-func (m *MockPoll) RemoveCandidate(candidateID enum.PlayerID) bool {
+func (m *MockPoll) RemoveCandidate(candidateID types.PlayerID) bool {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "RemoveCandidate", candidateID)
 	ret0, _ := ret[0].(bool)
@@ -158,7 +152,7 @@ func (mr *MockPollMockRecorder) RemoveCandidate(candidateID interface{}) *gomock
 }
 
 // RemoveElector mocks base method.
-func (m *MockPoll) RemoveElector(electorID enum.PlayerID) bool {
+func (m *MockPoll) RemoveElector(electorID types.PlayerID) bool {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "RemoveElector", electorID)
 	ret0, _ := ret[0].(bool)
@@ -172,7 +166,7 @@ func (mr *MockPollMockRecorder) RemoveElector(electorID interface{}) *gomock.Cal
 }
 
 // SetWeight mocks base method.
-func (m *MockPoll) SetWeight(electorID enum.PlayerID, weight uint) bool {
+func (m *MockPoll) SetWeight(electorID types.PlayerID, weight uint) bool {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SetWeight", electorID, weight)
 	ret0, _ := ret[0].(bool)
@@ -186,7 +180,7 @@ func (mr *MockPollMockRecorder) SetWeight(electorID, weight interface{}) *gomock
 }
 
 // Vote mocks base method.
-func (m *MockPoll) Vote(electorID, candidateID enum.PlayerID) (bool, error) {
+func (m *MockPoll) Vote(electorID, candidateID types.PlayerID) (bool, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Vote", electorID, candidateID)
 	ret0, _ := ret[0].(bool)

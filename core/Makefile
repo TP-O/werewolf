@@ -1,7 +1,7 @@
 dev:
 	docker-compose up
 
-mock:
+mockgen:
 	mockgen -source game/contract/game.go  -destination mock/game/game.go -package gamemock
 	mockgen -source game/contract/player.go  -destination mock/game/player.go -package gamemock
 	mockgen -source game/contract/poll.go  -destination mock/game/poll.go -package gamemock

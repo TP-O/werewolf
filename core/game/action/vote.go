@@ -22,9 +22,8 @@ type vote struct {
 func NewVote(game contract.Game, setting VoteActionSetting) (contract.Action, error) {
 	if poll := game.Poll(setting.FactionID); poll == nil {
 		return nil, fmt.Errorf("Poll does not exist ¯\\_(ツ)_/¯")
-	} else if !poll.AddElectors(setting.PlayerID) {
-		return nil, fmt.Errorf("Unable to join to the poll ಠ_ಠ")
 	} else {
+		poll.AddElectors(setting.PlayerID)
 		poll.SetWeight(setting.PlayerID, setting.Weight)
 
 		return &vote{

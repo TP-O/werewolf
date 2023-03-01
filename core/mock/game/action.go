@@ -6,7 +6,6 @@ package gamemock
 
 import (
 	reflect "reflect"
-	enum "uwwolf/game/enum"
 	types "uwwolf/game/types"
 
 	gomock "github.com/golang/mock/gomock"
@@ -36,10 +35,10 @@ func (m *MockAction) EXPECT() *MockActionMockRecorder {
 }
 
 // Execute mocks base method.
-func (m *MockAction) Execute(req *types.ActionRequest) *types.ActionResponse {
+func (m *MockAction) Execute(req types.ActionRequest) types.ActionResponse {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Execute", req)
-	ret0, _ := ret[0].(*types.ActionResponse)
+	ret0, _ := ret[0].(types.ActionResponse)
 	return ret0
 }
 
@@ -50,10 +49,10 @@ func (mr *MockActionMockRecorder) Execute(req interface{}) *gomock.Call {
 }
 
 // ID mocks base method.
-func (m *MockAction) ID() enum.ActionID {
+func (m *MockAction) ID() types.ActionID {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ID")
-	ret0, _ := ret[0].(enum.ActionID)
+	ret0, _ := ret[0].(types.ActionID)
 	return ret0
 }
 
@@ -61,60 +60,4 @@ func (m *MockAction) ID() enum.ActionID {
 func (mr *MockActionMockRecorder) ID() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ID", reflect.TypeOf((*MockAction)(nil).ID))
-}
-
-// Perform mocks base method.
-func (m *MockAction) Perform(req *types.ActionRequest) *types.ActionResponse {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Perform", req)
-	ret0, _ := ret[0].(*types.ActionResponse)
-	return ret0
-}
-
-// Perform indicates an expected call of Perform.
-func (mr *MockActionMockRecorder) Perform(req interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Perform", reflect.TypeOf((*MockAction)(nil).Perform), req)
-}
-
-// Skip mocks base method.
-func (m *MockAction) Skip(req *types.ActionRequest) *types.ActionResponse {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Skip", req)
-	ret0, _ := ret[0].(*types.ActionResponse)
-	return ret0
-}
-
-// Skip indicates an expected call of Skip.
-func (mr *MockActionMockRecorder) Skip(req interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Skip", reflect.TypeOf((*MockAction)(nil).Skip), req)
-}
-
-// State mocks base method.
-func (m *MockAction) State() any {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "State")
-	ret0, _ := ret[0].(any)
-	return ret0
-}
-
-// State indicates an expected call of State.
-func (mr *MockActionMockRecorder) State() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "State", reflect.TypeOf((*MockAction)(nil).State))
-}
-
-// Validate mocks base method.
-func (m *MockAction) Validate(req *types.ActionRequest) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Validate", req)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// Validate indicates an expected call of Validate.
-func (mr *MockActionMockRecorder) Validate(req interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Validate", reflect.TypeOf((*MockAction)(nil).Validate), req)
 }

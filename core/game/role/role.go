@@ -7,7 +7,7 @@ import (
 
 // ability contains one action and its limit.
 type ability struct {
-	// action is a particular action.
+	// action is a specific action.
 	action contract.Action
 
 	// activeLimit is number of times the action can be used.
@@ -41,6 +41,8 @@ type role struct {
 	// abilities is the abilities of this role.
 	abilities []ability
 }
+
+var _ contract.Role = (*role)(nil)
 
 func (r role) ID() types.RoleID {
 	return r.id
@@ -83,6 +85,10 @@ func (r role) AfterDeath() {
 	//
 }
 
+func (r role) AfterSaved() {
+	//
+}
+
 func (r *role) ActivateAbility(req types.ActivateAbilityRequest) types.ActionResponse {
 	if int(req.AbilityIndex) >= len(r.abilities) {
 		return types.ActionResponse{
@@ -92,7 +98,6 @@ func (r *role) ActivateAbility(req types.ActivateAbilityRequest) types.ActionRes
 	}
 
 	ability := r.abilities[req.AbilityIndex]
-
 	if ability.activeLimit == ReachedLimit {
 		return types.ActionResponse{
 			Ok:      false,
@@ -109,6 +114,15 @@ func (r *role) ActivateAbility(req types.ActivateAbilityRequest) types.ActionRes
 		!req.IsSkipped &&
 		ability.activeLimit != Unlimited {
 		ability.activeLimit--
+
+		// Remove the player turn if the limit is reached
+		if r.ActiveLimit(-1) == ReachedLimit {
+			r.game.Scheduler().RemovePlayerTurn(types.RemovedPlayerTurn{
+				PhaseID:  r.phaseID,
+				RoleID:   r.id,
+				PlayerID: r.player.ID(),
+			})
+		}
 	}
 
 	return res

@@ -6,7 +6,6 @@ package gamemock
 
 import (
 	reflect "reflect"
-	enum "uwwolf/game/enum"
 	types "uwwolf/game/types"
 
 	gomock "github.com/golang/mock/gomock"
@@ -35,18 +34,32 @@ func (m *MockRole) EXPECT() *MockRoleMockRecorder {
 	return m.recorder
 }
 
-// ActiveLimit mocks base method.
-func (m *MockRole) ActiveLimit(actionID enum.ActionID) enum.Limit {
+// ActivateAbility mocks base method.
+func (m *MockRole) ActivateAbility(req types.ActivateAbilityRequest) types.ActionResponse {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ActiveLimit", actionID)
-	ret0, _ := ret[0].(enum.Limit)
+	ret := m.ctrl.Call(m, "ActivateAbility", req)
+	ret0, _ := ret[0].(types.ActionResponse)
+	return ret0
+}
+
+// ActivateAbility indicates an expected call of ActivateAbility.
+func (mr *MockRoleMockRecorder) ActivateAbility(req interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ActivateAbility", reflect.TypeOf((*MockRole)(nil).ActivateAbility), req)
+}
+
+// ActiveLimit mocks base method.
+func (m *MockRole) ActiveLimit(index int) types.Limit {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ActiveLimit", index)
+	ret0, _ := ret[0].(types.Limit)
 	return ret0
 }
 
 // ActiveLimit indicates an expected call of ActiveLimit.
-func (mr *MockRoleMockRecorder) ActiveLimit(actionID interface{}) *gomock.Call {
+func (mr *MockRoleMockRecorder) ActiveLimit(index interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ActiveLimit", reflect.TypeOf((*MockRole)(nil).ActiveLimit), actionID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ActiveLimit", reflect.TypeOf((*MockRole)(nil).ActiveLimit), index)
 }
 
 // AfterDeath mocks base method.
@@ -59,6 +72,18 @@ func (m *MockRole) AfterDeath() {
 func (mr *MockRoleMockRecorder) AfterDeath() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AfterDeath", reflect.TypeOf((*MockRole)(nil).AfterDeath))
+}
+
+// AfterSaved mocks base method.
+func (m *MockRole) AfterSaved() {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "AfterSaved")
+}
+
+// AfterSaved indicates an expected call of AfterSaved.
+func (mr *MockRoleMockRecorder) AfterSaved() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AfterSaved", reflect.TypeOf((*MockRole)(nil).AfterSaved))
 }
 
 // BeforeDeath mocks base method.
@@ -75,25 +100,25 @@ func (mr *MockRoleMockRecorder) BeforeDeath() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BeforeDeath", reflect.TypeOf((*MockRole)(nil).BeforeDeath))
 }
 
-// BeginRound mocks base method.
-func (m *MockRole) BeginRound() enum.Round {
+// BeginRoundID mocks base method.
+func (m *MockRole) BeginRoundID() types.RoundID {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "BeginRound")
-	ret0, _ := ret[0].(enum.Round)
+	ret := m.ctrl.Call(m, "BeginRoundID")
+	ret0, _ := ret[0].(types.RoundID)
 	return ret0
 }
 
-// BeginRound indicates an expected call of BeginRound.
-func (mr *MockRoleMockRecorder) BeginRound() *gomock.Call {
+// BeginRoundID indicates an expected call of BeginRoundID.
+func (mr *MockRoleMockRecorder) BeginRoundID() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BeginRound", reflect.TypeOf((*MockRole)(nil).BeginRound))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BeginRoundID", reflect.TypeOf((*MockRole)(nil).BeginRoundID))
 }
 
 // FactionID mocks base method.
-func (m *MockRole) FactionID() enum.FactionID {
+func (m *MockRole) FactionID() types.FactionID {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FactionID")
-	ret0, _ := ret[0].(enum.FactionID)
+	ret0, _ := ret[0].(types.FactionID)
 	return ret0
 }
 
@@ -104,10 +129,10 @@ func (mr *MockRoleMockRecorder) FactionID() *gomock.Call {
 }
 
 // ID mocks base method.
-func (m *MockRole) ID() enum.RoleID {
+func (m *MockRole) ID() types.RoleID {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ID")
-	ret0, _ := ret[0].(enum.RoleID)
+	ret0, _ := ret[0].(types.RoleID)
 	return ret0
 }
 
@@ -118,10 +143,10 @@ func (mr *MockRoleMockRecorder) ID() *gomock.Call {
 }
 
 // PhaseID mocks base method.
-func (m *MockRole) PhaseID() enum.PhaseID {
+func (m *MockRole) PhaseID() types.PhaseID {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "PhaseID")
-	ret0, _ := ret[0].(enum.PhaseID)
+	ret0, _ := ret[0].(types.PhaseID)
 	return ret0
 }
 
@@ -131,30 +156,16 @@ func (mr *MockRoleMockRecorder) PhaseID() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PhaseID", reflect.TypeOf((*MockRole)(nil).PhaseID))
 }
 
-// Priority mocks base method.
-func (m *MockRole) Priority() enum.Priority {
+// TurnID mocks base method.
+func (m *MockRole) TurnID() types.TurnID {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Priority")
-	ret0, _ := ret[0].(enum.Priority)
+	ret := m.ctrl.Call(m, "TurnID")
+	ret0, _ := ret[0].(types.TurnID)
 	return ret0
 }
 
-// Priority indicates an expected call of Priority.
-func (mr *MockRoleMockRecorder) Priority() *gomock.Call {
+// TurnID indicates an expected call of TurnID.
+func (mr *MockRoleMockRecorder) TurnID() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Priority", reflect.TypeOf((*MockRole)(nil).Priority))
-}
-
-// UseAbility mocks base method.
-func (m *MockRole) UseAbility(req *types.UseRoleRequest) *types.ActionResponse {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UseAbility", req)
-	ret0, _ := ret[0].(*types.ActionResponse)
-	return ret0
-}
-
-// UseAbility indicates an expected call of UseAbility.
-func (mr *MockRoleMockRecorder) UseAbility(req interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UseAbility", reflect.TypeOf((*MockRole)(nil).UseAbility), req)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TurnID", reflect.TypeOf((*MockRole)(nil).TurnID))
 }
