@@ -1,9 +1,6 @@
 package core
 
 import (
-	"context"
-	"fmt"
-	"sync"
 	"time"
 	"uwwolf/game/contract"
 	"uwwolf/game/role"
@@ -15,46 +12,30 @@ import (
 )
 
 type game struct {
-	id                 types.GameID
-	numberWerewolves   uint8
-	nextTurnSignal     chan bool
-	finishSignal       chan bool
-	mutex              *sync.Mutex
-	status             types.GameStatus
-	turnDuration       time.Duration
-	discussionDuration time.Duration
-	scheduler          contract.Scheduler
-	roleIDs            []types.RoleID
-	requiredRoleIDs    []types.RoleID
-	selectedRoleIDs    []types.RoleID
-	deadPlayerIDs      []types.PlayerID
-	exitedPlayerIDs    []types.PlayerID
-	playedPlayerIDs    []types.PlayerID
-	fID2pIDs           map[types.FactionID][]types.PlayerID
-	rID2pIDs           map[types.RoleID][]types.PlayerID
-	players            map[types.PlayerID]contract.Player
-	polls              map[types.FactionID]contract.Poll
+	id               types.GameID
+	numberWerewolves uint8
+	statusID         types.GameStatusID
+	scheduler        contract.Scheduler
+	roleIDs          []types.RoleID
+	requiredRoleIDs  []types.RoleID
+	selectedRoleIDs  []types.RoleID
+	exitedPlayerIDs  []types.PlayerID
+	players          map[types.PlayerID]contract.Player
+	polls            map[types.FactionID]contract.Poll
 }
 
 var _ contract.Game = (*game)(nil)
 
-func NewGame(id types.GameID, setting *types.GameSetting) contract.Game {
+func NewGame(scheduler contract.Scheduler, setting types.GameSetting) contract.Game {
 	game := game{
-		id:                 id,
-		numberWerewolves:   setting.NumberWerewolves,
-		nextTurnSignal:     make(chan bool),
-		finishSignal:       make(chan bool),
-		status:             Idle,
-		turnDuration:       time.Duration(setting.TurnDuration) * time.Second,
-		discussionDuration: time.Duration(setting.DiscussionDuration) * time.Second,
-		roleIDs:            setting.RoleIDs,
-		requiredRoleIDs:    setting.RequiredRoleIDs,
-		scheduler:          NewScheduler(role.NightPhaseID),
-		deadPlayerIDs:      make([]types.PlayerID, len(setting.PlayerIDs)),
-		fID2pIDs:           make(map[types.FactionID][]types.PlayerID),
-		rID2pIDs:           make(map[types.RoleID][]types.PlayerID),
-		players:            make(map[types.PlayerID]contract.Player),
-		polls:              make(map[types.FactionID]contract.Poll),
+		id:               setting.GameID,
+		numberWerewolves: setting.NumberWerewolves,
+		statusID:         Idle,
+		roleIDs:          setting.RoleIDs,
+		requiredRoleIDs:  setting.RequiredRoleIDs,
+		scheduler:        scheduler,
+		players:          make(map[types.PlayerID]contract.Player),
+		polls:            make(map[types.FactionID]contract.Poll),
 	}
 
 	for _, id := range setting.PlayerIDs {
@@ -73,6 +54,10 @@ func (g game) ID() types.GameID {
 	return g.id
 }
 
+func (g game) StatusID() types.GameStatusID {
+	return g.statusID
+}
+
 func (g game) Scheduler() contract.Scheduler {
 	return g.scheduler
 }
@@ -85,37 +70,41 @@ func (g game) Player(playerId types.PlayerID) contract.Player {
 	return g.players[playerId]
 }
 
-func (g game) PlayerIDsByRoleID(roleID types.RoleID) []types.PlayerID {
-	return g.rID2pIDs[roleID]
-}
-
-func (g game) PlayerIDsByFactionID(factionID types.FactionID) []types.PlayerID {
-	return g.fID2pIDs[factionID]
-}
-
-func (g game) WerewolfPlayerIDs() []types.PlayerID {
-	return g.fID2pIDs[role.WerewolfFactionID]
-}
-
-func (g game) NonWerewolfPlayerIDs() []types.PlayerID {
-	var nonWerewolfPlayerIDs []types.PlayerID
-
-	for factionID, playerIDs := range g.fID2pIDs {
-		if factionID != role.WerewolfFactionID {
-			nonWerewolfPlayerIDs = append(nonWerewolfPlayerIDs, playerIDs...)
+func (g game) PlayerIDsWithRoleID(roleID types.RoleID) []types.PlayerID {
+	playerIDs := make([]types.PlayerID, 0)
+	for playerID, player := range g.players {
+		if slices.Contains(player.RoleIDs(), roleID) {
+			playerIDs = append(playerIDs, playerID)
 		}
 	}
 
-	return nonWerewolfPlayerIDs
+	return playerIDs
 }
 
-func (g game) AlivePlayerIDs(roleID types.RoleID) []types.PlayerID {
-	var playerIDs []types.PlayerID
+func (g game) PlayerIDsWithFactionID(
+	factionID types.FactionID,
+	onlyAlive bool,
+) []types.PlayerID {
+	playerIDs := make([]types.PlayerID, 0)
+	for playerID, player := range g.players {
+		if player.FactionID() == factionID &&
+			(!onlyAlive || (onlyAlive && !player.IsDead())) {
+			playerIDs = append(playerIDs, playerID)
+		}
+	}
 
-	for _, player := range g.players {
-		if slices.Contains(player.RoleIDs(), roleID) &&
-			!slices.Contains(g.deadPlayerIDs, player.ID()) {
-			playerIDs = append(playerIDs, player.ID())
+	return playerIDs
+}
+
+func (g game) PlayerIDsWithoutFactionID(
+	factionID types.FactionID,
+	onlyAlive bool,
+) []types.PlayerID {
+	playerIDs := make([]types.PlayerID, 0)
+	for playerID, player := range g.players {
+		if player.FactionID() != factionID &&
+			(!onlyAlive || (onlyAlive && !player.IsDead())) {
+			playerIDs = append(playerIDs, playerID)
 		}
 	}
 
@@ -162,10 +151,6 @@ func (g *game) assignRoles() {
 
 		// Default role
 		if ok, _ := player.AssignRole(role.VillagerRoleID); ok {
-			g.rID2pIDs[role.VillagerRoleID] = append(
-				g.rID2pIDs[role.VillagerRoleID],
-				player.ID(),
-			)
 			g.scheduler.AddPlayerTurn(types.NewPlayerTurn{
 				PhaseID:      role.DayPhaseID,
 				RoleID:       role.VillagerRoleID,
@@ -182,10 +167,6 @@ func (g *game) assignRoles() {
 		// Default werewolf faction's role
 		if selectedRole.FactionID() == role.WerewolfFactionID {
 			if ok, _ := player.AssignRole(role.WerewolfRoleID); ok {
-				g.rID2pIDs[role.WerewolfRoleID] = append(
-					g.rID2pIDs[role.WerewolfRoleID],
-					player.ID(),
-				)
 				g.scheduler.AddPlayerTurn(types.NewPlayerTurn{
 					PhaseID:      role.NightPhaseID,
 					RoleID:       role.WerewolfRoleID,
@@ -199,11 +180,6 @@ func (g *game) assignRoles() {
 
 		// Main role
 		if ok, _ := player.AssignRole(selectedRole.ID()); ok {
-			g.rID2pIDs[selectedRole.ID()] = append(
-				g.rID2pIDs[selectedRole.ID()],
-				player.ID(),
-			)
-
 			// Add the main role's turn to the schedule
 			g.scheduler.AddPlayerTurn(types.NewPlayerTurn{
 				PhaseID:      selectedRole.PhaseID(),
@@ -213,18 +189,12 @@ func (g *game) assignRoles() {
 				PlayerID:     player.ID(),
 			})
 		}
-
-		// Assign the main role's faction to the player
-		g.fID2pIDs[selectedRole.FactionID()] = append(
-			g.fID2pIDs[player.FactionID()],
-			player.ID(),
-		)
 	}
 }
 
 func (g *game) randomRoleIDs() {
-	werewolfCounter := len(g.WerewolfPlayerIDs())
-	nonWerewolfCounter := len(g.NonWerewolfPlayerIDs())
+	werewolfCounter := len(g.PlayerIDsWithFactionID(role.WerewolfFactionID, true))
+	nonWerewolfCounter := len(g.PlayerIDsWithoutFactionID(role.WerewolfFactionID, true))
 
 	// Select required roles
 	for _, requiredRoleID := range g.requiredRoleIDs {
@@ -252,116 +222,49 @@ func (g *game) randomRoleIDs() {
 
 func (g *game) addCandidatesToPolls() {
 	g.polls[role.VillagerFactionID].AddCandidates(maps.Keys(g.players)...)
-	g.polls[role.WerewolfFactionID].AddCandidates(g.NonWerewolfPlayerIDs()...)
-}
-
-func (g *game) waitForPreparation() {
-	ctx, cancel := context.WithTimeout(
-		context.Background(),
-		time.Duration(util.Config().Game.PreparationDuration)*time.Second,
+	g.polls[role.WerewolfFactionID].AddCandidates(
+		g.PlayerIDsWithoutFactionID(role.WerewolfFactionID, true)...,
 	)
-	defer cancel()
-
-	// Wait for timeout
-	select {
-	case <-g.finishSignal:
-		// Finish game
-	case <-ctx.Done():
-		g.status = Running
-	}
 }
 
-func (g *game) runScheduler() {
-	// Wait a little bit for the player to prepare
-	g.waitForPreparation()
-	g.scheduler.NextTurn()
-
-	fmt.Println("Starttttttttttttt")
-
-	for g.status == Running {
-		g.playedPlayerIDs = make([]types.PlayerID, 0)
-
-		func() {
-			var duration time.Duration
-
-			fmt.Println("round:", g.scheduler.RoundID())
-			fmt.Println("turn:", g.scheduler.TurnID())
-
-			if g.scheduler.PhaseID() == role.DayPhaseID &&
-				g.scheduler.TurnID() == role.MidTurn {
-				duration = g.discussionDuration
-
-				g.Poll(role.VillagerFactionID).Open()
-				defer g.Poll(role.VillagerFactionID).Close()
-			} else {
-				duration = g.turnDuration
-
-				if g.scheduler.PhaseID() == role.NightPhaseID &&
-					g.scheduler.TurnID() == role.MidTurn {
-					g.Poll(role.WerewolfFactionID).Open()
-					defer g.Poll(role.WerewolfFactionID).Close()
-				}
-			}
-
-			ctx, cancel := context.WithTimeout(context.Background(), duration)
-			defer cancel()
-
-			// Wait for signal or timeout
-			select {
-			case <-g.nextTurnSignal:
-				g.scheduler.NextTurn()
-				fmt.Println("Time up")
-			case <-ctx.Done():
-				g.mutex.Lock()
-				defer g.mutex.Unlock()
-				g.scheduler.NextTurn()
-				fmt.Println("Done")
-			case <-g.finishSignal:
-				fmt.Println("Finished")
-			}
-		}()
-	}
-}
-
-func (g *game) Start() int64 {
-	if g.status != Idle {
+func (g *game) Prepare() int64 {
+	if g.statusID != Idle {
 		return -1
 	}
 
 	g.randomRoleIDs()
 	g.addCandidatesToPolls()
-	go g.runScheduler()
-	g.status = Waiting
+	g.statusID = Waiting
 
 	return time.Now().Unix()
 }
 
-func (g *game) Finish() bool {
-	if g.status == Finished {
+func (g *game) Start() bool {
+	if g.statusID != Waiting {
 		return false
 	}
 
-	g.finishSignal <- true
-	g.status = Finished
-	close(g.nextTurnSignal)
-	close(g.finishSignal)
+	g.statusID = Starting
+	return true
+}
 
+func (g *game) Finish() bool {
+	if g.statusID == Finished {
+		return false
+	}
+
+	g.statusID = Finished
 	return true
 }
 
 func (g *game) Play(playerID types.PlayerID, req types.ActivateAbilityRequest) types.ActionResponse {
-	g.mutex.Lock()
-	defer g.mutex.Unlock()
-
 	// Validate
 	var msg string
-	if g.status != Running {
+	if g.statusID != Starting {
 		msg = "Wait until the game starts (╥﹏╥)"
 	} else if g.Player(playerID) == nil {
 		msg = "Unable to play this game (╥﹏╥)"
-	} else if slices.Contains(g.playedPlayerIDs, playerID) {
-		msg = "Wait for next turn (╥﹏╥)"
-	} else if slices.Contains(g.deadPlayerIDs, playerID) {
+	} else if g.players[playerID].IsDead() {
 		msg = "You're died (╥﹏╥)"
 	} else if !slices.Contains(maps.Keys(g.scheduler.Turn()), playerID) {
 		msg = "Not your turn (╥﹏╥)"
@@ -373,34 +276,13 @@ func (g *game) Play(playerID types.PlayerID, req types.ActivateAbilityRequest) t
 		}
 	}
 
-	res := g.players[playerID].ActivateAbility(req)
-	if res.Ok {
-		g.playedPlayerIDs = append(g.playedPlayerIDs, playerID)
-		// Move to the next turn if all players have finished their job
-		if len(g.playedPlayerIDs) == len(g.scheduler.PlayablePlayerIDs()) {
-			g.nextTurnSignal <- true
-		}
-	}
-
-	return res
-}
-
-func (g *game) ExitPlayer(playerID types.PlayerID) bool {
-	if g.players[playerID] == nil ||
-		slices.Contains(g.exitedPlayerIDs, playerID) {
-		return false
-	}
-
-	g.KillPlayer(playerID, true)
-	g.exitedPlayerIDs = append(g.exitedPlayerIDs, playerID)
-
-	return true
+	return g.players[playerID].ActivateAbility(req)
 }
 
 func (g *game) KillPlayer(playerID types.PlayerID, isExited bool) contract.Player {
 	player := g.players[playerID]
 	if player == nil ||
-		slices.Contains(g.deadPlayerIDs, playerID) ||
+		g.players[playerID].IsDead() ||
 		!player.Die(isExited) {
 		return nil
 	}
@@ -412,8 +294,6 @@ func (g *game) KillPlayer(playerID types.PlayerID, isExited bool) contract.Playe
 	} else {
 		g.polls[role.WerewolfFactionID].RemoveCandidate(player.ID())
 	}
-
-	g.deadPlayerIDs = append(g.deadPlayerIDs, playerID)
 
 	return player
 }

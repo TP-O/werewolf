@@ -64,7 +64,7 @@ func (i *identify) perform(req types.ActionRequest) types.ActionResponse {
 	i.isIdentified = true
 
 	if !i.FactionID.IsUnknown() {
-		i.Faction = i.game.PlayerIDsByFactionID(i.FactionID)
+		i.Faction = i.game.PlayerIDsWithFactionID(i.FactionID, false)
 		return types.ActionResponse{
 			Ok: true,
 			StateChanges: types.StateChanges{
@@ -72,7 +72,7 @@ func (i *identify) perform(req types.ActionRequest) types.ActionResponse {
 			},
 		}
 	} else if !i.RoleID.IsUnknown() {
-		i.Role = i.game.PlayerIDsByRoleID(i.RoleID)
+		i.Role = i.game.PlayerIDsWithRoleID(i.RoleID)
 		return types.ActionResponse{
 			Ok: true,
 			StateChanges: types.StateChanges{

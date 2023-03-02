@@ -9,6 +9,8 @@ type Game interface {
 	// ID returns game's ID.
 	ID() types.GameID
 
+	StatusID() types.GameStatusID
+
 	// Poll returns the in-game poll management state.
 	// Each specific faction has different poll to interact with.
 	Poll(factionID types.FactionID) Poll
@@ -19,25 +21,21 @@ type Game interface {
 	// Player returns the player by given player ID.
 	Player(playerID types.PlayerID) Player
 
-	// PlayerIDsByRoleID returns the player ID list by the
-	// given role ID.
-	PlayerIDsByRoleID(roleID types.RoleID) []types.PlayerID
+	// PlayerIDsWithRoleID returns the player ID list has the
+	// givent role ID.
+	PlayerIDsWithRoleID(roleID types.RoleID) []types.PlayerID
 
-	// PlayerIDsByFactionID returns the player ID list by the
-	// given faction ID.
-	PlayerIDsByFactionID(factionID types.FactionID) []types.PlayerID
+	// PlayerIDsWithFactionID returns the player ID list has the given faction ID.
+	PlayerIDsWithFactionID(factionID types.FactionID, onlyAlive bool) []types.PlayerID
 
-	// WerewolfPlayerIDs returns the werewolf player ID list.
-	WerewolfPlayerIDs() []types.PlayerID
+	// PlayerIDsWithoutFactionID returns the player ID list doesn't have the given faction ID.
+	PlayerIDsWithoutFactionID(factionID types.FactionID, onlyAlive bool) []types.PlayerID
 
-	// NonWerewolfPlayerIDs returns the non-werewolf player ID list.
-	NonWerewolfPlayerIDs() []types.PlayerID
+	// Prepare sets up the game and returns completion time in milisecond.
+	Prepare() int64
 
-	// AlivePlayerIDs returns the alive player ID list.
-	// AlivePlayerIDs(roleID types.RoleID) []types.PlayerID
-
-	// Start starts the game and returns the started time in milisecond.
-	Start() int64
+	// Start starts the game.
+	Start() bool
 
 	// Finish fishes the game.
 	Finish() bool

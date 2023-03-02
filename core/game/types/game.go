@@ -30,9 +30,17 @@ func (t TurnID) IsUnknown() bool {
 
 type GameID = string
 
-type GameStatus = uint8
+type GameStatusID = uint8
 
 type GameSetting struct {
+	GameID           GameID     `json:"game_id"`
+	RoleIDs          []RoleID   `json:"role_ids"`
+	RequiredRoleIDs  []RoleID   `json:"required_role_ids"`
+	NumberWerewolves uint8      `json:"number_werewolves"`
+	PlayerIDs        []PlayerID `json:"player_ids"`
+}
+
+type CreateGameRequest struct {
 	TurnDuration       uint16     `json:"turn_duration" validate:"required"`
 	DiscussionDuration uint16     `json:"discussion_duration" validate:"required"`
 	RoleIDs            []RoleID   `json:"role_ids" validate:"required,min=2,unique,dive"`

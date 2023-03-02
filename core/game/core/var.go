@@ -10,9 +10,9 @@ import "uwwolf/game/types"
 // )
 
 const (
-	Idle types.GameStatus = iota
+	Idle types.GameStatusID = iota
 	Waiting
-	Running
+	Starting
 	Finished
 )
 
