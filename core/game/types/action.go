@@ -18,7 +18,11 @@ type StateChanges struct {
 }
 
 type ActionResponse struct {
-	Ok           bool
+	Ok bool
+	ActionID
+	TargetID PlayerID
+	RoundID
+	RoleID
 	Message      string
 	StateChanges StateChanges
 }

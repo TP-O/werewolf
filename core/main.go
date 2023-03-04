@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"uwwolf/redis"
+	"uwwolf/util"
+)
 
 func main() {
 	// grpc.Start()
@@ -19,29 +22,7 @@ func main() {
 	// 	},
 	// }))
 
-	p := make(map[string][]map[string]*VoteRecord)
-	p["aa"] = make([]map[string]*VoteRecord, 1)
-	p["aa"][0] = map[string]*VoteRecord{
-		"b": {
-			Votes: 999,
-		},
-	}
-
-	for _, aa := range p["aa"][0] {
-		aa.Votes = 0
-	}
-
-	fmt.Println(p["aa"][0]["c"])
+	util.LoadConfig(".")
+	// db.ConnectDB()
+	redis.ConnectRedis()
 }
-
-type IAA interface {
-	hello()
-}
-
-type AA struct {
-	//
-}
-
-// func (a AA) hello() {}
-
-var _ IAA = (*AA)(nil)

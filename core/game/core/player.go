@@ -35,9 +35,9 @@ func (p player) ID() types.PlayerID {
 	return p.id
 }
 
-// func (p player) MainRoleID() types.RoleID {
-// 	return p.mainRoleID
-// }
+func (p player) MainRoleID() types.RoleID {
+	return p.mainRoleID
+}
 
 func (p player) RoleIDs() []types.RoleID {
 	return maps.Keys(p.roles)

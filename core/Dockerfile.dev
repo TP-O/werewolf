@@ -14,4 +14,4 @@ RUN mkdir -p /home/ww && chown -R ww:ww /home/ww
 USER ww:ww
 
 # Install golang-migrate
-RUN go install -tags 'cassandra' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
+RUN go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest

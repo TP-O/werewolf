@@ -11,5 +11,5 @@ type Notifier interface {
 	NotifyPlayers(playerIDs []types.PlayerID, msg string)
 
 	// NotifyGame sends message to all players in the specific game.
-	NotifyGame(msg string, gameID types.GameID)
+	NotifyGame(gameID types.GameID, msg string)
 }

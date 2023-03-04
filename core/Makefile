@@ -13,11 +13,25 @@ protobuf:
 	rm -rf grpc/pb/*
 	protoc --proto_path=grpc/proto grpc/proto/*.proto --go_out=. --go-grpc_out=.
 
-db/migrate:
-	docker-compose exec app go run ./db/migration/main.go up
+db-migrate:
+	docker-compose exec app migrate -path db/migration \
+        -verbose \
+		-database "postgresql://postgresuser:postgrespassword@postgres:5432/postgresdb?sslmode=disable" up
 
-db/drop:
-	docker-compose exec app go run ./db/migration/main.go drop
+db-rollback:
+	docker-compose exec app migrate -path db/migration \
+        -verbose \
+		-database "postgresql://postgresuser:postgrespassword@postgres:5432/postgresdb?sslmode=disable" down
 
-db/seed:
-	docker-compose exec app go run ./db/seeder/main.go
+db-drop:
+	docker-compose exec app migrate -path db/migration \
+        -verbose \
+		-database "postgresql://postgresuser:postgrespassword@postgres:5432/postgresdb?sslmode=disable" drop
+
+db-seed:
+	docker-compose exec app go run db/seeder/main.go
+
+db-sqlc:
+	docker-compose exec app sqlc generate
+
+.PHONY: dev

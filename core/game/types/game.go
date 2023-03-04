@@ -28,7 +28,7 @@ func (t TurnID) IsUnknown() bool {
 	return t < 0
 }
 
-type GameID = string
+type GameID = uint64
 
 type GameStatusID = uint8
 

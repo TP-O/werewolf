@@ -14,7 +14,7 @@ func (r RoleID) IsUnknown() bool {
 
 type ActivateAbilityRequest struct {
 	AbilityIndex uint8
-	TargetID     PlayerID
+	TargetID     PlayerID `json:"target_id" validate:"required,min=1,unique,dive,len=20"`
 	IsSkipped    bool
 }
 

@@ -1,10 +1,10 @@
 package model
 
-import "uwwolf/game/enum"
+import "uwwolf/game/types"
 
 type Role struct {
-	ID        enum.RoleID    `cql:"id" json:"id"`
-	FactionID enum.FactionID `cql:"faction_id" json:"factionID"`
-	PhaseID   enum.PhaseID   `cql:"phase_id" json:"phaseID"`
-	Name      string         `cql:"name" json:"name"`
+	ID        types.RoleID    `cql:"id" json:"id"`
+	FactionID types.FactionID `cql:"faction_id" json:"factionID"`
+	PhaseID   types.PhaseID   `cql:"phase_id" json:"phaseID"`
+	Name      string          `cql:"name" json:"name"`
 }

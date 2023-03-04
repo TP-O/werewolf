@@ -21,6 +21,8 @@ type Game interface {
 	// Player returns the player by given player ID.
 	Player(playerID types.PlayerID) Player
 
+	Players() map[types.PlayerID]Player
+
 	// PlayerIDsWithRoleID returns the player ID list has the
 	// givent role ID.
 	PlayerIDsWithRoleID(roleID types.RoleID) []types.PlayerID

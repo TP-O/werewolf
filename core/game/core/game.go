@@ -70,6 +70,10 @@ func (g game) Player(playerId types.PlayerID) contract.Player {
 	return g.players[playerId]
 }
 
+func (g game) Players() map[types.PlayerID]contract.Player {
+	return g.players
+}
+
 func (g game) PlayerIDsWithRoleID(roleID types.RoleID) []types.PlayerID {
 	playerIDs := make([]types.PlayerID, 0)
 	for playerID, player := range g.players {

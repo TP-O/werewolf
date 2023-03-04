@@ -2,14 +2,18 @@ package game
 
 import (
 	"context"
+	"database/sql"
+	"fmt"
 	"sync"
 	"time"
+	"uwwolf/db"
 	"uwwolf/game/contract"
 	"uwwolf/game/core"
 	"uwwolf/game/role"
 	"uwwolf/game/types"
 	"uwwolf/util"
 
+	"github.com/redis/go-redis/v9"
 	"golang.org/x/exp/slices"
 )
 
@@ -24,11 +28,14 @@ type gamemaster struct {
 	discussionDuration time.Duration
 	playedPlayerIDs    []types.PlayerID
 	notifier           contract.Notifier
+	rdb                *redis.Client
+	db                 db.Querier
+	winningFaction     types.FactionID
 }
 
 var _ contract.Gamemaster = (*gamemaster)(nil)
 
-func NewGamemaster(notifier contract.Notifier) contract.Gamemaster {
+func NewGamemaster(rdb *redis.Client, db db.Querier, notifier contract.Notifier) contract.Gamemaster {
 	return &gamemaster{
 		scheduler:          core.NewScheduler(role.NightPhaseID),
 		nextTurnSignal:     make(chan bool),
@@ -36,21 +43,28 @@ func NewGamemaster(notifier contract.Notifier) contract.Gamemaster {
 		turnDuration:       time.Duration(1) * time.Second,
 		discussionDuration: time.Duration(2) * time.Second,
 		notifier:           notifier,
+		rdb:                rdb,
+		db:                 db,
 	}
 }
 
-func (g *gamemaster) InitGame(newGame types.CreateGameRequest) bool {
+func (g *gamemaster) InitGame(req types.CreateGameRequest) bool {
 	if g.game != nil {
 		return false
 	}
 
-	g.game = core.NewGame(g.scheduler, types.GameSetting{
-		GameID:           "xxx",
-		RoleIDs:          newGame.RoleIDs,
-		RequiredRoleIDs:  newGame.RequiredRoleIDs,
-		NumberWerewolves: newGame.NumberWerewolves,
-		PlayerIDs:        newGame.PlayerIDs,
-	})
+	if gameRow, err := g.db.CreateGame(context.Background()); err != nil {
+		return false
+	} else {
+		g.game = core.NewGame(g.scheduler, types.GameSetting{
+			GameID:           uint64(gameRow.ID),
+			RoleIDs:          req.RoleIDs,
+			RequiredRoleIDs:  req.RequiredRoleIDs,
+			NumberWerewolves: req.NumberWerewolves,
+			PlayerIDs:        req.PlayerIDs,
+		})
+	}
+
 	return true
 }
 
@@ -141,6 +155,21 @@ func (g *gamemaster) StartGame() bool {
 	g.nextTurnSignal = make(chan bool)
 	g.finishSignal = make(chan bool)
 	g.game.Prepare()
+
+	// Store role assignments
+	assignments := db.AssignGameRolesParams{}
+
+	for _, player := range g.game.Players() {
+		assignments.GameIds = append(assignments.GameIds, fmt.Sprint(g.game.ID()))
+		assignments.FactionIds = append(assignments.FactionIds, string(player.FactionID()))
+		assignments.PlayerIds = append(assignments.PlayerIds, string(player.ID()))
+		assignments.RoleIds = append(assignments.RoleIds, string(player.MainRoleID()))
+	}
+
+	if g.db.AssignGameRoles(context.Background(), assignments) != nil {
+		return false
+	}
+
 	g.waitForPreparation()
 	g.game.Start()
 	go g.runScheduler()
@@ -158,6 +187,28 @@ func (g gamemaster) FinishGame() bool {
 	close(g.finishSignal)
 	close(g.nextTurnSignal)
 	g.game.Finish()
+
+	g.db.FinishGame(context.Background(), db.FinishGameParams{
+		ID: int64(g.game.ID()),
+		WinningFactionID: sql.NullInt16{
+			Int16: int16(g.winningFaction),
+			Valid: true,
+		},
+	})
+
+	logs := db.CreateGameLogsParams{}
+
+	result := g.rdb.LRange(context.Background(), fmt.Sprint(g.game.ID()), 0, -1)
+	for i := len(result.Val()) / 5; i >= 4; i -= 5 {
+		logs.GameIds = append(logs.GameIds, fmt.Sprint(g.game.ID()))
+		logs.RoundIds = append(logs.RoundIds, result.Val()[i])
+		logs.ActorIds = append(logs.RoundIds, result.Val()[i-1])
+		logs.RoleIds = append(logs.RoundIds, result.Val()[i-2])
+		logs.ActionIds = append(logs.RoundIds, result.Val()[i-3])
+		logs.TargetIds = append(logs.RoundIds, result.Val()[i-4])
+	}
+
+	g.db.CreateGameLogs(context.Background(), logs)
 
 	return true
 }
@@ -184,6 +235,17 @@ func (g *gamemaster) ReceivePlayRequest(
 		if len(g.playedPlayerIDs) == len(g.scheduler.PlayablePlayerIDs()) {
 			g.nextTurnSignal <- true
 		}
+
+		// Record player turn
+		g.rdb.LPush(
+			context.Background(),
+			fmt.Sprint(g.game.ID()),
+			res.RoundID,
+			playerID,
+			res.RoleID,
+			res.ActionID,
+			res.TargetID,
+		)
 	}
 
 	return res

@@ -1,0 +1,18 @@
+app:
+  debug: true
+  env: development
+  port: 8080
+database:
+  username: user
+  password: pass
+  keyspace: werewolf
+  hosts:
+    - cassandra1
+game:
+  min_capacity: 5
+  max_capacity: 20
+  preparation_duration: 10
+  min_turn_duration: 20s
+  max_turn_duration: 60s
+  min_discussion_duration: 40s
+  max_discussion_duration: 360s

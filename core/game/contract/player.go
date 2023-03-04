@@ -8,7 +8,7 @@ type Player interface {
 	ID() types.PlayerID
 
 	// MainRoleID returns player's main role id.
-	// MainRoleID() types.RoleID
+	MainRoleID() types.RoleID
 
 	// RoleIDs returns player's assigned role ids.
 	RoleIDs() []types.RoleID
