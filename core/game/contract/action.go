@@ -9,5 +9,5 @@ type Action interface {
 
 	// Execute checks if the request is skipped. If so, skips the execution;
 	// otherwise, validates the request, and then performs the required action.
-	Execute(req types.ActionRequest) types.ActionResponse
+	Execute(req *types.ActionRequest) *types.ActionResponse
 }

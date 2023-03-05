@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"uwwolf/game/contract"
 	"uwwolf/game/types"
+	"uwwolf/game/vars"
 )
 
 type VoteActionSetting struct {
@@ -19,7 +20,7 @@ type vote struct {
 	poll contract.Poll
 }
 
-func NewVote(game contract.Game, setting VoteActionSetting) (contract.Action, error) {
+func NewVote(game contract.Game, setting *VoteActionSetting) (contract.Action, error) {
 	if poll := game.Poll(setting.FactionID); poll == nil {
 		return nil, fmt.Errorf("Poll does not exist ¯\\_(ツ)_/¯")
 	} else {
@@ -28,7 +29,7 @@ func NewVote(game contract.Game, setting VoteActionSetting) (contract.Action, er
 
 		return &vote{
 			action: action{
-				id:   VoteActionID,
+				id:   vars.VoteActionID,
 				game: game,
 			},
 			poll: game.Poll(setting.FactionID),
@@ -36,28 +37,30 @@ func NewVote(game contract.Game, setting VoteActionSetting) (contract.Action, er
 	}
 }
 
-func (v *vote) Execute(req types.ActionRequest) types.ActionResponse {
+// Execute checks if the request is skipped. If so, skips the execution;
+// otherwise, validates the request, and then performs the required action.
+func (v *vote) Execute(req *types.ActionRequest) *types.ActionResponse {
 	return v.action.execute(v, req)
 }
 
-func (v *vote) skip(req types.ActionRequest) types.ActionResponse {
+// skip ingores the action request.
+func (v *vote) skip(req *types.ActionRequest) *types.ActionResponse {
 	// Abstain from voting
 	v.poll.Vote(req.ActorID, types.PlayerID(""))
 	return v.action.skip(req)
 }
 
-func (v *vote) perform(req types.ActionRequest) types.ActionResponse {
+// perform completes the action request.
+func (v *vote) perform(req *types.ActionRequest) *types.ActionResponse {
 	if ok, err := v.poll.Vote(req.ActorID, req.TargetID); !ok {
-		return types.ActionResponse{
+		return &types.ActionResponse{
 			Ok:      false,
 			Message: err.Error(),
 		}
 	}
 
-	return types.ActionResponse{
-		Ok: true,
-		StateChanges: types.StateChanges{
-			VotedPlayerID: req.TargetID,
-		},
+	return &types.ActionResponse{
+		Ok:   true,
+		Data: req.TargetID,
 	}
 }

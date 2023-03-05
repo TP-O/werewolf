@@ -2,8 +2,8 @@ package core
 
 import (
 	"uwwolf/game/contract"
-	"uwwolf/game/role"
 	"uwwolf/game/types"
+	"uwwolf/game/vars"
 )
 
 // scheduler manages game's turns.
@@ -31,9 +31,9 @@ func NewScheduler(beginPhaseID types.PhaseID) contract.Scheduler {
 		phaseID:      beginPhaseID,
 		turnID:       types.TurnID(-1), // Initial turn ID
 		phases: map[types.PhaseID][]types.Turn{
-			role.NightPhaseID: make([]types.Turn, role.PostTurn+1),
-			role.DuskPhaseID:  make([]types.Turn, role.PostTurn+1),
-			role.DayPhaseID:   make([]types.Turn, role.PostTurn+1),
+			vars.NightPhaseID: make([]types.Turn, vars.PostTurn+1),
+			vars.DuskPhaseID:  make([]types.Turn, vars.PostTurn+1),
+			vars.DayPhaseID:   make([]types.Turn, vars.PostTurn+1),
 		},
 	}
 }
@@ -67,7 +67,7 @@ func (s scheduler) PlayablePlayerIDs() []types.PlayerID {
 	playerIDs := []types.PlayerID{}
 	for playerID, playerTurn := range s.Turn() {
 		if playerTurn.BeginRoundID <= s.roundID &&
-			playerTurn.FrozenLimit == role.ReachedLimit {
+			playerTurn.FrozenLimit == vars.ReachedLimit {
 			playerIDs = append(playerIDs, playerID)
 		}
 	}
@@ -93,7 +93,7 @@ func (s *scheduler) AddPlayerTurn(newTurn types.NewPlayerTurn) bool {
 	} else {
 		phase[newTurn.TurnID][newTurn.PlayerID] = &types.PlayerTurn{
 			BeginRoundID: newTurn.BeginRoundID,
-			FrozenLimit:  role.ReachedLimit,
+			FrozenLimit:  vars.ReachedLimit,
 			RoleID:       newTurn.RoleID,
 		}
 
@@ -135,12 +135,12 @@ func (s *scheduler) NextTurn() bool {
 		return false
 	}
 
-	if s.turnID < role.PreTurn {
+	if s.turnID < vars.PreTurn {
 		s.turnID = 0
 	} else {
 		// Defrost player turns of the current turn
 		for _, playerTurn := range s.Turn() {
-			if playerTurn.FrozenLimit != role.ReachedLimit {
+			if playerTurn.FrozenLimit != vars.ReachedLimit {
 				playerTurn.FrozenLimit--
 			}
 		}
@@ -149,7 +149,7 @@ func (s *scheduler) NextTurn() bool {
 			s.turnID++
 		} else {
 			s.turnID = 0
-			s.phaseID = s.phaseID.NextPhasePhaseID(role.DuskPhaseID)
+			s.phaseID = s.phaseID.NextPhasePhaseID(vars.DuskPhaseID)
 			if s.phaseID == s.beginPhaseID {
 				s.roundID++
 			}

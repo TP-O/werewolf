@@ -3,6 +3,7 @@ package role
 import (
 	"uwwolf/game/contract"
 	"uwwolf/game/types"
+	"uwwolf/game/vars"
 )
 
 // ability contains one action and its limit.
@@ -65,7 +66,7 @@ func (r role) BeginRoundID() types.RoundID {
 }
 
 func (r role) ActiveLimit(index int) types.Limit {
-	limit := ReachedLimit
+	limit := vars.ReachedLimit
 	if index > -1 && index < len(r.abilities) {
 		limit = r.abilities[index].activeLimit
 	} else if index == -1 {
@@ -98,25 +99,25 @@ func (r *role) ActivateAbility(req types.ActivateAbilityRequest) types.ActionRes
 	}
 
 	ability := r.abilities[req.AbilityIndex]
-	if ability.activeLimit == ReachedLimit {
+	if ability.activeLimit == vars.ReachedLimit {
 		return types.ActionResponse{
 			Ok:      false,
 			Message: "Unable to use this ability anymore ¯\\(º_o)/¯",
 		}
 	}
 
-	res := ability.action.Execute(types.ActionRequest{
+	res := ability.action.Execute(&types.ActionRequest{
 		ActorID:   r.player.ID(),
 		TargetID:  req.TargetID,
 		IsSkipped: req.IsSkipped,
 	})
 	if res.Ok &&
 		!req.IsSkipped &&
-		ability.activeLimit != Unlimited {
+		ability.activeLimit != vars.Unlimited {
 		ability.activeLimit--
 
 		// Remove the player turn if the limit is reached
-		if r.ActiveLimit(-1) == ReachedLimit {
+		if r.ActiveLimit(-1) == vars.ReachedLimit {
 			r.game.Scheduler().RemovePlayerTurn(types.RemovedPlayerTurn{
 				PhaseID:  r.phaseID,
 				RoleID:   r.id,
@@ -125,5 +126,5 @@ func (r *role) ActivateAbility(req types.ActivateAbilityRequest) types.ActionRes
 		}
 	}
 
-	return res
+	return *res
 }

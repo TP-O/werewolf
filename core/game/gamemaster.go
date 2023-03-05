@@ -9,8 +9,8 @@ import (
 	"uwwolf/db"
 	"uwwolf/game/contract"
 	"uwwolf/game/core"
-	"uwwolf/game/role"
 	"uwwolf/game/types"
+	"uwwolf/game/vars"
 	"uwwolf/util"
 
 	"github.com/redis/go-redis/v9"
@@ -37,7 +37,7 @@ var _ contract.Gamemaster = (*gamemaster)(nil)
 
 func NewGamemaster(rdb *redis.Client, db db.Querier, notifier contract.Notifier) contract.Gamemaster {
 	return &gamemaster{
-		scheduler:          core.NewScheduler(role.NightPhaseID),
+		scheduler:          core.NewScheduler(vars.NightPhaseID),
 		nextTurnSignal:     make(chan bool),
 		finishSignal:       make(chan bool),
 		turnDuration:       time.Duration(1) * time.Second,
@@ -73,11 +73,11 @@ func (g gamemaster) checkWinner() {
 	defer g.mutex.Unlock()
 
 	var winningFaction types.FactionID
-	if len(g.game.PlayerIDsWithFactionID(role.WerewolfFactionID, true)) == 0 {
-		winningFaction = role.VillagerFactionID
-	} else if len(g.game.PlayerIDsWithFactionID(role.WerewolfFactionID, true)) >=
-		len(g.game.PlayerIDsWithoutFactionID(role.WerewolfFactionID, true)) {
-		winningFaction = role.WerewolfFactionID
+	if len(g.game.PlayerIDsWithFactionID(vars.WerewolfFactionID, true)) == 0 {
+		winningFaction = vars.VillagerFactionID
+	} else if len(g.game.PlayerIDsWithFactionID(vars.WerewolfFactionID, true)) >=
+		len(g.game.PlayerIDsWithoutFactionID(vars.WerewolfFactionID, true)) {
+		winningFaction = vars.WerewolfFactionID
 	}
 
 	if winningFaction.IsUnknown() {
@@ -93,26 +93,26 @@ func (g *gamemaster) runScheduler() {
 	// Start the scheduler
 	g.scheduler.NextTurn()
 
-	for g.game.StatusID() == core.Starting {
+	for g.game.StatusID() == vars.Starting {
 		// Renew played play list
 		g.playedPlayerIDs = make([]types.PlayerID, 0)
 
 		func() {
 			var duration time.Duration
 
-			if g.scheduler.PhaseID() == role.DayPhaseID &&
-				g.scheduler.TurnID() == role.MidTurn {
+			if g.scheduler.PhaseID() == vars.DayPhaseID &&
+				g.scheduler.TurnID() == vars.MidTurn {
 				duration = g.discussionDuration
 
-				g.game.Poll(role.VillagerFactionID).Open()
-				defer g.game.Poll(role.VillagerFactionID).Close()
+				g.game.Poll(vars.VillagerFactionID).Open()
+				defer g.game.Poll(vars.VillagerFactionID).Close()
 			} else {
 				duration = g.turnDuration
 
-				if g.scheduler.PhaseID() == role.NightPhaseID &&
-					g.scheduler.TurnID() == role.MidTurn {
-					g.game.Poll(role.WerewolfFactionID).Open()
-					defer g.game.Poll(role.WerewolfFactionID).Close()
+				if g.scheduler.PhaseID() == vars.NightPhaseID &&
+					g.scheduler.TurnID() == vars.MidTurn {
+					g.game.Poll(vars.WerewolfFactionID).Open()
+					defer g.game.Poll(vars.WerewolfFactionID).Close()
 				}
 			}
 
@@ -148,7 +148,7 @@ func (g *gamemaster) waitForPreparation() {
 }
 
 func (g *gamemaster) StartGame() bool {
-	if g.game.StatusID() != core.Idle {
+	if g.game.StatusID() != vars.Idle {
 		return false
 	}
 
@@ -179,7 +179,7 @@ func (g *gamemaster) StartGame() bool {
 }
 
 func (g gamemaster) FinishGame() bool {
-	if g.game.StatusID() == core.Finished {
+	if g.game.StatusID() == vars.Finished {
 		return false
 	}
 

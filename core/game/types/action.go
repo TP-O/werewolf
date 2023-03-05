@@ -8,21 +8,13 @@ type ActionRequest struct {
 	IsSkipped bool     `json:"is_skipped"`
 }
 
-type StateChanges struct {
-	DeadPlayerID          PlayerID
-	VotedPlayerID         PlayerID
-	RolePrediction        bool
-	FactionPrediction     bool
-	RoleIdentification    []PlayerID
-	FactionIdentification []PlayerID
-}
-
 type ActionResponse struct {
 	Ok bool
-	ActionID
-	TargetID PlayerID
 	RoundID
 	RoleID
-	Message      string
-	StateChanges StateChanges
+	ActionID
+	TargetID  PlayerID
+	IsSkipped bool
+	Message   string
+	Data      any
 }

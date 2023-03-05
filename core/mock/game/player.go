@@ -120,6 +120,20 @@ func (mr *MockPlayerMockRecorder) IsDead() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsDead", reflect.TypeOf((*MockPlayer)(nil).IsDead))
 }
 
+// MainRoleID mocks base method.
+func (m *MockPlayer) MainRoleID() types.RoleID {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "MainRoleID")
+	ret0, _ := ret[0].(types.RoleID)
+	return ret0
+}
+
+// MainRoleID indicates an expected call of MainRoleID.
+func (mr *MockPlayerMockRecorder) MainRoleID() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MainRoleID", reflect.TypeOf((*MockPlayer)(nil).MainRoleID))
+}
+
 // Revive mocks base method.
 func (m *MockPlayer) Revive() bool {
 	m.ctrl.T.Helper()

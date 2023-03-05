@@ -5,23 +5,24 @@ import (
 	"uwwolf/game/contract"
 	"uwwolf/game/role"
 	"uwwolf/game/types"
+	"uwwolf/game/vars"
 )
 
 func NewRole(id types.RoleID, moderator contract.Game, playerID types.PlayerID) (contract.Role, error) {
 	switch id {
-	case role.VillagerRoleID:
+	case vars.VillagerRoleID:
 		return role.NewVillager(moderator, playerID)
 
-	case role.WerewolfRoleID:
+	case vars.WerewolfRoleID:
 		return role.NewWerewolf(moderator, playerID)
 
-	case role.HunterRoleID:
+	case vars.HunterRoleID:
 		return role.NewHunter(moderator, playerID)
 
-	case role.SeerRoleID:
+	case vars.SeerRoleID:
 		return role.NewSeer(moderator, playerID)
 
-	case role.TwoSistersRoleID:
+	case vars.TwoSistersRoleID:
 		return role.NewTwoSister(moderator, playerID)
 
 	default:

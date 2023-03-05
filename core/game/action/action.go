@@ -19,36 +19,37 @@ type action struct {
 // `Execute` method in `action“.
 type executable interface {
 	// validate checks if the action request is valid.
-	validate(req types.ActionRequest) error
+	validate(req *types.ActionRequest) error
 
 	// skip ingores the action request.
-	skip(req types.ActionRequest) types.ActionResponse
+	skip(req *types.ActionRequest) *types.ActionResponse
 
 	// perform completes the action request.
-	perform(req types.ActionRequest) types.ActionResponse
+	perform(req *types.ActionRequest) *types.ActionResponse
 }
-
-var _ contract.Action = (*action)(nil)
-var _ executable = (*action)(nil)
 
 // ID returns action's ID.
 func (a action) ID() types.ActionID {
 	return a.id
 }
 
-func (a action) skip(req types.ActionRequest) types.ActionResponse {
-	return types.ActionResponse{
-		Ok:      true,
-		Message: "Skipped!",
+// skip ingores the action request.
+func (a action) skip(req *types.ActionRequest) *types.ActionResponse {
+	return &types.ActionResponse{
+		Ok:        true,
+		IsSkipped: true,
+		Message:   "Skipped!",
 	}
 }
 
-func (a action) validate(req types.ActionRequest) error {
+// validate checks if the action request is valid.
+func (a action) validate(req *types.ActionRequest) error {
 	return nil
 }
 
-func (a action) perform(req types.ActionRequest) types.ActionResponse {
-	return types.ActionResponse{
+// perform completes the action request.
+func (a action) perform(req *types.ActionRequest) *types.ActionResponse {
+	return &types.ActionResponse{
 		Ok:      false,
 		Message: "Nothing to do ¯\\_(ツ)_/¯",
 	}
@@ -56,13 +57,16 @@ func (a action) perform(req types.ActionRequest) types.ActionResponse {
 
 // execute supports the concrete action to override the `Execute` method easier
 // by declaring a scheme.
-func (a action) execute(exec executable, req types.ActionRequest) types.ActionResponse {
-	if req.IsSkipped {
+func (a action) execute(exec executable, req *types.ActionRequest) *types.ActionResponse {
+	if req == nil {
+		return &types.ActionResponse{
+			Ok:      false,
+			Message: "Action request can not be empty (⊙＿⊙')",
+		}
+	} else if req.IsSkipped {
 		return exec.skip(req)
-	}
-
-	if err := exec.validate(req); err != nil {
-		return types.ActionResponse{
+	} else if err := exec.validate(req); err != nil {
+		return &types.ActionResponse{
 			Ok:      false,
 			Message: err.Error(),
 		}
@@ -71,8 +75,8 @@ func (a action) execute(exec executable, req types.ActionRequest) types.ActionRe
 	return exec.perform(req)
 }
 
-// Execute checks if the request is skipped. If so, skips the action;
-// otherwise, validates the request, and then performs it.
-func (a action) Execute(req types.ActionRequest) types.ActionResponse {
+// Execute checks if the request is skipped. If so, skips the execution;
+// otherwise, validates the request, and then performs the required action.
+func (a action) Execute(req *types.ActionRequest) *types.ActionResponse {
 	return a.execute(a, req)
 }

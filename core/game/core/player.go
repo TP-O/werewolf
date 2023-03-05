@@ -3,8 +3,8 @@ package core
 import (
 	"fmt"
 	"uwwolf/game/contract"
-	"uwwolf/game/role"
 	"uwwolf/game/types"
+	"uwwolf/game/vars"
 
 	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
@@ -26,7 +26,7 @@ func NewPlayer(game contract.Game, id types.PlayerID) contract.Player {
 	return &player{
 		id:        id,
 		game:      game,
-		factionID: role.VillagerFactionID,
+		factionID: vars.VillagerFactionID,
 		roles:     make(map[types.RoleID]contract.Role),
 	}
 }
@@ -100,7 +100,7 @@ func (p *player) AssignRole(roleID types.RoleID) (bool, error) {
 		return false, err
 	} else {
 		p.roles[roleID] = newRole
-		if role.RoleWeights[newRole.ID()] > role.RoleWeights[p.mainRoleID] {
+		if vars.RoleWeights[newRole.ID()] > vars.RoleWeights[p.mainRoleID] {
 			p.mainRoleID = newRole.ID()
 			p.factionID = newRole.FactionID()
 		}
@@ -116,7 +116,7 @@ func (p *player) ActivateAbility(req types.ActivateAbilityRequest) types.ActionR
 			Message: "The game is about to start ノ(ジ)ー'",
 		}
 	} else if playerTurn := turn[p.id]; playerTurn == nil ||
-		playerTurn.FrozenLimit != role.ReachedLimit ||
+		playerTurn.FrozenLimit != vars.ReachedLimit ||
 		p.game.Scheduler().RoundID() < playerTurn.BeginRoundID {
 		return types.ActionResponse{
 			Ok:      false,

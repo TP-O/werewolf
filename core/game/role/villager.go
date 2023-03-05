@@ -4,11 +4,12 @@ import (
 	"uwwolf/game/action"
 	"uwwolf/game/contract"
 	"uwwolf/game/types"
+	"uwwolf/game/vars"
 )
 
 func NewVillager(game contract.Game, playerID types.PlayerID) (contract.Role, error) {
-	voteAction, err := action.NewVote(game, action.VoteActionSetting{
-		FactionID: VillagerFactionID,
+	voteAction, err := action.NewVote(game, &action.VoteActionSetting{
+		FactionID: vars.VillagerFactionID,
 		PlayerID:  playerID,
 		Weight:    1,
 	})
@@ -17,17 +18,17 @@ func NewVillager(game contract.Game, playerID types.PlayerID) (contract.Role, er
 	}
 
 	return &role{
-		id:           VillagerRoleID,
-		factionID:    VillagerFactionID,
-		phaseID:      DayPhaseID,
+		id:           vars.VillagerRoleID,
+		factionID:    vars.VillagerFactionID,
+		phaseID:      vars.DayPhaseID,
 		beginRoundID: types.RoundID(0),
-		turnID:       VillagerTurnID,
+		turnID:       vars.VillagerTurnID,
 		game:         game,
 		player:       game.Player(playerID),
 		abilities: []ability{
-			action.VoteActionID: {
+			vars.VoteActionID: {
 				action:      voteAction,
-				activeLimit: Unlimited,
+				activeLimit: vars.Unlimited,
 			},
 		},
 	}, nil

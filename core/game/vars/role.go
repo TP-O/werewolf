@@ -1,8 +1,6 @@
-package role
+package vars
 
-import (
-	"uwwolf/game/types"
-)
+import "uwwolf/game/types"
 
 // Particular faction ID
 const (

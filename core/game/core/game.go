@@ -3,8 +3,8 @@ package core
 import (
 	"time"
 	"uwwolf/game/contract"
-	"uwwolf/game/role"
 	"uwwolf/game/types"
+	"uwwolf/game/vars"
 	"uwwolf/util"
 
 	"golang.org/x/exp/maps"
@@ -30,7 +30,7 @@ func NewGame(scheduler contract.Scheduler, setting types.GameSetting) contract.G
 	game := game{
 		id:               setting.GameID,
 		numberWerewolves: setting.NumberWerewolves,
-		statusID:         Idle,
+		statusID:         vars.Idle,
 		roleIDs:          setting.RoleIDs,
 		requiredRoleIDs:  setting.RequiredRoleIDs,
 		scheduler:        scheduler,
@@ -44,8 +44,8 @@ func NewGame(scheduler contract.Scheduler, setting types.GameSetting) contract.G
 	}
 
 	// Create polls for villagers and werewolves
-	game.polls[role.VillagerFactionID] = NewPoll()
-	game.polls[role.WerewolfFactionID] = NewPoll()
+	game.polls[vars.VillagerFactionID] = NewPoll()
+	game.polls[vars.WerewolfFactionID] = NewPoll()
 
 	return &game
 }
@@ -117,11 +117,11 @@ func (g game) PlayerIDsWithoutFactionID(
 
 func (g *game) selectRoleID(werewolfCounter *int, nonWerewolfCounter *int, roleID types.RoleID) bool {
 	isWerewolf := slices.Contains(
-		role.FactionID2RoleIDs[role.WerewolfFactionID],
+		vars.FactionID2RoleIDs[vars.WerewolfFactionID],
 		roleID,
 	)
 
-	for i := 0; i < int(role.RoleSets[roleID]); i++ {
+	for i := 0; i < int(vars.RoleSets[roleID]); i++ {
 		isMissingWerewolf := *werewolfCounter < int(g.numberWerewolves)
 		isMissingNonWerewolf := *nonWerewolfCounter < len(g.players)-int(g.numberWerewolves)
 
@@ -154,12 +154,12 @@ func (g *game) assignRoles() {
 		}
 
 		// Default role
-		if ok, _ := player.AssignRole(role.VillagerRoleID); ok {
+		if ok, _ := player.AssignRole(vars.VillagerRoleID); ok {
 			g.scheduler.AddPlayerTurn(types.NewPlayerTurn{
-				PhaseID:      role.DayPhaseID,
-				RoleID:       role.VillagerRoleID,
+				PhaseID:      vars.DayPhaseID,
+				RoleID:       vars.VillagerRoleID,
 				BeginRoundID: types.RoundID(0),
-				TurnID:       role.MidTurn,
+				TurnID:       vars.MidTurn,
 				PlayerID:     player.ID(),
 			})
 		}
@@ -169,13 +169,13 @@ func (g *game) assignRoles() {
 		}
 
 		// Default werewolf faction's role
-		if selectedRole.FactionID() == role.WerewolfFactionID {
-			if ok, _ := player.AssignRole(role.WerewolfRoleID); ok {
+		if selectedRole.FactionID() == vars.WerewolfFactionID {
+			if ok, _ := player.AssignRole(vars.WerewolfRoleID); ok {
 				g.scheduler.AddPlayerTurn(types.NewPlayerTurn{
-					PhaseID:      role.NightPhaseID,
-					RoleID:       role.WerewolfRoleID,
+					PhaseID:      vars.NightPhaseID,
+					RoleID:       vars.WerewolfRoleID,
 					BeginRoundID: types.RoundID(0),
-					TurnID:       role.MidTurn,
+					TurnID:       vars.MidTurn,
 					PlayerID:     player.ID(),
 				})
 			}
@@ -197,8 +197,8 @@ func (g *game) assignRoles() {
 }
 
 func (g *game) randomRoleIDs() {
-	werewolfCounter := len(g.PlayerIDsWithFactionID(role.WerewolfFactionID, true))
-	nonWerewolfCounter := len(g.PlayerIDsWithoutFactionID(role.WerewolfFactionID, true))
+	werewolfCounter := len(g.PlayerIDsWithFactionID(vars.WerewolfFactionID, true))
+	nonWerewolfCounter := len(g.PlayerIDsWithoutFactionID(vars.WerewolfFactionID, true))
 
 	// Select required roles
 	for _, requiredRoleID := range g.requiredRoleIDs {
@@ -225,46 +225,46 @@ func (g *game) randomRoleIDs() {
 }
 
 func (g *game) addCandidatesToPolls() {
-	g.polls[role.VillagerFactionID].AddCandidates(maps.Keys(g.players)...)
-	g.polls[role.WerewolfFactionID].AddCandidates(
-		g.PlayerIDsWithoutFactionID(role.WerewolfFactionID, true)...,
+	g.polls[vars.VillagerFactionID].AddCandidates(maps.Keys(g.players)...)
+	g.polls[vars.WerewolfFactionID].AddCandidates(
+		g.PlayerIDsWithoutFactionID(vars.WerewolfFactionID, true)...,
 	)
 }
 
 func (g *game) Prepare() int64 {
-	if g.statusID != Idle {
+	if g.statusID != vars.Idle {
 		return -1
 	}
 
 	g.randomRoleIDs()
 	g.addCandidatesToPolls()
-	g.statusID = Waiting
+	g.statusID = vars.Waiting
 
 	return time.Now().Unix()
 }
 
 func (g *game) Start() bool {
-	if g.statusID != Waiting {
+	if g.statusID != vars.Waiting {
 		return false
 	}
 
-	g.statusID = Starting
+	g.statusID = vars.Starting
 	return true
 }
 
 func (g *game) Finish() bool {
-	if g.statusID == Finished {
+	if g.statusID == vars.Finished {
 		return false
 	}
 
-	g.statusID = Finished
+	g.statusID = vars.Finished
 	return true
 }
 
 func (g *game) Play(playerID types.PlayerID, req types.ActivateAbilityRequest) types.ActionResponse {
 	// Validate
 	var msg string
-	if g.statusID != Starting {
+	if g.statusID != vars.Starting {
 		msg = "Wait until the game starts (╥﹏╥)"
 	} else if g.Player(playerID) == nil {
 		msg = "Unable to play this game (╥﹏╥)"
@@ -291,12 +291,12 @@ func (g *game) KillPlayer(playerID types.PlayerID, isExited bool) contract.Playe
 		return nil
 	}
 
-	g.polls[role.VillagerFactionID].RemoveElector(player.ID())
-	g.polls[role.VillagerFactionID].RemoveCandidate(player.ID())
-	if player.FactionID() == role.WerewolfFactionID {
-		g.polls[role.WerewolfFactionID].RemoveElector(player.ID())
+	g.polls[vars.VillagerFactionID].RemoveElector(player.ID())
+	g.polls[vars.VillagerFactionID].RemoveCandidate(player.ID())
+	if player.FactionID() == vars.WerewolfFactionID {
+		g.polls[vars.WerewolfFactionID].RemoveElector(player.ID())
 	} else {
-		g.polls[role.WerewolfFactionID].RemoveCandidate(player.ID())
+		g.polls[vars.WerewolfFactionID].RemoveCandidate(player.ID())
 	}
 
 	return player

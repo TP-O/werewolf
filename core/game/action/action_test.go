@@ -1,172 +1,112 @@
 package action
 
-// import (
-// 	"testing"
-// 	"uwwolf/game/enum"
-// 	"uwwolf/game/types"
+import (
+	"testing"
+	"uwwolf/game/types"
+	"uwwolf/game/vars"
 
-// 	"github.com/stretchr/testify/suite"
-// )
+	"github.com/stretchr/testify/suite"
+)
 
-// type ActionSuite struct {
-// 	suite.Suite
-// }
+type ActionSuite struct {
+	suite.Suite
+}
 
-// func TestActionSuiteSuite(t *testing.T) {
-// 	suite.Run(t, new(ActionSuite))
-// }
+func TestActionSuiteSuite(t *testing.T) {
+	suite.Run(t, new(ActionSuite))
+}
 
-// func (as *ActionSuite) TestActionID() {
-// 	id := enum.KillActionID
-// 	action := action[any]{
-// 		id: id,
-// 	}
+func (as *ActionSuite) TestActionID() {
+	id := vars.KillActionID
+	act := action{
+		id: id,
+	}
 
-// 	as.Equal(id, action.ID())
-// }
+	as.Equal(id, act.ID())
+}
 
-// func (as *ActionSuite) TestActionState() {
-// 	type strt struct {
-// 		key string
-// 	}
+func (as *ActionSuite) TestActionValidate() {
+	act := action{}
+	err := act.validate(&types.ActionRequest{})
 
-// 	tests := []struct {
-// 		name          string
-// 		expectedState any
-// 	}{
-// 		{
-// 			name:          "Primitive state",
-// 			expectedState: 0,
-// 		},
-// 		{
-// 			name:          "Slice state",
-// 			expectedState: []int{},
-// 		},
-// 		{
-// 			name:          "Map state",
-// 			expectedState: make(map[string]int),
-// 		},
-// 		{
-// 			name:          "Struct state",
-// 			expectedState: strt{},
-// 		},
-// 		{
-// 			name:          "Reference state",
-// 			expectedState: &strt{},
-// 		},
-// 	}
+	as.Nil(err)
+}
 
-// 	for _, test := range tests {
-// 		as.Run(test.name, func() {
-// 			action := action[any]{
-// 				state: test.expectedState,
-// 			}
+func (as *ActionSuite) TestActionSkip() {
+	act := action{}
+	expectedRes := &types.ActionResponse{
+		Ok:        true,
+		IsSkipped: true,
+		Message:   "Skipped!",
+	}
 
-// 			as.Equal(test.expectedState, action.State())
-// 			as.IsType(test.expectedState, action.State())
-// 		})
-// 	}
-// }
+	as.Equal(expectedRes, act.skip(&types.ActionRequest{}))
+}
 
-// func (as *ActionSuite) TestActionValidate() {
-// 	tests := []struct {
-// 		name        string
-// 		req         *types.ActionRequest
-// 		expectedErr string
-// 	}{
-// 		{
-// 			name:        "Failure (Empty request)",
-// 			req:         nil,
-// 			expectedErr: "Action request can not be empty (⊙＿⊙')",
-// 		},
-// 		{
-// 			name: "Ok (Non-empty request)",
-// 			req:  &types.ActionRequest{},
-// 		},
-// 	}
+func (as *ActionSuite) TestActionPerform() {
+	act := action{}
+	expectedRes := &types.ActionResponse{
+		Ok:      false,
+		Message: "Nothing to do ¯\\_(ツ)_/¯",
+	}
 
-// 	for _, test := range tests {
-// 		as.Run(test.name, func() {
-// 			action := action[any]{}
-// 			err := action.Validate(test.req)
+	as.Equal(expectedRes, act.perform(&types.ActionRequest{}))
+}
 
-// 			if test.expectedErr == "" {
-// 				as.Nil(err)
-// 			} else {
-// 				as.Equal(test.expectedErr, err.Error())
-// 			}
-// 		})
-// 	}
-// }
+func (as *ActionSuite) TestActionExecute() {
 
-// func (as *ActionSuite) TestActionSkip() {
-// 	action := action[any]{}
-// 	expectedRes := &types.ActionResponse{
-// 		Ok:        true,
-// 		IsSkipped: true,
-// 	}
+	tests := []struct {
+		name        string
+		req         *types.ActionRequest
+		expectedRes *types.ActionResponse
+	}{
+		{
+			name: "Failure (Nil request)",
+			req:  nil,
+			expectedRes: &types.ActionResponse{
+				Ok:      false,
+				Message: "Action request can not be empty (⊙＿⊙')",
+			},
+		},
+		{
+			name: "Ok (Skip)",
+			req: &types.ActionRequest{
+				IsSkipped: true,
+			},
+			expectedRes: &types.ActionResponse{
+				Ok:        true,
+				IsSkipped: true,
+				Message:   "Skipped!",
+			},
+		},
+		{
+			name: "Failure (Validation failed)",
+			req:  nil,
+			expectedRes: &types.ActionResponse{
+				Ok:      false,
+				Message: "Action request can not be empty (⊙＿⊙')",
+			},
+		},
+		{
+			name: "Ok (Perform)",
+			req:  &types.ActionRequest{
+				//
+			},
+			expectedRes: &types.ActionResponse{
+				Ok:        false,
+				IsSkipped: false,
+				Data:      nil,
+				Message:   "Nothing to do ¯\\_(ツ)_/¯",
+			},
+		},
+	}
 
-// 	as.Equal(expectedRes, action.Skip(&types.ActionRequest{}))
-// }
+	for _, test := range tests {
+		as.Run(test.name, func() {
+			act := action{}
+			res := act.execute(act, test.req)
 
-// func (as *ActionSuite) TestActionPerform() {
-// 	action := action[any]{}
-// 	expectedRes := &types.ActionResponse{
-// 		Ok:      false,
-// 		Message: "Nothing to do ¯\\_(ツ)_/¯",
-// 	}
-
-// 	as.Equal(expectedRes, action.Perform(&types.ActionRequest{}))
-// }
-
-// func (as *ActionSuite) TestActionExecute() {
-// 	tests := []struct {
-// 		name        string
-// 		req         *types.ActionRequest
-// 		expectedRes *types.ActionResponse
-// 	}{
-// 		{
-// 			name: "Ok (Skip)",
-// 			req: &types.ActionRequest{
-// 				IsSkipped: true,
-// 			},
-// 			expectedRes: &types.ActionResponse{
-// 				Ok:        true,
-// 				IsSkipped: true,
-// 				Data:      nil,
-// 				Message:   "",
-// 			},
-// 		},
-// 		{
-// 			name: "Failure (Validation failed)",
-// 			req:  nil,
-// 			expectedRes: &types.ActionResponse{
-// 				Ok:        false,
-// 				IsSkipped: false,
-// 				Data:      nil,
-// 				Message:   "Action request can not be empty (⊙＿⊙')",
-// 			},
-// 		},
-// 		{
-// 			name: "Ok (Perform)",
-// 			req:  &types.ActionRequest{
-// 				//
-// 			},
-// 			expectedRes: &types.ActionResponse{
-// 				Ok:        false,
-// 				IsSkipped: false,
-// 				Data:      nil,
-// 				Message:   "Nothing to do ¯\\_(ツ)_/¯",
-// 			},
-// 		},
-// 	}
-
-// 	for _, test := range tests {
-// 		as.Run(test.name, func() {
-// 			action := action[any]{}
-// 			res := action.Execute(test.req)
-
-// 			as.Equal(test.expectedRes, res)
-// 		})
-// 	}
-// }
+			as.Equal(test.expectedRes, res)
+		})
+	}
+}

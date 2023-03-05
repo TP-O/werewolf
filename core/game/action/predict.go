@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"uwwolf/game/contract"
 	"uwwolf/game/types"
+	"uwwolf/game/vars"
 
 	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
@@ -32,7 +33,7 @@ type predict struct {
 func NewRolePredict(game contract.Game, roleID types.RoleID) contract.Action {
 	return &predict{
 		action: action{
-			id:   PredictActionID,
+			id:   vars.PredictActionID,
 			game: game,
 		},
 		RoleID: roleID,
@@ -43,7 +44,7 @@ func NewRolePredict(game contract.Game, roleID types.RoleID) contract.Action {
 func NewFactionPredict(game contract.Game, factionID types.FactionID) contract.Action {
 	return &predict{
 		action: action{
-			id:   PredictActionID,
+			id:   vars.PredictActionID,
 			game: game,
 		},
 		FactionID: factionID,
@@ -51,11 +52,14 @@ func NewFactionPredict(game contract.Game, factionID types.FactionID) contract.A
 	}
 }
 
-func (p *predict) Execute(req types.ActionRequest) types.ActionResponse {
+// Execute checks if the request is skipped. If so, skips the execution;
+// otherwise, validates the request, and then performs the required action.
+func (p *predict) Execute(req *types.ActionRequest) *types.ActionResponse {
 	return p.action.execute(p, req)
 }
 
-func (p predict) validate(req types.ActionRequest) error {
+// validate checks if the action request is valid.
+func (p predict) validate(req *types.ActionRequest) error {
 	isKnown := slices.Contains(maps.Keys(p.Role), req.TargetID) ||
 		slices.Contains(maps.Keys(p.Faction), req.TargetID)
 
@@ -70,28 +74,25 @@ func (p predict) validate(req types.ActionRequest) error {
 	return nil
 }
 
-func (p *predict) perform(req types.ActionRequest) types.ActionResponse {
+// perform completes the action request.
+func (p *predict) perform(req *types.ActionRequest) *types.ActionResponse {
 	target := p.game.Player(req.TargetID)
 
 	// Check if the player's faction or role is as expected
 	if p.Faction != nil && !p.FactionID.IsUnknown() {
 		p.Faction[target.ID()] = target.FactionID() == p.FactionID
-		return types.ActionResponse{
-			Ok: true,
-			StateChanges: types.StateChanges{
-				FactionPrediction: p.Faction[target.ID()],
-			},
+		return &types.ActionResponse{
+			Ok:   true,
+			Data: p.Faction[target.ID()],
 		}
 	} else if p.Role != nil && !p.RoleID.IsUnknown() {
 		p.Role[target.ID()] = slices.Contains(target.RoleIDs(), p.RoleID)
-		return types.ActionResponse{
-			Ok: true,
-			StateChanges: types.StateChanges{
-				RolePrediction: p.Role[target.ID()],
-			},
+		return &types.ActionResponse{
+			Ok:   true,
+			Data: p.Role[target.ID()],
 		}
 	} else {
-		return types.ActionResponse{
+		return &types.ActionResponse{
 			Ok:      false,
 			Message: "Unable to predict!",
 		}

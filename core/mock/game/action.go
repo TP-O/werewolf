@@ -35,10 +35,10 @@ func (m *MockAction) EXPECT() *MockActionMockRecorder {
 }
 
 // Execute mocks base method.
-func (m *MockAction) Execute(req types.ActionRequest) types.ActionResponse {
+func (m *MockAction) Execute(req *types.ActionRequest) *types.ActionResponse {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Execute", req)
-	ret0, _ := ret[0].(types.ActionResponse)
+	ret0, _ := ret[0].(*types.ActionResponse)
 	return ret0
 }
 

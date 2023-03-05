@@ -77,20 +77,6 @@ func (mr *MockGameMockRecorder) KillPlayer(playerID, isExited interface{}) *gomo
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "KillPlayer", reflect.TypeOf((*MockGame)(nil).KillPlayer), playerID, isExited)
 }
 
-// NonWerewolfPlayerIDs mocks base method.
-func (m *MockGame) NonWerewolfPlayerIDs() []types.PlayerID {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "NonWerewolfPlayerIDs")
-	ret0, _ := ret[0].([]types.PlayerID)
-	return ret0
-}
-
-// NonWerewolfPlayerIDs indicates an expected call of NonWerewolfPlayerIDs.
-func (mr *MockGameMockRecorder) NonWerewolfPlayerIDs() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NonWerewolfPlayerIDs", reflect.TypeOf((*MockGame)(nil).NonWerewolfPlayerIDs))
-}
-
 // Play mocks base method.
 func (m *MockGame) Play(playerID types.PlayerID, req types.ActivateAbilityRequest) types.ActionResponse {
 	m.ctrl.T.Helper()
@@ -119,32 +105,60 @@ func (mr *MockGameMockRecorder) Player(playerID interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Player", reflect.TypeOf((*MockGame)(nil).Player), playerID)
 }
 
-// PlayerIDsByFactionID mocks base method.
-func (m *MockGame) PlayerIDsByFactionID(factionID types.FactionID) []types.PlayerID {
+// PlayerIDsWithFactionID mocks base method.
+func (m *MockGame) PlayerIDsWithFactionID(factionID types.FactionID, onlyAlive bool) []types.PlayerID {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "PlayerIDsByFactionID", factionID)
+	ret := m.ctrl.Call(m, "PlayerIDsWithFactionID", factionID, onlyAlive)
 	ret0, _ := ret[0].([]types.PlayerID)
 	return ret0
 }
 
-// PlayerIDsByFactionID indicates an expected call of PlayerIDsByFactionID.
-func (mr *MockGameMockRecorder) PlayerIDsByFactionID(factionID interface{}) *gomock.Call {
+// PlayerIDsWithFactionID indicates an expected call of PlayerIDsWithFactionID.
+func (mr *MockGameMockRecorder) PlayerIDsWithFactionID(factionID, onlyAlive interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PlayerIDsByFactionID", reflect.TypeOf((*MockGame)(nil).PlayerIDsByFactionID), factionID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PlayerIDsWithFactionID", reflect.TypeOf((*MockGame)(nil).PlayerIDsWithFactionID), factionID, onlyAlive)
 }
 
-// PlayerIDsByRoleID mocks base method.
-func (m *MockGame) PlayerIDsByRoleID(roleID types.RoleID) []types.PlayerID {
+// PlayerIDsWithRoleID mocks base method.
+func (m *MockGame) PlayerIDsWithRoleID(roleID types.RoleID) []types.PlayerID {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "PlayerIDsByRoleID", roleID)
+	ret := m.ctrl.Call(m, "PlayerIDsWithRoleID", roleID)
 	ret0, _ := ret[0].([]types.PlayerID)
 	return ret0
 }
 
-// PlayerIDsByRoleID indicates an expected call of PlayerIDsByRoleID.
-func (mr *MockGameMockRecorder) PlayerIDsByRoleID(roleID interface{}) *gomock.Call {
+// PlayerIDsWithRoleID indicates an expected call of PlayerIDsWithRoleID.
+func (mr *MockGameMockRecorder) PlayerIDsWithRoleID(roleID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PlayerIDsByRoleID", reflect.TypeOf((*MockGame)(nil).PlayerIDsByRoleID), roleID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PlayerIDsWithRoleID", reflect.TypeOf((*MockGame)(nil).PlayerIDsWithRoleID), roleID)
+}
+
+// PlayerIDsWithoutFactionID mocks base method.
+func (m *MockGame) PlayerIDsWithoutFactionID(factionID types.FactionID, onlyAlive bool) []types.PlayerID {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "PlayerIDsWithoutFactionID", factionID, onlyAlive)
+	ret0, _ := ret[0].([]types.PlayerID)
+	return ret0
+}
+
+// PlayerIDsWithoutFactionID indicates an expected call of PlayerIDsWithoutFactionID.
+func (mr *MockGameMockRecorder) PlayerIDsWithoutFactionID(factionID, onlyAlive interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PlayerIDsWithoutFactionID", reflect.TypeOf((*MockGame)(nil).PlayerIDsWithoutFactionID), factionID, onlyAlive)
+}
+
+// Players mocks base method.
+func (m *MockGame) Players() map[types.PlayerID]contract.Player {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Players")
+	ret0, _ := ret[0].(map[types.PlayerID]contract.Player)
+	return ret0
+}
+
+// Players indicates an expected call of Players.
+func (mr *MockGameMockRecorder) Players() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Players", reflect.TypeOf((*MockGame)(nil).Players))
 }
 
 // Poll mocks base method.
@@ -159,6 +173,20 @@ func (m *MockGame) Poll(factionID types.FactionID) contract.Poll {
 func (mr *MockGameMockRecorder) Poll(factionID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Poll", reflect.TypeOf((*MockGame)(nil).Poll), factionID)
+}
+
+// Prepare mocks base method.
+func (m *MockGame) Prepare() int64 {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Prepare")
+	ret0, _ := ret[0].(int64)
+	return ret0
+}
+
+// Prepare indicates an expected call of Prepare.
+func (mr *MockGameMockRecorder) Prepare() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Prepare", reflect.TypeOf((*MockGame)(nil).Prepare))
 }
 
 // Scheduler mocks base method.
@@ -176,10 +204,10 @@ func (mr *MockGameMockRecorder) Scheduler() *gomock.Call {
 }
 
 // Start mocks base method.
-func (m *MockGame) Start() int64 {
+func (m *MockGame) Start() bool {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Start")
-	ret0, _ := ret[0].(int64)
+	ret0, _ := ret[0].(bool)
 	return ret0
 }
 
@@ -189,16 +217,16 @@ func (mr *MockGameMockRecorder) Start() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Start", reflect.TypeOf((*MockGame)(nil).Start))
 }
 
-// WerewolfPlayerIDs mocks base method.
-func (m *MockGame) WerewolfPlayerIDs() []types.PlayerID {
+// StatusID mocks base method.
+func (m *MockGame) StatusID() types.GameStatusID {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "WerewolfPlayerIDs")
-	ret0, _ := ret[0].([]types.PlayerID)
+	ret := m.ctrl.Call(m, "StatusID")
+	ret0, _ := ret[0].(types.GameStatusID)
 	return ret0
 }
 
-// WerewolfPlayerIDs indicates an expected call of WerewolfPlayerIDs.
-func (mr *MockGameMockRecorder) WerewolfPlayerIDs() *gomock.Call {
+// StatusID indicates an expected call of StatusID.
+func (mr *MockGameMockRecorder) StatusID() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WerewolfPlayerIDs", reflect.TypeOf((*MockGame)(nil).WerewolfPlayerIDs))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StatusID", reflect.TypeOf((*MockGame)(nil).StatusID))
 }
