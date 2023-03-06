@@ -14,6 +14,7 @@ type NewPlayerTurn struct {
 	BeginRoundID RoundID
 	PlayerID
 	RoleID
+	ExpiredAfter Limit
 }
 
 type RemovedPlayerTurn struct {

@@ -26,7 +26,7 @@ type scheduler struct {
 
 func NewScheduler(beginPhaseID types.PhaseID) contract.Scheduler {
 	return &scheduler{
-		roundID:      types.RoundID(0),
+		roundID:      vars.FirstRound,
 		beginPhaseID: beginPhaseID,
 		phaseID:      beginPhaseID,
 		turnID:       types.TurnID(-1), // Initial turn ID

@@ -40,31 +40,36 @@ type role struct {
 	player contract.Player
 
 	// abilities is the abilities of this role.
-	abilities []ability
+	abilities []*ability
 }
 
-var _ contract.Role = (*role)(nil)
-
+// ID returns role's ID.
 func (r role) ID() types.RoleID {
 	return r.id
 }
 
-func (r role) PhaseID() types.PhaseID {
-	return r.phaseID
-}
+// PhaseID returns role's active phase ID.
+// func (r role) PhaseID() types.PhaseID {
+// 	return r.phaseID
+// }
 
 func (r role) FactionID() types.FactionID {
 	return r.factionID
 }
 
-func (r role) TurnID() types.TurnID {
-	return r.turnID
-}
+// TurnID returns role's turn order in active phase.
+// func (r role) TurnID() types.TurnID {
+// 	return r.turnID
+// }
 
-func (r role) BeginRoundID() types.RoundID {
-	return r.beginRoundID
-}
+// BeginRoundID returns round in which this role be able to
+// use its abilities.
+// func (r role) BeginRoundID() types.RoundID {
+// 	return r.beginRoundID
+// }
 
+// ActiveLimit returns remaining times this role can use the specific ability.
+// Returns total limit if the `index` is -1.
 func (r role) ActiveLimit(index int) types.Limit {
 	limit := vars.ReachedLimit
 	if index > -1 && index < len(r.abilities) {
@@ -78,21 +83,21 @@ func (r role) ActiveLimit(index int) types.Limit {
 	return limit
 }
 
+// BeforeDeath is triggered before killing this role.
+// If returns false, the player assigned it is saved.
 func (r role) BeforeDeath() bool {
 	return true
 }
 
+// AfterDeath is triggered after killing this role.
 func (r role) AfterDeath() {
 	//
 }
 
-func (r role) AfterSaved() {
-	//
-}
-
-func (r *role) ActivateAbility(req types.ActivateAbilityRequest) types.ActionResponse {
+// ActivateAbility executes the action corresponding to the required ability.
+func (r *role) ActivateAbility(req *types.ActivateAbilityRequest) *types.ActionResponse {
 	if int(req.AbilityIndex) >= len(r.abilities) {
-		return types.ActionResponse{
+		return &types.ActionResponse{
 			Ok:      false,
 			Message: "This is beyond your ability (╥﹏╥)",
 		}
@@ -100,7 +105,7 @@ func (r *role) ActivateAbility(req types.ActivateAbilityRequest) types.ActionRes
 
 	ability := r.abilities[req.AbilityIndex]
 	if ability.activeLimit == vars.ReachedLimit {
-		return types.ActionResponse{
+		return &types.ActionResponse{
 			Ok:      false,
 			Message: "Unable to use this ability anymore ¯\\(º_o)/¯",
 		}
@@ -118,7 +123,7 @@ func (r *role) ActivateAbility(req types.ActivateAbilityRequest) types.ActionRes
 
 		// Remove the player turn if the limit is reached
 		if r.ActiveLimit(-1) == vars.ReachedLimit {
-			r.game.Scheduler().RemovePlayerTurn(types.RemovedPlayerTurn{
+			r.game.Scheduler().RemovePlayerTurn(&types.RemovedPlayerTurn{
 				PhaseID:  r.phaseID,
 				RoleID:   r.id,
 				PlayerID: r.player.ID(),
@@ -126,5 +131,5 @@ func (r *role) ActivateAbility(req types.ActivateAbilityRequest) types.ActionRes
 		}
 	}
 
-	return *res
+	return res
 }

@@ -22,14 +22,14 @@ func TestRecognizeSuite(t *testing.T) {
 	suite.Run(t, new(RecognizeSuite))
 }
 
-func (rs *RecognizeSuite) SetupSuite() {
+func (rs RecognizeSuite) SetupSuite() {
 	rs.actorID = types.PlayerID("1")
 	rs.identifiedIDs = []types.PlayerID{"1", "2"}
 	rs.identifiedFactionID = vars.WerewolfFactionID
 	rs.identifiedRoleID = vars.WerewolfRoleID
 }
 
-func (rs *RecognizeSuite) TestNewFactionIdentify() {
+func (rs RecognizeSuite) TestNewFactionIdentify() {
 	ctrl := gomock.NewController(rs.T())
 	defer ctrl.Finish()
 	game := gamemock.NewMockGame(ctrl)
@@ -44,7 +44,7 @@ func (rs *RecognizeSuite) TestNewFactionIdentify() {
 	rs.False(fIdent.isIdentified)
 }
 
-func (rs *RecognizeSuite) TestNewRoleIdentify() {
+func (rs RecognizeSuite) TestNewRoleIdentify() {
 	ctrl := gomock.NewController(rs.T())
 	defer ctrl.Finish()
 	game := gamemock.NewMockGame(ctrl)
@@ -59,7 +59,7 @@ func (rs *RecognizeSuite) TestNewRoleIdentify() {
 	rs.False(ident.isIdentified)
 }
 
-func (rs *RecognizeSuite) TestValidateFactionIdentify() {
+func (rs RecognizeSuite) TestValidateFactionIdentify() {
 	ctrl := gomock.NewController(rs.T())
 	defer ctrl.Finish()
 	game := gamemock.NewMockGame(ctrl)
@@ -73,7 +73,7 @@ func (rs *RecognizeSuite) TestValidateFactionIdentify() {
 	rs.Equal(expectErr, err.Error())
 }
 
-func (rs *RecognizeSuite) TestPerformFactionIdentify() {
+func (rs RecognizeSuite) TestPerformFactionIdentify() {
 	ctrl := gomock.NewController(rs.T())
 	defer ctrl.Finish()
 	game := gamemock.NewMockGame(ctrl)
@@ -97,7 +97,7 @@ func (rs *RecognizeSuite) TestPerformFactionIdentify() {
 	rs.True(ident.isIdentified)
 }
 
-func (rs *RecognizeSuite) TestValidateRoleIdentify() {
+func (rs RecognizeSuite) TestValidateRoleIdentify() {
 	ctrl := gomock.NewController(rs.T())
 	defer ctrl.Finish()
 	game := gamemock.NewMockGame(ctrl)
@@ -111,7 +111,7 @@ func (rs *RecognizeSuite) TestValidateRoleIdentify() {
 	rs.Equal(expectErr, err.Error())
 }
 
-func (rs *RecognizeSuite) TestPerformRoleIdentify() {
+func (rs RecognizeSuite) TestPerformRoleIdentify() {
 	ctrl := gomock.NewController(rs.T())
 	defer ctrl.Finish()
 	game := gamemock.NewMockGame(ctrl)

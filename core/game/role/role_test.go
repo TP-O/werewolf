@@ -1,66 +1,43 @@
 package role
 
-// import (
-// 	"testing"
-// 	"uwwolf/game/enum"
-// 	"uwwolf/game/types"
-// 	gamemock "uwwolf/mock/game"
+import (
+	"testing"
+	"uwwolf/game/types"
+	"uwwolf/game/vars"
+	gamemock "uwwolf/mock/game"
 
-// 	"github.com/golang/mock/gomock"
-// 	"github.com/stretchr/testify/suite"
-// )
+	"github.com/golang/mock/gomock"
+	"github.com/stretchr/testify/suite"
+)
 
-// type RoleSuite struct {
-// 	suite.Suite
-// 	ctrl      *gomock.Controller
-// 	game      *gamemock.MockGame
-// 	player    *gamemock.MockPlayer
-// 	action1   *gamemock.MockAction
-// 	action2   *gamemock.MockAction
-// 	playerID  enum.PlayerID
-// 	actionID1 enum.ActionID
-// 	actionID2 enum.ActionID
-// }
+type RoleSuite struct {
+	suite.Suite
+	playerID  types.PlayerID
+	actionID1 types.ActionID
+	actionID2 types.ActionID
+}
 
-// func TestRoleSuite(t *testing.T) {
-// 	suite.Run(t, new(RoleSuite))
-// }
+func TestRoleSuite(t *testing.T) {
+	suite.Run(t, new(RoleSuite))
+}
 
-// func (rs *RoleSuite) SetupSuite() {
-// 	rs.playerID = "1"
-// 	rs.actionID1 = 1
-// 	rs.actionID2 = 2
-// }
+func (rs *RoleSuite) SetupSuite() {
+	rs.playerID = types.PlayerID("1")
+	rs.actionID1 = types.ActionID(1)
+	rs.actionID2 = types.ActionID(2)
+}
 
-// func (rs *RoleSuite) BeforeTest(_, test string) {
-// 	if test == "TestRoleUseAbility" {
-// 		rs.ctrl = gomock.NewController(rs.T())
-// 		rs.player = gamemock.NewMockPlayer(rs.ctrl)
-// 		rs.action1 = gamemock.NewMockAction(rs.ctrl)
-// 		rs.action2 = gamemock.NewMockAction(rs.ctrl)
-// 		rs.action1.EXPECT().ID().Return(rs.actionID1).AnyTimes()
-// 		rs.action2.EXPECT().ID().Return(rs.actionID2).AnyTimes()
-// 	}
+func (rs RoleSuite) TestID() {
+	id := vars.HunterRoleID
+	role := role{
+		id: id,
+	}
 
-// }
+	rs.Equal(id, role.ID())
+}
 
-// func (rs *RoleSuite) AfterTest(_, test string) {
-// 	if test == "TestRoleUseAbility" {
-// 		rs.ctrl.Finish()
-// 	}
-// }
-
-// func (rs *RoleSuite) TestRoleID() {
-// 	id := enum.HunterRoleID
-// 	role := role{
-// 		id: id,
-// 	}
-
-// 	rs.Equal(id, role.ID())
-// }
-
-// func (rs *RoleSuite) TestRolePhaseID() {
-// 	phaseID := enum.DuskPhaseID
+// func (rs RoleSuite) TestPhaseID() {
+// 	phaseID := vars.DuskPhaseID
 // 	role := role{
 // 		phaseID: phaseID,
 // 	}
@@ -68,221 +45,230 @@ package role
 // 	rs.Equal(phaseID, role.PhaseID())
 // }
 
-// func (rs *RoleSuite) TestRoleFactionID() {
-// 	factionID := enum.WerewolfFactionID
-// 	role := role{
-// 		factionID: factionID,
-// 	}
+func (rs RoleSuite) TestFactionID() {
+	factionID := vars.WerewolfFactionID
+	role := role{
+		factionID: factionID,
+	}
 
-// 	rs.Equal(factionID, role.FactionID())
-// }
+	rs.Equal(factionID, role.FactionID())
+}
 
-// func (rs *RoleSuite) TestRolePriority() {
-// 	priority := enum.VillagerTurnPriority
-// 	role := role{
-// 		priority: priority,
-// 	}
-
-// 	rs.Equal(priority, role.Priority())
-// }
-
-// func (rs *RoleSuite) TestRoleBeginRound() {
-// 	round := enum.Round(9)
+// func (rs RoleSuite) TestBeginRoundID() {
+// 	round := types.Round(9)
 // 	role := role{
 // 		beginRound: round,
 // 	}
 
-// 	rs.Equal(round, role.BeginRound())
+// 	rs.Equal(round, role.BeginRoundID())
 // }
 
-// func (rs *RoleSuite) TestRoleActiveLimit() {
-// 	killLimit := enum.Limit(1)
-// 	predictLimit := enum.Limit(1)
-// 	role := role{
-// 		abilities: map[enum.ActionID]*ability{
-// 			enum.KillActionID: {
-// 				action:      nil,
-// 				activeLimit: killLimit,
-// 			},
-// 			enum.PredictActionID: {
-// 				action:      nil,
-// 				activeLimit: predictLimit,
-// 			},
-// 		},
-// 	}
+func (rs RoleSuite) TestActiveLimit() {
+	action1Limit := types.Limit(1)
+	action2Limit := types.Limit(2)
+	role := role{
+		abilities: []*ability{
+			{
+				activeLimit: action1Limit,
+			},
+			{
+				activeLimit: action2Limit,
+			},
+		},
+	}
 
-// 	rs.Equal(killLimit, role.ActiveLimit(enum.KillActionID))
-// 	rs.Equal(killLimit+predictLimit, role.ActiveLimit(0))
-// 	rs.Equal(enum.ReachedLimit, role.ActiveLimit(99))
-// }
+	rs.Equal(action1Limit, role.ActiveLimit(0))
+	rs.Equal(action2Limit, role.ActiveLimit(1))
+	rs.Equal(action1Limit+action2Limit, role.ActiveLimit(-1))
+	rs.Equal(vars.ReachedLimit, role.ActiveLimit(99))
+}
 
-// func (rs *RoleSuite) TestRoleBeforeDeath() {
-// 	role := new(role)
+func (rs RoleSuite) TestBeforeDeath() {
+	role := new(role)
 
-// 	rs.True(role.BeforeDeath())
-// }
+	rs.True(role.BeforeDeath())
+}
 
-// func (rs *RoleSuite) TestRoleAfterDeath() {
-// 	//
-// }
+func (rs RoleSuite) TestAfterDeath() {
+	//
+}
 
-// func (rs *RoleSuite) TestRoleUseAbility() {
-// 	tests := []struct {
-// 		name           string
-// 		req            *types.UseRoleRequest
-// 		expectedRes    *types.ActionResponse
-// 		isInvalidRole  bool
-// 		newActiveLimit enum.Limit
-// 		setup          func(role)
-// 	}{
-// 		{
-// 			name: "Failure (Invalid ability)",
-// 			req: &types.UseRoleRequest{
-// 				ActionID: 99,
-// 			},
-// 			expectedRes: &types.ActionResponse{
-// 				Ok:        false,
-// 				IsSkipped: false,
-// 				Data:      nil,
-// 				Message:   "This is beyond your ability (╥﹏╥)",
-// 			},
-// 			isInvalidRole: true,
-// 			setup:         func(role role) {},
-// 		},
-// 		{
-// 			name: "Failure (Ability is out of use)",
-// 			req: &types.UseRoleRequest{
-// 				ActionID: rs.actionID1,
-// 			},
-// 			expectedRes: &types.ActionResponse{
-// 				Ok:        false,
-// 				IsSkipped: false,
-// 				Data:      nil,
-// 				Message:   "Unable to use this ability anymore ¯\\(º_o)/¯",
-// 			},
-// 			newActiveLimit: 0,
-// 			setup: func(role role) {
-// 				role.abilities[rs.actionID1].activeLimit = 0
-// 			},
-// 		},
-// 		{
-// 			name: "Ok (Skip action -> Doesn't change active limit)",
-// 			req: &types.UseRoleRequest{
-// 				ActionID:  rs.actionID1,
-// 				IsSkipped: true,
-// 			},
-// 			expectedRes: &types.ActionResponse{
-// 				Ok:        true,
-// 				IsSkipped: true,
-// 			},
-// 			newActiveLimit: 5,
-// 			setup: func(role role) {
-// 				role.abilities[rs.actionID1].activeLimit = 5
-// 				rs.action1.EXPECT().Execute(&types.ActionRequest{
-// 					ActorID:   rs.playerID,
-// 					IsSkipped: true,
-// 				}).
-// 					Return(&types.ActionResponse{
-// 						Ok:        true,
-// 						IsSkipped: true,
-// 					}).
-// 					Times(1)
-// 				rs.player.EXPECT().ID().Return(rs.playerID).Times(1)
-// 			},
-// 		},
-// 		{
-// 			name: "Ok (Action execution is failed -> Doesn't change active limit)",
-// 			req: &types.UseRoleRequest{
-// 				ActionID: rs.actionID1,
-// 			},
-// 			expectedRes: &types.ActionResponse{
-// 				Ok: false,
-// 			},
-// 			newActiveLimit: 5,
-// 			setup: func(role role) {
-// 				role.abilities[rs.actionID1].activeLimit = 5
-// 				rs.action1.EXPECT().Execute(&types.ActionRequest{
-// 					ActorID: rs.playerID,
-// 				}).
-// 					Return(&types.ActionResponse{
-// 						Ok: false,
-// 					}).
-// 					Times(1)
-// 				rs.player.EXPECT().ID().Return(rs.playerID).Times(1)
-// 			},
-// 		},
-// 		{
-// 			name: "Ok (Use unlimited ability -> Doesn't change active limit)",
-// 			req: &types.UseRoleRequest{
-// 				ActionID: rs.actionID1,
-// 			},
-// 			expectedRes: &types.ActionResponse{
-// 				Ok:        true,
-// 				IsSkipped: false,
-// 			},
-// 			newActiveLimit: enum.Unlimited,
-// 			setup: func(role role) {
-// 				role.abilities[rs.actionID1].activeLimit = enum.Unlimited
-// 				rs.action1.EXPECT().Execute(&types.ActionRequest{
-// 					ActorID: rs.playerID,
-// 				}).
-// 					Return(&types.ActionResponse{
-// 						Ok:        true,
-// 						IsSkipped: false,
-// 					}).
-// 					Times(1)
-// 				rs.player.EXPECT().ID().Return(rs.playerID).Times(1)
-// 			},
-// 		},
-// 		{
-// 			name: "Ok (Action execution is successful -> reduce active limit by 1)",
-// 			req: &types.UseRoleRequest{
-// 				ActionID: rs.actionID1,
-// 			},
-// 			expectedRes: &types.ActionResponse{
-// 				Ok:        true,
-// 				IsSkipped: false,
-// 			},
-// 			newActiveLimit: 4,
-// 			setup: func(role role) {
-// 				role.abilities[rs.actionID1].activeLimit = 5
-// 				rs.action1.EXPECT().Execute(&types.ActionRequest{
-// 					ActorID: rs.playerID,
-// 				}).
-// 					Return(&types.ActionResponse{
-// 						Ok:        true,
-// 						IsSkipped: false,
-// 					}).
-// 					Times(1)
-// 				rs.player.EXPECT().ID().Return(rs.playerID).Times(1)
-// 			},
-// 		},
-// 	}
+func (rs RoleSuite) TestActivateAbility() {
+	tests := []struct {
+		name          string
+		req           *types.ActivateAbilityRequest
+		expectedRes   *types.ActionResponse
+		expectedLimit types.Limit
+		setup         func(role, *gamemock.MockAction, *gamemock.MockScheduler)
+	}{
+		{
+			name: "Failure (Invalid ability index)",
+			req: &types.ActivateAbilityRequest{
+				AbilityIndex: 99,
+			},
+			expectedRes: &types.ActionResponse{
+				Ok:      false,
+				Message: "This is beyond your ability (╥﹏╥)",
+			},
+			setup: func(role role, ma *gamemock.MockAction, ms *gamemock.MockScheduler) {},
+		},
+		{
+			name: "Failure (Ability is out of use)",
+			req: &types.ActivateAbilityRequest{
+				AbilityIndex: 0,
+			},
+			expectedRes: &types.ActionResponse{
+				Ok:      false,
+				Message: "Unable to use this ability anymore ¯\\(º_o)/¯",
+			},
+			expectedLimit: 0,
+			setup: func(role role, ma *gamemock.MockAction, ms *gamemock.MockScheduler) {
+				role.abilities[0].activeLimit = 0
+			},
+		},
+		{
+			name: "Ok (Skip action -> Doesn't change active limit)",
+			req: &types.ActivateAbilityRequest{
+				AbilityIndex: 0,
+				IsSkipped:    true,
+			},
+			expectedRes: &types.ActionResponse{
+				Ok:        true,
+				IsSkipped: true,
+			},
+			expectedLimit: 2,
+			setup: func(role role, ma *gamemock.MockAction, ms *gamemock.MockScheduler) {
+				role.abilities[0].activeLimit = 2
+				ma.EXPECT().Execute(&types.ActionRequest{
+					ActorID:   rs.playerID,
+					IsSkipped: true,
+				}).
+					Return(&types.ActionResponse{
+						Ok:        true,
+						IsSkipped: true,
+					}).
+					Times(1)
+			},
+		},
+		{
+			name: "Ok (Action execution is failed -> Doesn't change active limit)",
+			req: &types.ActivateAbilityRequest{
+				AbilityIndex: 0,
+			},
+			expectedRes: &types.ActionResponse{
+				Ok: false,
+			},
+			expectedLimit: 2,
+			setup: func(role role, ma *gamemock.MockAction, ms *gamemock.MockScheduler) {
+				role.abilities[0].activeLimit = 2
+				ma.EXPECT().Execute(&types.ActionRequest{
+					ActorID: rs.playerID,
+				}).
+					Return(&types.ActionResponse{
+						Ok: false,
+					}).
+					Times(1)
+			},
+		},
+		{
+			name: "Ok (Use unlimited ability -> Doesn't change active limit)",
+			req: &types.ActivateAbilityRequest{
+				AbilityIndex: 0,
+			},
+			expectedRes: &types.ActionResponse{
+				Ok:        true,
+				IsSkipped: false,
+			},
+			expectedLimit: vars.Unlimited,
+			setup: func(role role, ma *gamemock.MockAction, ms *gamemock.MockScheduler) {
+				role.abilities[0].activeLimit = vars.Unlimited
+				ma.EXPECT().Execute(&types.ActionRequest{
+					ActorID: rs.playerID,
+				}).
+					Return(&types.ActionResponse{
+						Ok:        true,
+						IsSkipped: false,
+					}).
+					Times(1)
+			},
+		},
+		{
+			name: "Ok (Action execution is successful -> Reduce active limit by 1)",
+			req: &types.ActivateAbilityRequest{
+				AbilityIndex: 0,
+			},
+			expectedRes: &types.ActionResponse{
+				Ok: true,
+			},
+			expectedLimit: 1,
+			setup: func(role role, ma *gamemock.MockAction, ms *gamemock.MockScheduler) {
+				role.abilities[0].activeLimit = 2
+				ma.EXPECT().Execute(&types.ActionRequest{
+					ActorID: rs.playerID,
+				}).
+					Return(&types.ActionResponse{
+						Ok:        true,
+						IsSkipped: false,
+					}).
+					Times(1)
 
-// 	for _, test := range tests {
-// 		rs.Run(test.name, func() {
-// 			role := role{
-// 				player: rs.player,
-// 				abilities: map[enum.ActionID]*ability{
-// 					rs.actionID1: {
-// 						action: rs.action1,
-// 					},
-// 					rs.actionID2: {
-// 						action: rs.action2,
-// 					},
-// 				},
-// 			}
-// 			test.setup(role)
-// 			res := role.UseAbility(test.req)
+			},
+		},
+		{
+			name: "Ok (Action execution is successful -> Reach limit)",
+			req: &types.ActivateAbilityRequest{
+				AbilityIndex: 0,
+			},
+			expectedRes: &types.ActionResponse{
+				Ok: true,
+			},
+			expectedLimit: vars.ReachedLimit,
+			setup: func(role role, ma *gamemock.MockAction, ms *gamemock.MockScheduler) {
+				role.abilities[0].activeLimit = 1
+				ma.EXPECT().Execute(&types.ActionRequest{
+					ActorID: rs.playerID,
+				}).
+					Return(&types.ActionResponse{
+						Ok:        true,
+						IsSkipped: false,
+					}).
+					Times(1)
+				ms.EXPECT().RemovePlayerTurn(&types.RemovedPlayerTurn{
+					PhaseID:  role.phaseID,
+					RoleID:   role.id,
+					PlayerID: role.player.ID(),
+				})
+			},
+		},
+	}
 
-// 			rs.Equal(test.expectedRes, res)
+	for _, test := range tests {
+		rs.Run(test.name, func() {
+			ctrl := gomock.NewController(rs.T())
+			defer ctrl.Finish()
+			player := gamemock.NewMockPlayer(ctrl)
+			scheduler := gamemock.NewMockScheduler(ctrl)
+			game := gamemock.NewMockGame(ctrl)
+			action := gamemock.NewMockAction(ctrl)
 
-// 			// Invalid ability
-// 			if test.isInvalidRole {
-// 				rs.Nil(role.abilities[test.req.ActionID])
-// 			} else {
-// 				rs.Equal(test.newActiveLimit, role.abilities[test.req.ActionID].activeLimit)
-// 			}
-// 		})
-// 	}
-// }
+			action.EXPECT().ID().Return(rs.actionID1).AnyTimes()
+			player.EXPECT().ID().Return(rs.playerID).AnyTimes()
+			game.EXPECT().Scheduler().Return(scheduler).AnyTimes()
+
+			role := role{
+				game:   game,
+				player: player,
+				abilities: []*ability{
+					{
+						action: action,
+					},
+				},
+			}
+			test.setup(role, action, scheduler)
+			res := role.ActivateAbility(test.req)
+
+			rs.Equal(test.expectedRes, res)
+			rs.Equal(test.expectedLimit, role.ActiveLimit(0))
+		})
+	}
+}

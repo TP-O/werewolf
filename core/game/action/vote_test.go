@@ -23,14 +23,14 @@ func TestVoteSuite(t *testing.T) {
 	suite.Run(t, new(VoteSuite))
 }
 
-func (vs *VoteSuite) SetupSuite() {
+func (vs VoteSuite) SetupSuite() {
 	vs.actorID = types.PlayerID("2")
 	vs.targetID = types.PlayerID("2")
 	vs.factionID = vars.VillagerFactionID
 	vs.weight = 1
 }
 
-func (vs *VoteSuite) TestNewVote() {
+func (vs VoteSuite) TestNewVote() {
 	tests := []struct {
 		name        string
 		setting     *VoteActionSetting
@@ -85,7 +85,7 @@ func (vs *VoteSuite) TestNewVote() {
 	}
 }
 
-func (vs *VoteSuite) TestSkipVote() {
+func (vs VoteSuite) TestSkipVote() {
 	ctrl := gomock.NewController(vs.T())
 	defer ctrl.Finish()
 	game := gamemock.NewMockGame(ctrl)
@@ -115,7 +115,7 @@ func (vs *VoteSuite) TestSkipVote() {
 	vs.Equal(expectedRes, res)
 }
 
-func (vs *VoteSuite) TestPerformVote() {
+func (vs VoteSuite) TestPerformVote() {
 	tests := []struct {
 		name        string
 		req         *types.ActionRequest

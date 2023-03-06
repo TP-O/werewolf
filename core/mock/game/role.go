@@ -35,10 +35,10 @@ func (m *MockRole) EXPECT() *MockRoleMockRecorder {
 }
 
 // ActivateAbility mocks base method.
-func (m *MockRole) ActivateAbility(req types.ActivateAbilityRequest) types.ActionResponse {
+func (m *MockRole) ActivateAbility(req *types.ActivateAbilityRequest) *types.ActionResponse {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ActivateAbility", req)
-	ret0, _ := ret[0].(types.ActionResponse)
+	ret0, _ := ret[0].(*types.ActionResponse)
 	return ret0
 }
 
@@ -74,18 +74,6 @@ func (mr *MockRoleMockRecorder) AfterDeath() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AfterDeath", reflect.TypeOf((*MockRole)(nil).AfterDeath))
 }
 
-// AfterSaved mocks base method.
-func (m *MockRole) AfterSaved() {
-	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "AfterSaved")
-}
-
-// AfterSaved indicates an expected call of AfterSaved.
-func (mr *MockRoleMockRecorder) AfterSaved() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AfterSaved", reflect.TypeOf((*MockRole)(nil).AfterSaved))
-}
-
 // BeforeDeath mocks base method.
 func (m *MockRole) BeforeDeath() bool {
 	m.ctrl.T.Helper()
@@ -98,20 +86,6 @@ func (m *MockRole) BeforeDeath() bool {
 func (mr *MockRoleMockRecorder) BeforeDeath() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BeforeDeath", reflect.TypeOf((*MockRole)(nil).BeforeDeath))
-}
-
-// BeginRoundID mocks base method.
-func (m *MockRole) BeginRoundID() types.RoundID {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "BeginRoundID")
-	ret0, _ := ret[0].(types.RoundID)
-	return ret0
-}
-
-// BeginRoundID indicates an expected call of BeginRoundID.
-func (mr *MockRoleMockRecorder) BeginRoundID() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BeginRoundID", reflect.TypeOf((*MockRole)(nil).BeginRoundID))
 }
 
 // FactionID mocks base method.
@@ -142,30 +116,14 @@ func (mr *MockRoleMockRecorder) ID() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ID", reflect.TypeOf((*MockRole)(nil).ID))
 }
 
-// PhaseID mocks base method.
-func (m *MockRole) PhaseID() types.PhaseID {
+// RegisterTurns mocks base method.
+func (m *MockRole) RegisterTurns() {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "PhaseID")
-	ret0, _ := ret[0].(types.PhaseID)
-	return ret0
+	m.ctrl.Call(m, "RegisterTurns")
 }
 
-// PhaseID indicates an expected call of PhaseID.
-func (mr *MockRoleMockRecorder) PhaseID() *gomock.Call {
+// RegisterTurns indicates an expected call of RegisterTurns.
+func (mr *MockRoleMockRecorder) RegisterTurns() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PhaseID", reflect.TypeOf((*MockRole)(nil).PhaseID))
-}
-
-// TurnID mocks base method.
-func (m *MockRole) TurnID() types.TurnID {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "TurnID")
-	ret0, _ := ret[0].(types.TurnID)
-	return ret0
-}
-
-// TurnID indicates an expected call of TurnID.
-func (mr *MockRoleMockRecorder) TurnID() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TurnID", reflect.TypeOf((*MockRole)(nil).TurnID))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RegisterTurns", reflect.TypeOf((*MockRole)(nil).RegisterTurns))
 }

@@ -5,6 +5,7 @@ import (
 	"math"
 	"uwwolf/game/contract"
 	"uwwolf/game/types"
+	"uwwolf/game/vars"
 
 	"golang.org/x/exp/slices"
 )
@@ -45,7 +46,7 @@ var _ contract.Poll = (*poll)(nil)
 
 func NewPoll() contract.Poll {
 	return &poll{
-		RoundID: types.RoundID(0),
+		RoundID: vars.FirstRound,
 		Weights: make(map[types.PlayerID]uint),
 		Records: make(map[types.RoundID]types.PollRecord),
 	}

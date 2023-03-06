@@ -1,96 +1,108 @@
 package role
 
-// import (
-// 	"testing"
-// 	"uwwolf/game/enum"
-// 	gamemock "uwwolf/mock/game"
+import (
+	"testing"
+	"uwwolf/game/types"
+	"uwwolf/game/vars"
+	gamemock "uwwolf/mock/game"
 
-// 	"github.com/golang/mock/gomock"
-// 	"github.com/stretchr/testify/suite"
-// )
+	"github.com/golang/mock/gomock"
+	"github.com/stretchr/testify/suite"
+)
 
-// type VillagerSuite struct {
-// 	suite.Suite
-// 	ctrl     *gomock.Controller
-// 	game     *gamemock.MockGame
-// 	player   *gamemock.MockPlayer
-// 	poll     *gamemock.MockPoll
-// 	playerID enum.PlayerID
-// }
+type VillagerSuite struct {
+	suite.Suite
+	playerID types.PlayerID
+}
 
-// func TestVillagerSuite(t *testing.T) {
-// 	suite.Run(t, new(VillagerSuite))
-// }
+func TestVillagerSuite(t *testing.T) {
+	suite.Run(t, new(VillagerSuite))
+}
 
-// func (vs *VillagerSuite) SetupSuite() {
-// 	vs.playerID = "1"
-// }
+func (vs *VillagerSuite) SetupSuite() {
+	vs.playerID = types.PlayerID("1")
+}
 
-// func (vs *VillagerSuite) SetupTest() {
-// 	vs.ctrl = gomock.NewController(vs.T())
-// 	vs.game = gamemock.NewMockGame(vs.ctrl)
-// 	vs.player = gamemock.NewMockPlayer(vs.ctrl)
-// 	vs.poll = gamemock.NewMockPoll(vs.ctrl)
-// 	vs.game.EXPECT().Player(vs.playerID).Return(vs.player).AnyTimes()
-// }
+func (vs VillagerSuite) TestNewVillager() {
+	tests := []struct {
+		name        string
+		expectedErr string
+		setup       func(*gamemock.MockGame, *gamemock.MockPoll)
+	}{
+		{
+			name:        "Failure (Poll does not exist)",
+			expectedErr: "Poll does not exist ¯\\_(ツ)_/¯",
+			setup: func(mg *gamemock.MockGame, mp *gamemock.MockPoll) {
+				mg.EXPECT().Poll(vars.VillagerFactionID).Return(nil).Times(1)
+			},
+		},
+		{
+			name: "Ok",
+			setup: func(mg *gamemock.MockGame, mp *gamemock.MockPoll) {
+				mg.EXPECT().Poll(vars.VillagerFactionID).Return(mp).Times(2)
+				mp.EXPECT().AddElectors(vs.playerID).Times(1)
+				mp.EXPECT().SetWeight(vs.playerID, uint(1)).Times(1)
+			},
+		},
+	}
 
-// func (vs *VillagerSuite) TearDownTest() {
-// 	vs.ctrl.Finish()
-// }
+	for _, test := range tests {
+		vs.Run(test.name, func() {
+			ctrl := gomock.NewController(vs.T())
+			defer ctrl.Finish()
+			game := gamemock.NewMockGame(ctrl)
+			player := gamemock.NewMockPlayer(ctrl)
+			poll := gamemock.NewMockPoll(ctrl)
 
-// func (vs *VillagerSuite) TestNewVillager() {
-// 	tests := []struct {
-// 		name        string
-// 		expectedErr string
-// 		returnNil   bool
-// 		setup       func()
-// 	}{
-// 		{
-// 			name:        "Failure (Poll does not exist)",
-// 			returnNil:   true,
-// 			expectedErr: "Poll does not exist ¯\\_(ツ)_/¯",
-// 			setup: func() {
-// 				vs.game.EXPECT().Poll(enum.VillagerFactionID).Return(nil).Times(1)
-// 			},
-// 		},
-// 		{
-// 			name:        "Failure (Unable to join to the poll)",
-// 			returnNil:   true,
-// 			expectedErr: "Unable to join to the poll ಠ_ಠ",
-// 			setup: func() {
-// 				vs.game.EXPECT().Poll(enum.VillagerFactionID).Return(vs.poll).Times(1)
-// 				vs.poll.EXPECT().AddElectors(vs.playerID).Return(false).Times(1)
-// 			},
-// 		},
-// 		{
-// 			name:      "Ok",
-// 			returnNil: false,
-// 			setup: func() {
-// 				vs.game.EXPECT().Poll(enum.VillagerFactionID).Return(vs.poll).Times(1)
-// 				vs.poll.EXPECT().AddElectors(vs.playerID).Return(true).Times(1)
-// 				vs.poll.EXPECT().SetWeight(vs.playerID, uint(1)).Times(1)
-// 			},
-// 		},
-// 	}
+			game.EXPECT().Player(vs.playerID).Return(player).AnyTimes()
+			test.setup(game, poll)
 
-// 	for _, test := range tests {
-// 		vs.Run(test.name, func() {
-// 			test.setup()
-// 			villager, err := NewVillager(vs.game, vs.playerID)
+			v, err := NewVillager(game, vs.playerID)
 
-// 			if test.returnNil {
-// 				vs.Nil(villager)
-// 				vs.NotNil(err)
-// 				vs.Equal(test.expectedErr, err.Error())
-// 			} else {
-// 				vs.Nil(err)
-// 				vs.Equal(enum.VillagerRoleID, villager.ID())
-// 				vs.Equal(enum.DayPhaseID, villager.PhaseID())
-// 				vs.Equal(enum.VillagerFactionID, villager.FactionID())
-// 				vs.Equal(enum.VillagerTurnPriority, villager.Priority())
-// 				vs.Equal(enum.FirstRound, villager.BeginRound())
-// 				vs.Equal(enum.Unlimited, villager.ActiveLimit(enum.VoteActionID))
-// 			}
-// 		})
-// 	}
-// }
+			if test.expectedErr != "" {
+				vs.Nil(v)
+				vs.NotNil(err)
+				vs.Equal(test.expectedErr, err.Error())
+			} else {
+				vs.Nil(err)
+				vs.Equal(vars.VillagerRoleID, v.ID())
+				vs.Equal(vars.DayPhaseID, v.(*villager).phaseID)
+				vs.Equal(vars.VillagerFactionID, v.FactionID())
+				vs.Equal(vars.FirstRound, v.(*villager).beginRoundID)
+				vs.Equal(player, v.(*villager).player)
+				vs.Equal(vars.Unlimited, v.ActiveLimit(0))
+				vs.Len(v.(*villager).abilities, 1)
+				vs.Equal(vars.VoteActionID, v.(*villager).abilities[0].action.ID())
+			}
+		})
+	}
+}
+
+func (vs VillagerSuite) TestRegisterTurn() {
+	ctrl := gomock.NewController(vs.T())
+	defer ctrl.Finish()
+	game := gamemock.NewMockGame(ctrl)
+	player := gamemock.NewMockPlayer(ctrl)
+	poll := gamemock.NewMockPoll(ctrl)
+	scheduler := gamemock.NewMockScheduler(ctrl)
+
+	player.EXPECT().ID().Return(vs.playerID).Times(1)
+	game.EXPECT().Player(vs.playerID).Return(player).Times(1)
+	game.EXPECT().Poll(vars.VillagerFactionID).Return(poll).Times(2)
+	poll.EXPECT().AddElectors(vs.playerID).Times(1)
+	poll.EXPECT().SetWeight(vs.playerID, uint(1)).Times(1)
+	game.EXPECT().Scheduler().Return(scheduler).Times(1)
+
+	v, _ := NewVillager(game, vs.playerID)
+
+	scheduler.EXPECT().AddPlayerTurn(&types.NewPlayerTurn{
+		PhaseID:      v.(*villager).phaseID,
+		TurnID:       v.(*villager).turnID,
+		BeginRoundID: v.(*villager).beginRoundID,
+		PlayerID:     vs.playerID,
+		RoleID:       v.(*villager).id,
+		ExpiredAfter: vars.Unlimited,
+	}).Times(1)
+
+	v.RegisterTurn()
+}

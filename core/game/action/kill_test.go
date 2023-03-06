@@ -20,12 +20,12 @@ func TestKillSuite(t *testing.T) {
 	suite.Run(t, new(KillSuite))
 }
 
-func (ks *KillSuite) SetupSuite() {
+func (ks KillSuite) SetupSuite() {
 	ks.actorID = types.PlayerID("1")
 	ks.targetID = types.PlayerID("2")
 }
 
-func (ks *KillSuite) TestNewKill() {
+func (ks KillSuite) TestNewKill() {
 	ctrl := gomock.NewController(ks.T())
 	game := gamemock.NewMockGame(ctrl)
 
@@ -36,7 +36,7 @@ func (ks *KillSuite) TestNewKill() {
 	ks.Len(kill.Kills, 0)
 }
 
-func (ks *KillSuite) TestValidateKill() {
+func (ks KillSuite) TestValidateKill() {
 	tests := []struct {
 		name        string
 		req         *types.ActionRequest
@@ -108,7 +108,7 @@ func (ks *KillSuite) TestValidateKill() {
 	}
 }
 
-func (ks *KillSuite) TestPerformKill() {
+func (ks KillSuite) TestPerformKill() {
 	tests := []struct {
 		name              string
 		req               *types.ActionRequest

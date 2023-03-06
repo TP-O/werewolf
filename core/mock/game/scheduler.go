@@ -35,7 +35,7 @@ func (m *MockScheduler) EXPECT() *MockSchedulerMockRecorder {
 }
 
 // AddPlayerTurn mocks base method.
-func (m *MockScheduler) AddPlayerTurn(newTurn types.NewPlayerTurn) bool {
+func (m *MockScheduler) AddPlayerTurn(newTurn *types.NewPlayerTurn) bool {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AddPlayerTurn", newTurn)
 	ret0, _ := ret[0].(bool)
@@ -119,7 +119,7 @@ func (mr *MockSchedulerMockRecorder) PlayablePlayerIDs() *gomock.Call {
 }
 
 // RemovePlayerTurn mocks base method.
-func (m *MockScheduler) RemovePlayerTurn(removedTurn types.RemovedPlayerTurn) bool {
+func (m *MockScheduler) RemovePlayerTurn(removedTurn *types.RemovedPlayerTurn) bool {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "RemovePlayerTurn", removedTurn)
 	ret0, _ := ret[0].(bool)

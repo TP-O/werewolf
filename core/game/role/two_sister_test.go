@@ -1,48 +1,69 @@
 package role
 
-// import (
-// 	"testing"
-// 	"uwwolf/game/enum"
-// 	gamemock "uwwolf/mock/game"
+import (
+	"testing"
+	"uwwolf/game/types"
+	"uwwolf/game/vars"
+	gamemock "uwwolf/mock/game"
 
-// 	"github.com/golang/mock/gomock"
-// 	"github.com/stretchr/testify/suite"
-// )
+	"github.com/golang/mock/gomock"
+	"github.com/stretchr/testify/suite"
+)
 
-// type TwoSisterSuite struct {
-// 	suite.Suite
-// 	ctrl     *gomock.Controller
-// 	game     *gamemock.MockGame
-// 	player   *gamemock.MockPlayer
-// 	playerID enum.PlayerID
-// }
+type TwoSisterSuite struct {
+	suite.Suite
+	playerID types.PlayerID
+}
 
-// func TestTwoSisterSuite(t *testing.T) {
-// 	suite.Run(t, new(TwoSisterSuite))
-// }
+func TestTwoSisterSuite(t *testing.T) {
+	suite.Run(t, new(SeerSuite))
+}
 
-// func (tss *TwoSisterSuite) SetupSuite() {
-// 	tss.playerID = "1"
-// }
+func (tss *TwoSisterSuite) SetupSuite() {
+	tss.playerID = types.PlayerID("1")
+}
 
-// func (tss *TwoSisterSuite) SetupTest() {
-// 	tss.ctrl = gomock.NewController(tss.T())
-// 	tss.game = gamemock.NewMockGame(tss.ctrl)
-// 	tss.player = gamemock.NewMockPlayer(tss.ctrl)
-// 	tss.game.EXPECT().Player(tss.playerID).Return(tss.player).AnyTimes()
-// }
+func (tss TwoSisterSuite) TestNewTwoSister() {
+	ctrl := gomock.NewController(tss.T())
+	defer ctrl.Finish()
+	game := gamemock.NewMockGame(ctrl)
+	player := gamemock.NewMockPlayer(ctrl)
 
-// func (tss *TwoSisterSuite) TearDownTest() {
-// 	tss.ctrl.Finish()
-// }
+	game.EXPECT().Player(tss.playerID).Return(player).Times(1)
 
-// func (tss *TwoSisterSuite) TestNewTwoSister() {
-// 	twoSister, _ := NewTwoSister(tss.game, tss.playerID)
+	ts, _ := NewTwoSister(game, tss.playerID)
 
-// 	tss.Equal(enum.TwoSistersRoleID, twoSister.ID())
-// 	tss.Equal(enum.NightPhaseID, twoSister.PhaseID())
-// 	tss.Equal(enum.VillagerFactionID, twoSister.FactionID())
-// 	tss.Equal(enum.TwoSistersTurnPriority, twoSister.Priority())
-// 	tss.Equal(enum.FirstRound, twoSister.BeginRound())
-// 	tss.Equal(enum.OneMore, twoSister.ActiveLimit(enum.RecognizeActionID))
-// }
+	tss.Equal(vars.TwoSistersRoleID, ts.ID())
+	tss.Equal(vars.NightPhaseID, ts.(*twoSister).phaseID)
+	tss.Equal(vars.VillagerFactionID, ts.FactionID())
+	tss.Equal(vars.FirstRound, ts.(*twoSister).beginRoundID)
+	tss.Equal(player, ts.(*twoSister).player)
+	tss.Equal(vars.Unlimited, ts.ActiveLimit(0))
+	tss.Len(ts.(*twoSister).abilities, 1)
+	tss.Equal(vars.PredictActionID, ts.(*twoSister).abilities[0].action.ID())
+}
+
+func (tss TwoSisterSuite) TestTwoSisterRegisterTurns() {
+	ctrl := gomock.NewController(tss.T())
+	defer ctrl.Finish()
+	game := gamemock.NewMockGame(ctrl)
+	player := gamemock.NewMockPlayer(ctrl)
+	scheduler := gamemock.NewMockScheduler(ctrl)
+
+	game.EXPECT().Player(tss.playerID).Return(player).Times(1)
+	game.EXPECT().Scheduler().Return(scheduler).Times(1)
+	player.EXPECT().ID().Return(tss.playerID).Times(1)
+
+	ts, _ := NewTwoSister(game, tss.playerID)
+
+	scheduler.EXPECT().AddPlayerTurn(&types.NewPlayerTurn{
+		PhaseID:      ts.(*twoSister).phaseID,
+		TurnID:       ts.(*twoSister).turnID,
+		BeginRoundID: ts.(*twoSister).beginRoundID,
+		PlayerID:     tss.playerID,
+		RoleID:       ts.(*twoSister).id,
+		ExpiredAfter: vars.One,
+	})
+
+	ts.RegisterTurn()
+}

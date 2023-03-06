@@ -7,23 +7,41 @@ import (
 	"uwwolf/game/vars"
 )
 
+type seer struct {
+	*role
+}
+
 func NewSeer(game contract.Game, playerID types.PlayerID) (contract.Role, error) {
-	return &role{
-		id:           vars.SeerRoleID,
-		factionID:    vars.VillagerFactionID,
-		phaseID:      vars.NightPhaseID,
-		beginRoundID: types.RoundID(1),
-		turnID:       vars.SeerTurnID,
-		game:         game,
-		player:       game.Player(playerID),
-		abilities: []ability{
-			{
-				action: action.NewFactionPredict(
-					game,
-					vars.WerewolfFactionID,
-				),
-				activeLimit: vars.Unlimited,
+	return &seer{
+		role: &role{
+			id:           vars.SeerRoleID,
+			factionID:    vars.VillagerFactionID,
+			phaseID:      vars.NightPhaseID,
+			beginRoundID: vars.SecondRound,
+			turnID:       vars.SeerTurnID,
+			game:         game,
+			player:       game.Player(playerID),
+			abilities: []*ability{
+				{
+					action: action.NewFactionPredict(
+						game,
+						vars.WerewolfFactionID,
+					),
+					activeLimit: vars.Unlimited,
+				},
 			},
 		},
 	}, nil
+}
+
+// RegisterTurn adds role's turn to the game schedule.
+func (s seer) RegisterTurn() {
+	s.game.Scheduler().AddPlayerTurn(&types.NewPlayerTurn{
+		PhaseID:      s.phaseID,
+		TurnID:       s.turnID,
+		BeginRoundID: s.beginRoundID,
+		PlayerID:     s.player.ID(),
+		RoleID:       s.id,
+		ExpiredAfter: vars.Unlimited,
+	})
 }

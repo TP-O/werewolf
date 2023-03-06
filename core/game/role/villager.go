@@ -7,6 +7,10 @@ import (
 	"uwwolf/game/vars"
 )
 
+type villager struct {
+	*role
+}
+
 func NewVillager(game contract.Game, playerID types.PlayerID) (contract.Role, error) {
 	voteAction, err := action.NewVote(game, &action.VoteActionSetting{
 		FactionID: vars.VillagerFactionID,
@@ -17,19 +21,33 @@ func NewVillager(game contract.Game, playerID types.PlayerID) (contract.Role, er
 		return nil, err
 	}
 
-	return &role{
-		id:           vars.VillagerRoleID,
-		factionID:    vars.VillagerFactionID,
-		phaseID:      vars.DayPhaseID,
-		beginRoundID: types.RoundID(0),
-		turnID:       vars.VillagerTurnID,
-		game:         game,
-		player:       game.Player(playerID),
-		abilities: []ability{
-			vars.VoteActionID: {
-				action:      voteAction,
-				activeLimit: vars.Unlimited,
+	return &villager{
+		role: &role{
+			id:           vars.VillagerRoleID,
+			factionID:    vars.VillagerFactionID,
+			phaseID:      vars.DayPhaseID,
+			beginRoundID: vars.FirstRound,
+			turnID:       vars.VillagerTurnID,
+			game:         game,
+			player:       game.Player(playerID),
+			abilities: []*ability{
+				{
+					action:      voteAction,
+					activeLimit: vars.Unlimited,
+				},
 			},
 		},
 	}, nil
+}
+
+// RegisterTurn adds role's turn to the game schedule.
+func (v villager) RegisterTurn() {
+	v.game.Scheduler().AddPlayerTurn(&types.NewPlayerTurn{
+		PhaseID:      v.phaseID,
+		TurnID:       v.turnID,
+		BeginRoundID: v.beginRoundID,
+		PlayerID:     v.player.ID(),
+		RoleID:       v.id,
+		ExpiredAfter: vars.Unlimited,
+	})
 }

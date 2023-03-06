@@ -158,7 +158,7 @@ func (g *game) assignRoles() {
 			g.scheduler.AddPlayerTurn(types.NewPlayerTurn{
 				PhaseID:      vars.DayPhaseID,
 				RoleID:       vars.VillagerRoleID,
-				BeginRoundID: types.RoundID(0),
+				BeginRoundID: vars.FirstRound,
 				TurnID:       vars.MidTurn,
 				PlayerID:     player.ID(),
 			})
@@ -174,7 +174,7 @@ func (g *game) assignRoles() {
 				g.scheduler.AddPlayerTurn(types.NewPlayerTurn{
 					PhaseID:      vars.NightPhaseID,
 					RoleID:       vars.WerewolfRoleID,
-					BeginRoundID: types.RoundID(0),
+					BeginRoundID: vars.FirstRound,
 					TurnID:       vars.MidTurn,
 					PlayerID:     player.ID(),
 				})

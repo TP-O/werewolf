@@ -8,20 +8,20 @@ import (
 )
 
 type hunter struct {
-	role
+	*role
 }
 
 func NewHunter(game contract.Game, playerID types.PlayerID) (contract.Role, error) {
 	return &hunter{
-			role{
+			role: &role{
 				id:           vars.HunterRoleID,
 				phaseID:      vars.DayPhaseID,
 				factionID:    vars.VillagerFactionID,
-				beginRoundID: types.RoundID(0),
+				beginRoundID: vars.FirstRound,
 				turnID:       vars.HunterTurnID,
 				game:         game,
 				player:       game.Player(playerID),
-				abilities: []ability{
+				abilities: []*ability{
 					{
 						action:      action.NewKill(game),
 						activeLimit: vars.ReachedLimit,
@@ -32,35 +32,38 @@ func NewHunter(game contract.Game, playerID types.PlayerID) (contract.Role, erro
 		nil
 }
 
-func (h *hunter) AfterDeath() {
-	diedAtPhaseID := h.game.Scheduler().PhaseID()
-	playerTurn := types.NewPlayerTurn{
-		PhaseID:  h.phaseID,
-		PlayerID: h.player.ID(),
-		RoleID:   h.id,
-	}
-	if diedAtPhaseID == h.phaseID {
-		// Hunter can play in next turn if he dies at his phase
-		playerTurn.BeginRoundID = h.game.Scheduler().RoundID()
-		playerTurn.TurnID = h.game.Scheduler().TurnID() + 1
-	} else {
-		// Hunter can play in his turn of the next day
-		// if he dies at a time which is not his phase
-		playerTurn.BeginRoundID = h.game.Scheduler().RoundID() + 1
-		playerTurn.TurnID = vars.HunterTurnID
-	}
-
-	h.abilities[vars.KillActionID].activeLimit = vars.One
-	h.game.Scheduler().AddPlayerTurn(playerTurn)
+// RegisterTurn adds role's turn to the game schedule.
+func (h hunter) RegisterTurn() {
+	//
 }
 
-func (h *hunter) AfterSaved() {
-	// Undo `AfterDeath`
-	h.abilities[vars.KillActionID].activeLimit = vars.ReachedLimit
-	h.game.Scheduler().RemovePlayerTurn(types.RemovedPlayerTurn{
-		PhaseID:  h.phaseID,
-		TurnID:   types.TurnID(-1),
-		PlayerID: h.player.ID(),
-		RoleID:   h.id,
-	})
+// AfterDeath is triggered after killing this role.
+func (h *hunter) AfterDeath() {
+	diedAtPhaseID := h.game.Scheduler().PhaseID()
+
+	// Ability is disabled if current round is too early
+	if h.game.Scheduler().RoundID() < h.beginRoundID {
+		return
+	}
+
+	// This turn can be only played in the current round
+	playerTurn := &types.NewPlayerTurn{
+		PhaseID:      h.phaseID,
+		PlayerID:     h.player.ID(),
+		RoleID:       h.id,
+		BeginRoundID: h.game.Scheduler().RoundID(),
+		ExpiredAfter: vars.One,
+	}
+
+	if diedAtPhaseID == h.phaseID {
+		// Play in next turn if he dies at his phase
+		playerTurn.TurnID = h.game.Scheduler().TurnID() + 1
+	} else {
+		// Play in his turn of the next day if he dies at
+		// a time is not his phase
+		playerTurn.TurnID = h.turnID
+	}
+
+	h.abilities[0].activeLimit = vars.One
+	h.game.Scheduler().AddPlayerTurn(playerTurn)
 }

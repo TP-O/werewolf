@@ -1,48 +1,69 @@
 package role
 
-// import (
-// 	"testing"
-// 	"uwwolf/game/enum"
-// 	gamemock "uwwolf/mock/game"
+import (
+	"testing"
+	"uwwolf/game/types"
+	"uwwolf/game/vars"
+	gamemock "uwwolf/mock/game"
 
-// 	"github.com/golang/mock/gomock"
-// 	"github.com/stretchr/testify/suite"
-// )
+	"github.com/golang/mock/gomock"
+	"github.com/stretchr/testify/suite"
+)
 
-// type SeerSuite struct {
-// 	suite.Suite
-// 	ctrl     *gomock.Controller
-// 	game     *gamemock.MockGame
-// 	player   *gamemock.MockPlayer
-// 	playerID enum.PlayerID
-// }
+type SeerSuite struct {
+	suite.Suite
+	playerID types.PlayerID
+}
 
-// func TestSeerSuite(t *testing.T) {
-// 	suite.Run(t, new(SeerSuite))
-// }
+func TestSeerSuite(t *testing.T) {
+	suite.Run(t, new(SeerSuite))
+}
 
-// func (ss *SeerSuite) SetupSuite() {
-// 	ss.playerID = "1"
-// }
+func (ss *SeerSuite) SetupSuite() {
+	ss.playerID = types.PlayerID("1")
+}
 
-// func (ss *SeerSuite) SetupTest() {
-// 	ss.ctrl = gomock.NewController(ss.T())
-// 	ss.game = gamemock.NewMockGame(ss.ctrl)
-// 	ss.player = gamemock.NewMockPlayer(ss.ctrl)
-// 	ss.game.EXPECT().Player(ss.playerID).Return(ss.player).AnyTimes()
-// }
+func (ss SeerSuite) TestNewSeer() {
+	ctrl := gomock.NewController(ss.T())
+	defer ctrl.Finish()
+	game := gamemock.NewMockGame(ctrl)
+	player := gamemock.NewMockPlayer(ctrl)
 
-// func (ss *SeerSuite) TearDownTest() {
-// 	ss.ctrl.Finish()
-// }
+	game.EXPECT().Player(ss.playerID).Return(player).Times(1)
 
-// func (ss *SeerSuite) TestNewSeer() {
-// 	seer, _ := NewSeer(ss.game, ss.playerID)
+	s, _ := NewSeer(game, ss.playerID)
 
-// 	ss.Equal(enum.SeerRoleID, seer.ID())
-// 	ss.Equal(enum.NightPhaseID, seer.PhaseID())
-// 	ss.Equal(enum.VillagerFactionID, seer.FactionID())
-// 	ss.Equal(enum.SeerTurnPriority, seer.Priority())
-// 	ss.Equal(enum.Round(2), seer.BeginRound())
-// 	ss.Equal(enum.Unlimited, seer.ActiveLimit(enum.PredictActionID))
-// }
+	ss.Equal(vars.SeerRoleID, s.ID())
+	ss.Equal(vars.NightPhaseID, s.(*seer).phaseID)
+	ss.Equal(vars.VillagerFactionID, s.FactionID())
+	ss.Equal(vars.SecondRound, s.(*seer).beginRoundID)
+	ss.Equal(player, s.(*seer).player)
+	ss.Equal(vars.Unlimited, s.ActiveLimit(0))
+	ss.Len(s.(*seer).abilities, 1)
+	ss.Equal(vars.PredictActionID, s.(*seer).abilities[0].action.ID())
+}
+
+func (ss SeerSuite) TestSeerRegisterTurns() {
+	ctrl := gomock.NewController(ss.T())
+	defer ctrl.Finish()
+	game := gamemock.NewMockGame(ctrl)
+	player := gamemock.NewMockPlayer(ctrl)
+	scheduler := gamemock.NewMockScheduler(ctrl)
+
+	game.EXPECT().Player(ss.playerID).Return(player).Times(1)
+	game.EXPECT().Scheduler().Return(scheduler).Times(1)
+	player.EXPECT().ID().Return(ss.playerID).Times(1)
+
+	s, _ := NewSeer(game, ss.playerID)
+
+	scheduler.EXPECT().AddPlayerTurn(&types.NewPlayerTurn{
+		PhaseID:      s.(*seer).phaseID,
+		TurnID:       s.(*seer).turnID,
+		BeginRoundID: s.(*seer).beginRoundID,
+		PlayerID:     ss.playerID,
+		RoleID:       s.(*seer).id,
+		ExpiredAfter: vars.Unlimited,
+	})
+
+	s.RegisterTurn()
+}

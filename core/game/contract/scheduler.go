@@ -30,13 +30,13 @@ type Scheduler interface {
 	IsEmptyPhase(phaseID types.PhaseID) bool
 
 	// AddPlayerTurn adds new player turn to the scheduler.
-	AddPlayerTurn(newTurn types.NewPlayerTurn) bool
+	AddPlayerTurn(newTurn *types.NewPlayerTurn) bool
 
 	// RemovePlayerTurn removes a player turn from the scheduler
 	// by `TurnID` or `RoleID`. Assigns -1 to `TurnID` if omitted.
 	//
 	// If `PhaseID` is 0, removes all of turns of that player.
-	RemovePlayerTurn(removedTurn types.RemovedPlayerTurn) bool
+	RemovePlayerTurn(removedTurn *types.RemovedPlayerTurn) bool
 
 	// NextTurn moves to the next turn.
 	// Returns false if the scheduler is empty.
