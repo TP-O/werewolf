@@ -116,14 +116,14 @@ func (mr *MockRoleMockRecorder) ID() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ID", reflect.TypeOf((*MockRole)(nil).ID))
 }
 
-// RegisterTurns mocks base method.
-func (m *MockRole) RegisterTurns() {
+// RegisterTurn mocks base method.
+func (m *MockRole) RegisterTurn() {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "RegisterTurns")
+	m.ctrl.Call(m, "RegisterTurn")
 }
 
-// RegisterTurns indicates an expected call of RegisterTurns.
-func (mr *MockRoleMockRecorder) RegisterTurns() *gomock.Call {
+// RegisterTurn indicates an expected call of RegisterTurn.
+func (mr *MockRoleMockRecorder) RegisterTurn() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RegisterTurns", reflect.TypeOf((*MockRole)(nil).RegisterTurns))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RegisterTurn", reflect.TypeOf((*MockRole)(nil).RegisterTurn))
 }

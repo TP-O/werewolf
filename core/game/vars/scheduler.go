@@ -3,6 +3,7 @@ package vars
 import "uwwolf/game/types"
 
 const (
-	FirstRound types.RoundID = iota
+	ZeroRound types.RoundID = iota
+	FirstRound
 	SecondRound
 )

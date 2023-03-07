@@ -9,5 +9,5 @@ type VoteRecord struct {
 type PollRecord struct {
 	WinnerID    PlayerID
 	IsClosed    bool
-	VoteRecords map[PlayerID]VoteRecord
+	VoteRecords map[PlayerID]*VoteRecord
 }

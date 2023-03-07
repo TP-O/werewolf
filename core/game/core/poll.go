@@ -39,26 +39,27 @@ type poll struct {
 
 	// Records stores poll results in the past.
 	// Note: consider using pointer instead.
-	Records map[types.RoundID]types.PollRecord
+	Records map[types.RoundID]*types.PollRecord
 }
-
-var _ contract.Poll = (*poll)(nil)
 
 func NewPoll() contract.Poll {
 	return &poll{
-		RoundID: vars.FirstRound,
+		RoundID: vars.ZeroRound,
 		Weights: make(map[types.PlayerID]uint),
-		Records: make(map[types.RoundID]types.PollRecord),
+		Records: make(map[types.RoundID]*types.PollRecord),
 	}
 }
 
+// IsOpen checks if a poll round is opening.
 func (p poll) IsOpen() bool {
-	return !p.Records[p.RoundID].IsClosed
+	return p.RoundID != vars.ZeroRound && !p.Records[p.RoundID].IsClosed
 }
 
+// CanVote checks if the elector can vote for the current poll round.
+// Returns the result and an error if any
 func (p poll) CanVote(electorID types.PlayerID) (bool, error) {
 	if !p.IsOpen() {
-		return false, fmt.Errorf("Poll (%v) is closed ᕙ(⇀‸↼‶)ᕗ", p.RoundID)
+		return false, fmt.Errorf("Wait for the next poll (%v) ᕙ(⇀‸↼‶)ᕗ", p.RoundID)
 	} else if !slices.Contains(p.RemainingElectorIDs, electorID) {
 		return false, fmt.Errorf("You're not allowed to vote ノ(ジ)ー'")
 	} else if slices.Contains(p.VotedElectorIDs, electorID) {
@@ -68,29 +69,33 @@ func (p poll) CanVote(electorID types.PlayerID) (bool, error) {
 	}
 }
 
-func (p poll) Record(roundID types.RoundID) types.PollRecord {
+// Record returns the record of given round ID.
+func (p poll) Record(roundID types.RoundID) *types.PollRecord {
 	return p.Records[roundID]
 }
 
-func (p *poll) Open() bool {
+// Open starts a new poll round if the current one was closed.
+func (p *poll) Open() (bool, error) {
 	if p.IsOpen() {
-		return false
+		return false, fmt.Errorf("Poll is already open!")
+	} else if len(p.RemainingCandidateIDs) < 2 {
+		return false, fmt.Errorf("Number of candidates is too small!")
 	}
 
 	p.RoundID++
-	p.Records[p.RoundID] = types.PollRecord{
-		VoteRecords: map[types.PlayerID]types.VoteRecord{
+	p.Records[p.RoundID] = &types.PollRecord{
+		VoteRecords: map[types.PlayerID]*types.VoteRecord{
 			// Empty vote
 			"": {
 				ElectorIDs: []types.PlayerID{},
 			},
 		},
 	}
-	p.VotedElectorIDs = make([]types.PlayerID, 0, len(p.RemainingElectorIDs))
 
-	return true
+	return true, nil
 }
 
+// currentWinnerID finds the winner in the current poll round.
 func (p poll) currentWinnerID() types.PlayerID {
 	winnerID := types.PlayerID("")
 	halfVotes := uint(math.Round(float64(len(p.RemainingElectorIDs)) / 2))
@@ -109,34 +114,34 @@ func (p poll) currentWinnerID() types.PlayerID {
 	return winnerID
 }
 
+// Close finishes the current poll round.
 func (p *poll) Close() bool {
 	if !p.IsOpen() {
 		return false
 	}
 
-	// Record the skipped votes
-	pollRecord := p.Records[p.RoundID]
 	emptyVote := types.PlayerID("")
-	emptyVoteRecord := pollRecord.VoteRecords[emptyVote]
+
+	// Store skipped votes
 	for _, electorID := range p.RemainingElectorIDs {
 		if !slices.Contains(p.VotedElectorIDs, electorID) {
-			emptyVoteRecord.Weights++
-			emptyVoteRecord.ElectorIDs = append(
-				emptyVoteRecord.ElectorIDs,
+			p.Records[p.RoundID].VoteRecords[emptyVote].Weights++
+			p.Records[p.RoundID].VoteRecords[emptyVote].ElectorIDs = append(
+				p.Records[p.RoundID].VoteRecords[emptyVote].ElectorIDs,
 				electorID,
 			)
-			emptyVoteRecord.Votes++
-			p.VotedElectorIDs = append(p.VotedElectorIDs, electorID)
+			p.Records[p.RoundID].VoteRecords[emptyVote].Votes++
 		}
 	}
-	pollRecord.VoteRecords[emptyVote] = emptyVoteRecord
-	pollRecord.WinnerID = p.currentWinnerID()
-	pollRecord.IsClosed = true
-	p.Records[p.RoundID] = pollRecord
+
+	p.Records[p.RoundID].WinnerID = p.currentWinnerID()
+	p.Records[p.RoundID].IsClosed = true
+	p.VotedElectorIDs = make([]types.PlayerID, 0, len(p.RemainingElectorIDs))
 
 	return true
 }
 
+// AddCandidates adds new candidate to the poll.
 func (p *poll) AddCandidates(candidateIDs ...types.PlayerID) {
 	for _, candidateID := range candidateIDs {
 		if !slices.Contains(p.RemainingCandidateIDs, candidateID) {
@@ -149,6 +154,8 @@ func (p *poll) AddCandidates(candidateIDs ...types.PlayerID) {
 	}
 }
 
+// RemoveCandidate removes the candidate from the poll.
+// Return true if successful
 func (p *poll) RemoveCandidate(candidateID types.PlayerID) bool {
 	if i := slices.Index(p.RemainingCandidateIDs, candidateID); i == -1 {
 		return false
@@ -158,6 +165,7 @@ func (p *poll) RemoveCandidate(candidateID types.PlayerID) bool {
 	}
 }
 
+// AddElectors adds new electors to the poll.
 func (p *poll) AddElectors(electorIDs ...types.PlayerID) {
 	for _, electorID := range electorIDs {
 		if !slices.Contains(p.RemainingElectorIDs, electorID) {
@@ -171,6 +179,8 @@ func (p *poll) AddElectors(electorIDs ...types.PlayerID) {
 	}
 }
 
+// RemoveElector removes the elector from the poll.
+// Return true if successful
 func (p *poll) RemoveElector(electorID types.PlayerID) bool {
 	if i := slices.Index(p.RemainingElectorIDs, electorID); i == -1 {
 		return false
@@ -180,6 +190,8 @@ func (p *poll) RemoveElector(electorID types.PlayerID) bool {
 	}
 }
 
+// SetWeight sets the voting weight for the elector.
+// Default weight is 0.
 func (p *poll) SetWeight(electorID types.PlayerID, weight uint) bool {
 	if !slices.Contains(p.RemainingElectorIDs, electorID) {
 		return false
@@ -189,6 +201,7 @@ func (p *poll) SetWeight(electorID types.PlayerID, weight uint) bool {
 	return true
 }
 
+// Vote votes or skips for the current poll round.
 func (p *poll) Vote(electorID types.PlayerID, candidateID types.PlayerID) (bool, error) {
 	if ok, err := p.CanVote(electorID); !ok {
 		return false, err
@@ -197,20 +210,22 @@ func (p *poll) Vote(electorID types.PlayerID, candidateID types.PlayerID) (bool,
 		return false, fmt.Errorf("Your vote is not valid ¬_¬")
 	}
 
-	voteRecord := p.Records[p.RoundID].VoteRecords[candidateID]
-	// Empty votes always have weight of 1
-	if candidateID.IsUnknown() {
-		voteRecord.Weights++
-	} else {
-		voteRecord.Weights += p.Weights[electorID]
+	if p.Records[p.RoundID].VoteRecords[candidateID] == nil {
+		p.Records[p.RoundID].VoteRecords[candidateID] = &types.VoteRecord{}
 	}
 
-	voteRecord.ElectorIDs = append(
-		voteRecord.ElectorIDs,
+	// Empty votes always have weight of 1
+	if candidateID.IsUnknown() {
+		p.Records[p.RoundID].VoteRecords[candidateID].Weights++
+	} else {
+		p.Records[p.RoundID].VoteRecords[candidateID].Weights += p.Weights[electorID]
+	}
+
+	p.Records[p.RoundID].VoteRecords[candidateID].ElectorIDs = append(
+		p.Records[p.RoundID].VoteRecords[candidateID].ElectorIDs,
 		electorID,
 	)
-	voteRecord.Votes++
-	p.Records[p.RoundID].VoteRecords[candidateID] = voteRecord
+	p.Records[p.RoundID].VoteRecords[candidateID].Votes++
 	p.VotedElectorIDs = append(p.VotedElectorIDs, electorID)
 
 	return true, nil

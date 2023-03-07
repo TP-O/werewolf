@@ -12,11 +12,10 @@ type Poll interface {
 	CanVote(electorID types.PlayerID) (bool, error)
 
 	// Record returns the record of given round ID.
-	Record(roundID types.RoundID) types.PollRecord
+	Record(roundID types.RoundID) *types.PollRecord
 
-	// Open starts a new poll round if the current one was
-	// closed.
-	Open() bool
+	// Open starts a new poll round if the current one was closed.
+	Open() (bool, error)
 
 	// Close ends the current poll round.
 	Close() bool

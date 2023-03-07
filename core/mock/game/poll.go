@@ -110,11 +110,12 @@ func (mr *MockPollMockRecorder) IsOpen() *gomock.Call {
 }
 
 // Open mocks base method.
-func (m *MockPoll) Open() bool {
+func (m *MockPoll) Open() (bool, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Open")
 	ret0, _ := ret[0].(bool)
-	return ret0
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // Open indicates an expected call of Open.
@@ -124,10 +125,10 @@ func (mr *MockPollMockRecorder) Open() *gomock.Call {
 }
 
 // Record mocks base method.
-func (m *MockPoll) Record(roundID types.RoundID) types.PollRecord {
+func (m *MockPoll) Record(roundID types.RoundID) *types.PollRecord {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Record", roundID)
-	ret0, _ := ret[0].(types.PollRecord)
+	ret0, _ := ret[0].(*types.PollRecord)
 	return ret0
 }
 
