@@ -17,5 +17,3 @@ type ActivateAbilityRequest struct {
 	TargetID     PlayerID `json:"target_id" validate:"required,min=1,unique,dive,len=20"`
 	IsSkipped    bool
 }
-
-type Limit int8

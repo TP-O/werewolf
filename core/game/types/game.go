@@ -1,7 +1,5 @@
 package types
 
-type RoundID uint8
-
 type PhaseID uint8
 
 func (p PhaseID) IsUnknown() bool {
@@ -20,12 +18,6 @@ func (p PhaseID) PreviousPhaseID(lastPhaseID PhaseID) PhaseID {
 		return lastPhaseID
 	}
 	return p - 1
-}
-
-type TurnID int8
-
-func (t TurnID) IsUnknown() bool {
-	return t < 0
 }
 
 type GameID = uint64

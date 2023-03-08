@@ -23,7 +23,7 @@ func TestVoteSuite(t *testing.T) {
 	suite.Run(t, new(VoteSuite))
 }
 
-func (vs VoteSuite) SetupSuite() {
+func (vs *VoteSuite) SetupSuite() {
 	vs.actorID = types.PlayerID("2")
 	vs.targetID = types.PlayerID("2")
 	vs.factionID = vars.VillagerFactionID

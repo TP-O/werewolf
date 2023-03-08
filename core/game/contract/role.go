@@ -20,9 +20,9 @@ type Role interface {
 	// use its abilities.
 	// BeginRoundID() types.RoundID
 
-	// ActiveLimit returns remaining times this role can use the specific ability.
+	// ActiveTimes returns remaining times this role can use the specific ability.
 	// Returns total limit if the `index` is -1.
-	ActiveLimit(index int) types.Limit
+	ActiveTimes(index int) types.Times
 
 	// RegisterTurn adds role's turn to the game schedule.
 	RegisterTurn()

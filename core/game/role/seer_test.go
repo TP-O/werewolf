@@ -38,7 +38,7 @@ func (ss SeerSuite) TestNewSeer() {
 	ss.Equal(vars.VillagerFactionID, s.FactionID())
 	ss.Equal(vars.SecondRound, s.(*seer).beginRoundID)
 	ss.Equal(player, s.(*seer).player)
-	ss.Equal(vars.Unlimited, s.ActiveLimit(0))
+	ss.Equal(vars.UnlimitedTimes, s.ActiveTimes(0))
 	ss.Len(s.(*seer).abilities, 1)
 	ss.Equal(vars.PredictActionID, s.(*seer).abilities[0].action.ID())
 }
@@ -56,13 +56,12 @@ func (ss SeerSuite) TestSeerRegisterTurns() {
 
 	s, _ := NewSeer(game, ss.playerID)
 
-	scheduler.EXPECT().AddPlayerTurn(&types.NewPlayerTurn{
+	scheduler.EXPECT().AddSlot(&types.NewTurnSlot{
 		PhaseID:      s.(*seer).phaseID,
 		TurnID:       s.(*seer).turnID,
 		BeginRoundID: s.(*seer).beginRoundID,
 		PlayerID:     ss.playerID,
 		RoleID:       s.(*seer).id,
-		ExpiredAfter: vars.Unlimited,
 	})
 
 	s.RegisterTurn()

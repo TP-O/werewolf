@@ -38,7 +38,7 @@ func (hs HunterSuite) TestNewHunter() {
 	hs.Equal(vars.VillagerFactionID, h.FactionID())
 	hs.Equal(vars.FirstRound, h.(*hunter).beginRoundID)
 	hs.Equal(player, h.(*hunter).player)
-	hs.Equal(vars.ReachedLimit, h.ActiveLimit(0))
+	hs.Equal(vars.OutOfTimes, h.ActiveTimes(0))
 	hs.Len(h.(*hunter).abilities, 1)
 	hs.Equal(vars.KillActionID, h.(*hunter).abilities[0].action.ID())
 }
@@ -46,41 +46,39 @@ func (hs HunterSuite) TestNewHunter() {
 func (hs HunterSuite) TestHunterAfterDeath() {
 	tests := []struct {
 		name          string
-		expectedLimit types.Limit
+		expectedLimit types.Times
 		setup         func(*hunter, *gamemock.MockGame, *gamemock.MockScheduler)
 	}{
 		{
 			name:          "Die at inactive phase",
-			expectedLimit: vars.One,
+			expectedLimit: vars.Once,
 			setup: func(h *hunter, mg *gamemock.MockGame, ms *gamemock.MockScheduler) {
 				mg.EXPECT().Scheduler().Return(ms).Times(4)
 				ms.EXPECT().PhaseID().Return(vars.NightPhaseID).Times(1)
 				ms.EXPECT().RoundID().Return(vars.SecondRound).Times(2)
-				ms.EXPECT().AddPlayerTurn(&types.NewPlayerTurn{
-					PhaseID:      h.phaseID,
-					RoleID:       h.id,
-					BeginRoundID: vars.SecondRound,
-					PlayerID:     hs.playerID,
-					TurnID:       h.turnID,
-					ExpiredAfter: vars.One,
+				ms.EXPECT().AddSlot(&types.NewTurnSlot{
+					PhaseID:       h.phaseID,
+					RoleID:        h.id,
+					PlayedRoundID: vars.SecondRound,
+					PlayerID:      hs.playerID,
+					TurnID:        h.turnID,
 				}).Times(1)
 			},
 		},
 		{
 			name:          "Die at active phase",
-			expectedLimit: vars.One,
+			expectedLimit: vars.Once,
 			setup: func(h *hunter, mg *gamemock.MockGame, ms *gamemock.MockScheduler) {
 				mg.EXPECT().Scheduler().Return(ms).Times(5)
 				ms.EXPECT().PhaseID().Return(vars.DayPhaseID).Times(1)
 				ms.EXPECT().TurnID().Return(vars.MidTurn).Times(1)
 				ms.EXPECT().RoundID().Return(vars.SecondRound).Times(2)
-				ms.EXPECT().AddPlayerTurn(&types.NewPlayerTurn{
-					PhaseID:      h.phaseID,
-					RoleID:       h.id,
-					BeginRoundID: vars.SecondRound,
-					PlayerID:     hs.playerID,
-					TurnID:       vars.MidTurn + 1,
-					ExpiredAfter: vars.One,
+				ms.EXPECT().AddSlot(&types.NewTurnSlot{
+					PhaseID:       h.phaseID,
+					RoleID:        h.id,
+					PlayedRoundID: vars.SecondRound,
+					PlayerID:      hs.playerID,
+					TurnID:        vars.MidTurn + 1,
 				}).Times(1)
 			},
 		},
@@ -101,7 +99,7 @@ func (hs HunterSuite) TestHunterAfterDeath() {
 			test.setup(h.(*hunter), game, scheduler)
 			h.AfterDeath()
 
-			hs.Equal(test.expectedLimit, h.ActiveLimit(0))
+			hs.Equal(test.expectedLimit, h.ActiveTimes(0))
 		})
 	}
 }

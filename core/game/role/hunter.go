@@ -24,7 +24,7 @@ func NewHunter(game contract.Game, playerID types.PlayerID) (contract.Role, erro
 				abilities: []*ability{
 					{
 						action:      action.NewKill(game),
-						activeLimit: vars.ReachedLimit,
+						activeLimit: vars.OutOfTimes,
 					},
 				},
 			},
@@ -47,23 +47,22 @@ func (h *hunter) AfterDeath() {
 	}
 
 	// This turn can be only played in the current round
-	playerTurn := &types.NewPlayerTurn{
-		PhaseID:      h.phaseID,
-		PlayerID:     h.player.ID(),
-		RoleID:       h.id,
-		BeginRoundID: h.game.Scheduler().RoundID(),
-		ExpiredAfter: vars.One,
+	slot := &types.NewTurnSlot{
+		PhaseID:       h.phaseID,
+		PlayerID:      h.player.ID(),
+		RoleID:        h.id,
+		PlayedRoundID: h.game.Scheduler().RoundID(),
 	}
 
 	if diedAtPhaseID == h.phaseID {
 		// Play in next turn if he dies at his phase
-		playerTurn.TurnID = h.game.Scheduler().TurnID() + 1
+		slot.TurnID = h.game.Scheduler().TurnID() + 1
 	} else {
 		// Play in his turn of the next day if he dies at
 		// a time is not his phase
-		playerTurn.TurnID = h.turnID
+		slot.TurnID = h.turnID
 	}
 
-	h.abilities[0].activeLimit = vars.One
-	h.game.Scheduler().AddPlayerTurn(playerTurn)
+	h.abilities[0].activeLimit = vars.Once
+	h.game.Scheduler().AddSlot(slot)
 }

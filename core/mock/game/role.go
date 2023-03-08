@@ -48,18 +48,18 @@ func (mr *MockRoleMockRecorder) ActivateAbility(req interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ActivateAbility", reflect.TypeOf((*MockRole)(nil).ActivateAbility), req)
 }
 
-// ActiveLimit mocks base method.
-func (m *MockRole) ActiveLimit(index int) types.Limit {
+// ActiveTimes mocks base method.
+func (m *MockRole) ActiveTimes(index int) types.Times {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ActiveLimit", index)
-	ret0, _ := ret[0].(types.Limit)
+	ret := m.ctrl.Call(m, "ActiveTimes", index)
+	ret0, _ := ret[0].(types.Times)
 	return ret0
 }
 
-// ActiveLimit indicates an expected call of ActiveLimit.
-func (mr *MockRoleMockRecorder) ActiveLimit(index interface{}) *gomock.Call {
+// ActiveTimes indicates an expected call of ActiveTimes.
+func (mr *MockRoleMockRecorder) ActiveTimes(index interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ActiveLimit", reflect.TypeOf((*MockRole)(nil).ActiveLimit), index)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ActiveTimes", reflect.TypeOf((*MockRole)(nil).ActiveTimes), index)
 }
 
 // AfterDeath mocks base method.

@@ -9,11 +9,11 @@ type Scheduler interface {
 	// RoundID returns the latest round ID.
 	RoundID() types.RoundID
 
-	// CurrentPhaseID returns the current phase ID.
+	// PhaseID returns the current phase ID.
 	PhaseID() types.PhaseID
 
 	// Phase returns the current phase.
-	Phase() []types.Turn
+	Phase() map[types.TurnID]types.Turn
 
 	// TurnID returns the current turn ID.
 	TurnID() types.TurnID
@@ -29,14 +29,19 @@ type Scheduler interface {
 	// Check if scheduler is empty if `phaseID` is 0.
 	IsEmptyPhase(phaseID types.PhaseID) bool
 
-	// AddPlayerTurn adds new player turn to the scheduler.
-	AddPlayerTurn(newTurn *types.NewPlayerTurn) bool
+	// AddSlot adds new player turn to the scheduler.
+	AddSlot(newSlot *types.NewTurnSlot) bool
 
-	// RemovePlayerTurn removes a player turn from the scheduler
-	// by `TurnID` or `RoleID`. Assigns -1 to `TurnID` if omitted.
+	// RemoveSlot removes a player turn from the scheduler
+	// by `TurnID` or `RoleID`.
+	//
+	// If `TurnID` is filled, ignore `RoleID`.
 	//
 	// If `PhaseID` is 0, removes all of turns of that player.
-	RemovePlayerTurn(removedTurn *types.RemovedPlayerTurn) bool
+	RemoveSlot(removedSlot *types.RemovedTurnSlot) bool
+
+	// FreezeSlot blocks slot N times.
+	FreezeSlot(frozenSlot *types.FreezeTurnSlot) bool
 
 	// NextTurn moves to the next turn.
 	// Returns false if the scheduler is empty.

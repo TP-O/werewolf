@@ -38,7 +38,7 @@ func (tss TwoSisterSuite) TestNewTwoSister() {
 	tss.Equal(vars.VillagerFactionID, ts.FactionID())
 	tss.Equal(vars.FirstRound, ts.(*twoSister).beginRoundID)
 	tss.Equal(player, ts.(*twoSister).player)
-	tss.Equal(vars.Unlimited, ts.ActiveLimit(0))
+	tss.Equal(vars.UnlimitedTimes, ts.ActiveTimes(0))
 	tss.Len(ts.(*twoSister).abilities, 1)
 	tss.Equal(vars.PredictActionID, ts.(*twoSister).abilities[0].action.ID())
 }
@@ -56,13 +56,12 @@ func (tss TwoSisterSuite) TestTwoSisterRegisterTurns() {
 
 	ts, _ := NewTwoSister(game, tss.playerID)
 
-	scheduler.EXPECT().AddPlayerTurn(&types.NewPlayerTurn{
-		PhaseID:      ts.(*twoSister).phaseID,
-		TurnID:       ts.(*twoSister).turnID,
-		BeginRoundID: ts.(*twoSister).beginRoundID,
-		PlayerID:     tss.playerID,
-		RoleID:       ts.(*twoSister).id,
-		ExpiredAfter: vars.One,
+	scheduler.EXPECT().AddSlot(&types.NewTurnSlot{
+		PhaseID:       ts.(*twoSister).phaseID,
+		TurnID:        ts.(*twoSister).turnID,
+		PlayedRoundID: ts.(*twoSister).beginRoundID,
+		PlayerID:      tss.playerID,
+		RoleID:        ts.(*twoSister).id,
 	})
 
 	ts.RegisterTurn()

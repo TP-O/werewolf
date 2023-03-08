@@ -27,7 +27,7 @@ func NewTwoSister(game contract.Game, playerID types.PlayerID) (contract.Role, e
 						game,
 						vars.TwoSistersRoleID,
 					),
-					activeLimit: vars.One,
+					activeLimit: vars.Once,
 				},
 			},
 		},
@@ -36,12 +36,11 @@ func NewTwoSister(game contract.Game, playerID types.PlayerID) (contract.Role, e
 
 // RegisterTurn adds role's turn to the game schedule.
 func (ts twoSister) RegisterTurn() {
-	ts.game.Scheduler().AddPlayerTurn(&types.NewPlayerTurn{
-		PhaseID:      ts.phaseID,
-		TurnID:       ts.turnID,
-		BeginRoundID: ts.beginRoundID,
-		PlayerID:     ts.player.ID(),
-		RoleID:       ts.id,
-		ExpiredAfter: vars.One,
+	ts.game.Scheduler().AddSlot(&types.NewTurnSlot{
+		PhaseID:       ts.phaseID,
+		TurnID:        ts.turnID,
+		PlayedRoundID: ts.beginRoundID,
+		PlayerID:      ts.player.ID(),
+		RoleID:        ts.id,
 	})
 }

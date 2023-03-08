@@ -1,4 +1,4 @@
-package core
+package game
 
 // import (
 // 	"fmt"
@@ -116,7 +116,7 @@ package core
 // 			Message: "The game is about to start ノ(ジ)ー'",
 // 		}
 // 	} else if playerTurn := turn[p.id]; playerTurn == nil ||
-// 		playerTurn.FrozenLimit != vars.ReachedLimit ||
+// 		playerTurn.FrozenLimit != vars.OutOfTimes ||
 // 		p.game.Scheduler().RoundID() < playerTurn.BeginRoundID {
 // 		return types.ActionResponse{
 // 			Ok:      false,

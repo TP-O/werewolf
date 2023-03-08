@@ -1,25 +1,39 @@
 package types
 
-type PlayerTurn struct {
-	BeginRoundID RoundID
-	FrozenLimit  Limit
+type TurnID uint8
+
+type RoundID uint8
+
+type TurnSlot struct {
+	BeginRoundID  RoundID
+	PlayedRoundID RoundID
+	FrozenTimes   Times
 	RoleID
 }
 
-type Turn map[PlayerID]*PlayerTurn
+type Turn map[PlayerID]*TurnSlot
 
-type NewPlayerTurn struct {
+type NewTurnSlot struct {
 	PhaseID
 	TurnID
-	BeginRoundID RoundID
+	BeginRoundID  RoundID
+	PlayedRoundID RoundID
+	FrozenTimes   Times
 	PlayerID
 	RoleID
-	ExpiredAfter Limit
 }
 
-type RemovedPlayerTurn struct {
+type RemovedTurnSlot struct {
 	PhaseID
 	TurnID
 	PlayerID
 	RoleID
+}
+
+type FreezeTurnSlot struct {
+	PhaseID
+	TurnID
+	PlayerID
+	RoleID
+	FrozenTimes Times
 }

@@ -63,9 +63,9 @@ func (rs RoleSuite) TestFactionID() {
 // 	rs.Equal(round, role.BeginRoundID())
 // }
 
-func (rs RoleSuite) TestActiveLimit() {
-	action1Limit := types.Limit(1)
-	action2Limit := types.Limit(2)
+func (rs RoleSuite) TestActiveTimes() {
+	action1Limit := types.Times(1)
+	action2Limit := types.Times(2)
 	role := role{
 		abilities: []*ability{
 			{
@@ -77,10 +77,10 @@ func (rs RoleSuite) TestActiveLimit() {
 		},
 	}
 
-	rs.Equal(action1Limit, role.ActiveLimit(0))
-	rs.Equal(action2Limit, role.ActiveLimit(1))
-	rs.Equal(action1Limit+action2Limit, role.ActiveLimit(-1))
-	rs.Equal(vars.ReachedLimit, role.ActiveLimit(99))
+	rs.Equal(action1Limit, role.ActiveTimes(0))
+	rs.Equal(action2Limit, role.ActiveTimes(1))
+	rs.Equal(action1Limit+action2Limit, role.ActiveTimes(-1))
+	rs.Equal(vars.OutOfTimes, role.ActiveTimes(99))
 }
 
 func (rs RoleSuite) TestBeforeDeath() {
@@ -98,7 +98,7 @@ func (rs RoleSuite) TestActivateAbility() {
 		name          string
 		req           *types.ActivateAbilityRequest
 		expectedRes   *types.ActionResponse
-		expectedLimit types.Limit
+		expectedLimit types.Times
 		setup         func(role, *gamemock.MockAction, *gamemock.MockScheduler)
 	}{
 		{
@@ -179,9 +179,9 @@ func (rs RoleSuite) TestActivateAbility() {
 				Ok:        true,
 				IsSkipped: false,
 			},
-			expectedLimit: vars.Unlimited,
+			expectedLimit: vars.UnlimitedTimes,
 			setup: func(role role, ma *gamemock.MockAction, ms *gamemock.MockScheduler) {
-				role.abilities[0].activeLimit = vars.Unlimited
+				role.abilities[0].activeLimit = vars.UnlimitedTimes
 				ma.EXPECT().Execute(&types.ActionRequest{
 					ActorID: rs.playerID,
 				}).
@@ -222,7 +222,7 @@ func (rs RoleSuite) TestActivateAbility() {
 			expectedRes: &types.ActionResponse{
 				Ok: true,
 			},
-			expectedLimit: vars.ReachedLimit,
+			expectedLimit: vars.OutOfTimes,
 			setup: func(role role, ma *gamemock.MockAction, ms *gamemock.MockScheduler) {
 				role.abilities[0].activeLimit = 1
 				ma.EXPECT().Execute(&types.ActionRequest{
@@ -233,7 +233,7 @@ func (rs RoleSuite) TestActivateAbility() {
 						IsSkipped: false,
 					}).
 					Times(1)
-				ms.EXPECT().RemovePlayerTurn(&types.RemovedPlayerTurn{
+				ms.EXPECT().RemoveSlot(&types.RemovedTurnSlot{
 					PhaseID:  role.phaseID,
 					RoleID:   role.id,
 					PlayerID: role.player.ID(),
@@ -268,7 +268,7 @@ func (rs RoleSuite) TestActivateAbility() {
 			res := role.ActivateAbility(test.req)
 
 			rs.Equal(test.expectedRes, res)
-			rs.Equal(test.expectedLimit, role.ActiveLimit(0))
+			rs.Equal(test.expectedLimit, role.ActiveTimes(0))
 		})
 	}
 }

@@ -27,7 +27,7 @@ func NewSeer(game contract.Game, playerID types.PlayerID) (contract.Role, error)
 						game,
 						vars.WerewolfFactionID,
 					),
-					activeLimit: vars.Unlimited,
+					activeLimit: vars.UnlimitedTimes,
 				},
 			},
 		},
@@ -36,12 +36,11 @@ func NewSeer(game contract.Game, playerID types.PlayerID) (contract.Role, error)
 
 // RegisterTurn adds role's turn to the game schedule.
 func (s seer) RegisterTurn() {
-	s.game.Scheduler().AddPlayerTurn(&types.NewPlayerTurn{
+	s.game.Scheduler().AddSlot(&types.NewTurnSlot{
 		PhaseID:      s.phaseID,
 		TurnID:       s.turnID,
 		BeginRoundID: s.beginRoundID,
 		PlayerID:     s.player.ID(),
 		RoleID:       s.id,
-		ExpiredAfter: vars.Unlimited,
 	})
 }

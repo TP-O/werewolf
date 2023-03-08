@@ -20,7 +20,7 @@ func TestKillSuite(t *testing.T) {
 	suite.Run(t, new(KillSuite))
 }
 
-func (ks KillSuite) SetupSuite() {
+func (ks *KillSuite) SetupSuite() {
 	ks.actorID = types.PlayerID("1")
 	ks.targetID = types.PlayerID("2")
 }

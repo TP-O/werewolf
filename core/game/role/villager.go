@@ -33,7 +33,7 @@ func NewVillager(game contract.Game, playerID types.PlayerID) (contract.Role, er
 			abilities: []*ability{
 				{
 					action:      voteAction,
-					activeLimit: vars.Unlimited,
+					activeLimit: vars.UnlimitedTimes,
 				},
 			},
 		},
@@ -42,12 +42,11 @@ func NewVillager(game contract.Game, playerID types.PlayerID) (contract.Role, er
 
 // RegisterTurn adds role's turn to the game schedule.
 func (v villager) RegisterTurn() {
-	v.game.Scheduler().AddPlayerTurn(&types.NewPlayerTurn{
+	v.game.Scheduler().AddSlot(&types.NewTurnSlot{
 		PhaseID:      v.phaseID,
 		TurnID:       v.turnID,
 		BeginRoundID: v.beginRoundID,
 		PlayerID:     v.player.ID(),
 		RoleID:       v.id,
-		ExpiredAfter: vars.Unlimited,
 	})
 }

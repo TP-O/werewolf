@@ -12,7 +12,7 @@ type ability struct {
 	action contract.Action
 
 	// activeLimit is number of times the action can be used.
-	activeLimit types.Limit
+	activeLimit types.Times
 }
 
 // role is the basis for all concreate roles. The concrete role
@@ -68,10 +68,10 @@ func (r role) FactionID() types.FactionID {
 // 	return r.beginRoundID
 // }
 
-// ActiveLimit returns remaining times this role can use the specific ability.
+// ActiveTimes returns remaining times this role can use the specific ability.
 // Returns total limit if the `index` is -1.
-func (r role) ActiveLimit(index int) types.Limit {
-	limit := vars.ReachedLimit
+func (r role) ActiveTimes(index int) types.Times {
+	limit := vars.OutOfTimes
 	if index > -1 && index < len(r.abilities) {
 		limit = r.abilities[index].activeLimit
 	} else if index == -1 {
@@ -104,7 +104,7 @@ func (r *role) ActivateAbility(req *types.ActivateAbilityRequest) *types.ActionR
 	}
 
 	ability := r.abilities[req.AbilityIndex]
-	if ability.activeLimit == vars.ReachedLimit {
+	if ability.activeLimit == vars.OutOfTimes {
 		return &types.ActionResponse{
 			Ok:      false,
 			Message: "Unable to use this ability anymore ¯\\(º_o)/¯",
@@ -118,12 +118,12 @@ func (r *role) ActivateAbility(req *types.ActivateAbilityRequest) *types.ActionR
 	})
 	if res.Ok &&
 		!req.IsSkipped &&
-		ability.activeLimit != vars.Unlimited {
+		ability.activeLimit != vars.UnlimitedTimes {
 		ability.activeLimit--
 
 		// Remove the player turn if the limit is reached
-		if r.ActiveLimit(-1) == vars.ReachedLimit {
-			r.game.Scheduler().RemovePlayerTurn(&types.RemovedPlayerTurn{
+		if r.ActiveTimes(-1) == vars.OutOfTimes {
+			r.game.Scheduler().RemoveSlot(&types.RemovedTurnSlot{
 				PhaseID:  r.phaseID,
 				RoleID:   r.id,
 				PlayerID: r.player.ID(),

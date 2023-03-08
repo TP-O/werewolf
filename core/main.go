@@ -1,9 +1,6 @@
 package main
 
-import (
-	"uwwolf/redis"
-	"uwwolf/util"
-)
+import "fmt"
 
 func main() {
 	// grpc.Start()
@@ -22,7 +19,16 @@ func main() {
 	// 	},
 	// }))
 
-	util.LoadConfig(".")
+	// util.LoadConfig(".")
 	// db.ConnectDB()
-	redis.ConnectRedis()
+	// redis.ConnectRedis()
+
+	aa := make(AA)
+	aa["aaa"] = 4
+	bb := aa
+	bb["aaa"] = 5
+
+	fmt.Println(aa["aaa"])
 }
+
+type AA map[string]uint

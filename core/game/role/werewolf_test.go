@@ -70,7 +70,7 @@ func (ws WerewolfSuite) TestNewWerewolf() {
 				ws.Equal(vars.WerewolfFactionID, w.FactionID())
 				ws.Equal(vars.FirstRound, w.(*werewolf).beginRoundID)
 				ws.Equal(player, w.(*werewolf).player)
-				ws.Equal(vars.Unlimited, w.ActiveLimit(0))
+				ws.Equal(vars.UnlimitedTimes, w.ActiveTimes(0))
 				ws.Len(w.(*werewolf).abilities, 1)
 				ws.Equal(vars.VoteActionID, w.(*werewolf).abilities[0].action.ID())
 			}
@@ -95,13 +95,12 @@ func (ws WerewolfSuite) TestRegisterTurn() {
 
 	w, _ := NewWerewolf(game, ws.playerID)
 
-	scheduler.EXPECT().AddPlayerTurn(&types.NewPlayerTurn{
+	scheduler.EXPECT().AddSlot(&types.NewTurnSlot{
 		PhaseID:      w.(*werewolf).phaseID,
 		TurnID:       w.(*werewolf).turnID,
 		BeginRoundID: w.(*werewolf).beginRoundID,
 		PlayerID:     ws.playerID,
 		RoleID:       w.(*werewolf).id,
-		ExpiredAfter: vars.Unlimited,
 	}).Times(1)
 
 	w.RegisterTurn()

@@ -51,12 +51,12 @@ var FactionID2RoleIDs = map[types.FactionID][]types.RoleID{
 }
 
 // Number of maximum role's instances played in one game
-var RoleSets = map[types.RoleID]types.Limit{
-	VillagerRoleID:   Unlimited,
-	WerewolfRoleID:   Unlimited,
-	HunterRoleID:     One,
-	SeerRoleID:       One,
-	TwoSistersRoleID: types.Limit(2),
+var RoleSets = map[types.RoleID]types.Times{
+	VillagerRoleID:   UnlimitedTimes,
+	WerewolfRoleID:   UnlimitedTimes,
+	HunterRoleID:     Once,
+	SeerRoleID:       Once,
+	TwoSistersRoleID: types.Times(2),
 }
 
 // Role weights to decide main role. The highest weight is picked as the main role
@@ -67,17 +67,3 @@ var RoleWeights = map[types.RoleID]uint8{
 	HunterRoleID:     1,
 	WerewolfRoleID:   2,
 }
-
-// Number of uses
-const (
-	Unlimited types.Limit = iota - 1
-	ReachedLimit
-	One
-)
-
-// One phase has 3 turn indexes by default
-const (
-	PreTurn types.TurnID = iota
-	MidTurn              // Main turn
-	PostTurn
-)

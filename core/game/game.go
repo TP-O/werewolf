@@ -1,4 +1,4 @@
-package core
+package game
 
 // import (
 // 	"time"
@@ -155,7 +155,7 @@ package core
 
 // 		// Default role
 // 		if ok, _ := player.AssignRole(vars.VillagerRoleID); ok {
-// 			g.scheduler.AddPlayerTurn(types.NewPlayerTurn{
+// 			g.scheduler.AddSlot(types.NewTurnSlot{
 // 				PhaseID:      vars.DayPhaseID,
 // 				RoleID:       vars.VillagerRoleID,
 // 				BeginRoundID: vars.FirstRound,
@@ -171,7 +171,7 @@ package core
 // 		// Default werewolf faction's role
 // 		if selectedRole.FactionID() == vars.WerewolfFactionID {
 // 			if ok, _ := player.AssignRole(vars.WerewolfRoleID); ok {
-// 				g.scheduler.AddPlayerTurn(types.NewPlayerTurn{
+// 				g.scheduler.AddSlot(types.NewTurnSlot{
 // 					PhaseID:      vars.NightPhaseID,
 // 					RoleID:       vars.WerewolfRoleID,
 // 					BeginRoundID: vars.FirstRound,
@@ -185,7 +185,7 @@ package core
 // 		// Main role
 // 		if ok, _ := player.AssignRole(selectedRole.ID()); ok {
 // 			// Add the main role's turn to the schedule
-// 			g.scheduler.AddPlayerTurn(types.NewPlayerTurn{
+// 			g.scheduler.AddSlot(types.NewTurnSlot{
 // 				PhaseID:      selectedRole.PhaseID(),
 // 				RoleID:       selectedRole.ID(),
 // 				BeginRoundID: selectedRole.BeginRoundID(),

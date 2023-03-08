@@ -70,7 +70,7 @@ func (vs VillagerSuite) TestNewVillager() {
 				vs.Equal(vars.VillagerFactionID, v.FactionID())
 				vs.Equal(vars.FirstRound, v.(*villager).beginRoundID)
 				vs.Equal(player, v.(*villager).player)
-				vs.Equal(vars.Unlimited, v.ActiveLimit(0))
+				vs.Equal(vars.UnlimitedTimes, v.ActiveTimes(0))
 				vs.Len(v.(*villager).abilities, 1)
 				vs.Equal(vars.VoteActionID, v.(*villager).abilities[0].action.ID())
 			}
@@ -95,13 +95,12 @@ func (vs VillagerSuite) TestRegisterTurn() {
 
 	v, _ := NewVillager(game, vs.playerID)
 
-	scheduler.EXPECT().AddPlayerTurn(&types.NewPlayerTurn{
+	scheduler.EXPECT().AddSlot(&types.NewTurnSlot{
 		PhaseID:      v.(*villager).phaseID,
 		TurnID:       v.(*villager).turnID,
 		BeginRoundID: v.(*villager).beginRoundID,
 		PlayerID:     vs.playerID,
 		RoleID:       v.(*villager).id,
-		ExpiredAfter: vars.Unlimited,
 	}).Times(1)
 
 	v.RegisterTurn()

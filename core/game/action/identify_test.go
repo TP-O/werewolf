@@ -22,7 +22,7 @@ func TestRecognizeSuite(t *testing.T) {
 	suite.Run(t, new(RecognizeSuite))
 }
 
-func (rs RecognizeSuite) SetupSuite() {
+func (rs *RecognizeSuite) SetupSuite() {
 	rs.actorID = types.PlayerID("1")
 	rs.identifiedIDs = []types.PlayerID{"1", "2"}
 	rs.identifiedFactionID = vars.WerewolfFactionID
