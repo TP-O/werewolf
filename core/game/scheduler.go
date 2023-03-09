@@ -78,14 +78,23 @@ func (s scheduler) Turn() types.Turn {
 	return s.Phase()[s.turnID]
 }
 
+// CanPlay checks if the given playerID can play in the
+// current turn.
+func (s scheduler) CanPlay(playerID types.PlayerID) bool {
+	slot := s.Turn()[playerID]
+
+	return slot != nil &&
+		((slot.BeginRoundID != vars.ZeroRound && slot.BeginRoundID <= s.roundID) ||
+			(slot.PlayedRoundID != vars.ZeroRound && slot.PlayedRoundID == s.roundID)) &&
+		slot.FrozenTimes == vars.OutOfTimes
+}
+
 // PlayablePlayerIDs returns playable player ID list in
 // the current turn.
 func (s scheduler) PlayablePlayerIDs() []types.PlayerID {
 	playerIDs := []types.PlayerID{}
-	for playerID, slot := range s.Turn() {
-		if ((slot.BeginRoundID != vars.ZeroRound && slot.BeginRoundID <= s.roundID) ||
-			(slot.PlayedRoundID != vars.ZeroRound && slot.PlayedRoundID == s.roundID)) &&
-			slot.FrozenTimes == vars.OutOfTimes {
+	for playerID := range s.Turn() {
+		if s.CanPlay(playerID) {
 			playerIDs = append(playerIDs, playerID)
 		}
 	}

@@ -39,14 +39,3 @@ func NewVillager(game contract.Game, playerID types.PlayerID) (contract.Role, er
 		},
 	}, nil
 }
-
-// RegisterTurn adds role's turn to the game schedule.
-func (v villager) RegisterTurn() {
-	v.game.Scheduler().AddSlot(&types.NewTurnSlot{
-		PhaseID:      v.phaseID,
-		TurnID:       v.turnID,
-		BeginRoundID: v.beginRoundID,
-		PlayerID:     v.player.ID(),
-		RoleID:       v.id,
-	})
-}

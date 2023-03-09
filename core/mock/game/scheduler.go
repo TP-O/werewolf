@@ -48,6 +48,20 @@ func (mr *MockSchedulerMockRecorder) AddSlot(newSlot interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddSlot", reflect.TypeOf((*MockScheduler)(nil).AddSlot), newSlot)
 }
 
+// CanPlay mocks base method.
+func (m *MockScheduler) CanPlay(playerID types.PlayerID) bool {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CanPlay", playerID)
+	ret0, _ := ret[0].(bool)
+	return ret0
+}
+
+// CanPlay indicates an expected call of CanPlay.
+func (mr *MockSchedulerMockRecorder) CanPlay(playerID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CanPlay", reflect.TypeOf((*MockScheduler)(nil).CanPlay), playerID)
+}
+
 // FreezeSlot mocks base method.
 func (m *MockScheduler) FreezeSlot(frozenSlot *types.FreezeTurnSlot) bool {
 	m.ctrl.T.Helper()

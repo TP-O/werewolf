@@ -33,6 +33,10 @@ type role struct {
 	// turnID is play order of this role in the active phase.
 	turnID types.TurnID
 
+	// isBeforeDeathTriggered marks that `BeforeDeath` function
+	// is called or not.
+	isBeforeDeathTriggered bool
+
 	// game is the game instance this role affects.
 	game contract.Game
 
@@ -83,9 +87,36 @@ func (r role) ActiveTimes(index int) types.Times {
 	return limit
 }
 
+// RegisterTurn adds role's turn to the game schedule.
+func (r *role) RegisterSlot() {
+	r.game.Scheduler().AddSlot(&types.NewTurnSlot{
+		PhaseID:      r.phaseID,
+		TurnID:       r.turnID,
+		BeginRoundID: r.beginRoundID,
+		PlayerID:     r.player.ID(),
+		RoleID:       r.id,
+	})
+}
+
+// UnregisterSlot removes role's slot from the game schedule.
+func (r *role) UnregisterSlot() {
+	r.game.Scheduler().RemoveSlot(&types.RemovedTurnSlot{
+		PhaseID:  r.phaseID,
+		RoleID:   r.id,
+		PlayerID: r.player.ID(),
+	})
+}
+
 // BeforeDeath is triggered before killing this role.
 // If returns false, the player assigned it is saved.
-func (r role) BeforeDeath() bool {
+func (r *role) BeforeDeath() bool {
+	if r.isBeforeDeathTriggered {
+		return true
+	}
+
+	// Do something...
+
+	r.isBeforeDeathTriggered = true
 	return true
 }
 

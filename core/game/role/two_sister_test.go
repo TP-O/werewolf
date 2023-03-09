@@ -42,27 +42,3 @@ func (tss TwoSisterSuite) TestNewTwoSister() {
 	tss.Len(ts.(*twoSister).abilities, 1)
 	tss.Equal(vars.PredictActionID, ts.(*twoSister).abilities[0].action.ID())
 }
-
-func (tss TwoSisterSuite) TestTwoSisterRegisterTurns() {
-	ctrl := gomock.NewController(tss.T())
-	defer ctrl.Finish()
-	game := gamemock.NewMockGame(ctrl)
-	player := gamemock.NewMockPlayer(ctrl)
-	scheduler := gamemock.NewMockScheduler(ctrl)
-
-	game.EXPECT().Player(tss.playerID).Return(player).Times(1)
-	game.EXPECT().Scheduler().Return(scheduler).Times(1)
-	player.EXPECT().ID().Return(tss.playerID).Times(1)
-
-	ts, _ := NewTwoSister(game, tss.playerID)
-
-	scheduler.EXPECT().AddSlot(&types.NewTurnSlot{
-		PhaseID:       ts.(*twoSister).phaseID,
-		TurnID:        ts.(*twoSister).turnID,
-		PlayedRoundID: ts.(*twoSister).beginRoundID,
-		PlayerID:      tss.playerID,
-		RoleID:        ts.(*twoSister).id,
-	})
-
-	ts.RegisterTurn()
-}

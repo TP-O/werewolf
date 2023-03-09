@@ -33,14 +33,3 @@ func NewSeer(game contract.Game, playerID types.PlayerID) (contract.Role, error)
 		},
 	}, nil
 }
-
-// RegisterTurn adds role's turn to the game schedule.
-func (s seer) RegisterTurn() {
-	s.game.Scheduler().AddSlot(&types.NewTurnSlot{
-		PhaseID:      s.phaseID,
-		TurnID:       s.turnID,
-		BeginRoundID: s.beginRoundID,
-		PlayerID:     s.player.ID(),
-		RoleID:       s.id,
-	})
-}

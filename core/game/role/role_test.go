@@ -83,10 +83,67 @@ func (rs RoleSuite) TestActiveTimes() {
 	rs.Equal(vars.OutOfTimes, role.ActiveTimes(99))
 }
 
+func (rs RoleSuite) TestRegisterSlot() {
+	ctrl := gomock.NewController(rs.T())
+	defer ctrl.Finish()
+	game := gamemock.NewMockGame(ctrl)
+	player := gamemock.NewMockPlayer(ctrl)
+	scheduler := gamemock.NewMockScheduler(ctrl)
+
+	game.EXPECT().Scheduler().Return(scheduler).Times(1)
+	player.EXPECT().ID().Return(rs.playerID).Times(1)
+
+	r := role{
+		id:           vars.HunterRoleID,
+		game:         game,
+		player:       player,
+		beginRoundID: vars.SecondRound,
+		turnID:       vars.PostTurn,
+	}
+
+	scheduler.EXPECT().AddSlot(&types.NewTurnSlot{
+		PhaseID:      r.phaseID,
+		TurnID:       r.turnID,
+		BeginRoundID: r.beginRoundID,
+		PlayerID:     rs.playerID,
+		RoleID:       r.ID(),
+	})
+
+	r.RegisterSlot()
+}
+
+func (rs RoleSuite) TestUnregisterSlot() {
+	ctrl := gomock.NewController(rs.T())
+	defer ctrl.Finish()
+	game := gamemock.NewMockGame(ctrl)
+	player := gamemock.NewMockPlayer(ctrl)
+	scheduler := gamemock.NewMockScheduler(ctrl)
+
+	game.EXPECT().Scheduler().Return(scheduler).Times(1)
+	player.EXPECT().ID().Return(rs.playerID).Times(1)
+
+	r := role{
+		id:      vars.HunterRoleID,
+		phaseID: vars.DayPhaseID,
+		game:    game,
+		player:  player,
+	}
+
+	scheduler.EXPECT().RemoveSlot(&types.RemovedTurnSlot{
+		PhaseID:  r.phaseID,
+		PlayerID: rs.playerID,
+		RoleID:   r.id,
+	})
+
+	r.UnregisterSlot()
+}
+
 func (rs RoleSuite) TestBeforeDeath() {
 	role := new(role)
+	isDead := role.BeforeDeath()
 
-	rs.True(role.BeforeDeath())
+	rs.True(isDead)
+	rs.True(role.isBeforeDeathTriggered)
 }
 
 func (rs RoleSuite) TestAfterDeath() {

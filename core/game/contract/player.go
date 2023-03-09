@@ -29,15 +29,16 @@ type Player interface {
 	// If `isExited` is true, any trigger preventing death is ignored.
 	Die(isExited bool) bool
 
-	// Revive marks the player as undead
-	Revive() bool
-
 	// AssignRole assigns the role to the player, and the faction can
 	// be updated based on this role.
 	AssignRole(roleID types.RoleID) (bool, error)
 
+	// RevokeRole removes the role from the player, and the faction can
+	// be updated based on removed role.
+	RevokeRole(roleID types.RoleID) (bool, error)
+
 	// ActivateAbility executes one of player's available ability.
 	// The executed ability is selected based on the requested
 	// action.
-	ActivateAbility(req types.ActivateAbilityRequest) types.ActionResponse
+	ActivateAbility(req *types.ActivateAbilityRequest) *types.ActionResponse
 }

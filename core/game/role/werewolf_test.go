@@ -77,31 +77,3 @@ func (ws WerewolfSuite) TestNewWerewolf() {
 		})
 	}
 }
-
-func (ws WerewolfSuite) TestRegisterTurn() {
-	ctrl := gomock.NewController(ws.T())
-	defer ctrl.Finish()
-	game := gamemock.NewMockGame(ctrl)
-	player := gamemock.NewMockPlayer(ctrl)
-	poll := gamemock.NewMockPoll(ctrl)
-	scheduler := gamemock.NewMockScheduler(ctrl)
-
-	player.EXPECT().ID().Return(ws.playerID).Times(1)
-	game.EXPECT().Player(ws.playerID).Return(player).Times(1)
-	game.EXPECT().Poll(vars.WerewolfFactionID).Return(poll).Times(2)
-	poll.EXPECT().AddElectors(ws.playerID).Times(1)
-	poll.EXPECT().SetWeight(ws.playerID, uint(1)).Times(1)
-	game.EXPECT().Scheduler().Return(scheduler).Times(1)
-
-	w, _ := NewWerewolf(game, ws.playerID)
-
-	scheduler.EXPECT().AddSlot(&types.NewTurnSlot{
-		PhaseID:      w.(*werewolf).phaseID,
-		TurnID:       w.(*werewolf).turnID,
-		BeginRoundID: w.(*werewolf).beginRoundID,
-		PlayerID:     ws.playerID,
-		RoleID:       w.(*werewolf).id,
-	}).Times(1)
-
-	w.RegisterTurn()
-}

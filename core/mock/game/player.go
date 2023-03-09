@@ -36,10 +36,10 @@ func (m *MockPlayer) EXPECT() *MockPlayerMockRecorder {
 }
 
 // ActivateAbility mocks base method.
-func (m *MockPlayer) ActivateAbility(req types.ActivateAbilityRequest) types.ActionResponse {
+func (m *MockPlayer) ActivateAbility(req *types.ActivateAbilityRequest) *types.ActionResponse {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ActivateAbility", req)
-	ret0, _ := ret[0].(types.ActionResponse)
+	ret0, _ := ret[0].(*types.ActionResponse)
 	return ret0
 }
 
@@ -134,18 +134,19 @@ func (mr *MockPlayerMockRecorder) MainRoleID() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MainRoleID", reflect.TypeOf((*MockPlayer)(nil).MainRoleID))
 }
 
-// Revive mocks base method.
-func (m *MockPlayer) Revive() bool {
+// RevokeRole mocks base method.
+func (m *MockPlayer) RevokeRole(roleID types.RoleID) (bool, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Revive")
+	ret := m.ctrl.Call(m, "RevokeRole", roleID)
 	ret0, _ := ret[0].(bool)
-	return ret0
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
-// Revive indicates an expected call of Revive.
-func (mr *MockPlayerMockRecorder) Revive() *gomock.Call {
+// RevokeRole indicates an expected call of RevokeRole.
+func (mr *MockPlayerMockRecorder) RevokeRole(roleID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Revive", reflect.TypeOf((*MockPlayer)(nil).Revive))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RevokeRole", reflect.TypeOf((*MockPlayer)(nil).RevokeRole), roleID)
 }
 
 // RoleIDs mocks base method.

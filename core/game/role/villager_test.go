@@ -77,31 +77,3 @@ func (vs VillagerSuite) TestNewVillager() {
 		})
 	}
 }
-
-func (vs VillagerSuite) TestRegisterTurn() {
-	ctrl := gomock.NewController(vs.T())
-	defer ctrl.Finish()
-	game := gamemock.NewMockGame(ctrl)
-	player := gamemock.NewMockPlayer(ctrl)
-	poll := gamemock.NewMockPoll(ctrl)
-	scheduler := gamemock.NewMockScheduler(ctrl)
-
-	player.EXPECT().ID().Return(vs.playerID).Times(1)
-	game.EXPECT().Player(vs.playerID).Return(player).Times(1)
-	game.EXPECT().Poll(vars.VillagerFactionID).Return(poll).Times(2)
-	poll.EXPECT().AddElectors(vs.playerID).Times(1)
-	poll.EXPECT().SetWeight(vs.playerID, uint(1)).Times(1)
-	game.EXPECT().Scheduler().Return(scheduler).Times(1)
-
-	v, _ := NewVillager(game, vs.playerID)
-
-	scheduler.EXPECT().AddSlot(&types.NewTurnSlot{
-		PhaseID:      v.(*villager).phaseID,
-		TurnID:       v.(*villager).turnID,
-		BeginRoundID: v.(*villager).beginRoundID,
-		PlayerID:     vs.playerID,
-		RoleID:       v.(*villager).id,
-	}).Times(1)
-
-	v.RegisterTurn()
-}

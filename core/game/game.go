@@ -265,13 +265,9 @@ package game
 // 	// Validate
 // 	var msg string
 // 	if g.statusID != vars.Starting {
-// 		msg = "Wait until the game starts (╥﹏╥)"
+// 		msg = "The game is about to start ノ(ジ)ー'"
 // 	} else if g.Player(playerID) == nil {
 // 		msg = "Unable to play this game (╥﹏╥)"
-// 	} else if g.players[playerID].IsDead() {
-// 		msg = "You're died (╥﹏╥)"
-// 	} else if !slices.Contains(maps.Keys(g.scheduler.Turn()), playerID) {
-// 		msg = "Not your turn (╥﹏╥)"
 // 	}
 // 	if msg != "" {
 // 		return types.ActionResponse{

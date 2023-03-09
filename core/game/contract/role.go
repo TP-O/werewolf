@@ -24,8 +24,11 @@ type Role interface {
 	// Returns total limit if the `index` is -1.
 	ActiveTimes(index int) types.Times
 
-	// RegisterTurn adds role's turn to the game schedule.
-	RegisterTurn()
+	// RegisterTurn adds role's slot to the game schedule.
+	RegisterSlot()
+
+	// UnregisterSlot removes role's slot from the game schedule.
+	UnregisterSlot()
 
 	// BeforeDeath is triggered before killing this role.
 	// If returns false, the player assigned it is saved.

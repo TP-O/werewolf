@@ -33,7 +33,7 @@ func NewHunter(game contract.Game, playerID types.PlayerID) (contract.Role, erro
 }
 
 // RegisterTurn adds role's turn to the game schedule.
-func (h hunter) RegisterTurn() {
+func (h *hunter) RegisterSlot() {
 	//
 }
 

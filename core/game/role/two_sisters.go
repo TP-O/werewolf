@@ -33,14 +33,3 @@ func NewTwoSister(game contract.Game, playerID types.PlayerID) (contract.Role, e
 		},
 	}, nil
 }
-
-// RegisterTurn adds role's turn to the game schedule.
-func (ts twoSister) RegisterTurn() {
-	ts.game.Scheduler().AddSlot(&types.NewTurnSlot{
-		PhaseID:       ts.phaseID,
-		TurnID:        ts.turnID,
-		PlayedRoundID: ts.beginRoundID,
-		PlayerID:      ts.player.ID(),
-		RoleID:        ts.id,
-	})
-}

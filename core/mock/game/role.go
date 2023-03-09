@@ -116,14 +116,26 @@ func (mr *MockRoleMockRecorder) ID() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ID", reflect.TypeOf((*MockRole)(nil).ID))
 }
 
-// RegisterTurn mocks base method.
-func (m *MockRole) RegisterTurn() {
+// RegisterSlot mocks base method.
+func (m *MockRole) RegisterSlot() {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "RegisterTurn")
+	m.ctrl.Call(m, "RegisterSlot")
 }
 
-// RegisterTurn indicates an expected call of RegisterTurn.
-func (mr *MockRoleMockRecorder) RegisterTurn() *gomock.Call {
+// RegisterSlot indicates an expected call of RegisterSlot.
+func (mr *MockRoleMockRecorder) RegisterSlot() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RegisterTurn", reflect.TypeOf((*MockRole)(nil).RegisterTurn))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RegisterSlot", reflect.TypeOf((*MockRole)(nil).RegisterSlot))
+}
+
+// UnregisterSlot mocks base method.
+func (m *MockRole) UnregisterSlot() {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "UnregisterSlot")
+}
+
+// UnregisterSlot indicates an expected call of UnregisterSlot.
+func (mr *MockRoleMockRecorder) UnregisterSlot() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UnregisterSlot", reflect.TypeOf((*MockRole)(nil).UnregisterSlot))
 }

@@ -21,6 +21,10 @@ type Scheduler interface {
 	// Turn returns the current turn.
 	Turn() types.Turn
 
+	// CanPlay checks if the given playerID can play in the
+	// current turn.
+	CanPlay(playerID types.PlayerID) bool
+
 	// PlayablePlayerIDs returns playable player ID list in
 	// the current turn.
 	PlayablePlayerIDs() []types.PlayerID

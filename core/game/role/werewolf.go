@@ -39,14 +39,3 @@ func NewWerewolf(game contract.Game, playerID types.PlayerID) (contract.Role, er
 		},
 	}, nil
 }
-
-// RegisterTurn adds role's turn to the game schedule.
-func (w werewolf) RegisterTurn() {
-	w.game.Scheduler().AddSlot(&types.NewTurnSlot{
-		PhaseID:      w.phaseID,
-		TurnID:       w.turnID,
-		BeginRoundID: w.beginRoundID,
-		PlayerID:     w.player.ID(),
-		RoleID:       w.id,
-	})
-}

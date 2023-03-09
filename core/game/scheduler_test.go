@@ -122,6 +122,79 @@ func (ss SchudulerSuite) TestTurn() {
 	}
 }
 
+func (ss SchudulerSuite) TestCanPlay() {
+	tests := []struct {
+		name           string
+		turn           types.Turn
+		expectedStatus bool
+		setup          func(*scheduler)
+	}{
+		{
+			name: "False (Late begin round slot)",
+			turn: types.Turn(
+				map[types.PlayerID]*types.TurnSlot{
+					ss.player1ID: {
+						BeginRoundID: vars.SecondRound,
+					},
+				}),
+			expectedStatus: false,
+			setup: func(s *scheduler) {
+				s.roundID = vars.FirstRound
+			},
+		}, {
+			name: "False (zero begin round slot)",
+			turn: types.Turn(
+				map[types.PlayerID]*types.TurnSlot{
+					ss.player1ID: {
+						BeginRoundID: vars.ZeroRound,
+					},
+				}),
+			expectedStatus: false,
+			setup: func(s *scheduler) {
+				s.roundID = vars.SecondRound
+			},
+		},
+		{
+			name: "True (One-round slot)",
+			turn: types.Turn(
+				map[types.PlayerID]*types.TurnSlot{
+					ss.player1ID: {
+						PlayedRoundID: vars.SecondRound,
+					},
+				}),
+			expectedStatus: true,
+			setup: func(s *scheduler) {
+				s.roundID = vars.SecondRound
+			},
+		},
+		{
+			name: "False (frozen slot)",
+			turn: types.Turn(
+				map[types.PlayerID]*types.TurnSlot{
+					ss.player1ID: {
+						BeginRoundID: vars.SecondRound,
+						FrozenTimes:  vars.Once,
+					},
+				}),
+			expectedStatus: false,
+			setup: func(s *scheduler) {
+				s.roundID = vars.SecondRound
+			},
+		},
+	}
+
+	for _, test := range tests {
+		ss.Run(test.name, func() {
+			s := NewScheduler(ss.beginPhaseID)
+
+			test.setup(s.(*scheduler))
+			s.(*scheduler).phases[ss.beginPhaseID][vars.PreTurn] = test.turn
+
+			ss.Equal(test.expectedStatus, s.CanPlay(ss.player1ID))
+		})
+	}
+}
+
 func (ss SchudulerSuite) TestPlayablePlayerIDs() {
 	tests := []struct {
 		name              string

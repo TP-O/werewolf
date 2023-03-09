@@ -42,27 +42,3 @@ func (ss SeerSuite) TestNewSeer() {
 	ss.Len(s.(*seer).abilities, 1)
 	ss.Equal(vars.PredictActionID, s.(*seer).abilities[0].action.ID())
 }
-
-func (ss SeerSuite) TestSeerRegisterTurns() {
-	ctrl := gomock.NewController(ss.T())
-	defer ctrl.Finish()
-	game := gamemock.NewMockGame(ctrl)
-	player := gamemock.NewMockPlayer(ctrl)
-	scheduler := gamemock.NewMockScheduler(ctrl)
-
-	game.EXPECT().Player(ss.playerID).Return(player).Times(1)
-	game.EXPECT().Scheduler().Return(scheduler).Times(1)
-	player.EXPECT().ID().Return(ss.playerID).Times(1)
-
-	s, _ := NewSeer(game, ss.playerID)
-
-	scheduler.EXPECT().AddSlot(&types.NewTurnSlot{
-		PhaseID:      s.(*seer).phaseID,
-		TurnID:       s.(*seer).turnID,
-		BeginRoundID: s.(*seer).beginRoundID,
-		PlayerID:     ss.playerID,
-		RoleID:       s.(*seer).id,
-	})
-
-	s.RegisterTurn()
-}
