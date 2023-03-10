@@ -44,7 +44,7 @@ func (vs VoteSuite) TestNewVote() {
 			},
 			expectedErr: "Poll does not exist ¯\\_(ツ)_/¯",
 			setup: func(mg *gamemock.MockGame, mp *gamemock.MockPoll) {
-				mg.EXPECT().Poll(vs.factionID).Return(nil).Times(1)
+				mg.EXPECT().Poll(vs.factionID).Return(nil)
 			},
 		},
 		{
@@ -56,8 +56,8 @@ func (vs VoteSuite) TestNewVote() {
 			},
 			expectedErr: "",
 			setup: func(mg *gamemock.MockGame, mp *gamemock.MockPoll) {
-				mp.EXPECT().AddElectors(vs.actorID).Times(1)
-				mp.EXPECT().SetWeight(vs.actorID, vs.weight).Return(true).Times(1)
+				mp.EXPECT().AddElectors(vs.actorID)
+				mp.EXPECT().SetWeight(vs.actorID, vs.weight).Return(true)
 				mg.EXPECT().Poll(vs.factionID).Return(mp).Times(2)
 			},
 		},
@@ -92,9 +92,9 @@ func (vs VoteSuite) TestSkipVote() {
 	poll := gamemock.NewMockPoll(ctrl)
 
 	game.EXPECT().Poll(vs.factionID).Return(poll).Times(2)
-	poll.EXPECT().AddElectors(vs.actorID).Times(1)
-	poll.EXPECT().SetWeight(vs.actorID, vs.weight).Return(true).Times(1)
-	poll.EXPECT().Vote(vs.actorID, types.PlayerID("")).Times(1)
+	poll.EXPECT().AddElectors(vs.actorID)
+	poll.EXPECT().SetWeight(vs.actorID, vs.weight).Return(true)
+	poll.EXPECT().Vote(vs.actorID, types.PlayerID(""))
 
 	expectedRes := &types.ActionResponse{
 		Ok:        true,
@@ -135,7 +135,7 @@ func (vs VoteSuite) TestPerformVote() {
 			},
 			setup: func(mp *gamemock.MockPoll) {
 				mp.EXPECT().Vote(vs.actorID, vs.targetID).
-					Return(false, fmt.Errorf("CANT_VOTE error")).Times(1)
+					Return(false, fmt.Errorf("CANT_VOTE error"))
 			},
 		},
 		{
@@ -149,7 +149,7 @@ func (vs VoteSuite) TestPerformVote() {
 				Data: vs.targetID,
 			},
 			setup: func(mp *gamemock.MockPoll) {
-				mp.EXPECT().Vote(vs.actorID, vs.targetID).Return(true, nil).Times(1)
+				mp.EXPECT().Vote(vs.actorID, vs.targetID).Return(true, nil)
 			},
 		},
 	}
@@ -162,8 +162,8 @@ func (vs VoteSuite) TestPerformVote() {
 			poll := gamemock.NewMockPoll(ctrl)
 
 			game.EXPECT().Poll(vs.factionID).Return(poll).Times(2)
-			poll.EXPECT().AddElectors(vs.actorID).Times(1)
-			poll.EXPECT().SetWeight(vs.actorID, vs.weight).Return(true).Times(1)
+			poll.EXPECT().AddElectors(vs.actorID)
+			poll.EXPECT().SetWeight(vs.actorID, vs.weight).Return(true)
 			test.setup(poll)
 
 			v, _ := NewVote(game, &VoteActionSetting{

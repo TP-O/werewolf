@@ -78,8 +78,8 @@ func (rs RecognizeSuite) TestPerformFactionIdentify() {
 	defer ctrl.Finish()
 	game := gamemock.NewMockGame(ctrl)
 
-	game.EXPECT().PlayerIDsWithFactionID(rs.identifiedFactionID, false).
-		Return(rs.identifiedIDs).Times(1)
+	game.EXPECT().AlivePlayerIDsWithFactionID(rs.identifiedFactionID).
+		Return(rs.identifiedIDs)
 
 	req := &types.ActionRequest{
 		ActorID: rs.actorID,
@@ -116,8 +116,8 @@ func (rs RecognizeSuite) TestPerformRoleIdentify() {
 	defer ctrl.Finish()
 	game := gamemock.NewMockGame(ctrl)
 
-	game.EXPECT().PlayerIDsWithRoleID(rs.identifiedRoleID).
-		Return(rs.identifiedIDs).Times(1)
+	game.EXPECT().AlivePlayerIDsWithRoleID(rs.identifiedRoleID).
+		Return(rs.identifiedIDs)
 
 	req := &types.ActionRequest{
 		ActorID: rs.actorID,

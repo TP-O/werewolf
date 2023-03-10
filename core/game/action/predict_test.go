@@ -92,7 +92,7 @@ func (ps *PredictSuite) TestValidateFactionPredict() {
 			},
 			expectedErr: "Non-existent player ¯\\_(ツ)_/¯",
 			setup: func(p *predict, gm *gamemock.MockGame) {
-				gm.EXPECT().Player(types.PlayerID("-99")).Return(nil).Times(1)
+				gm.EXPECT().Player(types.PlayerID("-99")).Return(nil)
 			},
 		},
 		{
@@ -103,7 +103,7 @@ func (ps *PredictSuite) TestValidateFactionPredict() {
 			},
 			setup: func(p *predict, gm *gamemock.MockGame) {
 				targetPlayer := gamemock.NewMockPlayer(nil)
-				gm.EXPECT().Player(ps.targetID).Return(targetPlayer).Times(1)
+				gm.EXPECT().Player(ps.targetID).Return(targetPlayer)
 			},
 		},
 	}
@@ -162,7 +162,7 @@ func (ps *PredictSuite) TestValidateRolePredict() {
 			},
 			expectedErr: "Non-existent player ¯\\_(ツ)_/¯",
 			setup: func(p *predict, gm *gamemock.MockGame) {
-				gm.EXPECT().Player(types.PlayerID("-99")).Return(nil).Times(1)
+				gm.EXPECT().Player(types.PlayerID("-99")).Return(nil)
 			},
 		},
 		{
@@ -173,7 +173,7 @@ func (ps *PredictSuite) TestValidateRolePredict() {
 			},
 			setup: func(p *predict, gm *gamemock.MockGame) {
 				targetPlayer := gamemock.NewMockPlayer(nil)
-				gm.EXPECT().Player(ps.targetID).Return(targetPlayer).Times(1)
+				gm.EXPECT().Player(ps.targetID).Return(targetPlayer)
 			},
 		},
 	}
@@ -215,7 +215,7 @@ func (ps *PredictSuite) TestPerformFactionPredict() {
 				Data: false,
 			},
 			setup: func(p *predict, mg *gamemock.MockGame, mp *gamemock.MockPlayer) {
-				mp.EXPECT().FactionID().Return(vars.VillagerFactionID).Times(1)
+				mp.EXPECT().FactionID().Return(vars.VillagerFactionID)
 				mp.EXPECT().ID().Return(ps.targetID).Times(2)
 			},
 		},
@@ -230,7 +230,7 @@ func (ps *PredictSuite) TestPerformFactionPredict() {
 				Data: true,
 			},
 			setup: func(p *predict, mg *gamemock.MockGame, mp *gamemock.MockPlayer) {
-				mp.EXPECT().FactionID().Return(ps.predictedFactionID).Times(1)
+				mp.EXPECT().FactionID().Return(ps.predictedFactionID)
 				mp.EXPECT().ID().Return(ps.targetID).Times(2)
 			},
 		},
@@ -273,7 +273,7 @@ func (ps *PredictSuite) TestPerformRolePredict() {
 				Data: false,
 			},
 			setup: func(p *predict, mg *gamemock.MockGame, mp *gamemock.MockPlayer) {
-				mp.EXPECT().RoleIDs().Return([]types.RoleID{}).Times(1)
+				mp.EXPECT().RoleIDs().Return([]types.RoleID{})
 				mp.EXPECT().ID().Return(ps.targetID).Times(2)
 			},
 		},
@@ -288,7 +288,7 @@ func (ps *PredictSuite) TestPerformRolePredict() {
 				Data: true,
 			},
 			setup: func(p *predict, mg *gamemock.MockGame, mp *gamemock.MockPlayer) {
-				mp.EXPECT().RoleIDs().Return([]types.RoleID{ps.predictedRoleID}).Times(1)
+				mp.EXPECT().RoleIDs().Return([]types.RoleID{ps.predictedRoleID})
 				mp.EXPECT().ID().Return(ps.targetID).Times(2)
 			},
 		},

@@ -44,6 +44,20 @@ func TestPlayerSuite(t *testing.T) {
 	suite.Run(t, new(PlayerSuite))
 }
 
+func (ps PlayerSuite) TestNewPlayer() {
+	ctrl := gomock.NewController(ps.T())
+	defer ctrl.Finish()
+	game := gamemock.NewMockGame(ctrl)
+
+	p := NewPlayer(game, ps.playerID)
+
+	ps.Equal(ps.playerID, p.ID())
+	ps.Same(game, p.(*player).game)
+	ps.Equal(vars.VillagerFactionID, p.FactionID())
+	ps.NotNil(p.(*player).roles)
+	ps.Empty(p.(*player).roles)
+}
+
 func (ps PlayerSuite) TestID() {
 	ctrl := gomock.NewController(ps.T())
 	defer ctrl.Finish()
@@ -181,7 +195,7 @@ func (ps PlayerSuite) TestDie() {
 			expectedStatus: false,
 			expectedDead:   false,
 			setup: func(p *player, mr *gamemock.MockRole) {
-				mr.EXPECT().BeforeDeath().Return(false).Times(1)
+				mr.EXPECT().BeforeDeath().Return(false)
 			},
 		},
 		{
@@ -190,8 +204,9 @@ func (ps PlayerSuite) TestDie() {
 			expectedStatus: true,
 			expectedDead:   true,
 			setup: func(p *player, mr *gamemock.MockRole) {
-				mr.EXPECT().BeforeDeath().Return(true).Times(1)
-				mr.EXPECT().AfterDeath().Times(1)
+				mr.EXPECT().BeforeDeath().Return(true)
+				mr.EXPECT().AfterDeath()
+				mr.EXPECT().UnregisterSlot()
 			},
 		},
 		{
@@ -200,8 +215,9 @@ func (ps PlayerSuite) TestDie() {
 			expectedStatus: true,
 			expectedDead:   true,
 			setup: func(p *player, mr *gamemock.MockRole) {
-				mr.EXPECT().BeforeDeath().Return(false).Times(1)
-				mr.EXPECT().AfterDeath().Times(1)
+				mr.EXPECT().BeforeDeath().Return(false)
+				mr.EXPECT().AfterDeath()
+				mr.EXPECT().UnregisterSlot()
 			},
 		},
 	}
@@ -306,16 +322,24 @@ func (ps PlayerSuite) TestAssignRole() {
 			schduler := gamemock.NewMockScheduler(ctrl)
 
 			// Mock for role creation
-			game.EXPECT().Player(gomock.Any()).Return(mplayer).AnyTimes()
-			mplayer.EXPECT().ID().AnyTimes()
+			game.EXPECT().Player(ps.playerID).Return(mplayer).AnyTimes()
+			mplayer.EXPECT().ID().Return(ps.playerID).AnyTimes()
 			game.EXPECT().Poll(gomock.Any()).Return(poll).AnyTimes()
 			poll.EXPECT().AddElectors(gomock.Any()).AnyTimes()
 			poll.EXPECT().SetWeight(gomock.Any(), gomock.Any()).AnyTimes()
 
 			// Make sure that assinged role register it turn in scheduler
 			if test.expectedStatus == true {
-				game.EXPECT().Scheduler().Return(schduler).Times(1)
-				schduler.EXPECT().AddSlot(gomock.Any()).Return(true).Times(1)
+				game.EXPECT().Scheduler().Return(schduler)
+				schduler.EXPECT().AddSlot(gomock.Any()).Return(true)
+
+				if test.roleID == vars.VillagerRoleID {
+					// Mock for villager role registration
+					poll.EXPECT().AddCandidates(ps.playerID).Times(2)
+				} else if test.roleID == vars.WerewolfRoleID {
+					// Mock for werewolf role registration
+					poll.EXPECT().AddCandidates(ps.playerID)
+				}
 			}
 
 			p := NewPlayer(game, ps.playerID)
@@ -392,7 +416,7 @@ func (ps PlayerSuite) TestRevokeRole() {
 					ps.role2ID:   mr1,
 				}
 
-				mr1.EXPECT().UnregisterSlot().Times(1)
+				mr1.EXPECT().UnregisterSlot()
 			},
 		},
 		{
@@ -409,9 +433,9 @@ func (ps PlayerSuite) TestRevokeRole() {
 					ps.role2ID:   mr1, // Prevent nil checking
 				}
 
-				mr1.EXPECT().UnregisterSlot().Times(1)
-				mr1.EXPECT().ID().Return(ps.role1_1ID).Times(1)
-				mr1.EXPECT().FactionID().Return(ps.faction1_1ID).Times(1)
+				mr1.EXPECT().UnregisterSlot()
+				mr1.EXPECT().ID().Return(ps.role1_1ID)
+				mr1.EXPECT().FactionID().Return(ps.faction1_1ID)
 			},
 		},
 		{
@@ -429,7 +453,7 @@ func (ps PlayerSuite) TestRevokeRole() {
 					ps.role2ID:   mr1, // Prevent nil checking
 				}
 
-				mr1.EXPECT().UnregisterSlot().Times(1)
+				mr1.EXPECT().UnregisterSlot()
 				mr1.EXPECT().ID().Return(ps.role1_1ID).MaxTimes(2)
 				mr1.EXPECT().FactionID().Return(ps.faction1_1ID).MaxTimes(1)
 				mr2.EXPECT().ID().Return(ps.role1_2ID).MaxTimes(2)
@@ -490,7 +514,7 @@ func (ps PlayerSuite) TestActivateAbility() {
 				Message: "Wait for your turn, OK??",
 			},
 			setup: func(p *player, ms *gamemock.MockScheduler, mr *gamemock.MockRole) {
-				ms.EXPECT().CanPlay(ps.playerID).Return(false).Times(1)
+				ms.EXPECT().CanPlay(ps.playerID).Return(false)
 			},
 		},
 		{
@@ -507,8 +531,8 @@ func (ps PlayerSuite) TestActivateAbility() {
 				})
 				p.roles[ps.role1_1ID] = mr
 
-				ms.EXPECT().Turn().Return(turn).Times(1)
-				ms.EXPECT().CanPlay(ps.playerID).Return(true).Times(1)
+				ms.EXPECT().Turn().Return(turn)
+				ms.EXPECT().CanPlay(ps.playerID).Return(true)
 				mr.EXPECT().
 					ActivateAbility(&types.ActivateAbilityRequest{}).
 					Return(&types.ActionResponse{

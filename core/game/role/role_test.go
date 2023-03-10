@@ -90,8 +90,8 @@ func (rs RoleSuite) TestRegisterSlot() {
 	player := gamemock.NewMockPlayer(ctrl)
 	scheduler := gamemock.NewMockScheduler(ctrl)
 
-	game.EXPECT().Scheduler().Return(scheduler).Times(1)
-	player.EXPECT().ID().Return(rs.playerID).Times(1)
+	game.EXPECT().Scheduler().Return(scheduler)
+	player.EXPECT().ID().Return(rs.playerID)
 
 	r := role{
 		id:           vars.HunterRoleID,
@@ -119,8 +119,8 @@ func (rs RoleSuite) TestUnregisterSlot() {
 	player := gamemock.NewMockPlayer(ctrl)
 	scheduler := gamemock.NewMockScheduler(ctrl)
 
-	game.EXPECT().Scheduler().Return(scheduler).Times(1)
-	player.EXPECT().ID().Return(rs.playerID).Times(1)
+	game.EXPECT().Scheduler().Return(scheduler)
+	player.EXPECT().ID().Return(rs.playerID)
 
 	r := role{
 		id:      vars.HunterRoleID,

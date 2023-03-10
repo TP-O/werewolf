@@ -33,15 +33,15 @@ func (ws WerewolfSuite) TestNewWerewolf() {
 			name:        "Failure (Poll does not exist)",
 			expectedErr: "Poll does not exist ¯\\_(ツ)_/¯",
 			setup: func(mg *gamemock.MockGame, mp *gamemock.MockPoll) {
-				mg.EXPECT().Poll(vars.WerewolfFactionID).Return(nil).Times(1)
+				mg.EXPECT().Poll(vars.WerewolfFactionID).Return(nil)
 			},
 		},
 		{
 			name: "Ok",
 			setup: func(mg *gamemock.MockGame, mp *gamemock.MockPoll) {
 				mg.EXPECT().Poll(vars.WerewolfFactionID).Return(mp).Times(2)
-				mp.EXPECT().AddElectors(ws.playerID).Times(1)
-				mp.EXPECT().SetWeight(ws.playerID, uint(1)).Times(1)
+				mp.EXPECT().AddElectors(ws.playerID)
+				mp.EXPECT().SetWeight(ws.playerID, uint(1))
 			},
 		},
 	}
@@ -76,4 +76,66 @@ func (ws WerewolfSuite) TestNewWerewolf() {
 			}
 		})
 	}
+}
+
+func (ws WerewolfSuite) TestUnregisterSlot() {
+	ctrl := gomock.NewController(ws.T())
+	defer ctrl.Finish()
+	game := gamemock.NewMockGame(ctrl)
+	player := gamemock.NewMockPlayer(ctrl)
+	scheduler := gamemock.NewMockScheduler(ctrl)
+	poll := gamemock.NewMockPoll(ctrl)
+
+	// Mock for New fuction
+	game.EXPECT().Scheduler().Return(scheduler)
+	game.EXPECT().Player(ws.playerID).Return(player)
+	game.EXPECT().Poll(vars.WerewolfFactionID).Return(poll).Times(2)
+	poll.EXPECT().AddElectors(ws.playerID)
+	poll.EXPECT().SetWeight(ws.playerID, uint(1))
+
+	game.EXPECT().Poll(vars.VillagerFactionID).Return(poll).Times(2)
+	game.EXPECT().Poll(vars.WerewolfFactionID).Return(poll)
+	poll.EXPECT().RemoveElector(ws.playerID).Times(2)
+	poll.EXPECT().RemoveCandidate(ws.playerID)
+	player.EXPECT().ID().Return(ws.playerID).Times(4)
+
+	w, _ := NewWerewolf(game, ws.playerID)
+
+	scheduler.EXPECT().RemoveSlot(&types.RemovedTurnSlot{
+		PhaseID:  w.(*werewolf).phaseID,
+		PlayerID: ws.playerID,
+		RoleID:   w.ID(),
+	})
+
+	w.UnregisterSlot()
+}
+
+func (ws WerewolfSuite) TestRegisterSlot() {
+	ctrl := gomock.NewController(ws.T())
+	defer ctrl.Finish()
+	game := gamemock.NewMockGame(ctrl)
+	player := gamemock.NewMockPlayer(ctrl)
+	scheduler := gamemock.NewMockScheduler(ctrl)
+	poll := gamemock.NewMockPoll(ctrl)
+
+	// Mock for New fuction
+	game.EXPECT().Scheduler().Return(scheduler)
+	game.EXPECT().Player(ws.playerID).Return(player)
+	game.EXPECT().Poll(vars.WerewolfFactionID).Return(poll).Times(2)
+	poll.EXPECT().AddElectors(ws.playerID)
+	poll.EXPECT().SetWeight(ws.playerID, uint(1))
+
+	game.EXPECT().Poll(vars.VillagerFactionID).Return(poll)
+	poll.EXPECT().AddCandidates(ws.playerID)
+	player.EXPECT().ID().Return(ws.playerID).Times(2)
+
+	w, _ := NewWerewolf(game, ws.playerID)
+
+	scheduler.EXPECT().RemoveSlot(&types.RemovedTurnSlot{
+		PhaseID:  w.(*werewolf).phaseID,
+		PlayerID: ws.playerID,
+		RoleID:   w.ID(),
+	})
+
+	w.RegisterSlot()
 }

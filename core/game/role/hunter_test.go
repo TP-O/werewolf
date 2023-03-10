@@ -29,7 +29,7 @@ func (hs HunterSuite) TestNewHunter() {
 	game := gamemock.NewMockGame(ctrl)
 	player := gamemock.NewMockPlayer(ctrl)
 
-	game.EXPECT().Player(hs.playerID).Return(player).Times(1)
+	game.EXPECT().Player(hs.playerID).Return(player)
 
 	h, _ := NewHunter(game, hs.playerID)
 
@@ -49,7 +49,7 @@ func (hs HunterSuite) TestRegisterSlot() {
 	game := gamemock.NewMockGame(ctrl)
 	player := gamemock.NewMockPlayer(ctrl)
 
-	game.EXPECT().Player(hs.playerID).Return(player).Times(1)
+	game.EXPECT().Player(hs.playerID).Return(player)
 
 	h, _ := NewHunter(game, hs.playerID)
 	h.RegisterSlot()
@@ -66,7 +66,7 @@ func (hs HunterSuite) TestAfterDeath() {
 			expectedLimit: vars.Once,
 			setup: func(h *hunter, mg *gamemock.MockGame, ms *gamemock.MockScheduler) {
 				mg.EXPECT().Scheduler().Return(ms).Times(4)
-				ms.EXPECT().PhaseID().Return(vars.NightPhaseID).Times(1)
+				ms.EXPECT().PhaseID().Return(vars.NightPhaseID)
 				ms.EXPECT().RoundID().Return(vars.SecondRound).Times(2)
 				ms.EXPECT().AddSlot(&types.NewTurnSlot{
 					PhaseID:       h.phaseID,
@@ -74,7 +74,7 @@ func (hs HunterSuite) TestAfterDeath() {
 					PlayedRoundID: vars.SecondRound,
 					PlayerID:      hs.playerID,
 					TurnID:        h.turnID,
-				}).Times(1)
+				})
 			},
 		},
 		{
@@ -82,8 +82,8 @@ func (hs HunterSuite) TestAfterDeath() {
 			expectedLimit: vars.Once,
 			setup: func(h *hunter, mg *gamemock.MockGame, ms *gamemock.MockScheduler) {
 				mg.EXPECT().Scheduler().Return(ms).Times(5)
-				ms.EXPECT().PhaseID().Return(vars.DayPhaseID).Times(1)
-				ms.EXPECT().TurnID().Return(vars.MidTurn).Times(1)
+				ms.EXPECT().PhaseID().Return(vars.DayPhaseID)
+				ms.EXPECT().TurnID().Return(vars.MidTurn)
 				ms.EXPECT().RoundID().Return(vars.SecondRound).Times(2)
 				ms.EXPECT().AddSlot(&types.NewTurnSlot{
 					PhaseID:       h.phaseID,
@@ -91,7 +91,7 @@ func (hs HunterSuite) TestAfterDeath() {
 					PlayedRoundID: vars.SecondRound,
 					PlayerID:      hs.playerID,
 					TurnID:        vars.MidTurn + 1,
-				}).Times(1)
+				})
 			},
 		},
 	}
@@ -104,7 +104,7 @@ func (hs HunterSuite) TestAfterDeath() {
 			player := gamemock.NewMockPlayer(ctrl)
 			scheduler := gamemock.NewMockScheduler(ctrl)
 
-			game.EXPECT().Player(hs.playerID).Return(player).Times(1)
+			game.EXPECT().Player(hs.playerID).Return(player)
 			player.EXPECT().ID().Return(hs.playerID).AnyTimes()
 
 			h, _ := NewHunter(game, hs.playerID)

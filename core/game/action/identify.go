@@ -69,13 +69,13 @@ func (i *identify) perform(req *types.ActionRequest) *types.ActionResponse {
 	i.isIdentified = true
 
 	if !i.FactionID.IsUnknown() {
-		i.Faction = i.game.PlayerIDsWithFactionID(i.FactionID, false)
+		i.Faction = i.game.AlivePlayerIDsWithFactionID(i.FactionID)
 		return &types.ActionResponse{
 			Ok:   true,
 			Data: i.Faction,
 		}
 	} else if !i.RoleID.IsUnknown() {
-		i.Role = i.game.PlayerIDsWithRoleID(i.RoleID)
+		i.Role = i.game.AlivePlayerIDsWithRoleID(i.RoleID)
 		return &types.ActionResponse{
 			Ok:   true,
 			Data: i.Role,

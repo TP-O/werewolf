@@ -24,8 +24,8 @@ func TestNewRole(t *testing.T) {
 			expectedRoleID: vars.VillagerRoleID,
 			setup: func(mg *gamemock.MockGame, mp *gamemock.MockPoll) {
 				mg.EXPECT().Poll(vars.VillagerFactionID).Return(mp).Times(2)
-				mp.EXPECT().AddElectors(playerID).Times(1)
-				mp.EXPECT().SetWeight(playerID, uint(1)).Times(1)
+				mp.EXPECT().AddElectors(playerID)
+				mp.EXPECT().SetWeight(playerID, uint(1))
 			},
 		},
 		{
@@ -33,8 +33,8 @@ func TestNewRole(t *testing.T) {
 			expectedRoleID: vars.WerewolfRoleID,
 			setup: func(mg *gamemock.MockGame, mp *gamemock.MockPoll) {
 				mg.EXPECT().Poll(vars.WerewolfFactionID).Return(mp).Times(2)
-				mp.EXPECT().AddElectors(playerID).Times(1)
-				mp.EXPECT().SetWeight(playerID, uint(1)).Times(1)
+				mp.EXPECT().AddElectors(playerID)
+				mp.EXPECT().SetWeight(playerID, uint(1))
 			},
 		},
 		{

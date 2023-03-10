@@ -29,7 +29,7 @@ func (tss TwoSisterSuite) TestNewTwoSister() {
 	game := gamemock.NewMockGame(ctrl)
 	player := gamemock.NewMockPlayer(ctrl)
 
-	game.EXPECT().Player(tss.playerID).Return(player).Times(1)
+	game.EXPECT().Player(tss.playerID).Return(player)
 
 	ts, _ := NewTwoSister(game, tss.playerID)
 

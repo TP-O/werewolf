@@ -25,7 +25,6 @@ type GameID = uint64
 type GameStatusID = uint8
 
 type GameSetting struct {
-	GameID           GameID     `json:"game_id"`
 	RoleIDs          []RoleID   `json:"role_ids"`
 	RequiredRoleIDs  []RoleID   `json:"required_role_ids"`
 	NumberWerewolves uint8      `json:"number_werewolves"`

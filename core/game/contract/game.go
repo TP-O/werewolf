@@ -6,9 +6,7 @@ import (
 
 // Game is game instace.
 type Game interface {
-	// ID returns game's ID.
-	ID() types.GameID
-
+	// StatusID retusn current game status ID.
 	StatusID() types.GameStatusID
 
 	// Poll returns the in-game poll management state.
@@ -21,17 +19,20 @@ type Game interface {
 	// Player returns the player by given player ID.
 	Player(playerID types.PlayerID) Player
 
+	// Players returns the player list.
 	Players() map[types.PlayerID]Player
 
-	// PlayerIDsWithRoleID returns the player ID list has the
+	// AlivePlayerIDsWithRoleID returns the alive player ID list having the
 	// givent role ID.
-	PlayerIDsWithRoleID(roleID types.RoleID) []types.PlayerID
+	AlivePlayerIDsWithRoleID(roleID types.RoleID) []types.PlayerID
 
-	// PlayerIDsWithFactionID returns the player ID list has the given faction ID.
-	PlayerIDsWithFactionID(factionID types.FactionID, onlyAlive bool) []types.PlayerID
+	// AlivePlayerIDsWithFactionID returns the alive player ID list having the
+	// given faction ID.
+	AlivePlayerIDsWithFactionID(factionID types.FactionID) []types.PlayerID
 
-	// PlayerIDsWithoutFactionID returns the player ID list doesn't have the given faction ID.
-	PlayerIDsWithoutFactionID(factionID types.FactionID, onlyAlive bool) []types.PlayerID
+	// AlivePlayerIDsWithoutFactionID returns the alive player ID list not having
+	// the given faction ID.
+	AlivePlayerIDsWithoutFactionID(factionID types.FactionID) []types.PlayerID
 
 	// Prepare sets up the game and returns completion time in milisecond.
 	Prepare() int64
@@ -43,8 +44,9 @@ type Game interface {
 	Finish() bool
 
 	// Play activates the player's ability.
-	Play(playerID types.PlayerID, req types.ActivateAbilityRequest) types.ActionResponse
+	Play(playerID types.PlayerID, req *types.ActivateAbilityRequest) *types.ActionResponse
 
 	// KillPlayer kills the player by the given player ID.
+	// If `isExited` is true, any trigger preventing death is ignored.
 	KillPlayer(playerID types.PlayerID, isExited bool) Player
 }

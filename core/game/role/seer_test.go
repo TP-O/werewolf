@@ -29,7 +29,7 @@ func (ss SeerSuite) TestNewSeer() {
 	game := gamemock.NewMockGame(ctrl)
 	player := gamemock.NewMockPlayer(ctrl)
 
-	game.EXPECT().Player(ss.playerID).Return(player).Times(1)
+	game.EXPECT().Player(ss.playerID).Return(player)
 
 	s, _ := NewSeer(game, ss.playerID)
 

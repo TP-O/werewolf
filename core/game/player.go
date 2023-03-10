@@ -81,6 +81,7 @@ func (p *player) Die(isExited bool) bool {
 	p.isDead = true
 	for _, role := range p.roles {
 		role.AfterDeath()
+		role.UnregisterSlot()
 	}
 
 	return true

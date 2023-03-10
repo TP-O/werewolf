@@ -60,7 +60,7 @@ func (ks KillSuite) TestValidateKill() {
 			},
 			expectedErr: "Player does not exist (⊙＿⊙')",
 			setup: func(mg *gamemock.MockGame, mp *gamemock.MockPlayer) {
-				mg.EXPECT().Player(ks.targetID).Return(nil).Times(1)
+				mg.EXPECT().Player(ks.targetID).Return(nil)
 			},
 		},
 		{
@@ -71,8 +71,8 @@ func (ks KillSuite) TestValidateKill() {
 			},
 			expectedErr: "Player is dead [¬º-°]¬",
 			setup: func(mg *gamemock.MockGame, mp *gamemock.MockPlayer) {
-				mg.EXPECT().Player(ks.targetID).Return(mp).Times(1)
-				mp.EXPECT().IsDead().Return(true).Times(1)
+				mg.EXPECT().Player(ks.targetID).Return(mp)
+				mp.EXPECT().IsDead().Return(true)
 			},
 		},
 		{
@@ -82,8 +82,8 @@ func (ks KillSuite) TestValidateKill() {
 				TargetID: ks.targetID,
 			},
 			setup: func(mg *gamemock.MockGame, mp *gamemock.MockPlayer) {
-				mg.EXPECT().Player(ks.targetID).Return(mp).Times(1)
-				mp.EXPECT().IsDead().Return(false).Times(1)
+				mg.EXPECT().Player(ks.targetID).Return(mp)
+				mp.EXPECT().IsDead().Return(false)
 			},
 		},
 	}
@@ -128,7 +128,7 @@ func (ks KillSuite) TestPerformKill() {
 			},
 			expectedKillTimes: 1,
 			setup: func(k *kill, mg *gamemock.MockGame, mp *gamemock.MockPlayer) {
-				mg.EXPECT().KillPlayer(ks.targetID, false).Return(mp).Times(1)
+				mg.EXPECT().KillPlayer(ks.targetID, false).Return(mp)
 				mp.EXPECT().ID().Return(ks.targetID).Times(2)
 			},
 		},
@@ -145,7 +145,7 @@ func (ks KillSuite) TestPerformKill() {
 			expectedKillTimes: 2,
 			setup: func(k *kill, mg *gamemock.MockGame, mp *gamemock.MockPlayer) {
 				k.Kills[ks.targetID] = 1
-				mg.EXPECT().KillPlayer(ks.targetID, false).Return(mp).Times(1)
+				mg.EXPECT().KillPlayer(ks.targetID, false).Return(mp)
 				mp.EXPECT().ID().Return(ks.targetID).Times(2)
 			},
 		},
