@@ -195,7 +195,7 @@ func (ps PlayerSuite) TestDie() {
 			expectedStatus: false,
 			expectedDead:   false,
 			setup: func(p *player, mr *gamemock.MockRole) {
-				mr.EXPECT().BeforeDeath().Return(false)
+				mr.EXPECT().OnBeforeDeath().Return(false)
 			},
 		},
 		{
@@ -204,9 +204,9 @@ func (ps PlayerSuite) TestDie() {
 			expectedStatus: true,
 			expectedDead:   true,
 			setup: func(p *player, mr *gamemock.MockRole) {
-				mr.EXPECT().BeforeDeath().Return(true)
-				mr.EXPECT().AfterDeath()
-				mr.EXPECT().UnregisterSlot()
+				mr.EXPECT().OnBeforeDeath().Return(true)
+				mr.EXPECT().OnAfterDeath()
+				mr.EXPECT().OnRevoke()
 			},
 		},
 		{
@@ -215,9 +215,9 @@ func (ps PlayerSuite) TestDie() {
 			expectedStatus: true,
 			expectedDead:   true,
 			setup: func(p *player, mr *gamemock.MockRole) {
-				mr.EXPECT().BeforeDeath().Return(false)
-				mr.EXPECT().AfterDeath()
-				mr.EXPECT().UnregisterSlot()
+				mr.EXPECT().OnBeforeDeath().Return(false)
+				mr.EXPECT().OnAfterDeath()
+				mr.EXPECT().OnRevoke()
 			},
 		},
 	}
@@ -416,7 +416,7 @@ func (ps PlayerSuite) TestRevokeRole() {
 					ps.role2ID:   mr1,
 				}
 
-				mr1.EXPECT().UnregisterSlot()
+				mr1.EXPECT().OnRevoke()
 			},
 		},
 		{
@@ -433,7 +433,7 @@ func (ps PlayerSuite) TestRevokeRole() {
 					ps.role2ID:   mr1, // Prevent nil checking
 				}
 
-				mr1.EXPECT().UnregisterSlot()
+				mr1.EXPECT().OnRevoke()
 				mr1.EXPECT().ID().Return(ps.role1_1ID)
 				mr1.EXPECT().FactionID().Return(ps.faction1_1ID)
 			},
@@ -453,7 +453,7 @@ func (ps PlayerSuite) TestRevokeRole() {
 					ps.role2ID:   mr1, // Prevent nil checking
 				}
 
-				mr1.EXPECT().UnregisterSlot()
+				mr1.EXPECT().OnRevoke()
 				mr1.EXPECT().ID().Return(ps.role1_1ID).MaxTimes(2)
 				mr1.EXPECT().FactionID().Return(ps.faction1_1ID).MaxTimes(1)
 				mr2.EXPECT().ID().Return(ps.role1_2ID).MaxTimes(2)

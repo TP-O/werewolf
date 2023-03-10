@@ -43,7 +43,7 @@ func (hs HunterSuite) TestNewHunter() {
 	hs.Equal(vars.KillActionID, h.(*hunter).abilities[0].action.ID())
 }
 
-func (hs HunterSuite) TestRegisterSlot() {
+func (hs HunterSuite) TestOnAssign() {
 	ctrl := gomock.NewController(hs.T())
 	defer ctrl.Finish()
 	game := gamemock.NewMockGame(ctrl)
@@ -52,10 +52,10 @@ func (hs HunterSuite) TestRegisterSlot() {
 	game.EXPECT().Player(hs.playerID).Return(player)
 
 	h, _ := NewHunter(game, hs.playerID)
-	h.RegisterSlot()
+	h.OnAssign()
 }
 
-func (hs HunterSuite) TestAfterDeath() {
+func (hs HunterSuite) TestOnAfterDeath() {
 	tests := []struct {
 		name          string
 		expectedLimit types.Times
@@ -109,7 +109,7 @@ func (hs HunterSuite) TestAfterDeath() {
 
 			h, _ := NewHunter(game, hs.playerID)
 			test.setup(h.(*hunter), game, scheduler)
-			h.AfterDeath()
+			h.OnAfterDeath()
 
 			hs.Equal(test.expectedLimit, h.ActiveTimes(0))
 		})

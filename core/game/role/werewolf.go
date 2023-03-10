@@ -40,16 +40,16 @@ func NewWerewolf(game contract.Game, playerID types.PlayerID) (contract.Role, er
 	}, nil
 }
 
-// RegisterTurn adds role's turn to the game schedule.
-func (w *werewolf) RegisterSlot() {
-	w.role.RegisterSlot()
+// OnAssign is triggered when the role is assigned to a player.
+func (w *werewolf) OnAssign() {
+	w.role.OnAssign()
 
 	w.game.Poll(vars.VillagerFactionID).AddCandidates(w.player.ID())
 }
 
-// UnregisterSlot removes role's slot from the game schedule.
-func (w *werewolf) UnregisterSlot() {
-	w.role.UnregisterSlot()
+// OnRevoke is triggered when the role is removed from a player.
+func (w *werewolf) OnRevoke() {
+	w.role.OnRevoke()
 
 	w.game.Poll(vars.VillagerFactionID).RemoveElector(w.player.ID())
 	w.game.Poll(vars.VillagerFactionID).RemoveCandidate(w.player.ID())

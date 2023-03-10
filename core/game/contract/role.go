@@ -24,18 +24,18 @@ type Role interface {
 	// Returns total limit if the `index` is -1.
 	ActiveTimes(index int) types.Times
 
-	// RegisterTurn adds role's slot to the game schedule.
-	RegisterSlot()
+	// OnAssign is triggered when the role is assigned to a player.
+	OnAssign()
 
-	// UnregisterSlot removes role's slot from the game schedule.
-	UnregisterSlot()
+	// OnRevoke is triggered when the role is removed from a player.
+	OnRevoke()
 
-	// BeforeDeath is triggered before killing this role.
+	// OnBeforeDeath is triggered before killing this role.
 	// If returns false, the player assigned it is saved.
-	BeforeDeath() bool
+	OnBeforeDeath() bool
 
-	// AfterDeath is triggered after killing this role.
-	AfterDeath()
+	// OnAfterDeath is triggered after killing this role.
+	OnAfterDeath()
 
 	// ActivateAbility executes the action corresponding to the required ability.
 	ActivateAbility(req *types.ActivateAbilityRequest) *types.ActionResponse

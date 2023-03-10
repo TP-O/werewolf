@@ -62,32 +62,6 @@ func (mr *MockRoleMockRecorder) ActiveTimes(index interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ActiveTimes", reflect.TypeOf((*MockRole)(nil).ActiveTimes), index)
 }
 
-// AfterDeath mocks base method.
-func (m *MockRole) AfterDeath() {
-	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "AfterDeath")
-}
-
-// AfterDeath indicates an expected call of AfterDeath.
-func (mr *MockRoleMockRecorder) AfterDeath() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AfterDeath", reflect.TypeOf((*MockRole)(nil).AfterDeath))
-}
-
-// BeforeDeath mocks base method.
-func (m *MockRole) BeforeDeath() bool {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "BeforeDeath")
-	ret0, _ := ret[0].(bool)
-	return ret0
-}
-
-// BeforeDeath indicates an expected call of BeforeDeath.
-func (mr *MockRoleMockRecorder) BeforeDeath() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BeforeDeath", reflect.TypeOf((*MockRole)(nil).BeforeDeath))
-}
-
 // FactionID mocks base method.
 func (m *MockRole) FactionID() types.FactionID {
 	m.ctrl.T.Helper()
@@ -116,26 +90,52 @@ func (mr *MockRoleMockRecorder) ID() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ID", reflect.TypeOf((*MockRole)(nil).ID))
 }
 
-// RegisterSlot mocks base method.
-func (m *MockRole) RegisterSlot() {
+// OnAfterDeath mocks base method.
+func (m *MockRole) OnAfterDeath() {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "RegisterSlot")
+	m.ctrl.Call(m, "OnAfterDeath")
 }
 
-// RegisterSlot indicates an expected call of RegisterSlot.
-func (mr *MockRoleMockRecorder) RegisterSlot() *gomock.Call {
+// OnAfterDeath indicates an expected call of OnAfterDeath.
+func (mr *MockRoleMockRecorder) OnAfterDeath() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RegisterSlot", reflect.TypeOf((*MockRole)(nil).RegisterSlot))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OnAfterDeath", reflect.TypeOf((*MockRole)(nil).OnAfterDeath))
 }
 
-// UnregisterSlot mocks base method.
-func (m *MockRole) UnregisterSlot() {
+// OnAssign mocks base method.
+func (m *MockRole) OnAssign() {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "UnregisterSlot")
+	m.ctrl.Call(m, "OnAssign")
 }
 
-// UnregisterSlot indicates an expected call of UnregisterSlot.
-func (mr *MockRoleMockRecorder) UnregisterSlot() *gomock.Call {
+// OnAssign indicates an expected call of OnAssign.
+func (mr *MockRoleMockRecorder) OnAssign() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UnregisterSlot", reflect.TypeOf((*MockRole)(nil).UnregisterSlot))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OnAssign", reflect.TypeOf((*MockRole)(nil).OnAssign))
+}
+
+// OnBeforeDeath mocks base method.
+func (m *MockRole) OnBeforeDeath() bool {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "OnBeforeDeath")
+	ret0, _ := ret[0].(bool)
+	return ret0
+}
+
+// OnBeforeDeath indicates an expected call of OnBeforeDeath.
+func (mr *MockRoleMockRecorder) OnBeforeDeath() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OnBeforeDeath", reflect.TypeOf((*MockRole)(nil).OnBeforeDeath))
+}
+
+// OnRevoke mocks base method.
+func (m *MockRole) OnRevoke() {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "OnRevoke")
+}
+
+// OnRevoke indicates an expected call of OnRevoke.
+func (mr *MockRoleMockRecorder) OnRevoke() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OnRevoke", reflect.TypeOf((*MockRole)(nil).OnRevoke))
 }

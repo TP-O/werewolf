@@ -83,7 +83,7 @@ func (rs RoleSuite) TestActiveTimes() {
 	rs.Equal(vars.OutOfTimes, role.ActiveTimes(99))
 }
 
-func (rs RoleSuite) TestRegisterSlot() {
+func (rs RoleSuite) TestOnAssign() {
 	ctrl := gomock.NewController(rs.T())
 	defer ctrl.Finish()
 	game := gamemock.NewMockGame(ctrl)
@@ -109,10 +109,10 @@ func (rs RoleSuite) TestRegisterSlot() {
 		RoleID:       r.ID(),
 	})
 
-	r.RegisterSlot()
+	r.OnAssign()
 }
 
-func (rs RoleSuite) TestUnregisterSlot() {
+func (rs RoleSuite) TestOnRevoke() {
 	ctrl := gomock.NewController(rs.T())
 	defer ctrl.Finish()
 	game := gamemock.NewMockGame(ctrl)
@@ -135,12 +135,12 @@ func (rs RoleSuite) TestUnregisterSlot() {
 		RoleID:   r.id,
 	})
 
-	r.UnregisterSlot()
+	r.OnRevoke()
 }
 
-func (rs RoleSuite) TestBeforeDeath() {
+func (rs RoleSuite) TestOnBeforeDeath() {
 	role := new(role)
-	isDead := role.BeforeDeath()
+	isDead := role.OnBeforeDeath()
 
 	rs.True(isDead)
 	rs.True(role.isBeforeDeathTriggered)

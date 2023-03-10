@@ -78,7 +78,7 @@ func (vs VillagerSuite) TestNewVillager() {
 	}
 }
 
-func (vs VillagerSuite) TestUnregisterSlot() {
+func (vs VillagerSuite) TestOnRevoke() {
 	ctrl := gomock.NewController(vs.T())
 	defer ctrl.Finish()
 	game := gamemock.NewMockGame(ctrl)
@@ -107,10 +107,10 @@ func (vs VillagerSuite) TestUnregisterSlot() {
 		RoleID:   v.ID(),
 	})
 
-	v.UnregisterSlot()
+	v.OnRevoke()
 }
 
-func (vs VillagerSuite) TestRegisterSlot() {
+func (vs VillagerSuite) TestOnAssign() {
 	ctrl := gomock.NewController(vs.T())
 	defer ctrl.Finish()
 	game := gamemock.NewMockGame(ctrl)
@@ -132,11 +132,13 @@ func (vs VillagerSuite) TestRegisterSlot() {
 
 	v, _ := NewVillager(game, vs.playerID)
 
-	scheduler.EXPECT().RemoveSlot(&types.RemovedTurnSlot{
-		PhaseID:  v.(*villager).phaseID,
-		PlayerID: vs.playerID,
-		RoleID:   v.ID(),
+	scheduler.EXPECT().AddSlot(&types.NewTurnSlot{
+		PhaseID:      v.(*villager).phaseID,
+		TurnID:       v.(*villager).turnID,
+		BeginRoundID: v.(*villager).beginRoundID,
+		PlayerID:     vs.playerID,
+		RoleID:       v.ID(),
 	})
 
-	v.RegisterSlot()
+	v.OnAssign()
 }

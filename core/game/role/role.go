@@ -87,8 +87,8 @@ func (r role) ActiveTimes(index int) types.Times {
 	return limit
 }
 
-// RegisterTurn adds role's turn to the game schedule.
-func (r *role) RegisterSlot() {
+// OnAssign is triggered when the role is assigned to a player.
+func (r *role) OnAssign() {
 	r.game.Scheduler().AddSlot(&types.NewTurnSlot{
 		PhaseID:      r.phaseID,
 		TurnID:       r.turnID,
@@ -98,8 +98,8 @@ func (r *role) RegisterSlot() {
 	})
 }
 
-// UnregisterSlot removes role's slot from the game schedule.
-func (r *role) UnregisterSlot() {
+// OnRevoke is triggered when the role is removed from a player.
+func (r *role) OnRevoke() {
 	r.game.Scheduler().RemoveSlot(&types.RemovedTurnSlot{
 		PhaseID:  r.phaseID,
 		RoleID:   r.id,
@@ -107,9 +107,9 @@ func (r *role) UnregisterSlot() {
 	})
 }
 
-// BeforeDeath is triggered before killing this role.
+// OnBeforeDeath is triggered before killing this role.
 // If returns false, the player assigned it is saved.
-func (r *role) BeforeDeath() bool {
+func (r *role) OnBeforeDeath() bool {
 	if r.isBeforeDeathTriggered {
 		return true
 	}
@@ -120,8 +120,8 @@ func (r *role) BeforeDeath() bool {
 	return true
 }
 
-// AfterDeath is triggered after killing this role.
-func (r role) AfterDeath() {
+// OnAfterDeath is triggered after killing this role.
+func (r role) OnAfterDeath() {
 	//
 }
 

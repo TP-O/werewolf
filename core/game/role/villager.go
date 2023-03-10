@@ -40,17 +40,17 @@ func NewVillager(game contract.Game, playerID types.PlayerID) (contract.Role, er
 	}, nil
 }
 
-// RegisterTurn adds role's turn to the game schedule.
-func (v *villager) RegisterSlot() {
-	v.role.RegisterSlot()
+// OnAssign is triggered when the role is assigned to a player.
+func (v *villager) OnAssign() {
+	v.role.OnAssign()
 
 	v.game.Poll(vars.VillagerFactionID).AddCandidates(v.player.ID())
 	v.game.Poll(vars.WerewolfFactionID).AddCandidates(v.player.ID())
 }
 
-// UnregisterSlot removes role's slot from the game schedule.
-func (v *villager) UnregisterSlot() {
-	v.role.UnregisterSlot()
+// OnRevoke is triggered when the role is removed from a player.
+func (v *villager) OnRevoke() {
+	v.role.OnRevoke()
 
 	v.game.Poll(vars.VillagerFactionID).RemoveElector(v.player.ID())
 	v.game.Poll(vars.VillagerFactionID).RemoveCandidate(v.player.ID())

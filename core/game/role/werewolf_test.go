@@ -78,7 +78,7 @@ func (ws WerewolfSuite) TestNewWerewolf() {
 	}
 }
 
-func (ws WerewolfSuite) TestUnregisterSlot() {
+func (ws WerewolfSuite) TestOnRevoke() {
 	ctrl := gomock.NewController(ws.T())
 	defer ctrl.Finish()
 	game := gamemock.NewMockGame(ctrl)
@@ -107,10 +107,10 @@ func (ws WerewolfSuite) TestUnregisterSlot() {
 		RoleID:   w.ID(),
 	})
 
-	w.UnregisterSlot()
+	w.OnRevoke()
 }
 
-func (ws WerewolfSuite) TestRegisterSlot() {
+func (ws WerewolfSuite) TestOnAssign() {
 	ctrl := gomock.NewController(ws.T())
 	defer ctrl.Finish()
 	game := gamemock.NewMockGame(ctrl)
@@ -131,11 +131,13 @@ func (ws WerewolfSuite) TestRegisterSlot() {
 
 	w, _ := NewWerewolf(game, ws.playerID)
 
-	scheduler.EXPECT().RemoveSlot(&types.RemovedTurnSlot{
-		PhaseID:  w.(*werewolf).phaseID,
-		PlayerID: ws.playerID,
-		RoleID:   w.ID(),
+	scheduler.EXPECT().AddSlot(&types.NewTurnSlot{
+		PhaseID:      w.(*werewolf).phaseID,
+		TurnID:       w.(*werewolf).turnID,
+		BeginRoundID: w.(*werewolf).beginRoundID,
+		PlayerID:     ws.playerID,
+		RoleID:       w.ID(),
 	})
 
-	w.RegisterSlot()
+	w.OnAssign()
 }

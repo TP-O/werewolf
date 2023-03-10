@@ -32,13 +32,13 @@ func NewHunter(game contract.Game, playerID types.PlayerID) (contract.Role, erro
 		nil
 }
 
-// RegisterTurn adds role's turn to the game schedule.
-func (h *hunter) RegisterSlot() {
+// OnAssign is triggered when the role is assigned to a player.
+func (h *hunter) OnAssign() {
 	//
 }
 
-// AfterDeath is triggered after killing this role.
-func (h *hunter) AfterDeath() {
+// OnAfterDeath is triggered after killing this role.
+func (h *hunter) OnAfterDeath() {
 	diedAtPhaseID := h.game.Scheduler().PhaseID()
 
 	// Ability is disabled if current round is too early

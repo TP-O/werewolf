@@ -73,15 +73,15 @@ func (p *player) Die(isExited bool) bool {
 	}
 
 	for _, role := range p.roles {
-		if isDead := role.BeforeDeath(); !isDead && !isExited {
+		if isDead := role.OnBeforeDeath(); !isDead && !isExited {
 			return false
 		}
 	}
 
 	p.isDead = true
 	for _, role := range p.roles {
-		role.AfterDeath()
-		role.UnregisterSlot()
+		role.OnAfterDeath()
+		role.OnRevoke()
 	}
 
 	return true
@@ -102,7 +102,7 @@ func (p *player) AssignRole(roleID types.RoleID) (bool, error) {
 			p.mainRoleID = newRole.ID()
 			p.factionID = newRole.FactionID()
 		}
-		newRole.RegisterSlot()
+		newRole.OnAssign()
 	}
 
 	return true, nil
@@ -117,7 +117,7 @@ func (p *player) RevokeRole(roleID types.RoleID) (bool, error) {
 		return false, errors.New("Non-existent role ID  ¯\\_(ツ)_/¯")
 	}
 
-	p.roles[roleID].UnregisterSlot()
+	p.roles[roleID].OnRevoke()
 	delete(p.roles, roleID)
 
 	if roleID == p.mainRoleID {
