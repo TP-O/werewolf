@@ -1,6 +1,7 @@
 package action
 
 import (
+	"fmt"
 	"testing"
 	"uwwolf/game/types"
 	"uwwolf/game/vars"
@@ -38,9 +39,9 @@ func (ps *PredictSuite) TestNewFactionPredict() {
 
 	ps.Equal(vars.PredictActionID, pred.ID())
 	ps.Equal(ps.predictedFactionID, pred.FactionID)
-	ps.Len(pred.Faction, 0)
+	ps.Empty(pred.Faction)
 	ps.Equal(types.RoleID(0), pred.RoleID)
-	ps.Len(pred.Role, 0)
+	ps.Empty(pred.Role)
 }
 
 func (ps *PredictSuite) TestNewRolePredict() {
@@ -52,16 +53,16 @@ func (ps *PredictSuite) TestNewRolePredict() {
 
 	ps.Equal(vars.PredictActionID, pred.ID())
 	ps.Equal(ps.predictedRoleID, pred.RoleID)
-	ps.Len(pred.Role, 0)
+	ps.Empty(pred.Role)
 	ps.Equal(types.FactionID(0), pred.FactionID)
-	ps.Len(pred.Faction, 0)
+	ps.Empty(pred.Faction)
 }
 
 func (ps *PredictSuite) TestValidateFactionPredict() {
 	tests := []struct {
 		name        string
 		req         *types.ActionRequest
-		expectedErr string
+		expectedErr error
 		setup       func(*predict, *gamemock.MockGame)
 	}{
 		{
@@ -70,7 +71,7 @@ func (ps *PredictSuite) TestValidateFactionPredict() {
 				ActorID:  ps.actorID,
 				TargetID: ps.actorID,
 			},
-			expectedErr: "WTF! You don't know who you are? (╯°□°)╯︵ ┻━┻",
+			expectedErr: fmt.Errorf("WTF! You don't know who you are? (╯°□°)╯︵ ┻━┻"),
 			setup:       func(p *predict, mg *gamemock.MockGame) {},
 		},
 		{
@@ -79,7 +80,7 @@ func (ps *PredictSuite) TestValidateFactionPredict() {
 				ActorID:  ps.actorID,
 				TargetID: ps.targetID,
 			},
-			expectedErr: "You already knew this player ¯\\(º_o)/¯",
+			expectedErr: fmt.Errorf("You already knew this player ¯\\(º_o)/¯"),
 			setup: func(p *predict, gm *gamemock.MockGame) {
 				p.Faction[ps.targetID] = true
 			},
@@ -90,7 +91,7 @@ func (ps *PredictSuite) TestValidateFactionPredict() {
 				ActorID:  ps.actorID,
 				TargetID: types.PlayerID("-99"),
 			},
-			expectedErr: "Non-existent player ¯\\_(ツ)_/¯",
+			expectedErr: fmt.Errorf("Non-existent player ¯\\_(ツ)_/¯"),
 			setup: func(p *predict, gm *gamemock.MockGame) {
 				gm.EXPECT().Player(types.PlayerID("-99")).Return(nil)
 			},
@@ -118,10 +119,10 @@ func (ps *PredictSuite) TestValidateFactionPredict() {
 			test.setup(pred, game)
 			err := pred.validate(test.req)
 
-			if test.expectedErr == "" {
+			if test.expectedErr == nil {
 				ps.Nil(err)
 			} else {
-				ps.Equal(test.expectedErr, err.Error())
+				ps.Equal(test.expectedErr, err)
 			}
 		})
 	}
@@ -131,7 +132,7 @@ func (ps *PredictSuite) TestValidateRolePredict() {
 	tests := []struct {
 		name        string
 		req         *types.ActionRequest
-		expectedErr string
+		expectedErr error
 		setup       func(*predict, *gamemock.MockGame)
 	}{
 		{
@@ -140,7 +141,7 @@ func (ps *PredictSuite) TestValidateRolePredict() {
 				ActorID:  ps.actorID,
 				TargetID: ps.actorID,
 			},
-			expectedErr: "WTF! You don't know who you are? (╯°□°)╯︵ ┻━┻",
+			expectedErr: fmt.Errorf("WTF! You don't know who you are? (╯°□°)╯︵ ┻━┻"),
 			setup:       func(p *predict, mg *gamemock.MockGame) {},
 		},
 		{
@@ -149,7 +150,7 @@ func (ps *PredictSuite) TestValidateRolePredict() {
 				ActorID:  ps.actorID,
 				TargetID: ps.targetID,
 			},
-			expectedErr: "You already knew this player ¯\\(º_o)/¯",
+			expectedErr: fmt.Errorf("You already knew this player ¯\\(º_o)/¯"),
 			setup: func(p *predict, gm *gamemock.MockGame) {
 				p.Role[ps.targetID] = true
 			},
@@ -160,7 +161,7 @@ func (ps *PredictSuite) TestValidateRolePredict() {
 				ActorID:  ps.actorID,
 				TargetID: types.PlayerID("-99"),
 			},
-			expectedErr: "Non-existent player ¯\\_(ツ)_/¯",
+			expectedErr: fmt.Errorf("Non-existent player ¯\\_(ツ)_/¯"),
 			setup: func(p *predict, gm *gamemock.MockGame) {
 				gm.EXPECT().Player(types.PlayerID("-99")).Return(nil)
 			},
@@ -188,10 +189,10 @@ func (ps *PredictSuite) TestValidateRolePredict() {
 			test.setup(pred, game)
 			err := pred.validate(test.req)
 
-			if test.expectedErr == "" {
+			if test.expectedErr == nil {
 				ps.Nil(err)
 			} else {
-				ps.Equal(test.expectedErr, err.Error())
+				ps.Equal(test.expectedErr, err)
 			}
 		})
 	}

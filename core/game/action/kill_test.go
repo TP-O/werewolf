@@ -1,6 +1,7 @@
 package action
 
 import (
+	"fmt"
 	"testing"
 	"uwwolf/game/types"
 	"uwwolf/game/vars"
@@ -33,14 +34,14 @@ func (ks KillSuite) TestNewKill() {
 
 	ks.Equal(vars.KillActionID, kill.ID())
 	ks.NotNil(kill.Kills)
-	ks.Len(kill.Kills, 0)
+	ks.Empty(kill.Kills)
 }
 
-func (ks KillSuite) TestValidateKill() {
+func (ks KillSuite) TestValidate() {
 	tests := []struct {
 		name        string
 		req         *types.ActionRequest
-		expectedErr string
+		expectedErr error
 		setup       func(*gamemock.MockGame, *gamemock.MockPlayer)
 	}{
 		{
@@ -49,7 +50,7 @@ func (ks KillSuite) TestValidateKill() {
 				ActorID:  ks.actorID,
 				TargetID: ks.actorID,
 			},
-			expectedErr: "Appreciate your own life (｡´ ‿｀♡)",
+			expectedErr: fmt.Errorf("Appreciate your own life (｡´ ‿｀♡)"),
 			setup:       func(mg *gamemock.MockGame, mp *gamemock.MockPlayer) {},
 		},
 		{
@@ -58,7 +59,7 @@ func (ks KillSuite) TestValidateKill() {
 				ActorID:  ks.actorID,
 				TargetID: ks.targetID,
 			},
-			expectedErr: "Player does not exist (⊙＿⊙')",
+			expectedErr: fmt.Errorf("Player does not exist (⊙＿⊙')"),
 			setup: func(mg *gamemock.MockGame, mp *gamemock.MockPlayer) {
 				mg.EXPECT().Player(ks.targetID).Return(nil)
 			},
@@ -69,7 +70,7 @@ func (ks KillSuite) TestValidateKill() {
 				ActorID:  ks.actorID,
 				TargetID: ks.targetID,
 			},
-			expectedErr: "Player is dead [¬º-°]¬",
+			expectedErr: fmt.Errorf("Player is dead [¬º-°]¬"),
 			setup: func(mg *gamemock.MockGame, mp *gamemock.MockPlayer) {
 				mg.EXPECT().Player(ks.targetID).Return(mp)
 				mp.EXPECT().IsDead().Return(true)
@@ -99,16 +100,16 @@ func (ks KillSuite) TestValidateKill() {
 			kill := NewKill(game).(*kill)
 			err := kill.validate(test.req)
 
-			if test.expectedErr == "" {
+			if test.expectedErr == nil {
 				ks.Nil(err)
 			} else {
-				ks.Equal(test.expectedErr, err.Error())
+				ks.Equal(test.expectedErr, err)
 			}
 		})
 	}
 }
 
-func (ks KillSuite) TestPerformKill() {
+func (ks KillSuite) TestPerform() {
 	tests := []struct {
 		name              string
 		req               *types.ActionRequest

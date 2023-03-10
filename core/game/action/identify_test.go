@@ -18,7 +18,7 @@ type RecognizeSuite struct {
 	identifiedIDs       []types.PlayerID
 }
 
-func TestRecognizeSuite(t *testing.T) {
+func TestIdentifySuite(t *testing.T) {
 	suite.Run(t, new(RecognizeSuite))
 }
 
@@ -38,9 +38,9 @@ func (rs RecognizeSuite) TestNewFactionIdentify() {
 
 	rs.Equal(vars.IdentifyActionID, fIdent.ID())
 	rs.Equal(rs.identifiedFactionID, fIdent.FactionID)
-	rs.Len(fIdent.Faction, 0)
+	rs.Empty(fIdent.Faction)
 	rs.Equal(types.RoleID(0), fIdent.RoleID)
-	rs.Len(fIdent.Role, 0)
+	rs.Empty(fIdent.Role)
 	rs.False(fIdent.isIdentified)
 }
 
@@ -53,9 +53,9 @@ func (rs RecognizeSuite) TestNewRoleIdentify() {
 
 	rs.Equal(vars.IdentifyActionID, ident.ID())
 	rs.Equal(types.FactionID(0), ident.FactionID)
-	rs.Len(ident.Faction, 0)
+	rs.Empty(ident.Faction)
 	rs.Equal(rs.identifiedRoleID, ident.RoleID)
-	rs.Len(ident.Role, 0)
+	rs.Empty(ident.Role)
 	rs.False(ident.isIdentified)
 }
 

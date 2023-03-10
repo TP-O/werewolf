@@ -2,6 +2,7 @@ package vars
 
 import "uwwolf/game/types"
 
+// Round ID
 const (
 	ZeroRound types.RoundID = iota
 	FirstRound

@@ -2,7 +2,7 @@ package vars
 
 import "uwwolf/game/types"
 
-// Particular action ID
+// Specific action ID
 const (
 	VoteActionID types.ActionID = iota + 1
 	IdentifyActionID

@@ -84,8 +84,8 @@ func (s scheduler) CanPlay(playerID types.PlayerID) bool {
 	slot := s.Turn()[playerID]
 
 	return slot != nil &&
-		((slot.BeginRoundID != vars.ZeroRound && slot.BeginRoundID <= s.roundID) ||
-			(slot.PlayedRoundID != vars.ZeroRound && slot.PlayedRoundID == s.roundID)) &&
+		((!slot.BeginRoundID.IsZero() && slot.BeginRoundID <= s.roundID) ||
+			(!slot.PlayedRoundID.IsZero() && slot.PlayedRoundID == s.roundID)) &&
 		slot.FrozenTimes == vars.OutOfTimes
 }
 
@@ -142,7 +142,7 @@ func (s *scheduler) AddSlot(newSlot *types.NewTurnSlot) bool {
 // RemoveSlot removes a player turn from the scheduler
 // by `TurnID` or `RoleID`.
 //
-// If `TurnID` is filled, ignore `RoleID`.
+// If `TurnID` is provided, ignore `RoleID`.
 //
 // If `PhaseID` is 0, removes all of turns of that player.
 func (s *scheduler) RemoveSlot(removedSlot *types.RemovedTurnSlot) bool {
@@ -153,7 +153,7 @@ func (s *scheduler) RemoveSlot(removedSlot *types.RemovedTurnSlot) bool {
 				delete(turn, removedSlot.PlayerID)
 			}
 		}
-	} else if removedSlot.TurnID != vars.ZeroTurn &&
+	} else if !removedSlot.TurnID.IsZero() &&
 		int(removedSlot.TurnID) < len(s.phases[removedSlot.PhaseID]) {
 		// Remove by turn ID
 		delete(s.phases[removedSlot.PhaseID][removedSlot.TurnID], removedSlot.PlayerID)
@@ -175,7 +175,7 @@ func (s *scheduler) RemoveSlot(removedSlot *types.RemovedTurnSlot) bool {
 
 // FreezeSlot blocks slot N times.
 func (s *scheduler) FreezeSlot(frozenSlot *types.FreezeTurnSlot) bool {
-	if frozenSlot.TurnID != vars.ZeroTurn &&
+	if !frozenSlot.TurnID.IsZero() &&
 		int(frozenSlot.TurnID) < len(s.phases[frozenSlot.PhaseID]) {
 		// Freeze by turn ID
 		s.phases[frozenSlot.PhaseID][frozenSlot.TurnID][frozenSlot.PlayerID].
@@ -204,7 +204,7 @@ func (s *scheduler) NextTurn() bool {
 		return false
 	}
 
-	if s.roundID == vars.ZeroRound {
+	if s.roundID.IsZero() {
 		s.roundID = vars.FirstRound
 	} else {
 		for playerID, slot := range s.Turn() {

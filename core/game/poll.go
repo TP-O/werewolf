@@ -52,7 +52,7 @@ func NewPoll() contract.Poll {
 
 // IsOpen checks if a poll round is opening.
 func (p poll) IsOpen() bool {
-	return p.RoundID != vars.ZeroRound && !p.Records[p.RoundID].IsClosed
+	return !p.RoundID.IsZero() && !p.Records[p.RoundID].IsClosed
 }
 
 // CanVote checks if the elector can vote for the current poll round.

@@ -22,9 +22,9 @@ func (ps PollSuite) TestNewPoll() {
 
 	ps.NotNil(p)
 	ps.NotNil(p.(*poll).Weights)
-	ps.Len(p.(*poll).Weights, 0)
+	ps.Empty(p.(*poll).Weights)
 	ps.NotNil(p.(*poll).Records)
-	ps.Len(p.(*poll).Records, 0)
+	ps.Empty(p.(*poll).Records)
 }
 
 func (ps PollSuite) TestIsOpen() {

@@ -1,6 +1,7 @@
 package role
 
 import (
+	"fmt"
 	"testing"
 	"uwwolf/game/types"
 	"uwwolf/game/vars"
@@ -26,12 +27,12 @@ func (vs *VillagerSuite) SetupSuite() {
 func (vs VillagerSuite) TestNewVillager() {
 	tests := []struct {
 		name        string
-		expectedErr string
+		expectedErr error
 		setup       func(*gamemock.MockGame, *gamemock.MockPoll)
 	}{
 		{
 			name:        "Failure (Poll does not exist)",
-			expectedErr: "Poll does not exist ¯\\_(ツ)_/¯",
+			expectedErr: fmt.Errorf("Poll does not exist ¯\\_(ツ)_/¯"),
 			setup: func(mg *gamemock.MockGame, mp *gamemock.MockPoll) {
 				mg.EXPECT().Poll(vars.VillagerFactionID).Return(nil)
 			},
@@ -59,10 +60,10 @@ func (vs VillagerSuite) TestNewVillager() {
 
 			v, err := NewVillager(game, vs.playerID)
 
-			if test.expectedErr != "" {
+			if test.expectedErr != nil {
 				vs.Nil(v)
 				vs.NotNil(err)
-				vs.Equal(test.expectedErr, err.Error())
+				vs.Equal(test.expectedErr, err)
 			} else {
 				vs.Nil(err)
 				vs.Equal(vars.VillagerRoleID, v.ID())

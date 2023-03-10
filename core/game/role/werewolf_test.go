@@ -1,6 +1,7 @@
 package role
 
 import (
+	"fmt"
 	"testing"
 	"uwwolf/game/types"
 	"uwwolf/game/vars"
@@ -26,12 +27,12 @@ func (ws *WerewolfSuite) SetupSuite() {
 func (ws WerewolfSuite) TestNewWerewolf() {
 	tests := []struct {
 		name        string
-		expectedErr string
+		expectedErr error
 		setup       func(*gamemock.MockGame, *gamemock.MockPoll)
 	}{
 		{
 			name:        "Failure (Poll does not exist)",
-			expectedErr: "Poll does not exist ¯\\_(ツ)_/¯",
+			expectedErr: fmt.Errorf("Poll does not exist ¯\\_(ツ)_/¯"),
 			setup: func(mg *gamemock.MockGame, mp *gamemock.MockPoll) {
 				mg.EXPECT().Poll(vars.WerewolfFactionID).Return(nil)
 			},
@@ -59,10 +60,10 @@ func (ws WerewolfSuite) TestNewWerewolf() {
 
 			w, err := NewWerewolf(game, ws.playerID)
 
-			if test.expectedErr != "" {
+			if test.expectedErr != nil {
 				ws.Nil(w)
 				ws.NotNil(err)
-				ws.Equal(test.expectedErr, err.Error())
+				ws.Equal(test.expectedErr, err)
 			} else {
 				ws.Nil(err)
 				ws.Equal(vars.WerewolfRoleID, w.ID())

@@ -16,7 +16,7 @@ func TestActionSuiteSuite(t *testing.T) {
 	suite.Run(t, new(ActionSuite))
 }
 
-func (as ActionSuite) TestActionID() {
+func (as ActionSuite) TestID() {
 	id := vars.KillActionID
 	act := action{
 		id: id,
@@ -25,14 +25,14 @@ func (as ActionSuite) TestActionID() {
 	as.Equal(id, act.ID())
 }
 
-func (as ActionSuite) TestActionValidate() {
+func (as ActionSuite) TestValidate() {
 	act := action{}
 	err := act.validate(&types.ActionRequest{})
 
 	as.Nil(err)
 }
 
-func (as ActionSuite) TestActionSkip() {
+func (as ActionSuite) TestSkip() {
 	act := action{}
 	expectedRes := &types.ActionResponse{
 		Ok:        true,
@@ -43,7 +43,7 @@ func (as ActionSuite) TestActionSkip() {
 	as.Equal(expectedRes, act.skip(&types.ActionRequest{}))
 }
 
-func (as ActionSuite) TestActionPerform() {
+func (as ActionSuite) TestPerform() {
 	act := action{}
 	expectedRes := &types.ActionResponse{
 		Ok:      false,
@@ -53,7 +53,7 @@ func (as ActionSuite) TestActionPerform() {
 	as.Equal(expectedRes, act.perform(&types.ActionRequest{}))
 }
 
-func (as ActionSuite) TestActionExecute() {
+func (as ActionSuite) TestExecute() {
 
 	tests := []struct {
 		name        string

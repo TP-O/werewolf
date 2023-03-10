@@ -1,6 +1,7 @@
 package game
 
 import (
+	"fmt"
 	"testing"
 	"uwwolf/game/types"
 	"uwwolf/game/vars"
@@ -16,7 +17,7 @@ func TestNewRole(t *testing.T) {
 	tests := []struct {
 		name           string
 		expectedRoleID types.RoleID
-		expectedErr    string
+		expectedErr    error
 		setup          func(*gamemock.MockGame, *gamemock.MockPoll)
 	}{
 		{
@@ -54,7 +55,7 @@ func TestNewRole(t *testing.T) {
 		},
 		{
 			name:        "Non-existent role",
-			expectedErr: "Non-existent role ¯\\_ಠ_ಠ_/¯",
+			expectedErr: fmt.Errorf("Non-existent role ¯\\_ಠ_ಠ_/¯"),
 			setup:       func(mg *gamemock.MockGame, mp *gamemock.MockPoll) {},
 		},
 	}
@@ -72,10 +73,10 @@ func TestNewRole(t *testing.T) {
 
 			role, err := NewRole(test.expectedRoleID, game, playerID)
 
-			if test.expectedErr == "" {
+			if test.expectedErr == nil {
 				assert.Equal(t, test.expectedRoleID, role.ID())
 			} else {
-				assert.Equal(t, test.expectedErr, err.Error())
+				assert.Equal(t, test.expectedErr, err)
 			}
 		})
 	}

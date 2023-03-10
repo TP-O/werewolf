@@ -34,7 +34,7 @@ func (vs VoteSuite) TestNewVote() {
 	tests := []struct {
 		name        string
 		setting     *VoteActionSetting
-		expectedErr string
+		expectedErr error
 		setup       func(*gamemock.MockGame, *gamemock.MockPoll)
 	}{
 		{
@@ -42,7 +42,7 @@ func (vs VoteSuite) TestNewVote() {
 			setting: &VoteActionSetting{
 				FactionID: vs.factionID,
 			},
-			expectedErr: "Poll does not exist ¯\\_(ツ)_/¯",
+			expectedErr: fmt.Errorf("Poll does not exist ¯\\_(ツ)_/¯"),
 			setup: func(mg *gamemock.MockGame, mp *gamemock.MockPoll) {
 				mg.EXPECT().Poll(vs.factionID).Return(nil)
 			},
@@ -54,7 +54,6 @@ func (vs VoteSuite) TestNewVote() {
 				PlayerID:  vs.actorID,
 				Weight:    vs.weight,
 			},
-			expectedErr: "",
 			setup: func(mg *gamemock.MockGame, mp *gamemock.MockPoll) {
 				mp.EXPECT().AddElectors(vs.actorID)
 				mp.EXPECT().SetWeight(vs.actorID, vs.weight).Return(true)
@@ -73,9 +72,9 @@ func (vs VoteSuite) TestNewVote() {
 
 			v, err := NewVote(game, test.setting)
 
-			if test.expectedErr != "" {
+			if test.expectedErr != nil {
 				vs.Nil(v)
-				vs.Equal(test.expectedErr, err.Error())
+				vs.Equal(test.expectedErr, err)
 			} else {
 				vs.Equal(vars.VoteActionID, v.ID())
 				vs.NotNil(v.(*vote).poll)
@@ -85,7 +84,7 @@ func (vs VoteSuite) TestNewVote() {
 	}
 }
 
-func (vs VoteSuite) TestSkipVote() {
+func (vs VoteSuite) TestSkip() {
 	ctrl := gomock.NewController(vs.T())
 	defer ctrl.Finish()
 	game := gamemock.NewMockGame(ctrl)
@@ -115,7 +114,7 @@ func (vs VoteSuite) TestSkipVote() {
 	vs.Equal(expectedRes, res)
 }
 
-func (vs VoteSuite) TestPerformVote() {
+func (vs VoteSuite) TestPerform() {
 	tests := []struct {
 		name        string
 		req         *types.ActionRequest

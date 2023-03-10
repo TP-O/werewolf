@@ -2,13 +2,13 @@ package vars
 
 import "uwwolf/game/types"
 
-// Particular faction ID
+// Specific faction ID
 const (
 	VillagerFactionID types.FactionID = iota + 1
 	WerewolfFactionID
 )
 
-// Particular role ID
+// Specific role ID
 const (
 	VillagerRoleID types.RoleID = iota + 1
 	WerewolfRoleID
@@ -17,20 +17,20 @@ const (
 	TwoSistersRoleID
 )
 
-// Particular phase ID
+// Specific phase ID
 const (
 	NightPhaseID types.PhaseID = iota + 1
 	DayPhaseID
 	DuskPhaseID
 )
 
-// Particular turn ID in day phase
+// Specific ID of role turn in day phase
 const (
 	HunterTurnID   = PreTurn
 	VillagerTurnID = MidTurn
 )
 
-// Particular turn ID in night phase
+// Specific ID of role turn in night phase
 const (
 	SeerTurnID       = PreTurn
 	TwoSistersTurnID = PreTurn
