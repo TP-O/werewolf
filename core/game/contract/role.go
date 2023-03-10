@@ -1,40 +1,42 @@
 package contract
 
-import (
-	"uwwolf/game/enum"
-	"uwwolf/game/types"
-)
+import "uwwolf/game/types"
 
-// Role represents a specific role in the game.
+// Role represents a specific role in a game.
 type Role interface {
 	// ID returns role's ID.
-	ID() enum.RoleID
+	ID() types.RoleID
 
 	// PhaseID returns role's active phase ID.
-	PhaseID() enum.PhaseID
+	// PhaseID() types.PhaseID
 
 	// FactionID returns role's faction ID.
-	FactionID() enum.FactionID
+	FactionID() types.FactionID
 
-	// Priority returns role's priority in active phase.
-	Priority() enum.Priority
+	// TurnID returns role's turn order in active phase.
+	// TurnID() types.TurnID
 
-	// BeginRound returns round in which the role be able to
-	// use the abilities.
-	BeginRound() enum.Round
+	// BeginRoundID returns round in which this role be able to
+	// use its abilities.
+	// BeginRoundID() types.RoundID
 
-	// ActiveLimit returns remaining times the role can use the abilities.
-	// Returns total limit if the `actionID`` is 0.
-	ActiveLimit(actionID enum.ActionID) enum.Limit
+	// ActiveTimes returns remaining times this role can use the specific ability.
+	// Returns total limit if the `index` is -1.
+	ActiveTimes(index int) types.Times
 
-	// BeforeDeath does something special before killing the role.
-	// Return false if saved, otherwise return true.
-	BeforeDeath() bool
+	// OnAssign is triggered when the role is assigned to a player.
+	OnAssign()
 
-	// AfterDeath does something special after killing the role.
-	AfterDeath()
+	// OnRevoke is triggered when the role is removed from a player.
+	OnRevoke()
 
-	// UseAbility looks up the ability containing the required action and
-	// then uses it.
-	UseAbility(req *types.UseRoleRequest) *types.ActionResponse
+	// OnBeforeDeath is triggered before killing this role.
+	// If returns false, the player assigned it is saved.
+	OnBeforeDeath() bool
+
+	// OnAfterDeath is triggered after killing this role.
+	OnAfterDeath()
+
+	// ActivateAbility executes the action corresponding to the required ability.
+	ActivateAbility(req *types.ActivateAbilityRequest) *types.ActionResponse
 }

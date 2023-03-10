@@ -1,12 +1,67 @@
 package types
 
-import "uwwolf/game/enum"
+// PhaseID is ID type of phase.
+type PhaseID uint8
 
+// IsUnknown checks if phase ID is 0.
+func (p PhaseID) IsUnknown() bool {
+	return p == 0
+}
+
+// NextPhasePhaseID returns the next phase ID based on the given lastPhaseID.
+func (p PhaseID) NextPhasePhaseID(lastPhaseID PhaseID) PhaseID {
+	if p == lastPhaseID {
+		return 1
+	}
+	return p + 1
+}
+
+// PreviousPhasePhaseID returns the previous phase ID based on the given lastPhaseID.
+func (p PhaseID) PreviousPhaseID(lastPhaseID PhaseID) PhaseID {
+	if p == 1 {
+		return lastPhaseID
+	}
+	return p - 1
+}
+
+// GameID is ID type of game.
+type GameID = uint64
+
+// GameStatusID is ID type of game status.
+type GameStatusID = uint8
+
+// GameSetting is setting of game.
 type GameSetting struct {
-	TurnDuration       uint16          `json:"turn_duration" validate:"required"`
-	DiscussionDuration uint16          `json:"discussion_duration" validate:"required"`
-	RoleIDs            []enum.RoleID   `json:"role_idssss" validate:"required,min=2,unique,dive"`
-	RequiredRoleIDs    []enum.RoleID   `json:"required_role_ids" validate:"omitempty,ltecsfield=RoleIDs,unique,dive"`
-	NumberWerewolves   uint8           `json:"number_werewolves" validate:"required,gt=0"`
-	PlayerIDs          []enum.PlayerID `json:"player_ids" validate:"required,unique,dive,len=20"`
+	// RoleIDs is role ID list that can be played in the game.
+	RoleIDs []RoleID
+
+	// RequiredRoleIDs is role ID list that must be played in the game.
+	RequiredRoleIDs []RoleID
+
+	// NumberWerewolves is number of werewolves required to exist in the game.
+	NumberWerewolves uint8
+
+	// PlayerIDs is player ID list playing the game.
+	PlayerIDs []PlayerID
+}
+
+// CreateGameRequest includes `GameSetting` and time settings.
+type CreateGameRequest struct {
+	// TurnDuration is the duration of a turn.
+	TurnDuration uint16
+
+	// DiscussionDuration is the duration of the villager discussion.
+	DiscussionDuration uint16
+
+	// RoleIDs is role ID list that can be played in the game.
+	RoleIDs []RoleID
+
+	// RequiredRoleIDs is role ID list that must be played in the game.
+	RequiredRoleIDs []RoleID
+
+	// NumberWerewolves is number of werewolves required to exist in the game.
+	NumberWerewolves uint8
+
+	// PlayerIDs is player ID list playing the game.
+	PlayerIDs []PlayerID
 }

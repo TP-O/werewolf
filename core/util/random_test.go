@@ -7,11 +7,10 @@ import (
 )
 
 func TestRandomInRange(t *testing.T) {
-	max := 9
 	min := 7
-
+	max := 9
 	for i := 0; i < 10; i++ {
-		randNum := RandomInRange(max, min)
+		randNum := RandomInRange(min, max)
 
 		assert.LessOrEqual(t, randNum, max)
 		assert.GreaterOrEqual(t, randNum, min)
@@ -21,7 +20,6 @@ func TestRandomIndex(t *testing.T) {
 	//=============================================================
 	// Test non-empty array
 	nonEmptyArr := []int{1, 2, 3}
-
 	for i := 0; i < 10; i++ {
 		randIndex := RandomIndex(nonEmptyArr)
 
@@ -32,7 +30,6 @@ func TestRandomIndex(t *testing.T) {
 	//=============================================================
 	// Test empty array
 	emptyArr := []int{}
-
 	randIndex := RandomIndex(emptyArr)
 
 	assert.Equal(t, randIndex, -1)
@@ -42,7 +39,6 @@ func TestRandomElement(t *testing.T) {
 	//=============================================================
 	// Test non-empty array
 	nonEmptyArr := []int{1, 2, 3}
-
 	for i := 0; i < 10; i++ {
 		randIndex, randElement := RandomElement(nonEmptyArr)
 
@@ -54,7 +50,6 @@ func TestRandomElement(t *testing.T) {
 	//=============================================================
 	// Test empty array
 	emptyArr := []int{}
-
 	randIndex, randElement := RandomElement(emptyArr)
 
 	assert.Equal(t, randIndex, -1)

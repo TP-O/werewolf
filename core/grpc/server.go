@@ -2,16 +2,16 @@ package grpc
 
 import (
 	"context"
-	"encoding/json"
 	"log"
 	"net"
 	"strconv"
-	"uwwolf/config"
 	"uwwolf/game/core"
 	"uwwolf/game/types"
 	"uwwolf/grpc/pb"
+	"uwwolf/util"
 	"uwwolf/validator"
 
+	"github.com/golang/protobuf/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -21,9 +21,9 @@ type server struct {
 	pb.UnimplementedGameServer
 }
 
-func (s *server) CreateGame(ctx context.Context, req *pb.CreateGameRequest) (*pb.CreateGameResponse, error) {
+func (s *server) StartGame(ctx context.Context, req *pb.StartGameRequest) (*pb.StartGameResponse, error) {
 	setting := &types.GameSetting{
-		NumberWerewolves:   uint8(req.NumberWerewolves),
+		NumberWerewolves:   uint8(req.NumberOfWerewolves),
 		TurnDuration:       uint16(req.TurnDuration),
 		DiscussionDuration: uint16(req.DiscussionDuration),
 		RoleIDs:            req.RoleIds,
@@ -47,15 +47,15 @@ func (s *server) CreateGame(ctx context.Context, req *pb.CreateGameRequest) (*pb
 	if startedAt := game.Start(); startedAt == -1 {
 		return nil, grpc.Errorf(codes.AlreadyExists, "Game is running ¯\\_(ツ)_/¯")
 	} else {
-		return &pb.CreateGameResponse{
-			Id:             game.ID(),
-			StartedAt:      uint32(startedAt),
-			PreprationTime: uint32(config.Game().PreparationTime),
+		return &pb.StartGameResponse{
+			GameId:              game.ID(),
+			StartedAt:           uint32(startedAt),
+			PreparationDuration: uint32(util.Config().Game.PreparationDuration),
 		}, nil
 	}
 }
 
-func (s *server) UseRole(ctx context.Context, req *pb.UseRoleRequest) (*pb.UseRoleResponse, error) {
+func (s *server) PerformAction(ctx context.Context, req *pb.PerformActionRequest) (*pb.PerformActionResponse, error) {
 	use := &types.UseRoleRequest{
 		ActionID:  req.ActionId,
 		TargetIDs: req.TargetIds,
@@ -73,9 +73,8 @@ func (s *server) UseRole(ctx context.Context, req *pb.UseRoleRequest) (*pb.UseRo
 		return nil, grpc.Errorf(codes.InvalidArgument, "Game does not exist")
 	} else {
 		res := game.UsePlayerRole(req.PlayerId, use)
-
-		if data, err := json.Marshal(res.Data); err != nil {
-			return &pb.UseRoleResponse{
+		if _, err := proto.Marshal(proto.MessageV1("cc")); err != nil {
+			return &pb.PerformActionResponse{
 					Ok:        res.Ok,
 					IsSkipped: res.IsSkipped,
 					Message:   res.Message,
@@ -83,33 +82,19 @@ func (s *server) UseRole(ctx context.Context, req *pb.UseRoleRequest) (*pb.UseRo
 				},
 				nil
 		} else {
-			return &pb.UseRoleResponse{
+			return &pb.PerformActionResponse{
 					Ok:        res.Ok,
 					IsSkipped: res.IsSkipped,
 					Message:   res.Message,
-					Data:      string(data),
+					Data:      "",
 				},
 				nil
 		}
 	}
 }
 
-func (s *server) ConnectPlayer(ctx context.Context, req *pb.ConnectPlayerRequest) (*pb.ConnectPlayerResponse, error) {
-	if game := core.Manager().Game(req.GameId); game == nil {
-		return nil, grpc.Errorf(codes.InvalidArgument, "Game does not exist")
-	} else if req.IsExited {
-		return &pb.ConnectPlayerResponse{
-			Ok: game.ExitPlayer(req.PlayerId),
-		}, nil
-	} else {
-		return &pb.ConnectPlayerResponse{
-			Ok: game.ConnectPlayer(req.PlayerId, req.IsConnected),
-		}, nil
-	}
-}
-
 func Start() {
-	port := strconv.Itoa(int(config.App().Port))
+	port := strconv.Itoa(int(util.Config().App.Port))
 	listener, err := net.Listen("tcp", ":"+port)
 
 	if err != nil {

@@ -1,37 +1,29 @@
 package types
 
-import "uwwolf/game/enum"
+// FactionID is ID of faction.
+type FactionID uint8
 
-type UseRoleRequest struct {
-	ActionID  enum.ActionID
-	TargetIDs []enum.PlayerID
-	IsSkipped bool ``
+// IsUnknown checks if faction ID is 0.
+func (f FactionID) IsUnknown() bool {
+	return f == 0
 }
 
-var RoleIDsByFactionID = map[enum.FactionID][]enum.RoleID{
-	enum.WerewolfFactionID: {
-		enum.WerewolfRoleID,
-	},
-	enum.VillagerFactionID: {
-		enum.VillagerRoleID,
-		enum.HunterRoleID,
-		enum.SeerRoleID,
-		enum.TwoSistersRoleID,
-	},
+// RoleID is ID type of role.
+type RoleID uint8
+
+// IsUnknown checks if role ID is 0.
+func (r RoleID) IsUnknown() bool {
+	return r == 0
 }
 
-var RoleIDSets = map[enum.RoleID]enum.Limit{
-	enum.VillagerRoleID:   enum.Unlimited,
-	enum.WerewolfRoleID:   enum.Unlimited,
-	enum.HunterRoleID:     enum.OneMore,
-	enum.SeerRoleID:       enum.OneMore,
-	enum.TwoSistersRoleID: 2,
-}
+// ActivateAbilityRequest contains information for ability activating.
+type ActivateAbilityRequest struct {
+	// AbilityIndex is activated ability index.
+	AbilityIndex uint8
 
-var RoleIDRanks = map[enum.RoleID]enum.Priority{
-	enum.VillagerRoleID:   0,
-	enum.WerewolfRoleID:   1,
-	enum.TwoSistersRoleID: 2,
-	enum.SeerRoleID:       3,
-	enum.HunterRoleID:     4,
+	// TargetID  is player ID of target player.
+	TargetID PlayerID
+
+	// IsSkipped marks that the request is ignored.
+	IsSkipped bool
 }

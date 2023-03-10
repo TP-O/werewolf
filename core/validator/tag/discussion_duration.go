@@ -2,7 +2,7 @@ package tag
 
 import (
 	"strconv"
-	"uwwolf/config"
+	"uwwolf/util"
 
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
@@ -12,9 +12,9 @@ const DiscussionDurationTag = "discussion_duration"
 
 func AddDiscussionDurationTag(ut ut.Translator) error {
 	message := "{0} must be from " +
-		strconv.Itoa(int(config.Game().MinDiscussionDuration)) +
+		strconv.Itoa(int(util.Config().Game.MinDiscussionDuration)) +
 		" to " +
-		strconv.Itoa(int(config.Game().MaxDiscussionDuration)) +
+		strconv.Itoa(int(util.Config().Game.MaxDiscussionDuration)) +
 		" seconds"
 
 	return ut.Add(DiscussionDurationTag, message, true)

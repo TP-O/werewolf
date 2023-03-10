@@ -1,48 +1,43 @@
 package contract
 
-import (
-	"uwwolf/game/enum"
-	"uwwolf/game/types"
-)
+import "uwwolf/game/types"
 
+// Poll manages the voting functionality of a game.
 type Poll interface {
-	// IsOpen returns true if latest poll round is open.
-	IsOpen() (bool, enum.Round)
+	// IsOpen checks if a poll round is opening.
+	IsOpen() bool
 
-	// CanVote returns true if the elector can vote for the current
-	// poll round.
-	CanVote(electorID enum.PlayerID) (bool, error)
+	// CanVote checks if the elector can vote for the current poll round.
+	// Returns the result and an error if any
+	CanVote(electorID types.PlayerID) (bool, error)
 
-	// Record returns the specific poll round's record.
-	Record(round enum.Round) *types.PollRecord
+	// Record returns the record of given round ID.
+	Record(roundID types.RoundID) *types.PollRecord
 
-	// Open opens the new poll round if the current one was
-	// closed. Returns open status and latest round number.
-	Open() (bool, enum.Round)
+	// Open starts a new poll round if the current one was closed.
+	Open() (bool, error)
 
-	// Close closes the current poll round. Returns close
-	// status and recent closed poll round's record.
-	Close() (bool, *types.PollRecord)
+	// Close ends the current poll round.
+	Close() bool
 
 	// AddCandidates adds new candidate to the poll.
-	AddCandidates(candidateIDs ...enum.PlayerID)
+	AddCandidates(candidateIDs ...types.PlayerID)
 
 	// RemoveCandidate removes the candidate from the poll.
 	// Return true if successful
-	RemoveCandidate(candidateID enum.PlayerID) bool
+	RemoveCandidate(candidateID types.PlayerID) bool
 
 	// AddElectors adds new electors to the poll.
-	// Returns false if the poll's capacity is overloaded.
-	AddElectors(electorIDs ...enum.PlayerID) bool
+	AddElectors(electorIDs ...types.PlayerID)
 
 	// RemoveElector removes the elector from the poll.
 	// Return true if successful
-	RemoveElector(electorID enum.PlayerID) bool
+	RemoveElector(electorID types.PlayerID) bool
 
-	// SetWeight sets the vote weight for the elector.
+	// SetWeight sets the voting weight for the elector.
 	// Default weight is 0.
-	SetWeight(electorID enum.PlayerID, weight uint) bool
+	SetWeight(electorID types.PlayerID, weight uint) bool
 
 	// Vote votes or skips for the current poll round.
-	Vote(electorID enum.PlayerID, candidateID enum.PlayerID) (bool, error)
+	Vote(electorID types.PlayerID, candidateID types.PlayerID) (bool, error)
 }

@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package pb;
+
+option go_package = "grpc/pb";
+
+message PerformActionRequest {
+    string game_id = 1;
+    string player_id = 2;
+    uint32 action_id = 3;
+    repeated string target_ids = 4;
+    bool is_skipped = 5;
+}
+
+message PerformActionResponse {
+    bool ok = 1;
+    bool is_skipped = 2;
+    string data = 3;
+    string message = 4;
+}

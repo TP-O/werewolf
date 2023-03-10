@@ -1,8 +1,8 @@
 package model
 
-import "uwwolf/game/enum"
+import "uwwolf/game/types"
 
 type Faction struct {
-	ID   enum.FactionID `cql:"id" json:"id"`
-	Name string         `cql:"name" json:"name"`
+	ID   types.FactionID `cql:"id" json:"id"`
+	Name string          `cql:"name" json:"name"`
 }

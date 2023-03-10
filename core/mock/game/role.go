@@ -6,7 +6,6 @@ package gamemock
 
 import (
 	reflect "reflect"
-	enum "uwwolf/game/enum"
 	types "uwwolf/game/types"
 
 	gomock "github.com/golang/mock/gomock"
@@ -35,65 +34,39 @@ func (m *MockRole) EXPECT() *MockRoleMockRecorder {
 	return m.recorder
 }
 
-// ActiveLimit mocks base method.
-func (m *MockRole) ActiveLimit(actionID enum.ActionID) enum.Limit {
+// ActivateAbility mocks base method.
+func (m *MockRole) ActivateAbility(req *types.ActivateAbilityRequest) *types.ActionResponse {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ActiveLimit", actionID)
-	ret0, _ := ret[0].(enum.Limit)
+	ret := m.ctrl.Call(m, "ActivateAbility", req)
+	ret0, _ := ret[0].(*types.ActionResponse)
 	return ret0
 }
 
-// ActiveLimit indicates an expected call of ActiveLimit.
-func (mr *MockRoleMockRecorder) ActiveLimit(actionID interface{}) *gomock.Call {
+// ActivateAbility indicates an expected call of ActivateAbility.
+func (mr *MockRoleMockRecorder) ActivateAbility(req interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ActiveLimit", reflect.TypeOf((*MockRole)(nil).ActiveLimit), actionID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ActivateAbility", reflect.TypeOf((*MockRole)(nil).ActivateAbility), req)
 }
 
-// AfterDeath mocks base method.
-func (m *MockRole) AfterDeath() {
+// ActiveTimes mocks base method.
+func (m *MockRole) ActiveTimes(index int) types.Times {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "AfterDeath")
-}
-
-// AfterDeath indicates an expected call of AfterDeath.
-func (mr *MockRoleMockRecorder) AfterDeath() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AfterDeath", reflect.TypeOf((*MockRole)(nil).AfterDeath))
-}
-
-// BeforeDeath mocks base method.
-func (m *MockRole) BeforeDeath() bool {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "BeforeDeath")
-	ret0, _ := ret[0].(bool)
+	ret := m.ctrl.Call(m, "ActiveTimes", index)
+	ret0, _ := ret[0].(types.Times)
 	return ret0
 }
 
-// BeforeDeath indicates an expected call of BeforeDeath.
-func (mr *MockRoleMockRecorder) BeforeDeath() *gomock.Call {
+// ActiveTimes indicates an expected call of ActiveTimes.
+func (mr *MockRoleMockRecorder) ActiveTimes(index interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BeforeDeath", reflect.TypeOf((*MockRole)(nil).BeforeDeath))
-}
-
-// BeginRound mocks base method.
-func (m *MockRole) BeginRound() enum.Round {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "BeginRound")
-	ret0, _ := ret[0].(enum.Round)
-	return ret0
-}
-
-// BeginRound indicates an expected call of BeginRound.
-func (mr *MockRoleMockRecorder) BeginRound() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BeginRound", reflect.TypeOf((*MockRole)(nil).BeginRound))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ActiveTimes", reflect.TypeOf((*MockRole)(nil).ActiveTimes), index)
 }
 
 // FactionID mocks base method.
-func (m *MockRole) FactionID() enum.FactionID {
+func (m *MockRole) FactionID() types.FactionID {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FactionID")
-	ret0, _ := ret[0].(enum.FactionID)
+	ret0, _ := ret[0].(types.FactionID)
 	return ret0
 }
 
@@ -104,10 +77,10 @@ func (mr *MockRoleMockRecorder) FactionID() *gomock.Call {
 }
 
 // ID mocks base method.
-func (m *MockRole) ID() enum.RoleID {
+func (m *MockRole) ID() types.RoleID {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ID")
-	ret0, _ := ret[0].(enum.RoleID)
+	ret0, _ := ret[0].(types.RoleID)
 	return ret0
 }
 
@@ -117,44 +90,52 @@ func (mr *MockRoleMockRecorder) ID() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ID", reflect.TypeOf((*MockRole)(nil).ID))
 }
 
-// PhaseID mocks base method.
-func (m *MockRole) PhaseID() enum.PhaseID {
+// OnAfterDeath mocks base method.
+func (m *MockRole) OnAfterDeath() {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "PhaseID")
-	ret0, _ := ret[0].(enum.PhaseID)
+	m.ctrl.Call(m, "OnAfterDeath")
+}
+
+// OnAfterDeath indicates an expected call of OnAfterDeath.
+func (mr *MockRoleMockRecorder) OnAfterDeath() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OnAfterDeath", reflect.TypeOf((*MockRole)(nil).OnAfterDeath))
+}
+
+// OnAssign mocks base method.
+func (m *MockRole) OnAssign() {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "OnAssign")
+}
+
+// OnAssign indicates an expected call of OnAssign.
+func (mr *MockRoleMockRecorder) OnAssign() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OnAssign", reflect.TypeOf((*MockRole)(nil).OnAssign))
+}
+
+// OnBeforeDeath mocks base method.
+func (m *MockRole) OnBeforeDeath() bool {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "OnBeforeDeath")
+	ret0, _ := ret[0].(bool)
 	return ret0
 }
 
-// PhaseID indicates an expected call of PhaseID.
-func (mr *MockRoleMockRecorder) PhaseID() *gomock.Call {
+// OnBeforeDeath indicates an expected call of OnBeforeDeath.
+func (mr *MockRoleMockRecorder) OnBeforeDeath() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PhaseID", reflect.TypeOf((*MockRole)(nil).PhaseID))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OnBeforeDeath", reflect.TypeOf((*MockRole)(nil).OnBeforeDeath))
 }
 
-// Priority mocks base method.
-func (m *MockRole) Priority() enum.Priority {
+// OnRevoke mocks base method.
+func (m *MockRole) OnRevoke() {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Priority")
-	ret0, _ := ret[0].(enum.Priority)
-	return ret0
+	m.ctrl.Call(m, "OnRevoke")
 }
 
-// Priority indicates an expected call of Priority.
-func (mr *MockRoleMockRecorder) Priority() *gomock.Call {
+// OnRevoke indicates an expected call of OnRevoke.
+func (mr *MockRoleMockRecorder) OnRevoke() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Priority", reflect.TypeOf((*MockRole)(nil).Priority))
-}
-
-// UseAbility mocks base method.
-func (m *MockRole) UseAbility(req *types.UseRoleRequest) *types.ActionResponse {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UseAbility", req)
-	ret0, _ := ret[0].(*types.ActionResponse)
-	return ret0
-}
-
-// UseAbility indicates an expected call of UseAbility.
-func (mr *MockRoleMockRecorder) UseAbility(req interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UseAbility", reflect.TypeOf((*MockRole)(nil).UseAbility), req)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OnRevoke", reflect.TypeOf((*MockRole)(nil).OnRevoke))
 }

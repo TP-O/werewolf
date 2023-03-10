@@ -1,5 +1,5 @@
-config.yml
-firebase-service-account.json
+config.yaml
 tmp/
-.docker/cassandra/data
+.docker/postgres/data
+.docker/redis/data
 .docker/go

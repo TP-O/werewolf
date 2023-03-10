@@ -1,56 +1,52 @@
 package contract
 
 import (
-	"uwwolf/game/enum"
 	"uwwolf/game/types"
 )
 
+// Game is game instace.
 type Game interface {
-	// ID returns game's ID.
-	ID() enum.GameID
+	// StatusID retusn current game status ID.
+	StatusID() types.GameStatusID
 
 	// Poll returns the in-game poll management state.
 	// Each specific faction has different poll to interact with.
-	Poll(factionID enum.FactionID) Poll
+	Poll(factionID types.FactionID) Poll
 
 	// Scheduler returns turn manager.
 	Scheduler() Scheduler
 
 	// Player returns the player by given player ID.
-	Player(playerID enum.PlayerID) Player
+	Player(playerID types.PlayerID) Player
 
-	// PlayerIDsByRoleID returns an array of player IDs by the
-	// given role ID.
-	PlayerIDsByRoleID(roleID enum.RoleID) []enum.PlayerID
+	// Players returns the player list.
+	Players() map[types.PlayerID]Player
 
-	// PlayerIDsByFactionID returns an array of player IDs by the
+	// AlivePlayerIDsWithRoleID returns the alive player ID list having the
+	// givent role ID.
+	AlivePlayerIDsWithRoleID(roleID types.RoleID) []types.PlayerID
+
+	// AlivePlayerIDsWithFactionID returns the alive player ID list having the
 	// given faction ID.
-	PlayerIDsByFactionID(factionID enum.FactionID) []enum.PlayerID
+	AlivePlayerIDsWithFactionID(factionID types.FactionID) []types.PlayerID
 
-	// WerewolfPlayerIDs returns an array of werewolf player IDs.
-	WerewolfPlayerIDs() []enum.PlayerID
+	// AlivePlayerIDsWithoutFactionID returns the alive player ID list not having
+	// the given faction ID.
+	AlivePlayerIDsWithoutFactionID(factionID types.FactionID) []types.PlayerID
 
-	// NonWerewolfPlayerIDs returns an array of non-werewolf player IDs.
-	NonWerewolfPlayerIDs() []enum.PlayerID
+	// Prepare sets up the game and returns completion time in milisecond.
+	Prepare() int64
 
-	// AlivePlayerIDs returns an array of alive player IDs.
-	AlivePlayerIDs(roleID enum.RoleID) []enum.PlayerID
+	// Start starts the game.
+	Start() bool
 
-	// Start starts the game and returns starting time in milisecond.
-	Start() int64
-
-	// Finish finishes the game.
+	// Finish fishes the game.
 	Finish() bool
 
-	// UsePlayerRole uses player's role if the current turn is its.
-	UsePlayerRole(playerID enum.PlayerID, req *types.UseRoleRequest) *types.ActionResponse
+	// Play activates the player's ability.
+	Play(playerID types.PlayerID, req *types.ActivateAbilityRequest) *types.ActionResponse
 
-	// ConnectPlayer connects or disconnects the player from the game.
-	ConnectPlayer(playerID enum.PlayerID, isConnected bool) bool
-
-	// ExitPlayer exited the player from the game and marks as dead.
-	ExitPlayer(playerID enum.PlayerID) bool
-
-	// KillPlayer kills the player by given player ID.
-	KillPlayer(playerID enum.PlayerID, isExited bool) Player
+	// KillPlayer kills the player by the given player ID.
+	// If `isExited` is true, any trigger preventing death is ignored.
+	KillPlayer(playerID types.PlayerID, isExited bool) Player
 }

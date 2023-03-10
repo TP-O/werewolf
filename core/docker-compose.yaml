@@ -1,0 +1,69 @@
+version: "3.8"
+
+services:
+    app:
+        image: werewolf-core:dev
+        build:
+            context: .
+            dockerfile: Dockerfile.dev
+        ports:
+            - 8080:8080
+        volumes:
+            - ./:/app
+            - .docker/go/pkg/mod:/go/pkg/mod
+        depends_on:
+            - postgres
+            - redis1
+        networks:
+            - postgres-network
+            - redis-network
+        restart: unless-stopped
+
+    postgres:
+        image: postgres:15.2-alpine
+        environment:
+            - POSTGRES_USER=postgresuser
+            - POSTGRES_DB=postgresdb
+            - POSTGRES_PASSWORD=postgrespassword
+        volumes:
+            - .docker/postgres/data:/var/lib/postgresql/data
+        networks:
+            - postgres-network
+        restart: unless-stopped
+
+    adminer:
+        image: adminer
+        ports:
+            - 8081:8080
+        networks:
+            - postgres-network
+        restart: unless-stopped
+
+    redis1:
+        image: redis:7.0.9-alpine
+        environment:
+            - REDIS_PASSWORD=redispassword
+        volumes:
+            - .docker/redis/data:/data
+        command: redis-server --requirepass redispassword
+        networks:
+            - redis-network
+        restart: unless-stopped
+
+    redis-commander:
+        image: rediscommander/redis-commander:latest
+        environment:
+            REDIS_HOST: redis1
+            REDIS_PORT: 6379
+            REDIS_PASSWORD: redispassword
+        ports:
+            - 8082:8081
+        networks:
+            - redis-network
+        depends_on:
+            - redis1
+        restart: unless-stopped
+
+networks:
+    postgres-network:
+    redis-network:

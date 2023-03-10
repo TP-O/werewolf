@@ -7,7 +7,6 @@ package gamemock
 import (
 	reflect "reflect"
 	contract "uwwolf/game/contract"
-	enum "uwwolf/game/enum"
 	types "uwwolf/game/types"
 
 	gomock "github.com/golang/mock/gomock"
@@ -36,8 +35,22 @@ func (m *MockPlayer) EXPECT() *MockPlayerMockRecorder {
 	return m.recorder
 }
 
+// ActivateAbility mocks base method.
+func (m *MockPlayer) ActivateAbility(req *types.ActivateAbilityRequest) *types.ActionResponse {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ActivateAbility", req)
+	ret0, _ := ret[0].(*types.ActionResponse)
+	return ret0
+}
+
+// ActivateAbility indicates an expected call of ActivateAbility.
+func (mr *MockPlayerMockRecorder) ActivateAbility(req interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ActivateAbility", reflect.TypeOf((*MockPlayer)(nil).ActivateAbility), req)
+}
+
 // AssignRole mocks base method.
-func (m *MockPlayer) AssignRole(roleID enum.RoleID) (bool, error) {
+func (m *MockPlayer) AssignRole(roleID types.RoleID) (bool, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AssignRole", roleID)
 	ret0, _ := ret[0].(bool)
@@ -66,10 +79,10 @@ func (mr *MockPlayerMockRecorder) Die(isExited interface{}) *gomock.Call {
 }
 
 // FactionID mocks base method.
-func (m *MockPlayer) FactionID() enum.FactionID {
+func (m *MockPlayer) FactionID() types.FactionID {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FactionID")
-	ret0, _ := ret[0].(enum.FactionID)
+	ret0, _ := ret[0].(types.FactionID)
 	return ret0
 }
 
@@ -80,10 +93,10 @@ func (mr *MockPlayerMockRecorder) FactionID() *gomock.Call {
 }
 
 // ID mocks base method.
-func (m *MockPlayer) ID() enum.PlayerID {
+func (m *MockPlayer) ID() types.PlayerID {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ID")
-	ret0, _ := ret[0].(enum.PlayerID)
+	ret0, _ := ret[0].(types.PlayerID)
 	return ret0
 }
 
@@ -108,10 +121,10 @@ func (mr *MockPlayerMockRecorder) IsDead() *gomock.Call {
 }
 
 // MainRoleID mocks base method.
-func (m *MockPlayer) MainRoleID() enum.RoleID {
+func (m *MockPlayer) MainRoleID() types.RoleID {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "MainRoleID")
-	ret0, _ := ret[0].(enum.RoleID)
+	ret0, _ := ret[0].(types.RoleID)
 	return ret0
 }
 
@@ -121,22 +134,8 @@ func (mr *MockPlayerMockRecorder) MainRoleID() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MainRoleID", reflect.TypeOf((*MockPlayer)(nil).MainRoleID))
 }
 
-// Revive mocks base method.
-func (m *MockPlayer) Revive() bool {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Revive")
-	ret0, _ := ret[0].(bool)
-	return ret0
-}
-
-// Revive indicates an expected call of Revive.
-func (mr *MockPlayerMockRecorder) Revive() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Revive", reflect.TypeOf((*MockPlayer)(nil).Revive))
-}
-
 // RevokeRole mocks base method.
-func (m *MockPlayer) RevokeRole(roleID enum.RoleID) (bool, error) {
+func (m *MockPlayer) RevokeRole(roleID types.RoleID) (bool, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "RevokeRole", roleID)
 	ret0, _ := ret[0].(bool)
@@ -151,10 +150,10 @@ func (mr *MockPlayerMockRecorder) RevokeRole(roleID interface{}) *gomock.Call {
 }
 
 // RoleIDs mocks base method.
-func (m *MockPlayer) RoleIDs() []enum.RoleID {
+func (m *MockPlayer) RoleIDs() []types.RoleID {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "RoleIDs")
-	ret0, _ := ret[0].([]enum.RoleID)
+	ret0, _ := ret[0].([]types.RoleID)
 	return ret0
 }
 
@@ -165,10 +164,10 @@ func (mr *MockPlayerMockRecorder) RoleIDs() *gomock.Call {
 }
 
 // Roles mocks base method.
-func (m *MockPlayer) Roles() map[enum.RoleID]contract.Role {
+func (m *MockPlayer) Roles() map[types.RoleID]contract.Role {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Roles")
-	ret0, _ := ret[0].(map[enum.RoleID]contract.Role)
+	ret0, _ := ret[0].(map[types.RoleID]contract.Role)
 	return ret0
 }
 
@@ -179,7 +178,7 @@ func (mr *MockPlayerMockRecorder) Roles() *gomock.Call {
 }
 
 // SetFactionID mocks base method.
-func (m *MockPlayer) SetFactionID(factionID enum.FactionID) {
+func (m *MockPlayer) SetFactionID(factionID types.FactionID) {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "SetFactionID", factionID)
 }
@@ -188,18 +187,4 @@ func (m *MockPlayer) SetFactionID(factionID enum.FactionID) {
 func (mr *MockPlayerMockRecorder) SetFactionID(factionID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetFactionID", reflect.TypeOf((*MockPlayer)(nil).SetFactionID), factionID)
-}
-
-// UseAbility mocks base method.
-func (m *MockPlayer) UseAbility(req *types.UseRoleRequest) *types.ActionResponse {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UseAbility", req)
-	ret0, _ := ret[0].(*types.ActionResponse)
-	return ret0
-}
-
-// UseAbility indicates an expected call of UseAbility.
-func (mr *MockPlayerMockRecorder) UseAbility(req interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UseAbility", reflect.TypeOf((*MockPlayer)(nil).UseAbility), req)
 }

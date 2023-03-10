@@ -1,34 +1,43 @@
 package types
 
-import "uwwolf/game/enum"
+// ActionID is ID type of action
+type ActionID uint8
 
+// ActionRequest contains information for action execution.
 type ActionRequest struct {
-	ActorID   enum.PlayerID   `json:"actor_id" validate:"required,len=20"`
-	TargetIDs []enum.PlayerID `json:"target_ids" validate:"required,min=1,unique,dive,len=20"`
+	// ActorID is player ID of request sender.
+	ActorID PlayerID
+
+	// TargetID is player ID of target player.
+	TargetID PlayerID
+
+	// IsSkipped marks that the request is ignored.
 	IsSkipped bool
 }
 
+// ActionResponse contains action execution's result.
 type ActionResponse struct {
-	Ok        bool
+	// Ok marks that is execution is successful.
+	Ok bool
+
+	// RoundID is round ID which the action is executed.
+	RoundID
+
+	// RoleID is ID of role executing the action.
+	RoleID
+
+	// ActionID is executed action ID.
+	ActionID
+
+	// TargetID is player ID of affected player.
+	TargetID PlayerID
+
+	// IsSkipped marks that the request is ignored.
 	IsSkipped bool
-	Data      any
-	Message   string
-}
 
-type VoteActionSetting struct {
-	FactionID enum.FactionID
-	PlayerID  enum.PlayerID
-	Weight    uint
-}
+	// Message contains error or succesful message, if any
+	Message string
 
-type KillState map[enum.PlayerID]uint
-
-type PredictState struct {
-	Role    map[enum.PlayerID]enum.RoleID
-	Faction map[enum.PlayerID]enum.FactionID
-}
-
-type RecognizeState struct {
-	Role    []enum.PlayerID
-	Faction []enum.PlayerID
+	// Data is expected data when executing the action.
+	Data any
 }
