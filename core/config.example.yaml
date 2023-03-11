@@ -3,15 +3,19 @@ app:
   env: development
   port: 8080
 database:
-  username: user
-  password: pass
-  keyspace: werewolf
-  hosts:
-    - cassandra1
+  host: postgres
+  port: 5432
+  username: ww_username
+  password: ww_password
+  database: ww_db
+redis:
+  client: redis:6379
+  cluster: []
+  password: ww_password
 game:
   min_capacity: 5
   max_capacity: 20
-  preparation_duration: 10
+  preparation_duration: 10s
   min_turn_duration: 20s
   max_turn_duration: 60s
   min_discussion_duration: 40s

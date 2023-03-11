@@ -14,21 +14,23 @@ type appConfig struct {
 }
 
 type dbConfig struct {
-	Username string   `mapstructure:"username"`
-	Password string   `mapstructure:"password"`
-	Keyspace string   `mapstructure:"keyspace"`
-	Hosts    []string `mapstructure:"hosts"`
+	Host     string `mapstructure:"host"`
+	Port     uint16 `mapstructure:"port"`
+	Username string `mapstructure:"username"`
+	Password string `mapstructure:"password"`
+	database string `mapstructure:"database"`
 }
 
 type redisConfig struct {
-	Hosts    []string `mapstructure:"hosts"`
+	Client   string   `mapstructure:"client"`
+	Cluster  []string `mapstructure:"cluster"`
 	Password string   `mapstructure:"password"`
 }
 
 type gameConfig struct {
 	MinCapacity           uint8         `mapstructure:"min_capacity"`
 	MaxCapacity           uint8         `mapstructure:"max_capacity"`
-	PreparationDuration   uint16        `mapstructure:"preparation_duration"`
+	PreparationDuration   time.Duration `mapstructure:"preparation_duration"`
 	MinTurnDuration       time.Duration `mapstructure:"min_turn_duration"`
 	MaxTurnDuration       time.Duration `mapstructure:"max_turn_duration"`
 	MinDiscussionDuration time.Duration `mapstructure:"min_discussion_duration"`
@@ -60,10 +62,15 @@ func loadDefaultConfig() {
 		"port":  8080,
 	})
 	viper.SetDefault("database", map[string]interface{}{
+		"host":     "postgres",
+		"port":     6379,
 		"username": "username",
 		"password": "password",
-		"keyspace": "default_ns",
-		"hosts":    []string{"locahost:6379"},
+		"database": "default_ns",
+	})
+	viper.SetDefault("redis", map[string]interface{}{
+		"password": "password",
+		"client":   "redis:6379",
 	})
 	viper.SetDefault("game", map[string]interface{}{
 		"min_capacity":            5,
@@ -73,11 +80,6 @@ func loadDefaultConfig() {
 		"max_turn_duration":       "60s",
 		"min_discussion_duration": "60s",
 		"max_discussion_duration": "360s",
-	})
-
-	viper.SetDefault("redis", map[string]interface{}{
-		"password": "password",
-		"hosts":    []string{"locahost:6379"},
 	})
 }
 

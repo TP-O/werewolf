@@ -4,7 +4,7 @@ import (
 	"testing"
 	"uwwolf/game/types"
 	"uwwolf/game/vars"
-	gamemock "uwwolf/mock/game"
+	mock_game "uwwolf/mock/game"
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/suite"
@@ -26,8 +26,8 @@ func (hs *HunterSuite) SetupSuite() {
 func (hs HunterSuite) TestNewHunter() {
 	ctrl := gomock.NewController(hs.T())
 	defer ctrl.Finish()
-	game := gamemock.NewMockGame(ctrl)
-	player := gamemock.NewMockPlayer(ctrl)
+	game := mock_game.NewMockGame(ctrl)
+	player := mock_game.NewMockPlayer(ctrl)
 
 	game.EXPECT().Player(hs.playerID).Return(player)
 
@@ -46,8 +46,8 @@ func (hs HunterSuite) TestNewHunter() {
 func (hs HunterSuite) TestOnAssign() {
 	ctrl := gomock.NewController(hs.T())
 	defer ctrl.Finish()
-	game := gamemock.NewMockGame(ctrl)
-	player := gamemock.NewMockPlayer(ctrl)
+	game := mock_game.NewMockGame(ctrl)
+	player := mock_game.NewMockPlayer(ctrl)
 
 	game.EXPECT().Player(hs.playerID).Return(player)
 
@@ -59,12 +59,12 @@ func (hs HunterSuite) TestOnAfterDeath() {
 	tests := []struct {
 		name          string
 		expectedLimit types.Times
-		setup         func(*hunter, *gamemock.MockGame, *gamemock.MockScheduler)
+		setup         func(*hunter, *mock_game.MockGame, *mock_game.MockScheduler)
 	}{
 		{
 			name:          "Die at inactive phase",
 			expectedLimit: vars.Once,
-			setup: func(h *hunter, mg *gamemock.MockGame, ms *gamemock.MockScheduler) {
+			setup: func(h *hunter, mg *mock_game.MockGame, ms *mock_game.MockScheduler) {
 				mg.EXPECT().Scheduler().Return(ms).Times(4)
 				ms.EXPECT().PhaseID().Return(vars.NightPhaseID)
 				ms.EXPECT().RoundID().Return(vars.SecondRound).Times(2)
@@ -80,7 +80,7 @@ func (hs HunterSuite) TestOnAfterDeath() {
 		{
 			name:          "Die at active phase",
 			expectedLimit: vars.Once,
-			setup: func(h *hunter, mg *gamemock.MockGame, ms *gamemock.MockScheduler) {
+			setup: func(h *hunter, mg *mock_game.MockGame, ms *mock_game.MockScheduler) {
 				mg.EXPECT().Scheduler().Return(ms).Times(5)
 				ms.EXPECT().PhaseID().Return(vars.DayPhaseID)
 				ms.EXPECT().TurnID().Return(vars.MidTurn)
@@ -100,9 +100,9 @@ func (hs HunterSuite) TestOnAfterDeath() {
 		hs.Run(test.name, func() {
 			ctrl := gomock.NewController(hs.T())
 			defer ctrl.Finish()
-			game := gamemock.NewMockGame(ctrl)
-			player := gamemock.NewMockPlayer(ctrl)
-			scheduler := gamemock.NewMockScheduler(ctrl)
+			game := mock_game.NewMockGame(ctrl)
+			player := mock_game.NewMockPlayer(ctrl)
+			scheduler := mock_game.NewMockScheduler(ctrl)
 
 			game.EXPECT().Player(hs.playerID).Return(player)
 			player.EXPECT().ID().Return(hs.playerID).AnyTimes()

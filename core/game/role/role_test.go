@@ -4,7 +4,7 @@ import (
 	"testing"
 	"uwwolf/game/types"
 	"uwwolf/game/vars"
-	gamemock "uwwolf/mock/game"
+	mock_game "uwwolf/mock/game"
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/suite"
@@ -86,9 +86,9 @@ func (rs RoleSuite) TestActiveTimes() {
 func (rs RoleSuite) TestOnAssign() {
 	ctrl := gomock.NewController(rs.T())
 	defer ctrl.Finish()
-	game := gamemock.NewMockGame(ctrl)
-	player := gamemock.NewMockPlayer(ctrl)
-	scheduler := gamemock.NewMockScheduler(ctrl)
+	game := mock_game.NewMockGame(ctrl)
+	player := mock_game.NewMockPlayer(ctrl)
+	scheduler := mock_game.NewMockScheduler(ctrl)
 
 	game.EXPECT().Scheduler().Return(scheduler)
 	player.EXPECT().ID().Return(rs.playerID)
@@ -115,9 +115,9 @@ func (rs RoleSuite) TestOnAssign() {
 func (rs RoleSuite) TestOnRevoke() {
 	ctrl := gomock.NewController(rs.T())
 	defer ctrl.Finish()
-	game := gamemock.NewMockGame(ctrl)
-	player := gamemock.NewMockPlayer(ctrl)
-	scheduler := gamemock.NewMockScheduler(ctrl)
+	game := mock_game.NewMockGame(ctrl)
+	player := mock_game.NewMockPlayer(ctrl)
+	scheduler := mock_game.NewMockScheduler(ctrl)
 
 	game.EXPECT().Scheduler().Return(scheduler)
 	player.EXPECT().ID().Return(rs.playerID)
@@ -156,7 +156,7 @@ func (rs RoleSuite) TestActivateAbility() {
 		req           *types.ActivateAbilityRequest
 		expectedRes   *types.ActionResponse
 		expectedLimit types.Times
-		setup         func(role, *gamemock.MockAction, *gamemock.MockScheduler)
+		setup         func(role, *mock_game.MockAction, *mock_game.MockScheduler)
 	}{
 		{
 			name: "Failure (Invalid ability index)",
@@ -167,7 +167,7 @@ func (rs RoleSuite) TestActivateAbility() {
 				Ok:      false,
 				Message: "This is beyond your ability (╥﹏╥)",
 			},
-			setup: func(role role, ma *gamemock.MockAction, ms *gamemock.MockScheduler) {},
+			setup: func(role role, ma *mock_game.MockAction, ms *mock_game.MockScheduler) {},
 		},
 		{
 			name: "Failure (Ability is out of use)",
@@ -179,7 +179,7 @@ func (rs RoleSuite) TestActivateAbility() {
 				Message: "Unable to use this ability anymore ¯\\(º_o)/¯",
 			},
 			expectedLimit: 0,
-			setup: func(role role, ma *gamemock.MockAction, ms *gamemock.MockScheduler) {
+			setup: func(role role, ma *mock_game.MockAction, ms *mock_game.MockScheduler) {
 				role.abilities[0].activeLimit = 0
 			},
 		},
@@ -194,7 +194,7 @@ func (rs RoleSuite) TestActivateAbility() {
 				IsSkipped: true,
 			},
 			expectedLimit: 2,
-			setup: func(role role, ma *gamemock.MockAction, ms *gamemock.MockScheduler) {
+			setup: func(role role, ma *mock_game.MockAction, ms *mock_game.MockScheduler) {
 				role.abilities[0].activeLimit = 2
 				ma.EXPECT().Execute(&types.ActionRequest{
 					ActorID:   rs.playerID,
@@ -216,7 +216,7 @@ func (rs RoleSuite) TestActivateAbility() {
 				Ok: false,
 			},
 			expectedLimit: 2,
-			setup: func(role role, ma *gamemock.MockAction, ms *gamemock.MockScheduler) {
+			setup: func(role role, ma *mock_game.MockAction, ms *mock_game.MockScheduler) {
 				role.abilities[0].activeLimit = 2
 				ma.EXPECT().Execute(&types.ActionRequest{
 					ActorID: rs.playerID,
@@ -237,7 +237,7 @@ func (rs RoleSuite) TestActivateAbility() {
 				IsSkipped: false,
 			},
 			expectedLimit: vars.UnlimitedTimes,
-			setup: func(role role, ma *gamemock.MockAction, ms *gamemock.MockScheduler) {
+			setup: func(role role, ma *mock_game.MockAction, ms *mock_game.MockScheduler) {
 				role.abilities[0].activeLimit = vars.UnlimitedTimes
 				ma.EXPECT().Execute(&types.ActionRequest{
 					ActorID: rs.playerID,
@@ -258,7 +258,7 @@ func (rs RoleSuite) TestActivateAbility() {
 				Ok: true,
 			},
 			expectedLimit: 1,
-			setup: func(role role, ma *gamemock.MockAction, ms *gamemock.MockScheduler) {
+			setup: func(role role, ma *mock_game.MockAction, ms *mock_game.MockScheduler) {
 				role.abilities[0].activeLimit = 2
 				ma.EXPECT().Execute(&types.ActionRequest{
 					ActorID: rs.playerID,
@@ -280,7 +280,7 @@ func (rs RoleSuite) TestActivateAbility() {
 				Ok: true,
 			},
 			expectedLimit: vars.OutOfTimes,
-			setup: func(role role, ma *gamemock.MockAction, ms *gamemock.MockScheduler) {
+			setup: func(role role, ma *mock_game.MockAction, ms *mock_game.MockScheduler) {
 				role.abilities[0].activeLimit = 1
 				ma.EXPECT().Execute(&types.ActionRequest{
 					ActorID: rs.playerID,
@@ -303,10 +303,10 @@ func (rs RoleSuite) TestActivateAbility() {
 		rs.Run(test.name, func() {
 			ctrl := gomock.NewController(rs.T())
 			defer ctrl.Finish()
-			player := gamemock.NewMockPlayer(ctrl)
-			scheduler := gamemock.NewMockScheduler(ctrl)
-			game := gamemock.NewMockGame(ctrl)
-			action := gamemock.NewMockAction(ctrl)
+			player := mock_game.NewMockPlayer(ctrl)
+			scheduler := mock_game.NewMockScheduler(ctrl)
+			game := mock_game.NewMockGame(ctrl)
+			action := mock_game.NewMockAction(ctrl)
 
 			action.EXPECT().ID().Return(rs.actionID1).AnyTimes()
 			player.EXPECT().ID().Return(rs.playerID).AnyTimes()

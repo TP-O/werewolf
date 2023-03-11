@@ -5,7 +5,7 @@ import (
 	"testing"
 	"uwwolf/game/types"
 	"uwwolf/game/vars"
-	gamemock "uwwolf/mock/game"
+	mock_game "uwwolf/mock/game"
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/suite"
@@ -28,18 +28,18 @@ func (vs VillagerSuite) TestNewVillager() {
 	tests := []struct {
 		name        string
 		expectedErr error
-		setup       func(*gamemock.MockGame, *gamemock.MockPoll)
+		setup       func(*mock_game.MockGame, *mock_game.MockPoll)
 	}{
 		{
 			name:        "Failure (Poll does not exist)",
 			expectedErr: fmt.Errorf("Poll does not exist ¯\\_(ツ)_/¯"),
-			setup: func(mg *gamemock.MockGame, mp *gamemock.MockPoll) {
+			setup: func(mg *mock_game.MockGame, mp *mock_game.MockPoll) {
 				mg.EXPECT().Poll(vars.VillagerFactionID).Return(nil)
 			},
 		},
 		{
 			name: "Ok",
-			setup: func(mg *gamemock.MockGame, mp *gamemock.MockPoll) {
+			setup: func(mg *mock_game.MockGame, mp *mock_game.MockPoll) {
 				mg.EXPECT().Poll(vars.VillagerFactionID).Return(mp).Times(2)
 				mp.EXPECT().AddElectors(vs.playerID)
 				mp.EXPECT().SetWeight(vs.playerID, uint(1))
@@ -51,9 +51,9 @@ func (vs VillagerSuite) TestNewVillager() {
 		vs.Run(test.name, func() {
 			ctrl := gomock.NewController(vs.T())
 			defer ctrl.Finish()
-			game := gamemock.NewMockGame(ctrl)
-			player := gamemock.NewMockPlayer(ctrl)
-			poll := gamemock.NewMockPoll(ctrl)
+			game := mock_game.NewMockGame(ctrl)
+			player := mock_game.NewMockPlayer(ctrl)
+			poll := mock_game.NewMockPoll(ctrl)
 
 			game.EXPECT().Player(vs.playerID).Return(player).AnyTimes()
 			test.setup(game, poll)
@@ -82,10 +82,10 @@ func (vs VillagerSuite) TestNewVillager() {
 func (vs VillagerSuite) TestOnRevoke() {
 	ctrl := gomock.NewController(vs.T())
 	defer ctrl.Finish()
-	game := gamemock.NewMockGame(ctrl)
-	player := gamemock.NewMockPlayer(ctrl)
-	scheduler := gamemock.NewMockScheduler(ctrl)
-	poll := gamemock.NewMockPoll(ctrl)
+	game := mock_game.NewMockGame(ctrl)
+	player := mock_game.NewMockPlayer(ctrl)
+	scheduler := mock_game.NewMockScheduler(ctrl)
+	poll := mock_game.NewMockPoll(ctrl)
 
 	// Mock for New fuction
 	game.EXPECT().Scheduler().Return(scheduler)
@@ -114,10 +114,10 @@ func (vs VillagerSuite) TestOnRevoke() {
 func (vs VillagerSuite) TestOnAssign() {
 	ctrl := gomock.NewController(vs.T())
 	defer ctrl.Finish()
-	game := gamemock.NewMockGame(ctrl)
-	player := gamemock.NewMockPlayer(ctrl)
-	scheduler := gamemock.NewMockScheduler(ctrl)
-	poll := gamemock.NewMockPoll(ctrl)
+	game := mock_game.NewMockGame(ctrl)
+	player := mock_game.NewMockPlayer(ctrl)
+	scheduler := mock_game.NewMockScheduler(ctrl)
+	poll := mock_game.NewMockPoll(ctrl)
 
 	// Mock for New fuction
 	game.EXPECT().Scheduler().Return(scheduler)

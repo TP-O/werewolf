@@ -5,7 +5,7 @@ import (
 	"testing"
 	"uwwolf/game/types"
 	"uwwolf/game/vars"
-	gamemock "uwwolf/mock/game"
+	mock_game "uwwolf/mock/game"
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/suite"
@@ -33,7 +33,7 @@ func (ps *PredictSuite) SetupSuite() {
 func (ps *PredictSuite) TestNewFactionPredict() {
 	ctrl := gomock.NewController(ps.T())
 	defer ctrl.Finish()
-	game := gamemock.NewMockGame(ctrl)
+	game := mock_game.NewMockGame(ctrl)
 
 	pred := NewFactionPredict(game, ps.predictedFactionID).(*predict)
 
@@ -47,7 +47,7 @@ func (ps *PredictSuite) TestNewFactionPredict() {
 func (ps *PredictSuite) TestNewRolePredict() {
 	ctrl := gomock.NewController(ps.T())
 	defer ctrl.Finish()
-	game := gamemock.NewMockGame(ctrl)
+	game := mock_game.NewMockGame(ctrl)
 
 	pred := NewRolePredict(game, ps.predictedRoleID).(*predict)
 
@@ -63,7 +63,7 @@ func (ps *PredictSuite) TestValidateFactionPredict() {
 		name        string
 		req         *types.ActionRequest
 		expectedErr error
-		setup       func(*predict, *gamemock.MockGame)
+		setup       func(*predict, *mock_game.MockGame)
 	}{
 		{
 			name: "Invalid (Cant predict yourself)",
@@ -72,7 +72,7 @@ func (ps *PredictSuite) TestValidateFactionPredict() {
 				TargetID: ps.actorID,
 			},
 			expectedErr: fmt.Errorf("WTF! You don't know who you are? (╯°□°)╯︵ ┻━┻"),
-			setup:       func(p *predict, mg *gamemock.MockGame) {},
+			setup:       func(p *predict, mg *mock_game.MockGame) {},
 		},
 		{
 			name: "Invalid (Cant predict known player)",
@@ -81,7 +81,7 @@ func (ps *PredictSuite) TestValidateFactionPredict() {
 				TargetID: ps.targetID,
 			},
 			expectedErr: fmt.Errorf("You already knew this player ¯\\(º_o)/¯"),
-			setup: func(p *predict, gm *gamemock.MockGame) {
+			setup: func(p *predict, gm *mock_game.MockGame) {
 				p.Faction[ps.targetID] = true
 			},
 		},
@@ -92,7 +92,7 @@ func (ps *PredictSuite) TestValidateFactionPredict() {
 				TargetID: types.PlayerID("-99"),
 			},
 			expectedErr: fmt.Errorf("Non-existent player ¯\\_(ツ)_/¯"),
-			setup: func(p *predict, gm *gamemock.MockGame) {
+			setup: func(p *predict, gm *mock_game.MockGame) {
 				gm.EXPECT().Player(types.PlayerID("-99")).Return(nil)
 			},
 		},
@@ -102,8 +102,8 @@ func (ps *PredictSuite) TestValidateFactionPredict() {
 				ActorID:  ps.actorID,
 				TargetID: ps.targetID,
 			},
-			setup: func(p *predict, gm *gamemock.MockGame) {
-				targetPlayer := gamemock.NewMockPlayer(nil)
+			setup: func(p *predict, gm *mock_game.MockGame) {
+				targetPlayer := mock_game.NewMockPlayer(nil)
 				gm.EXPECT().Player(ps.targetID).Return(targetPlayer)
 			},
 		},
@@ -113,7 +113,7 @@ func (ps *PredictSuite) TestValidateFactionPredict() {
 		ps.Run(test.name, func() {
 			ctrl := gomock.NewController(ps.T())
 			defer ctrl.Finish()
-			game := gamemock.NewMockGame(ctrl)
+			game := mock_game.NewMockGame(ctrl)
 
 			pred := NewFactionPredict(game, ps.predictedFactionID).(*predict)
 			test.setup(pred, game)
@@ -133,7 +133,7 @@ func (ps *PredictSuite) TestValidateRolePredict() {
 		name        string
 		req         *types.ActionRequest
 		expectedErr error
-		setup       func(*predict, *gamemock.MockGame)
+		setup       func(*predict, *mock_game.MockGame)
 	}{
 		{
 			name: "Invalid (Cant predict yourself)",
@@ -142,7 +142,7 @@ func (ps *PredictSuite) TestValidateRolePredict() {
 				TargetID: ps.actorID,
 			},
 			expectedErr: fmt.Errorf("WTF! You don't know who you are? (╯°□°)╯︵ ┻━┻"),
-			setup:       func(p *predict, mg *gamemock.MockGame) {},
+			setup:       func(p *predict, mg *mock_game.MockGame) {},
 		},
 		{
 			name: "Invalid (Cant predict known player)",
@@ -151,7 +151,7 @@ func (ps *PredictSuite) TestValidateRolePredict() {
 				TargetID: ps.targetID,
 			},
 			expectedErr: fmt.Errorf("You already knew this player ¯\\(º_o)/¯"),
-			setup: func(p *predict, gm *gamemock.MockGame) {
+			setup: func(p *predict, gm *mock_game.MockGame) {
 				p.Role[ps.targetID] = true
 			},
 		},
@@ -162,7 +162,7 @@ func (ps *PredictSuite) TestValidateRolePredict() {
 				TargetID: types.PlayerID("-99"),
 			},
 			expectedErr: fmt.Errorf("Non-existent player ¯\\_(ツ)_/¯"),
-			setup: func(p *predict, gm *gamemock.MockGame) {
+			setup: func(p *predict, gm *mock_game.MockGame) {
 				gm.EXPECT().Player(types.PlayerID("-99")).Return(nil)
 			},
 		},
@@ -172,8 +172,8 @@ func (ps *PredictSuite) TestValidateRolePredict() {
 				ActorID:  ps.actorID,
 				TargetID: ps.targetID,
 			},
-			setup: func(p *predict, gm *gamemock.MockGame) {
-				targetPlayer := gamemock.NewMockPlayer(nil)
+			setup: func(p *predict, gm *mock_game.MockGame) {
+				targetPlayer := mock_game.NewMockPlayer(nil)
 				gm.EXPECT().Player(ps.targetID).Return(targetPlayer)
 			},
 		},
@@ -183,7 +183,7 @@ func (ps *PredictSuite) TestValidateRolePredict() {
 		ps.Run(test.name, func() {
 			ctrl := gomock.NewController(ps.T())
 			defer ctrl.Finish()
-			game := gamemock.NewMockGame(ctrl)
+			game := mock_game.NewMockGame(ctrl)
 
 			pred := NewRolePredict(game, ps.predictedRoleID).(*predict)
 			test.setup(pred, game)
@@ -203,7 +203,7 @@ func (ps *PredictSuite) TestPerformFactionPredict() {
 		name        string
 		req         *types.ActionRequest
 		expectedRes *types.ActionResponse
-		setup       func(*predict, *gamemock.MockGame, *gamemock.MockPlayer)
+		setup       func(*predict, *mock_game.MockGame, *mock_game.MockPlayer)
 	}{
 		{
 			name: "Ok (Incorrect prediction)",
@@ -215,7 +215,7 @@ func (ps *PredictSuite) TestPerformFactionPredict() {
 				Ok:   true,
 				Data: false,
 			},
-			setup: func(p *predict, mg *gamemock.MockGame, mp *gamemock.MockPlayer) {
+			setup: func(p *predict, mg *mock_game.MockGame, mp *mock_game.MockPlayer) {
 				mp.EXPECT().FactionID().Return(vars.VillagerFactionID)
 				mp.EXPECT().ID().Return(ps.targetID).Times(2)
 			},
@@ -230,7 +230,7 @@ func (ps *PredictSuite) TestPerformFactionPredict() {
 				Ok:   true,
 				Data: true,
 			},
-			setup: func(p *predict, mg *gamemock.MockGame, mp *gamemock.MockPlayer) {
+			setup: func(p *predict, mg *mock_game.MockGame, mp *mock_game.MockPlayer) {
 				mp.EXPECT().FactionID().Return(ps.predictedFactionID)
 				mp.EXPECT().ID().Return(ps.targetID).Times(2)
 			},
@@ -241,8 +241,8 @@ func (ps *PredictSuite) TestPerformFactionPredict() {
 		ps.Run(test.name, func() {
 			ctrl := gomock.NewController(ps.T())
 			defer ctrl.Finish()
-			game := gamemock.NewMockGame(ctrl)
-			targetPlayer := gamemock.NewMockPlayer(ctrl)
+			game := mock_game.NewMockGame(ctrl)
+			targetPlayer := mock_game.NewMockPlayer(ctrl)
 
 			game.EXPECT().Player(ps.targetID).Return(targetPlayer).AnyTimes()
 
@@ -261,7 +261,7 @@ func (ps *PredictSuite) TestPerformRolePredict() {
 		name        string
 		req         *types.ActionRequest
 		expectedRes *types.ActionResponse
-		setup       func(*predict, *gamemock.MockGame, *gamemock.MockPlayer)
+		setup       func(*predict, *mock_game.MockGame, *mock_game.MockPlayer)
 	}{
 		{
 			name: "Ok (Incorrect prediction)",
@@ -273,7 +273,7 @@ func (ps *PredictSuite) TestPerformRolePredict() {
 				Ok:   true,
 				Data: false,
 			},
-			setup: func(p *predict, mg *gamemock.MockGame, mp *gamemock.MockPlayer) {
+			setup: func(p *predict, mg *mock_game.MockGame, mp *mock_game.MockPlayer) {
 				mp.EXPECT().RoleIDs().Return([]types.RoleID{})
 				mp.EXPECT().ID().Return(ps.targetID).Times(2)
 			},
@@ -288,7 +288,7 @@ func (ps *PredictSuite) TestPerformRolePredict() {
 				Ok:   true,
 				Data: true,
 			},
-			setup: func(p *predict, mg *gamemock.MockGame, mp *gamemock.MockPlayer) {
+			setup: func(p *predict, mg *mock_game.MockGame, mp *mock_game.MockPlayer) {
 				mp.EXPECT().RoleIDs().Return([]types.RoleID{ps.predictedRoleID})
 				mp.EXPECT().ID().Return(ps.targetID).Times(2)
 			},
@@ -299,8 +299,8 @@ func (ps *PredictSuite) TestPerformRolePredict() {
 		ps.Run(test.name, func() {
 			ctrl := gomock.NewController(ps.T())
 			defer ctrl.Finish()
-			game := gamemock.NewMockGame(ctrl)
-			targetPlayer := gamemock.NewMockPlayer(ctrl)
+			game := mock_game.NewMockGame(ctrl)
+			targetPlayer := mock_game.NewMockPlayer(ctrl)
 
 			game.EXPECT().Player(ps.targetID).Return(targetPlayer).AnyTimes()
 

@@ -13,7 +13,7 @@ services:
             - .docker/go/pkg/mod:/go/pkg/mod
         depends_on:
             - postgres
-            - redis1
+            - redis
         networks:
             - postgres-network
             - redis-network
@@ -22,9 +22,9 @@ services:
     postgres:
         image: postgres:15.2-alpine
         environment:
-            - POSTGRES_USER=postgresuser
-            - POSTGRES_DB=postgresdb
-            - POSTGRES_PASSWORD=postgrespassword
+            - POSTGRES_USER=ww_username
+            - POSTGRES_PASSWORD=ww_password
+            - POSTGRES_DB=ww_db
         volumes:
             - .docker/postgres/data:/var/lib/postgresql/data
         networks:
@@ -39,13 +39,13 @@ services:
             - postgres-network
         restart: unless-stopped
 
-    redis1:
+    redis:
         image: redis:7.0.9-alpine
         environment:
-            - REDIS_PASSWORD=redispassword
+            - REDIS_PASSWORD=ww_password
         volumes:
             - .docker/redis/data:/data
-        command: redis-server --requirepass redispassword
+        command: redis-server --requirepass ww_password
         networks:
             - redis-network
         restart: unless-stopped
@@ -53,15 +53,15 @@ services:
     redis-commander:
         image: rediscommander/redis-commander:latest
         environment:
-            REDIS_HOST: redis1
+            REDIS_HOST: redis
             REDIS_PORT: 6379
-            REDIS_PASSWORD: redispassword
+            REDIS_PASSWORD: ww_password
         ports:
             - 8082:8081
         networks:
             - redis-network
         depends_on:
-            - redis1
+            - redis
         restart: unless-stopped
 
 networks:

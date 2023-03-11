@@ -9,7 +9,7 @@ require (
 	github.com/gocql/gocql v1.3.0
 	github.com/golang/mock v1.6.0
 	github.com/golang/protobuf v1.5.2
-	github.com/google/uuid v1.3.0
+	github.com/lib/pq v1.10.7
 	github.com/redis/go-redis/v9 v9.0.2
 	github.com/spf13/viper v1.12.0
 	github.com/stretchr/testify v1.8.1
@@ -29,7 +29,6 @@ require (
 	github.com/hailocab/go-hostpool v0.0.0-20160125115350-e80d13ce29ed // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
-	github.com/lib/pq v1.10.7 // indirect
 	github.com/magiconair/properties v1.8.6 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect

@@ -4,7 +4,7 @@ import (
 	"testing"
 	"uwwolf/game/types"
 	"uwwolf/game/vars"
-	gamemock "uwwolf/mock/game"
+	mock_game "uwwolf/mock/game"
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/suite"
@@ -26,8 +26,8 @@ func (tss *TwoSisterSuite) SetupSuite() {
 func (tss TwoSisterSuite) TestNewTwoSister() {
 	ctrl := gomock.NewController(tss.T())
 	defer ctrl.Finish()
-	game := gamemock.NewMockGame(ctrl)
-	player := gamemock.NewMockPlayer(ctrl)
+	game := mock_game.NewMockGame(ctrl)
+	player := mock_game.NewMockPlayer(ctrl)
 
 	game.EXPECT().Player(tss.playerID).Return(player)
 

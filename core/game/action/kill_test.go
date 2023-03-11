@@ -5,7 +5,7 @@ import (
 	"testing"
 	"uwwolf/game/types"
 	"uwwolf/game/vars"
-	gamemock "uwwolf/mock/game"
+	mock_game "uwwolf/mock/game"
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/suite"
@@ -28,7 +28,7 @@ func (ks *KillSuite) SetupSuite() {
 
 func (ks KillSuite) TestNewKill() {
 	ctrl := gomock.NewController(ks.T())
-	game := gamemock.NewMockGame(ctrl)
+	game := mock_game.NewMockGame(ctrl)
 
 	kill := NewKill(game).(*kill)
 
@@ -42,7 +42,7 @@ func (ks KillSuite) TestValidate() {
 		name        string
 		req         *types.ActionRequest
 		expectedErr error
-		setup       func(*gamemock.MockGame, *gamemock.MockPlayer)
+		setup       func(*mock_game.MockGame, *mock_game.MockPlayer)
 	}{
 		{
 			name: "Invalid (Cannot commit suicide)",
@@ -51,7 +51,7 @@ func (ks KillSuite) TestValidate() {
 				TargetID: ks.actorID,
 			},
 			expectedErr: fmt.Errorf("Appreciate your own life (｡´ ‿｀♡)"),
-			setup:       func(mg *gamemock.MockGame, mp *gamemock.MockPlayer) {},
+			setup:       func(mg *mock_game.MockGame, mp *mock_game.MockPlayer) {},
 		},
 		{
 			name: "Invalid (Cannot kill non-existent player)",
@@ -60,7 +60,7 @@ func (ks KillSuite) TestValidate() {
 				TargetID: ks.targetID,
 			},
 			expectedErr: fmt.Errorf("Player does not exist (⊙＿⊙')"),
-			setup: func(mg *gamemock.MockGame, mp *gamemock.MockPlayer) {
+			setup: func(mg *mock_game.MockGame, mp *mock_game.MockPlayer) {
 				mg.EXPECT().Player(ks.targetID).Return(nil)
 			},
 		},
@@ -71,7 +71,7 @@ func (ks KillSuite) TestValidate() {
 				TargetID: ks.targetID,
 			},
 			expectedErr: fmt.Errorf("Player is dead [¬º-°]¬"),
-			setup: func(mg *gamemock.MockGame, mp *gamemock.MockPlayer) {
+			setup: func(mg *mock_game.MockGame, mp *mock_game.MockPlayer) {
 				mg.EXPECT().Player(ks.targetID).Return(mp)
 				mp.EXPECT().IsDead().Return(true)
 			},
@@ -82,7 +82,7 @@ func (ks KillSuite) TestValidate() {
 				ActorID:  ks.actorID,
 				TargetID: ks.targetID,
 			},
-			setup: func(mg *gamemock.MockGame, mp *gamemock.MockPlayer) {
+			setup: func(mg *mock_game.MockGame, mp *mock_game.MockPlayer) {
 				mg.EXPECT().Player(ks.targetID).Return(mp)
 				mp.EXPECT().IsDead().Return(false)
 			},
@@ -93,8 +93,8 @@ func (ks KillSuite) TestValidate() {
 		ks.Run(test.name, func() {
 			ctrl := gomock.NewController(ks.T())
 			defer ctrl.Finish()
-			game := gamemock.NewMockGame(ctrl)
-			targetPlayer := gamemock.NewMockPlayer(ctrl)
+			game := mock_game.NewMockGame(ctrl)
+			targetPlayer := mock_game.NewMockPlayer(ctrl)
 			test.setup(game, targetPlayer)
 
 			kill := NewKill(game).(*kill)
@@ -115,7 +115,7 @@ func (ks KillSuite) TestPerform() {
 		req               *types.ActionRequest
 		expectedRes       *types.ActionResponse
 		expectedKillTimes uint
-		setup             func(*kill, *gamemock.MockGame, *gamemock.MockPlayer)
+		setup             func(*kill, *mock_game.MockGame, *mock_game.MockPlayer)
 	}{
 		{
 			name: "Ok",
@@ -128,7 +128,7 @@ func (ks KillSuite) TestPerform() {
 				Data: ks.targetID,
 			},
 			expectedKillTimes: 1,
-			setup: func(k *kill, mg *gamemock.MockGame, mp *gamemock.MockPlayer) {
+			setup: func(k *kill, mg *mock_game.MockGame, mp *mock_game.MockPlayer) {
 				mg.EXPECT().KillPlayer(ks.targetID, false).Return(mp)
 				mp.EXPECT().ID().Return(ks.targetID).Times(2)
 			},
@@ -144,7 +144,7 @@ func (ks KillSuite) TestPerform() {
 				Data: ks.targetID,
 			},
 			expectedKillTimes: 2,
-			setup: func(k *kill, mg *gamemock.MockGame, mp *gamemock.MockPlayer) {
+			setup: func(k *kill, mg *mock_game.MockGame, mp *mock_game.MockPlayer) {
 				k.Kills[ks.targetID] = 1
 				mg.EXPECT().KillPlayer(ks.targetID, false).Return(mp)
 				mp.EXPECT().ID().Return(ks.targetID).Times(2)
@@ -156,8 +156,8 @@ func (ks KillSuite) TestPerform() {
 		ks.Run(test.name, func() {
 			ctrl := gomock.NewController(ks.T())
 			defer ctrl.Finish()
-			game := gamemock.NewMockGame(ctrl)
-			targetPlayer := gamemock.NewMockPlayer(ctrl)
+			game := mock_game.NewMockGame(ctrl)
+			targetPlayer := mock_game.NewMockPlayer(ctrl)
 
 			kill := NewKill(game).(*kill)
 			test.setup(kill, game, targetPlayer)

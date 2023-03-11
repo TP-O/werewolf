@@ -9,3 +9,5 @@ COPY . .
 RUN go build -v -o /usr/local/bin ./...
 
 CMD ["uwwolf"]
+
+# 3.16.4

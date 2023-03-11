@@ -4,7 +4,7 @@ import (
 	"testing"
 	"uwwolf/game/types"
 	"uwwolf/game/vars"
-	gamemock "uwwolf/mock/game"
+	mock_game "uwwolf/mock/game"
 	"uwwolf/util"
 
 	"github.com/golang/mock/gomock"
@@ -39,7 +39,7 @@ func TestGameSuite(t *testing.T) {
 func (gs GameSuite) TestNewGame() {
 	ctrl := gomock.NewController(gs.T())
 	defer ctrl.Finish()
-	scheduler := gamemock.NewMockScheduler(ctrl)
+	scheduler := mock_game.NewMockScheduler(ctrl)
 
 	setting := &types.GameSetting{
 		NumberWerewolves: 10,
@@ -68,7 +68,7 @@ func (gs GameSuite) TestNewGame() {
 func (gs GameSuite) TestStatusID() {
 	ctrl := gomock.NewController(gs.T())
 	defer ctrl.Finish()
-	scheduler := gamemock.NewMockScheduler(ctrl)
+	scheduler := mock_game.NewMockScheduler(ctrl)
 
 	g := NewGame(scheduler, &types.GameSetting{})
 	g.(*game).statusID = vars.Starting
@@ -79,7 +79,7 @@ func (gs GameSuite) TestStatusID() {
 func (gs GameSuite) TestScheduler() {
 	ctrl := gomock.NewController(gs.T())
 	defer ctrl.Finish()
-	scheduler := gamemock.NewMockScheduler(ctrl)
+	scheduler := mock_game.NewMockScheduler(ctrl)
 
 	g := NewGame(scheduler, &types.GameSetting{})
 
@@ -89,8 +89,8 @@ func (gs GameSuite) TestScheduler() {
 func (gs GameSuite) TestPoll() {
 	ctrl := gomock.NewController(gs.T())
 	defer ctrl.Finish()
-	scheduler := gamemock.NewMockScheduler(ctrl)
-	poll := gamemock.NewMockPoll(ctrl)
+	scheduler := mock_game.NewMockScheduler(ctrl)
+	poll := mock_game.NewMockPoll(ctrl)
 
 	g := NewGame(scheduler, &types.GameSetting{})
 	g.(*game).polls[vars.VillagerFactionID] = poll
@@ -101,8 +101,8 @@ func (gs GameSuite) TestPoll() {
 func (gs GameSuite) TestPlayer() {
 	ctrl := gomock.NewController(gs.T())
 	defer ctrl.Finish()
-	scheduler := gamemock.NewMockScheduler(ctrl)
-	player := gamemock.NewMockPlayer(ctrl)
+	scheduler := mock_game.NewMockScheduler(ctrl)
+	player := mock_game.NewMockPlayer(ctrl)
 
 	g := NewGame(scheduler, &types.GameSetting{})
 	g.(*game).players[gs.player1ID] = player
@@ -113,10 +113,10 @@ func (gs GameSuite) TestPlayer() {
 func (gs GameSuite) TestPlayers() {
 	ctrl := gomock.NewController(gs.T())
 	defer ctrl.Finish()
-	scheduler := gamemock.NewMockScheduler(ctrl)
-	player1 := gamemock.NewMockPlayer(ctrl)
-	player2 := gamemock.NewMockPlayer(ctrl)
-	player3 := gamemock.NewMockPlayer(ctrl)
+	scheduler := mock_game.NewMockScheduler(ctrl)
+	player1 := mock_game.NewMockPlayer(ctrl)
+	player2 := mock_game.NewMockPlayer(ctrl)
+	player3 := mock_game.NewMockPlayer(ctrl)
 
 	g := NewGame(scheduler, &types.GameSetting{})
 	g.(*game).players[gs.player1ID] = player1
@@ -132,10 +132,10 @@ func (gs GameSuite) TestPlayers() {
 func (gs GameSuite) TestAlivePlayerIDsWithRoleID() {
 	ctrl := gomock.NewController(gs.T())
 	defer ctrl.Finish()
-	scheduler := gamemock.NewMockScheduler(ctrl)
-	player1 := gamemock.NewMockPlayer(ctrl)
-	player2 := gamemock.NewMockPlayer(ctrl)
-	player3 := gamemock.NewMockPlayer(ctrl)
+	scheduler := mock_game.NewMockScheduler(ctrl)
+	player1 := mock_game.NewMockPlayer(ctrl)
+	player2 := mock_game.NewMockPlayer(ctrl)
+	player3 := mock_game.NewMockPlayer(ctrl)
 
 	player1.EXPECT().IsDead().Return(true)
 	player2.EXPECT().IsDead().Return(false)
@@ -156,10 +156,10 @@ func (gs GameSuite) TestAlivePlayerIDsWithRoleID() {
 func (gs GameSuite) TestAlivePlayerIDsWithFactionID() {
 	ctrl := gomock.NewController(gs.T())
 	defer ctrl.Finish()
-	scheduler := gamemock.NewMockScheduler(ctrl)
-	player1 := gamemock.NewMockPlayer(ctrl)
-	player2 := gamemock.NewMockPlayer(ctrl)
-	player3 := gamemock.NewMockPlayer(ctrl)
+	scheduler := mock_game.NewMockScheduler(ctrl)
+	player1 := mock_game.NewMockPlayer(ctrl)
+	player2 := mock_game.NewMockPlayer(ctrl)
+	player3 := mock_game.NewMockPlayer(ctrl)
 
 	player1.EXPECT().IsDead().Return(true)
 	player2.EXPECT().IsDead().Return(false)
@@ -180,10 +180,10 @@ func (gs GameSuite) TestAlivePlayerIDsWithFactionID() {
 func (gs GameSuite) TestAlivePlayerIDsWithoutFactionID() {
 	ctrl := gomock.NewController(gs.T())
 	defer ctrl.Finish()
-	scheduler := gamemock.NewMockScheduler(ctrl)
-	player1 := gamemock.NewMockPlayer(ctrl)
-	player2 := gamemock.NewMockPlayer(ctrl)
-	player3 := gamemock.NewMockPlayer(ctrl)
+	scheduler := mock_game.NewMockScheduler(ctrl)
+	player1 := mock_game.NewMockPlayer(ctrl)
+	player2 := mock_game.NewMockPlayer(ctrl)
+	player3 := mock_game.NewMockPlayer(ctrl)
 
 	player1.EXPECT().IsDead().Return(true)
 	player2.EXPECT().IsDead().Return(false)
@@ -274,7 +274,7 @@ func (gs GameSuite) TestSelectRoleID() {
 		gs.Run(test.name, func() {
 			ctrl := gomock.NewController(gs.T())
 			defer ctrl.Finish()
-			scheduler := gamemock.NewMockScheduler(ctrl)
+			scheduler := mock_game.NewMockScheduler(ctrl)
 
 			// Make werewolf role can be used in selectRoleID
 			vars.RoleSets[vars.WerewolfRoleID] = 1
@@ -297,7 +297,7 @@ func (gs GameSuite) TestSelectRoleID() {
 func (gs GameSuite) TestSelectRoleIDs() {
 	ctrl := gomock.NewController(gs.T())
 	defer ctrl.Finish()
-	scheduler := gamemock.NewMockScheduler(ctrl)
+	scheduler := mock_game.NewMockScheduler(ctrl)
 
 	roleIDs := []types.RoleID{
 		vars.HunterRoleID,
@@ -337,11 +337,11 @@ func (gs GameSuite) TestSelectRoleIDs() {
 func (gs GameSuite) TestAssignRoles() {
 	tests := []struct {
 		name  string
-		setup func(*game, *gamemock.MockPlayer)
+		setup func(*game, *mock_game.MockPlayer)
 	}{
 		{
 			name: "Only assign default villager faction's role",
-			setup: func(g *game, mp1 *gamemock.MockPlayer) {
+			setup: func(g *game, mp1 *mock_game.MockPlayer) {
 				g.selectedRoleIDs = []types.RoleID{}
 
 				mp1.EXPECT().AssignRole(vars.VillagerRoleID)
@@ -349,7 +349,7 @@ func (gs GameSuite) TestAssignRoles() {
 		},
 		{
 			name: "Assign selected role and default villager faction's role",
-			setup: func(g *game, mp1 *gamemock.MockPlayer) {
+			setup: func(g *game, mp1 *mock_game.MockPlayer) {
 				g.selectedRoleIDs = []types.RoleID{vars.HunterRoleID}
 
 				mp1.EXPECT().AssignRole(vars.VillagerRoleID)
@@ -359,7 +359,7 @@ func (gs GameSuite) TestAssignRoles() {
 		// Update if new werewolf role added
 		{
 			name: "Assign selected role and default villager and werewolf faction's role",
-			setup: func(g *game, mp1 *gamemock.MockPlayer) {
+			setup: func(g *game, mp1 *mock_game.MockPlayer) {
 				g.selectedRoleIDs = []types.RoleID{vars.WerewolfRoleID}
 
 				mp1.EXPECT().AssignRole(vars.VillagerRoleID)
@@ -373,8 +373,8 @@ func (gs GameSuite) TestAssignRoles() {
 		gs.Run(test.name, func() {
 			ctrl := gomock.NewController(gs.T())
 			defer ctrl.Finish()
-			scheduler := gamemock.NewMockScheduler(ctrl)
-			player1 := gamemock.NewMockPlayer(ctrl)
+			scheduler := mock_game.NewMockScheduler(ctrl)
+			player1 := mock_game.NewMockPlayer(ctrl)
 
 			player1.EXPECT().ID().Return(gs.player1ID)
 
@@ -391,10 +391,10 @@ func (gs GameSuite) TestAssignRoles() {
 func (gs GameSuite) TestPrepare() {
 	ctrl := gomock.NewController(gs.T())
 	defer ctrl.Finish()
-	scheduler := gamemock.NewMockScheduler(ctrl)
-	player1 := gamemock.NewMockPlayer(ctrl)
-	player2 := gamemock.NewMockPlayer(ctrl)
-	player3 := gamemock.NewMockPlayer(ctrl)
+	scheduler := mock_game.NewMockScheduler(ctrl)
+	player1 := mock_game.NewMockPlayer(ctrl)
+	player2 := mock_game.NewMockPlayer(ctrl)
+	player3 := mock_game.NewMockPlayer(ctrl)
 
 	// assignRoles() is called
 	player1.EXPECT().ID().Return(gs.player1ID)
@@ -484,7 +484,7 @@ func (gs GameSuite) TestStart() {
 		gs.Run(test.name, func() {
 			ctrl := gomock.NewController(gs.T())
 			defer ctrl.Finish()
-			scheduler := gamemock.NewMockScheduler(ctrl)
+			scheduler := mock_game.NewMockScheduler(ctrl)
 
 			g := NewGame(scheduler, &types.GameSetting{})
 			g.(*game).statusID = test.statusID
@@ -518,7 +518,7 @@ func (gs GameSuite) TestFinish() {
 		gs.Run(test.name, func() {
 			ctrl := gomock.NewController(gs.T())
 			defer ctrl.Finish()
-			scheduler := gamemock.NewMockScheduler(ctrl)
+			scheduler := mock_game.NewMockScheduler(ctrl)
 
 			g := NewGame(scheduler, &types.GameSetting{})
 			g.(*game).statusID = test.statusID
@@ -535,7 +535,7 @@ func (gs GameSuite) TestPlay() {
 		name        string
 		req         *types.ActivateAbilityRequest
 		expectedRes *types.ActionResponse
-		setup       func(*game, *gamemock.MockPlayer)
+		setup       func(*game, *mock_game.MockPlayer)
 	}{
 		{
 			name: "Failure (Game isn't starting)",
@@ -544,7 +544,7 @@ func (gs GameSuite) TestPlay() {
 				Ok:      false,
 				Message: "The game is about to start ノ(ジ)ー'",
 			},
-			setup: func(g *game, mp *gamemock.MockPlayer) {
+			setup: func(g *game, mp *mock_game.MockPlayer) {
 				g.statusID = vars.Waiting
 			},
 		},
@@ -555,7 +555,7 @@ func (gs GameSuite) TestPlay() {
 				Ok:      false,
 				Message: "Unable to play this game (╥﹏╥)",
 			},
-			setup: func(g *game, mp *gamemock.MockPlayer) {
+			setup: func(g *game, mp *mock_game.MockPlayer) {
 				g.statusID = vars.Starting
 				g.players[gs.player1ID] = nil
 			},
@@ -567,7 +567,7 @@ func (gs GameSuite) TestPlay() {
 				Ok:      true,
 				Message: "Ok msg",
 			},
-			setup: func(g *game, mp *gamemock.MockPlayer) {
+			setup: func(g *game, mp *mock_game.MockPlayer) {
 				g.statusID = vars.Starting
 				g.players[gs.player1ID] = mp
 
@@ -584,8 +584,8 @@ func (gs GameSuite) TestPlay() {
 		gs.Run(test.name, func() {
 			ctrl := gomock.NewController(gs.T())
 			defer ctrl.Finish()
-			scheduler := gamemock.NewMockScheduler(ctrl)
-			player1 := gamemock.NewMockPlayer(ctrl)
+			scheduler := mock_game.NewMockScheduler(ctrl)
+			player1 := mock_game.NewMockPlayer(ctrl)
 
 			g := NewGame(scheduler, &types.GameSetting{})
 			test.setup(g.(*game), player1)
@@ -603,14 +603,14 @@ func (gs GameSuite) TestKillPlayer() {
 		playerID            types.PlayerID
 		isExited            bool
 		expectedIsNilPlayer bool
-		setup               func(*game, *gamemock.MockPlayer)
+		setup               func(*game, *mock_game.MockPlayer)
 	}{
 		{
 			name:                "Failure (Non-existent player)",
 			playerID:            gs.player1ID,
 			isExited:            false,
 			expectedIsNilPlayer: true,
-			setup: func(g *game, mp *gamemock.MockPlayer) {
+			setup: func(g *game, mp *mock_game.MockPlayer) {
 				g.players[gs.player1ID] = nil
 			},
 		},
@@ -619,7 +619,7 @@ func (gs GameSuite) TestKillPlayer() {
 			playerID:            gs.player1ID,
 			isExited:            false,
 			expectedIsNilPlayer: true,
-			setup: func(g *game, mp *gamemock.MockPlayer) {
+			setup: func(g *game, mp *mock_game.MockPlayer) {
 				g.players[gs.player1ID] = mp
 
 				mp.EXPECT().IsDead().Return(true)
@@ -630,7 +630,7 @@ func (gs GameSuite) TestKillPlayer() {
 			playerID:            gs.player1ID,
 			isExited:            true,
 			expectedIsNilPlayer: true,
-			setup: func(g *game, mp *gamemock.MockPlayer) {
+			setup: func(g *game, mp *mock_game.MockPlayer) {
 				g.players[gs.player1ID] = mp
 
 				mp.EXPECT().IsDead().Return(false)
@@ -642,7 +642,7 @@ func (gs GameSuite) TestKillPlayer() {
 			playerID:            gs.player1ID,
 			isExited:            false,
 			expectedIsNilPlayer: false,
-			setup: func(g *game, mp *gamemock.MockPlayer) {
+			setup: func(g *game, mp *mock_game.MockPlayer) {
 				g.players[gs.player1ID] = mp
 
 				mp.EXPECT().IsDead().Return(false)
@@ -655,8 +655,8 @@ func (gs GameSuite) TestKillPlayer() {
 		gs.Run(test.name, func() {
 			ctrl := gomock.NewController(gs.T())
 			defer ctrl.Finish()
-			scheduler := gamemock.NewMockScheduler(ctrl)
-			player1 := gamemock.NewMockPlayer(ctrl)
+			scheduler := mock_game.NewMockScheduler(ctrl)
+			player1 := mock_game.NewMockPlayer(ctrl)
 
 			g := NewGame(scheduler, &types.GameSetting{})
 			test.setup(g.(*game), player1)

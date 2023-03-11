@@ -4,7 +4,7 @@ import (
 	"testing"
 	"uwwolf/game/types"
 	"uwwolf/game/vars"
-	gamemock "uwwolf/mock/game"
+	mock_game "uwwolf/mock/game"
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/suite"
@@ -32,7 +32,7 @@ func (rs *RecognizeSuite) SetupSuite() {
 func (rs RecognizeSuite) TestNewFactionIdentify() {
 	ctrl := gomock.NewController(rs.T())
 	defer ctrl.Finish()
-	game := gamemock.NewMockGame(ctrl)
+	game := mock_game.NewMockGame(ctrl)
 
 	fIdent := NewFactionIdentify(game, rs.identifiedFactionID).(*identify)
 
@@ -47,7 +47,7 @@ func (rs RecognizeSuite) TestNewFactionIdentify() {
 func (rs RecognizeSuite) TestNewRoleIdentify() {
 	ctrl := gomock.NewController(rs.T())
 	defer ctrl.Finish()
-	game := gamemock.NewMockGame(ctrl)
+	game := mock_game.NewMockGame(ctrl)
 
 	ident := NewRoleIdentify(game, rs.identifiedRoleID).(*identify)
 
@@ -62,7 +62,7 @@ func (rs RecognizeSuite) TestNewRoleIdentify() {
 func (rs RecognizeSuite) TestValidateFactionIdentify() {
 	ctrl := gomock.NewController(rs.T())
 	defer ctrl.Finish()
-	game := gamemock.NewMockGame(ctrl)
+	game := mock_game.NewMockGame(ctrl)
 
 	expectErr := "You already recognized everyone ¯\\(º_o)/¯"
 
@@ -76,7 +76,7 @@ func (rs RecognizeSuite) TestValidateFactionIdentify() {
 func (rs RecognizeSuite) TestPerformFactionIdentify() {
 	ctrl := gomock.NewController(rs.T())
 	defer ctrl.Finish()
-	game := gamemock.NewMockGame(ctrl)
+	game := mock_game.NewMockGame(ctrl)
 
 	game.EXPECT().AlivePlayerIDsWithFactionID(rs.identifiedFactionID).
 		Return(rs.identifiedIDs)
@@ -100,7 +100,7 @@ func (rs RecognizeSuite) TestPerformFactionIdentify() {
 func (rs RecognizeSuite) TestValidateRoleIdentify() {
 	ctrl := gomock.NewController(rs.T())
 	defer ctrl.Finish()
-	game := gamemock.NewMockGame(ctrl)
+	game := mock_game.NewMockGame(ctrl)
 
 	expectErr := "You already recognized everyone ¯\\(º_o)/¯"
 
@@ -114,7 +114,7 @@ func (rs RecognizeSuite) TestValidateRoleIdentify() {
 func (rs RecognizeSuite) TestPerformRoleIdentify() {
 	ctrl := gomock.NewController(rs.T())
 	defer ctrl.Finish()
-	game := gamemock.NewMockGame(ctrl)
+	game := mock_game.NewMockGame(ctrl)
 
 	game.EXPECT().AlivePlayerIDsWithRoleID(rs.identifiedRoleID).
 		Return(rs.identifiedIDs)

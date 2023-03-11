@@ -5,7 +5,7 @@ import (
 	"testing"
 	"uwwolf/game/types"
 	"uwwolf/game/vars"
-	gamemock "uwwolf/mock/game"
+	mock_game "uwwolf/mock/game"
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/suite"
@@ -35,7 +35,7 @@ func (vs VoteSuite) TestNewVote() {
 		name        string
 		setting     *VoteActionSetting
 		expectedErr error
-		setup       func(*gamemock.MockGame, *gamemock.MockPoll)
+		setup       func(*mock_game.MockGame, *mock_game.MockPoll)
 	}{
 		{
 			name: "Failure (Poll doesnt exist)",
@@ -43,7 +43,7 @@ func (vs VoteSuite) TestNewVote() {
 				FactionID: vs.factionID,
 			},
 			expectedErr: fmt.Errorf("Poll does not exist ¯\\_(ツ)_/¯"),
-			setup: func(mg *gamemock.MockGame, mp *gamemock.MockPoll) {
+			setup: func(mg *mock_game.MockGame, mp *mock_game.MockPoll) {
 				mg.EXPECT().Poll(vs.factionID).Return(nil)
 			},
 		},
@@ -54,7 +54,7 @@ func (vs VoteSuite) TestNewVote() {
 				PlayerID:  vs.actorID,
 				Weight:    vs.weight,
 			},
-			setup: func(mg *gamemock.MockGame, mp *gamemock.MockPoll) {
+			setup: func(mg *mock_game.MockGame, mp *mock_game.MockPoll) {
 				mp.EXPECT().AddElectors(vs.actorID)
 				mp.EXPECT().SetWeight(vs.actorID, vs.weight).Return(true)
 				mg.EXPECT().Poll(vs.factionID).Return(mp).Times(2)
@@ -66,8 +66,8 @@ func (vs VoteSuite) TestNewVote() {
 		vs.Run(test.name, func() {
 			ctrl := gomock.NewController(vs.T())
 			defer ctrl.Finish()
-			game := gamemock.NewMockGame(ctrl)
-			poll := gamemock.NewMockPoll(ctrl)
+			game := mock_game.NewMockGame(ctrl)
+			poll := mock_game.NewMockPoll(ctrl)
 			test.setup(game, poll)
 
 			v, err := NewVote(game, test.setting)
@@ -87,8 +87,8 @@ func (vs VoteSuite) TestNewVote() {
 func (vs VoteSuite) TestSkip() {
 	ctrl := gomock.NewController(vs.T())
 	defer ctrl.Finish()
-	game := gamemock.NewMockGame(ctrl)
-	poll := gamemock.NewMockPoll(ctrl)
+	game := mock_game.NewMockGame(ctrl)
+	poll := mock_game.NewMockPoll(ctrl)
 
 	game.EXPECT().Poll(vs.factionID).Return(poll).Times(2)
 	poll.EXPECT().AddElectors(vs.actorID)
@@ -119,7 +119,7 @@ func (vs VoteSuite) TestPerform() {
 		name        string
 		req         *types.ActionRequest
 		expectedRes *types.ActionResponse
-		setup       func(*gamemock.MockPoll)
+		setup       func(*mock_game.MockPoll)
 	}{
 
 		{
@@ -132,7 +132,7 @@ func (vs VoteSuite) TestPerform() {
 				Ok:      false,
 				Message: "CANT_VOTE error",
 			},
-			setup: func(mp *gamemock.MockPoll) {
+			setup: func(mp *mock_game.MockPoll) {
 				mp.EXPECT().Vote(vs.actorID, vs.targetID).
 					Return(false, fmt.Errorf("CANT_VOTE error"))
 			},
@@ -147,7 +147,7 @@ func (vs VoteSuite) TestPerform() {
 				Ok:   true,
 				Data: vs.targetID,
 			},
-			setup: func(mp *gamemock.MockPoll) {
+			setup: func(mp *mock_game.MockPoll) {
 				mp.EXPECT().Vote(vs.actorID, vs.targetID).Return(true, nil)
 			},
 		},
@@ -157,8 +157,8 @@ func (vs VoteSuite) TestPerform() {
 		vs.Run(test.name, func() {
 			ctrl := gomock.NewController(vs.T())
 			defer ctrl.Finish()
-			game := gamemock.NewMockGame(ctrl)
-			poll := gamemock.NewMockPoll(ctrl)
+			game := mock_game.NewMockGame(ctrl)
+			poll := mock_game.NewMockPoll(ctrl)
 
 			game.EXPECT().Poll(vs.factionID).Return(poll).Times(2)
 			poll.EXPECT().AddElectors(vs.actorID)

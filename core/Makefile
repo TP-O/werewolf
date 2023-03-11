@@ -1,13 +1,15 @@
+DB_URL="postgresql://ww_username:ww_password@postgres:5432/ww_db?sslmode=disable"
+
 dev:
 	docker-compose up
 
 mockgen:
-	mockgen -source game/contract/game.go  -destination mock/game/game.go -package gamemock
-	mockgen -source game/contract/player.go  -destination mock/game/player.go -package gamemock
-	mockgen -source game/contract/poll.go  -destination mock/game/poll.go -package gamemock
-	mockgen -source game/contract/scheduler.go  -destination mock/game/scheduler.go -package gamemock
-	mockgen -source game/contract/action.go  -destination mock/game/action.go -package gamemock
-	mockgen -source game/contract/role.go  -destination mock/game/role.go -package gamemock
+	mockgen -source game/contract/game.go -destination mock/game/game.go -package mock_game
+	mockgen -source game/contract/player.go -destination mock/game/player.go -package mock_game
+	mockgen -source game/contract/poll.go -destination mock/game/poll.go -package mock_game
+	mockgen -source game/contract/scheduler.go -destination mock/game/scheduler.go -package mock_game
+	mockgen -source game/contract/action.go -destination mock/game/action.go -package mock_game
+	mockgen -source game/contract/role.go -destination mock/game/role.go -package mock_game
 
 protobuf:
 	rm -rf grpc/pb/*
@@ -16,22 +18,30 @@ protobuf:
 db-migrate:
 	docker-compose exec app migrate -path db/migration \
         -verbose \
-		-database "postgresql://postgresuser:postgrespassword@postgres:5432/postgresdb?sslmode=disable" up
+		-database ${DB_URL} up
+
+db-migrate-1:
+	docker-compose exec app migrate -path db/migration \
+        -verbose \
+		-database ${DB_URL} up 1
 
 db-rollback:
 	docker-compose exec app migrate -path db/migration \
         -verbose \
-		-database "postgresql://postgresuser:postgrespassword@postgres:5432/postgresdb?sslmode=disable" down
+		-database ${DB_URL} down
+
+db-rollback-1:
+	docker-compose exec app migrate -path db/migration \
+        -verbose \
+		-database ${DB_URL} down 1
 
 db-drop:
 	docker-compose exec app migrate -path db/migration \
         -verbose \
-		-database "postgresql://postgresuser:postgrespassword@postgres:5432/postgresdb?sslmode=disable" drop
+		-database ${DB_URL} drop
 
 db-seed:
-	docker-compose exec app go run db/seeder/main.go
+	docker-compose exec app echo "seed"
 
 db-sqlc:
 	docker-compose exec app sqlc generate
-
-.PHONY: dev
