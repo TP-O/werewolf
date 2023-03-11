@@ -3,8 +3,6 @@ package validator
 import (
 	"reflect"
 	"strings"
-	"uwwolf/game/types"
-	"uwwolf/validator/strct"
 	"uwwolf/validator/tag"
 
 	"github.com/go-playground/locales/en"
@@ -76,7 +74,7 @@ func addCustomizedFieldRules(validate *validator.Validate) {
 }
 
 func addCustomizedStructRules(validate *validator.Validate) {
-	validate.RegisterStructValidation(strct.ValidateGameSetting, types.GameSetting{})
+	// validate.RegisterStructValidation(strct.ValidateGameSetting, types.GameSetting{})
 }
 
 func SimpleValidateVar(data any, tag string) bool {

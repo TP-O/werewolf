@@ -9,9 +9,12 @@ database:
   password: ww_password
   database: ww_db
 redis:
-  client: redis:6379
-  cluster: []
-  password: ww_password
+  sentinel_addresses:
+    - redis:5000
+    - redis:5001
+    - redis:5002
+  master_name: mymaster
+  sentinel_password: ww_password
 game:
   min_capacity: 5
   max_capacity: 20

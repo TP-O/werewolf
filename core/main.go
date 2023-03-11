@@ -1,5 +1,12 @@
 package main
 
+import (
+	"context"
+	"fmt"
+	"uwwolf/redis"
+	"uwwolf/util"
+)
+
 func main() {
 	// grpc.Start()
 
@@ -17,7 +24,11 @@ func main() {
 	// 	},
 	// }))
 
-	// util.LoadConfig(".")
+	util.LoadConfig(".")
 	// db.ConnectDB()
-	// redis.ConnectRedis()
+	c := redis.ConnectRedis()
+
+	fmt.Println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+	c.Set(context.Background(), "aaaa", 1, -1)
+	fmt.Println(c.Get(context.Background(), "aaaa").Val())
 }

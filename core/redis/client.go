@@ -9,17 +9,19 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-var client *redis.Client
+var client *redis.ClusterClient
 
-func ConnectRedis() *redis.Client {
+func ConnectRedis() *redis.ClusterClient {
 	if client != nil {
 		return client
 	}
 
 	fmt.Println("Connecting to redis...")
-	client = redis.NewClient(&redis.Options{
-		Addr:            util.Config().Redis.Hosts[0],
-		Password:        util.Config().Redis.Password,
+	client = redis.NewFailoverClusterClient(&redis.FailoverOptions{
+		MasterName:      util.Config().Redis.MasterName,
+		SentinelAddrs:   util.Config().Redis.SentinelAddresses,
+		Password:        util.Config().Redis.SentinelPassword,
+		PoolSize:        10,
 		MinRetryBackoff: 1 * time.Second,
 		MaxRetryBackoff: 5 * time.Second,
 		MaxRetries:      10,
@@ -27,7 +29,7 @@ func ConnectRedis() *redis.Client {
 	if err := client.Ping(context.Background()).Err(); err != nil {
 		panic(err)
 	}
+	fmt.Println("Redis is connected!")
 
-	fmt.Println("Connected!")
 	return client
 }

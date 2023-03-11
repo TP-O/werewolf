@@ -22,9 +22,9 @@ type dbConfig struct {
 }
 
 type redisConfig struct {
-	Client   string   `mapstructure:"client"`
-	Cluster  []string `mapstructure:"cluster"`
-	Password string   `mapstructure:"password"`
+	SentinelAddresses []string `mapstructure:"sentinel_addresses"`
+	SentinelPassword  string   `mapstructure:"sentinel_password"`
+	MasterName        string   `mapstructure:"master_name"`
 }
 
 type gameConfig struct {
@@ -69,8 +69,8 @@ func loadDefaultConfig() {
 		"database": "default_ns",
 	})
 	viper.SetDefault("redis", map[string]interface{}{
-		"password": "password",
-		"client":   "redis:6379",
+		"sentinel_password": "password",
+		"master_name":       "mymaster",
 	})
 	viper.SetDefault("game", map[string]interface{}{
 		"min_capacity":            5,

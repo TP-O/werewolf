@@ -40,28 +40,30 @@ services:
         restart: unless-stopped
 
     redis:
-        image: redis:7.0.9-alpine
+        image: grokzen/redis-cluster:7.0.7
         environment:
-            - REDIS_PASSWORD=ww_password
+            - SENTINEL=true
+            - REDIS_USE_SENTINEL=true
+            - SENTINEL_MASTER_NAME=mymaster
         volumes:
-            - .docker/redis/data:/data
-        command: redis-server --requirepass ww_password
+            - .docker/redis/redis-cluster.tmpl:/redis-conf/redis-cluster.tmpl
+            - .docker/redis/sentinel.tmpl:/redis-conf/sentinel.tmpl
+            - .docker/redis/data/node:/redis-data
         networks:
             - redis-network
         restart: unless-stopped
 
-    redis-commander:
-        image: rediscommander/redis-commander:latest
-        environment:
-            REDIS_HOST: redis
-            REDIS_PORT: 6379
-            REDIS_PASSWORD: ww_password
+    redis-insight:
+        image: redislabs/redisinsight:latest
+        user: root
         ports:
-            - 8082:8081
-        networks:
-            - redis-network
+            - 8082:8001
+        volumes:
+            - .docker/redis/data/redis-insight:/db
         depends_on:
             - redis
+        networks:
+            - redis-network
         restart: unless-stopped
 
 networks:
