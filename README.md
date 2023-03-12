@@ -1,10 +1,10 @@
 # Werewolf Game
 
 <p align="center">
-<a href="https://plantae.garden/wp-content/uploads/2022/05/play-video.gif" target="_blank">
+<a href="https://tp-o.itch.io/werewolf" target="_blank">
     <img src="./assets/play-btn.gif" width="200" height="200" />
 </a>
-<h2 align="center">Play</h2>
+<h2 align="center">Click to play</h2>
 </p>
 
 # Introduction
@@ -21,66 +21,6 @@ There are 2 types of turn: private and public. In private turn, only roles playe
 
 In the moring, Villager gathers together and finds the Werewolf. The special roles do their job at dusk, and Werewolf and the rest do their job at night.
 
-## Faction
-
-<table align="center">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Win condition</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>Villager</td>
-            <td>Kill all werewolves</td>
-        </tr>
-        <tr>
-            <td>Werewolf</td>
-            <td>Kill all villagers</td>
-        </tr>
-    </tbody>
-</table>
-
-## Role
-
-<table align="center">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Phase</th>
-            <th>Ability</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>Villager</td>
-            <td>Day</td>
-            <td>Execute one player suspected of being werewolf</td>
-        </tr>
-        <tr>
-            <td>Werewolf</td>
-            <td>Night</td>
-            <td>Kill one non-werewolf player</td>
-        </tr>
-        <tr>
-            <td>Hunter</td>
-            <td>Day</td>
-            <td>Shoot one player if he dies</td>
-        </tr>
-        <tr>
-            <td>Seer</td>
-            <td>Night</td>
-            <td>Find the team of one player</td>
-        </tr>
-        <tr>
-            <td>Two Sister</td>
-            <td>Night</td>
-            <td>Know which player is the sister</td>
-        </tr>
-    </tbody>
-</table>
-
 # Technical
 
 ## Challenge
@@ -89,11 +29,15 @@ In the moring, Villager gathers together and finds the Werewolf. The special rol
 
 ## Platform & Tool
 
-...
+- Go
+- Node.js
+- Unity
+- Redis cluster
+- PostgreSQL
 
 # Demo
 
-...
+Click [here](https://tp-o.itch.io/werewolf).
 
 # License
 
