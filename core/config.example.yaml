@@ -14,7 +14,8 @@ redis:
     - redis:5001
     - redis:5002
   master_name: mymaster
-  sentinel_password: ww_password
+  username: default
+  password: redis_password
 game:
   min_capacity: 5
   max_capacity: 20

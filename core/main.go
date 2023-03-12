@@ -29,6 +29,6 @@ func main() {
 	c := redis.ConnectRedis()
 
 	fmt.Println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
-	c.Set(context.Background(), "aaaa", 1, -1)
+	c.Set(context.Background(), "aaaa", 2, -1)
 	fmt.Println(c.Get(context.Background(), "aaaa").Val())
 }
