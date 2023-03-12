@@ -48,7 +48,7 @@ services:
         volumes:
             - .docker/redis/redis-cluster.tmpl:/redis-conf/redis-cluster.tmpl
             - .docker/redis/sentinel.tmpl:/redis-conf/sentinel.tmpl
-            - .docker/redis/data/node:/redis-data
+            - .docker/redis/docker-entrypoint.sh:/docker-entrypoint.sh
         networks:
             - redis-network
         restart: unless-stopped

@@ -20,7 +20,8 @@ func ConnectRedis() *redis.ClusterClient {
 	client = redis.NewFailoverClusterClient(&redis.FailoverOptions{
 		MasterName:      util.Config().Redis.MasterName,
 		SentinelAddrs:   util.Config().Redis.SentinelAddresses,
-		Password:        util.Config().Redis.SentinelPassword,
+		Username:        util.Config().Redis.Username,
+		Password:        util.Config().Redis.Password,
 		PoolSize:        10,
 		MinRetryBackoff: 1 * time.Second,
 		MaxRetryBackoff: 5 * time.Second,
