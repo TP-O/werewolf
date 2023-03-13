@@ -151,7 +151,7 @@ func (g *game) selectRoleIDs() {
 	for _, requiredRoleID := range g.requiredRoleIDs {
 		// Stop if selectedRoleIDs is enough
 		if !g.selectRoleID(&werewolfCounter, &nonWerewolfCounter, requiredRoleID) {
-			return
+			break
 		}
 	}
 
@@ -164,12 +164,19 @@ func (g *game) selectRoleIDs() {
 		if i == -1 ||
 			!g.selectRoleID(&werewolfCounter, &nonWerewolfCounter, randomRoleID) {
 			// Stop if selectedRoleIDs is enough or roleIDs is fully checked
-			return
+			break
 		} else {
 			// Remove selected roleID
 			roleIDs = slices.Delete(roleIDs, i, i+1)
 		}
 	}
+
+	// Add missing werewolf roles
+	for werewolfCounter < int(g.numberWerewolves) {
+		g.selectedRoleIDs = append(g.selectedRoleIDs, vars.WerewolfRoleID)
+		werewolfCounter++
+	}
+
 }
 
 // assignRoles assigns the selected roles to the players randomly.
