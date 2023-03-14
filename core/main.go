@@ -1,15 +1,16 @@
 package main
 
 import (
-	"context"
-	"fmt"
-	"uwwolf/redis"
+	"time"
+	"uwwolf/game"
+	"uwwolf/game/types"
+	"uwwolf/game/vars"
 	"uwwolf/util"
+
+	_ "github.com/lib/pq"
 )
 
 func main() {
-	// grpc.Start()
-
 	// fmt.Println(validator.ValidateStruct(types.GameSetting{
 	// 	TurnDuration:       50,
 	// 	DiscussionDuration: 90,
@@ -25,10 +26,68 @@ func main() {
 	// }))
 
 	util.LoadConfig(".")
-	// db.ConnectDB()
-	c := redis.ConnectRedis()
+	// redis.ConnectRedis()
 
-	fmt.Println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
-	c.Set(context.Background(), "aaaa", 2, -1)
-	fmt.Println(c.Get(context.Background(), "aaaa").Val())
+	// dbi, err := sql.Open("postgres", "postgres://ww_username:ww_password@postgres/ww_db?sslmode=disable")
+	// if err != nil {
+	// 	panic(err)
+	// }
+
+	m := game.NewModerator(&game.ModeratorInit{
+		Scheduler:          game.NewScheduler(vars.NightPhaseID),
+		TurnDuration:       5 * time.Second,
+		DiscussionDuration: 10 * time.Second,
+	})
+
+	m.InitGame(types.CreateGameRequest{
+		RoleIDs:          []types.RoleID{},
+		NumberWerewolves: 1,
+		PlayerIDs: []types.PlayerID{
+			"1",
+			"2",
+			"3",
+			"4",
+			"5",
+		},
+	})
+	m.StartGame()
+
+	time.Sleep(3 * time.Second)
+
+	m.RequestPlay("1", &types.ActivateAbilityRequest{
+		TargetID: "2",
+	})
+	m.RequestPlay("2", &types.ActivateAbilityRequest{
+		TargetID: "1",
+	})
+	m.RequestPlay("3", &types.ActivateAbilityRequest{
+		TargetID: "4",
+	})
+	m.RequestPlay("4", &types.ActivateAbilityRequest{
+		TargetID: "5",
+	})
+	m.RequestPlay("5", &types.ActivateAbilityRequest{
+		TargetID: "3",
+	})
+
+	time.Sleep(8 * time.Second)
+	m.RequestPlay("1", &types.ActivateAbilityRequest{
+		TargetID: "2",
+	})
+	m.RequestPlay("2", &types.ActivateAbilityRequest{
+		TargetID: "1",
+	})
+	m.RequestPlay("3", &types.ActivateAbilityRequest{
+		TargetID: "4",
+	})
+	m.RequestPlay("4", &types.ActivateAbilityRequest{
+		TargetID: "5",
+	})
+	m.RequestPlay("5", &types.ActivateAbilityRequest{
+		TargetID: "3",
+	})
+
+	m.FinishGame()
+
+	time.Sleep(1 * time.Hour)
 }

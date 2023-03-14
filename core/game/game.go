@@ -176,7 +176,6 @@ func (g *game) selectRoleIDs() {
 		g.selectedRoleIDs = append(g.selectedRoleIDs, vars.WerewolfRoleID)
 		werewolfCounter++
 	}
-
 }
 
 // assignRoles assigns the selected roles to the players randomly.

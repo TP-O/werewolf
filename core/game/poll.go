@@ -71,6 +71,10 @@ func (p poll) CanVote(electorID types.PlayerID) (bool, error) {
 
 // Record returns the record of given round ID.
 func (p poll) Record(roundID types.RoundID) *types.PollRecord {
+	if roundID.IsZero() {
+		return p.Record(p.RoundID)
+	}
+
 	return p.Records[roundID]
 }
 

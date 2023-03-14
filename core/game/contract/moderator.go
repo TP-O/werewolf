@@ -2,8 +2,8 @@ package contract
 
 import "uwwolf/game/types"
 
-// Gamemaster controlls a game.
-type Gamemaster interface {
+// Moderator controlls a game.
+type Moderator interface {
 	// InitGame creates a new idle game instance.
 	InitGame(newGame types.CreateGameRequest) bool
 
@@ -14,5 +14,5 @@ type Gamemaster interface {
 	FinishGame() bool
 
 	// ReceivePlayRequest receives ability request from the player.
-	ReceivePlayRequest(playerID types.PlayerID, req types.ActivateAbilityRequest) types.ActionResponse
+	RequestPlay(playerID types.PlayerID, req *types.ActivateAbilityRequest) *types.ActionResponse
 }

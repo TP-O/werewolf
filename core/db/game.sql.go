@@ -19,26 +19,26 @@ INSERT INTO role_assignments (
     faction_id,
     player_id
 ) VALUES (
-    unnest($1::text[]),
-    unnest($2::text[]),
-    unnest($3::text[]),
-    unnest($4::text[])
+    unnest($1::bigint[]),
+    unnest($2::smallint[]),
+    unnest($3::smallint[]),
+    unnest($4::varchar[])
 )
 `
 
 type AssignGameRolesParams struct {
-	GameIds    []string `json:"game_ids"`
-	RoleIds    []string `json:"role_ids"`
-	FactionIds []string `json:"faction_ids"`
-	PlayerIds  []string `json:"player_ids"`
+	GameID    []int64  `json:"game_id"`
+	RoleID    []int16  `json:"role_id"`
+	FactionID []int16  `json:"faction_id"`
+	PlayerID  []string `json:"player_id"`
 }
 
 func (q *Queries) AssignGameRoles(ctx context.Context, arg AssignGameRolesParams) error {
-	_, err := q.exec(ctx, q.assignGameRolesStmt, assignGameRoles,
-		pq.Array(arg.GameIds),
-		pq.Array(arg.RoleIds),
-		pq.Array(arg.FactionIds),
-		pq.Array(arg.PlayerIds),
+	_, err := q.db.ExecContext(ctx, assignGameRoles,
+		pq.Array(arg.GameID),
+		pq.Array(arg.RoleID),
+		pq.Array(arg.FactionID),
+		pq.Array(arg.PlayerID),
 	)
 	return err
 }
@@ -49,7 +49,7 @@ RETURNING id, winning_faction_id, created_at, finished_at
 `
 
 func (q *Queries) CreateGame(ctx context.Context) (Game, error) {
-	row := q.queryRow(ctx, q.createGameStmt, createGame)
+	row := q.db.QueryRowContext(ctx, createGame)
 	var i Game
 	err := row.Scan(
 		&i.ID,
@@ -69,32 +69,32 @@ INSERT INTO game_logs (
     action_id,
     target_id
 ) VALUES (
-    unnest($1::text[]),
-    unnest($2::text[]),
-    unnest($3::text[]),
-    unnest($4::text[]),
-    unnest($5::text[]),
-    unnest($6::text[])
+    unnest($1::bigint[]),
+    unnest($2::smallint[]),
+    unnest($3::varchar[]),
+    unnest($4::smallint[]),
+    unnest($5::smallint[]),
+    unnest($6::varchar[])
 )
 `
 
 type CreateGameLogsParams struct {
-	GameIds   []string `json:"game_ids"`
-	RoundIds  []string `json:"round_ids"`
-	ActorIds  []string `json:"actor_ids"`
-	RoleIds   []string `json:"role_ids"`
-	ActionIds []string `json:"action_ids"`
-	TargetIds []string `json:"target_ids"`
+	GameID   []int64  `json:"game_id"`
+	RoundID  []int16  `json:"round_id"`
+	ActorID  []string `json:"actor_id"`
+	RoleID   []int16  `json:"role_id"`
+	ActionID []int16  `json:"action_id"`
+	TargetID []string `json:"target_id"`
 }
 
 func (q *Queries) CreateGameLogs(ctx context.Context, arg CreateGameLogsParams) error {
-	_, err := q.exec(ctx, q.createGameLogsStmt, createGameLogs,
-		pq.Array(arg.GameIds),
-		pq.Array(arg.RoundIds),
-		pq.Array(arg.ActorIds),
-		pq.Array(arg.RoleIds),
-		pq.Array(arg.ActionIds),
-		pq.Array(arg.TargetIds),
+	_, err := q.db.ExecContext(ctx, createGameLogs,
+		pq.Array(arg.GameID),
+		pq.Array(arg.RoundID),
+		pq.Array(arg.ActorID),
+		pq.Array(arg.RoleID),
+		pq.Array(arg.ActionID),
+		pq.Array(arg.TargetID),
 	)
 	return err
 }
@@ -112,6 +112,6 @@ type FinishGameParams struct {
 }
 
 func (q *Queries) FinishGame(ctx context.Context, arg FinishGameParams) error {
-	_, err := q.exec(ctx, q.finishGameStmt, finishGame, arg.ID, arg.WinningFactionID)
+	_, err := q.db.ExecContext(ctx, finishGame, arg.ID, arg.WinningFactionID)
 	return err
 }
