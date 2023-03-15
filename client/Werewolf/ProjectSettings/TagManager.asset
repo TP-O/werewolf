@@ -3,7 +3,8 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Bullet
   layers:
   - Default
   - TransparentFX
@@ -49,4 +50,10 @@ TagManager:
     locked: 0
   - name: UI
     uniqueID: 3095002295
+    locked: 0
+  - name: Gun
+    uniqueID: 3338470175
+    locked: 0
+  - name: Top_Tree
+    uniqueID: 2853092225
     locked: 0
