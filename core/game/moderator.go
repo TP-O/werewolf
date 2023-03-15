@@ -65,6 +65,9 @@ func (m *moderator) InitGame(req types.CreateGameRequest) bool {
 }
 
 func (m *moderator) checkWinConditions() {
+	m.mutex.Lock()
+	defer m.mutex.Unlock()
+
 	if len(m.game.AlivePlayerIDsWithFactionID(vars.WerewolfFactionID)) == 0 {
 		m.winningFaction = vars.VillagerFactionID
 	} else if len(m.game.AlivePlayerIDsWithFactionID(vars.WerewolfFactionID)) >=
@@ -79,10 +82,9 @@ func (m *moderator) checkWinConditions() {
 
 func (m *moderator) runScheduler() {
 	for m.game.StatusID() == vars.Starting {
-		// Renew played player list
+		m.mutex.Lock()
 		m.playedPlayerID = make([]types.PlayerID, 0)
 		m.scheduler.NextTurn()
-		// m.mutex.Unlock()
 
 		func() {
 			var duration time.Duration
@@ -115,19 +117,17 @@ func (m *moderator) runScheduler() {
 
 			// Notify new turn is started and its duration
 			fmt.Println("New turn!!!")
+			m.mutex.Unlock()
 
 			ctx, cancel := context.WithTimeout(context.Background(), duration)
 			defer cancel()
 
 			select {
 			case <-m.nextTurnSignal:
-				// m.mutex.Lock()
 				m.checkWinConditions()
 			case <-ctx.Done():
-				// m.mutex.Lock()
 				m.checkWinConditions()
 			case <-m.finishSignal:
-				// m.mutex.Lock()
 				m.FinishGame()
 			}
 		}()
@@ -170,6 +170,9 @@ func (m *moderator) StartGame() bool {
 }
 
 func (m *moderator) FinishGame() bool {
+	m.mutex.Lock()
+	defer m.mutex.Unlock()
+
 	if m.game.StatusID() == vars.Finished {
 		return false
 	}
@@ -189,13 +192,13 @@ func (m *moderator) RequestPlay(
 	playerID types.PlayerID,
 	req *types.ActivateAbilityRequest,
 ) *types.ActionResponse {
-	// if !m.mutex.TryLock() {
-	// 	return &types.ActionResponse{
-	// 		Ok:      false,
-	// 		Message: "Turn is over!",
-	// 	}
-	// }
-	// defer m.mutex.Unlock()
+	if !m.mutex.TryLock() {
+		return &types.ActionResponse{
+			Ok:      false,
+			Message: "Turn is over!",
+		}
+	}
+	defer m.mutex.Unlock()
 
 	if slices.Contains(m.playedPlayerID, playerID) {
 		return &types.ActionResponse{
