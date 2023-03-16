@@ -198,7 +198,8 @@ func (g *game) assignRoles() {
 		}
 
 		// Assign default werewolf faction's role
-		if selectedRole.FactionID() == vars.WerewolfFactionID {
+		if selectedRole.FactionID() == vars.WerewolfFactionID &&
+			selectedRole.ID() != vars.WerewolfRoleID {
 			player.AssignRole(vars.WerewolfRoleID)
 		}
 

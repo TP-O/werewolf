@@ -12,6 +12,7 @@ type Poll interface {
 	CanVote(electorID types.PlayerID) (bool, error)
 
 	// Record returns the record of given round ID.
+	// Retun latest round record if `roundID` is 0.
 	Record(roundID types.RoundID) *types.PollRecord
 
 	// Open starts a new poll round if the current one was closed.

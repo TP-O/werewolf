@@ -77,7 +77,7 @@ func loadDefaultConfig() {
 	viper.SetDefault("game", map[string]interface{}{
 		"min_capacity":            5,
 		"max_capacicty":           20,
-		"preparation_time":        10,
+		"preparation_time":        "10s",
 		"min_turn_duration":       "20s",
 		"max_turn_duration":       "60s",
 		"min_discussion_duration": "60s",

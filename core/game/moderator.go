@@ -14,9 +14,13 @@ import (
 )
 
 type ModeratorInit struct {
-	GameID             types.GameID
-	Scheduler          contract.Scheduler
-	TurnDuration       time.Duration
+	GameID    types.GameID
+	Scheduler contract.Scheduler
+
+	// TurnDuration is the duration of a turn.
+	TurnDuration time.Duration
+
+	// DiscussionDuration is the duration of the villager discussion.
 	DiscussionDuration time.Duration
 }
 
@@ -46,7 +50,7 @@ func NewModerator(init *ModeratorInit) contract.Moderator {
 	}
 }
 
-func (m *moderator) InitGame(req types.CreateGameRequest) bool {
+func (m *moderator) InitGame(setting *types.GameSetting) bool {
 	if m.game != nil {
 		return false
 	}
@@ -54,29 +58,32 @@ func (m *moderator) InitGame(req types.CreateGameRequest) bool {
 	// if game, err := m.db.CreateGame(context.Background()); err != nil {
 	// 	return false
 	// } else {
-	m.game = NewGame(m.scheduler, &types.GameSetting{
-		RoleIDs:          req.RoleIDs,
-		RequiredRoleIDs:  req.RequiredRoleIDs,
-		NumberWerewolves: req.NumberWerewolves,
-		PlayerIDs:        req.PlayerIDs,
-	})
+	m.game = NewGame(m.scheduler, setting)
 
 	return true
 }
 
 func (m *moderator) checkWinConditions() {
 	m.mutex.Lock()
-	defer m.mutex.Unlock()
-
 	if len(m.game.AlivePlayerIDsWithFactionID(vars.WerewolfFactionID)) == 0 {
 		m.winningFaction = vars.VillagerFactionID
 	} else if len(m.game.AlivePlayerIDsWithFactionID(vars.WerewolfFactionID)) >=
 		len(m.game.AlivePlayerIDsWithoutFactionID(vars.WerewolfFactionID)) {
 		m.winningFaction = vars.WerewolfFactionID
 	}
+	m.mutex.Unlock()
 
 	if !m.winningFaction.IsUnknown() {
 		m.FinishGame()
+	}
+}
+
+func (m moderator) handlePoll(factionID types.FactionID) {
+	if poll := m.game.Poll(factionID); poll != nil && poll.Close() {
+		if record := poll.Record(vars.ZeroRound); record != nil &&
+			!record.WinnerID.IsUnknown() {
+			m.game.KillPlayer(record.WinnerID, false)
+		}
 	}
 }
 
@@ -94,24 +101,14 @@ func (m *moderator) runScheduler() {
 				duration = m.discussionDuration
 
 				m.game.Poll(vars.VillagerFactionID).Open()
-				defer func() {
-					m.game.Poll(vars.VillagerFactionID).Close()
-					if record := m.game.Poll(vars.VillagerFactionID).Record(vars.ZeroRound); record != nil && !record.WinnerID.IsUnknown() {
-						m.game.KillPlayer(record.WinnerID, false)
-					}
-				}()
+				defer m.handlePoll(vars.VillagerFactionID)
 			} else {
 				duration = m.turnDuration
 
 				if m.scheduler.PhaseID() == vars.NightPhaseID &&
 					m.scheduler.TurnID() == vars.MidTurn {
 					m.game.Poll(vars.WerewolfFactionID).Open()
-					defer func() {
-						m.game.Poll(vars.WerewolfFactionID).Close()
-						if record := m.game.Poll(vars.WerewolfFactionID).Record(vars.ZeroRound); record != nil && !record.WinnerID.IsUnknown() {
-							m.game.KillPlayer(record.WinnerID, false)
-						}
-					}()
+					defer m.handlePoll(vars.WerewolfFactionID)
 				}
 			}
 
@@ -143,7 +140,7 @@ func (m *moderator) waitForPreparation() {
 
 	select {
 	case <-m.finishSignal:
-		m.game.Finish()
+		m.FinishGame()
 	case <-ctx.Done():
 	}
 
@@ -157,14 +154,9 @@ func (m *moderator) StartGame() bool {
 
 	fmt.Println("Starting")
 
-	m.nextTurnSignal = make(chan bool)
-	m.finishSignal = make(chan bool)
 	m.waitForPreparation()
 	m.game.Start()
 	go m.runScheduler()
-
-	fmt.Println(m.game.AlivePlayerIDsWithFactionID(vars.WerewolfFactionID))
-	fmt.Println(m.game.AlivePlayerIDsWithoutFactionID(vars.WerewolfFactionID))
 
 	return true
 }
