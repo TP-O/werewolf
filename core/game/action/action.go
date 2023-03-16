@@ -56,7 +56,7 @@ func (a action) perform(req *types.ActionRequest) *types.ActionResponse {
 }
 
 // execute supports the concrete action to override the `Execute` method easier
-// by declaring a scheme.
+// by declaring a schema.
 func (a action) execute(exec executable, req *types.ActionRequest) *types.ActionResponse {
 	if req == nil {
 		return &types.ActionResponse{

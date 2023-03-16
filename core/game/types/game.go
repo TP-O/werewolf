@@ -44,24 +44,3 @@ type GameSetting struct {
 	// PlayerIDs is player ID list playing the game.
 	PlayerIDs []PlayerID
 }
-
-// CreateGameRequest includes `GameSetting` and time settings.
-type CreateGameRequest struct {
-	// TurnDuration is the duration of a turn.
-	TurnDuration uint16
-
-	// DiscussionDuration is the duration of the villager discussion.
-	DiscussionDuration uint16
-
-	// RoleIDs is role ID list that can be played in the game.
-	RoleIDs []RoleID
-
-	// RequiredRoleIDs is role ID list that must be played in the game.
-	RequiredRoleIDs []RoleID
-
-	// NumberWerewolves is number of werewolves required to exist in the game.
-	NumberWerewolves uint8
-
-	// PlayerIDs is player ID list playing the game.
-	PlayerIDs []PlayerID
-}

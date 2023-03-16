@@ -15,10 +15,10 @@ INSERT INTO role_assignments (
     faction_id,
     player_id
 ) VALUES (
-    unnest(@game_ids::text[]),
-    unnest(@role_ids::text[]),
-    unnest(@faction_ids::text[]),
-    unnest(@player_ids::text[])
+    unnest(@game_id::bigint[]),
+    unnest(@role_id::smallint[]),
+    unnest(@faction_id::smallint[]),
+    unnest(@player_id::varchar[])
 );
 
 -- name: CreateGameLogs :exec
@@ -30,10 +30,10 @@ INSERT INTO game_logs (
     action_id,
     target_id
 ) VALUES (
-    unnest(@game_ids::text[]),
-    unnest(@round_ids::text[]),
-    unnest(@actor_ids::text[]),
-    unnest(@role_ids::text[]),
-    unnest(@action_ids::text[]),
-    unnest(@target_ids::text[])
+    unnest(@game_id::bigint[]),
+    unnest(@round_id::smallint[]),
+    unnest(@actor_id::varchar[]),
+    unnest(@role_id::smallint[]),
+    unnest(@action_id::smallint[]),
+    unnest(@target_id::varchar[])
 );

@@ -181,6 +181,19 @@ func (ps PollSuite) TestRecord() {
 				}
 			},
 		},
+		{
+			name:         "Ok (Latest round)",
+			givenRoundID: vars.ZeroRound,
+			expectedRecord: &types.PollRecord{
+				WinnerID: types.PlayerID("98"),
+			},
+			setup: func(p *poll) {
+				p.RoundID = vars.SecondRound
+				p.Records[p.RoundID] = &types.PollRecord{
+					WinnerID: types.PlayerID("98"),
+				}
+			},
+		},
 	}
 
 	for _, test := range tests {

@@ -230,6 +230,23 @@ func (gs GameSuite) TestSelectRoleID() {
 			expectedWerewolfCounter:    1,
 			expectedNonWerewolfCounter: 2,
 			expectedSelectedRoleIDs:    []types.RoleID{},
+		}, {
+			name: "False (Selected role id list is enough while set isn't fully selected)",
+			setting: &types.GameSetting{
+				NumberWerewolves: 1,
+				PlayerIDs: []types.PlayerID{
+					gs.player1ID,
+					gs.player2ID,
+					gs.player3ID,
+				},
+			},
+			roleID:                     vars.TwoSistersRoleID,
+			expectedStatus:             false,
+			werewolfCounter:            1,
+			nonWerewolfCounter:         1,
+			expectedWerewolfCounter:    1,
+			expectedNonWerewolfCounter: 2,
+			expectedSelectedRoleIDs:    []types.RoleID{vars.TwoSistersRoleID},
 		},
 		{
 			name: "True (Non-Werewolf role)",
@@ -325,11 +342,12 @@ func (gs GameSuite) TestSelectRoleIDs() {
 		for _, roleID := range requiredRoleIDs {
 			gs.Contains(g.(*game).selectedRoleIDs, roleID)
 		}
-		gs.Len(g.(*game).selectedRoleIDs, 2)
+		gs.Len(g.(*game).selectedRoleIDs, 3)
 		gs.False(util.IsDuplicateSlice(g.(*game).selectedRoleIDs))
 		gs.Condition(func() (success bool) {
 			return slices.Contains(g.(*game).selectedRoleIDs, vars.HunterRoleID) ||
-				slices.Contains(g.(*game).selectedRoleIDs, vars.TwoSistersRoleID)
+				slices.Contains(g.(*game).selectedRoleIDs, vars.TwoSistersRoleID) ||
+				slices.Contains(g.(*game).selectedRoleIDs, vars.WerewolfRoleID)
 		})
 	}
 }
@@ -363,7 +381,6 @@ func (gs GameSuite) TestAssignRoles() {
 				g.selectedRoleIDs = []types.RoleID{vars.WerewolfRoleID}
 
 				mp1.EXPECT().AssignRole(vars.VillagerRoleID)
-				mp1.EXPECT().AssignRole(vars.WerewolfRoleID)
 				mp1.EXPECT().AssignRole(vars.WerewolfRoleID)
 			},
 		},
@@ -454,11 +471,12 @@ func (gs GameSuite) TestPrepare() {
 	for _, roleID := range requiredRoleIDs {
 		gs.Contains(g.(*game).selectedRoleIDs, roleID)
 	}
-	gs.Len(g.(*game).selectedRoleIDs, 2)
+	gs.Len(g.(*game).selectedRoleIDs, 3)
 	gs.False(util.IsDuplicateSlice(g.(*game).selectedRoleIDs))
 	gs.Condition(func() (success bool) {
 		return slices.Contains(g.(*game).selectedRoleIDs, vars.HunterRoleID) ||
-			slices.Contains(g.(*game).selectedRoleIDs, vars.TwoSistersRoleID)
+			slices.Contains(g.(*game).selectedRoleIDs, vars.TwoSistersRoleID) ||
+			slices.Contains(g.(*game).selectedRoleIDs, vars.WerewolfRoleID)
 	})
 }
 

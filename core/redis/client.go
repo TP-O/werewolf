@@ -11,6 +11,10 @@ import (
 
 var client *redis.ClusterClient
 
+func Client() *redis.ClusterClient {
+	return client
+}
+
 func ConnectRedis() *redis.ClusterClient {
 	if client != nil {
 		return client
