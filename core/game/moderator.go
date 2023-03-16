@@ -50,6 +50,7 @@ func NewModerator(init *ModeratorInit) contract.Moderator {
 	}
 }
 
+// InitGame creates a new idle game instance.
 func (m *moderator) InitGame(setting *types.GameSetting) bool {
 	if m.game != nil {
 		return false
@@ -63,12 +64,16 @@ func (m *moderator) InitGame(setting *types.GameSetting) bool {
 	return true
 }
 
+// checkWinConditions checks if any faction satisfies its win condition,
+// if any, finish the game.
 func (m *moderator) checkWinConditions() {
 	m.mutex.Lock()
 	if len(m.game.AlivePlayerIDsWithFactionID(vars.WerewolfFactionID)) == 0 {
+		// Villager wins if all werewolves are dead
 		m.winningFaction = vars.VillagerFactionID
 	} else if len(m.game.AlivePlayerIDsWithFactionID(vars.WerewolfFactionID)) >=
 		len(m.game.AlivePlayerIDsWithoutFactionID(vars.WerewolfFactionID)) {
+		// Werewolf wins if the number is overwhelming or equal to villager
 		m.winningFaction = vars.WerewolfFactionID
 	}
 	m.mutex.Unlock()
@@ -78,6 +83,7 @@ func (m *moderator) checkWinConditions() {
 	}
 }
 
+// handlePoll handles poll result of each faction.
 func (m moderator) handlePoll(factionID types.FactionID) {
 	if poll := m.game.Poll(factionID); poll != nil && poll.Close() {
 		if record := poll.Record(vars.ZeroRound); record != nil &&
@@ -87,6 +93,7 @@ func (m moderator) handlePoll(factionID types.FactionID) {
 	}
 }
 
+// runScheduler switches turns automatically.
 func (m *moderator) runScheduler() {
 	for m.game.StatusID() == vars.Starting {
 		m.mutex.Lock()
@@ -131,6 +138,7 @@ func (m *moderator) runScheduler() {
 	}
 }
 
+// waitForPreparation waits a bit before the game starts.
 func (m *moderator) waitForPreparation() {
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
@@ -147,6 +155,7 @@ func (m *moderator) waitForPreparation() {
 	fmt.Println("Preparation is done")
 }
 
+// StartGame starts the game.
 func (m *moderator) StartGame() bool {
 	if m.game.StatusID() != vars.Idle || m.game.Prepare() == -1 {
 		return false
@@ -161,6 +170,7 @@ func (m *moderator) StartGame() bool {
 	return true
 }
 
+// FinishGame ends the game.
 func (m *moderator) FinishGame() bool {
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
@@ -180,6 +190,7 @@ func (m *moderator) FinishGame() bool {
 	return true
 }
 
+// RequestPlay receives the play request from the player.
 func (m *moderator) RequestPlay(
 	playerID types.PlayerID,
 	req *types.ActivateAbilityRequest,

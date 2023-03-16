@@ -11,14 +11,30 @@ import (
 )
 
 type game struct {
+	// numberWerewolves is required number of players belongs to
+	// the werewolf faction.
 	numberWerewolves uint8
-	statusID         types.GameStatusID
-	scheduler        contract.Scheduler
-	roleIDs          []types.RoleID
-	requiredRoleIDs  []types.RoleID
-	selectedRoleIDs  []types.RoleID
-	players          map[types.PlayerID]contract.Player
-	polls            map[types.FactionID]contract.Poll
+
+	// statusID is the current game status ID.
+	statusID types.GameStatusID
+
+	// scheduler is turn manager.
+	scheduler contract.Scheduler
+
+	// roleIDs is the possible role IDs in the game.
+	roleIDs []types.RoleID
+
+	// requiredRoleIDs is the required role IDs in the game.
+	requiredRoleIDs []types.RoleID
+
+	// selectRoleIDs is the selected role IDs from `roleIDs` and `requiredRoleIDs`.
+	selectedRoleIDs []types.RoleID
+
+	// players contains all players playing the game.
+	players map[types.PlayerID]contract.Player
+
+	// polls contains the polls of villager and werewolf factions.
+	polls map[types.FactionID]contract.Poll
 }
 
 func NewGame(scheduler contract.Scheduler, setting *types.GameSetting) contract.Game {

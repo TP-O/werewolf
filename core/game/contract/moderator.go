@@ -7,12 +7,12 @@ type Moderator interface {
 	// InitGame creates a new idle game instance.
 	InitGame(newGame *types.GameSetting) bool
 
-	// StartGame starts the owned game.
+	// StartGame starts the game.
 	StartGame() bool
 
-	// FinishGame finishes the owned game.
+	// FinishGame ends the game.
 	FinishGame() bool
 
-	// ReceivePlayRequest receives ability request from the player.
+	// RequestPlay receives the play request from the player.
 	RequestPlay(playerID types.PlayerID, req *types.ActivateAbilityRequest) *types.ActionResponse
 }
