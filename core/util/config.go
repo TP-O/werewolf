@@ -99,5 +99,9 @@ func LoadConfig(path string) {
 
 	cfg = &config{}
 	loadDefaultConfig()
+	if err := viper.Unmarshal(cfg); err != nil {
+		panic(err)
+	}
+
 	viper.Unmarshal(cfg)
 }

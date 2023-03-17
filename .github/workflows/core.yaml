@@ -6,13 +6,66 @@ on:
       - main
     paths:
       - core/**
+      - '!core/.vscode/**'
+      - '!core/docs/**'
+      - '!core/.docker/**'
+      - '!core/.editorconfig'
+      - '!core/.gitignore'
+      - '!core/**.md'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - core/**
+      - '!core/.vscode/**'
+      - '!core/docs/**'
+      - '!core/.docker/**'
+      - '!core/.editorconfig'
+      - '!core/.gitignore'
+      - '!core/**.md'
 
 jobs:
+  lint:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      
+      - uses: actions/setup-go@v4
+        with:
+          go-version: '^1.18.0'
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: latest
+          working-directory: core
+          args: --tests=false
+          skip-pkg-cache: false
+
   test:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      
+      - uses: actions/setup-go@v4
+        with:
+          go-version: '^1.18.0'
+
+      - name: Get golang store directory
+        id: go-pkg-cache
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(go env GOPATH)" >> $GITHUB_OUTPUT
+
+      - name: Setup pkg cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.go-pkg-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-go-pkg-${{ hashFiles('core/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-pkg-
 
       - name: Install packages
         working-directory: core
@@ -20,14 +73,17 @@ jobs:
 
       - name: Create cofig
         working-directory: core
-        run: cp config.example.yml config.yml
+        run: cp config.example.yaml config.yaml
 
       - name: Run test
         working-directory: core
         run: go test ./...
 
   build:
+    if: github.event_name == 'push'
+
     needs:
+      - lint
       - test
     runs-on: ubuntu-22.04
     steps:
@@ -76,3 +132,5 @@ jobs:
           push: true
           context: ./core
           tags: ${{ steps.tags.outputs.TAGS }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
