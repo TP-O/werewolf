@@ -5,6 +5,7 @@ on:
     branches:
       - main
     paths:
+      - .github/workflows/core.yml
       - core/**
       - '!core/.vscode/**'
       - '!core/docs/**'
@@ -16,6 +17,7 @@ on:
     branches:
       - main
     paths:
+      - .github/workflows/core.yml
       - core/**
       - '!core/.vscode/**'
       - '!core/docs/**'
