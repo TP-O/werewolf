@@ -77,7 +77,7 @@ jobs:
 
       - name: Run test
         working-directory: core
-        run: go test ./...
+        run: go test ./... -cover
 
   build:
     if: github.event_name == 'push'
