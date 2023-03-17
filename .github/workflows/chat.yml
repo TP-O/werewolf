@@ -5,10 +5,99 @@ on:
     branches:
       - main
     paths:
+      - .github/workflows/chat.yml
       - chat/**
+      - '!chat/.vscode/**'
+      - '!chat/docs/**'
+      - '!chat/.editorconfig'
+      - '!chat/.gitignore'
+      - '!chat/**.md'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/chat.yml
+      - core/**
+      - '!chat/.vscode/**'
+      - '!chat/docs/**'
+      - '!chat/.editorconfig'
+      - '!chat/.gitignore'
+      - '!chat/**.md'
 
 jobs:
-  test:
+  lint:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Use pNPM
+        uses: pnpm/action-setup@v2
+        with:
+          version: 7
+          run_install: false
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        working-directory: chat
+        run: pnpm i
+
+      - name: Lint
+        working-directory: chat
+        run: pnpm lint
+
+  unit-test:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Use pNPM
+        uses: pnpm/action-setup@v2
+        with:
+          version: 7
+          run_install: false
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        working-directory: chat
+        run: pnpm i
+
+      - name: Create cofig
+        working-directory: chat
+        run: cp .env.example .env
+
+      - name: Run test
+        working-directory: chat
+        run: pnpm test:e2e
+
+  e2e-test:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
@@ -47,8 +136,12 @@ jobs:
         run: pnpm test
 
   build:
+    if: github.event_name == 'push'
+
     needs:
-      - test
+      - lint
+      - unit-test
+      - e2e-test
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
@@ -96,3 +189,5 @@ jobs:
           push: true
           context: ./chat
           tags: ${{ steps.tags.outputs.TAGS }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
