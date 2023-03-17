@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"uwwolf/util"
 
 	_ "github.com/lib/pq"
@@ -87,10 +86,4 @@ func main() {
 	// m.FinishGame()
 
 	// time.Sleep(1 * time.Hour)
-
-	a := make(chan int)
-	close(a)
-	_, ok := <-a
-
-	fmt.Println(ok)
 }

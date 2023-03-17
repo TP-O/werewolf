@@ -1,10 +1,6 @@
 package main
 
-import (
-	"github.com/gocql/gocql"
-)
-
-type seeder = func(*gocql.Session) error
+// type seeder = func(*gocql.Session) error
 
 func main() {
 	// client := db.Client()
