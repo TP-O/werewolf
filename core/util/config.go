@@ -18,7 +18,7 @@ type dbConfig struct {
 	Port     uint16 `mapstructure:"port"`
 	Username string `mapstructure:"username"`
 	Password string `mapstructure:"password"`
-	database string `mapstructure:"database"`
+	Database string `mapstructure:"database"`
 }
 
 type redisConfig struct {
@@ -99,5 +99,7 @@ func LoadConfig(path string) {
 
 	cfg = &config{}
 	loadDefaultConfig()
-	viper.Unmarshal(cfg)
+	if err := viper.Unmarshal(cfg); err != nil {
+		panic(err)
+	}
 }

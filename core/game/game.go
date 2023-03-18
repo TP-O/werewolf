@@ -206,7 +206,7 @@ func (g *game) assignRoles() {
 		}
 
 		// Assign default role
-		player.AssignRole(vars.VillagerRoleID)
+		player.AssignRole(vars.VillagerRoleID) // nolint: errcheck
 
 		selectedRole, _ := NewRole(selectedRoleID, g, player.ID())
 		if selectedRole == nil {
@@ -216,11 +216,11 @@ func (g *game) assignRoles() {
 		// Assign default werewolf faction's role
 		if selectedRole.FactionID() == vars.WerewolfFactionID &&
 			selectedRole.ID() != vars.WerewolfRoleID {
-			player.AssignRole(vars.WerewolfRoleID)
+			player.AssignRole(vars.WerewolfRoleID) // nolint: errcheck
 		}
 
 		// Assign main role
-		player.AssignRole(selectedRole.ID())
+		player.AssignRole(selectedRole.ID()) // nolint: errcheck
 	}
 }
 

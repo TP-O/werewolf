@@ -85,33 +85,63 @@ func (vs VoteSuite) TestNewVote() {
 }
 
 func (vs VoteSuite) TestSkip() {
-	ctrl := gomock.NewController(vs.T())
-	defer ctrl.Finish()
-	game := mock_game.NewMockGame(ctrl)
-	poll := mock_game.NewMockPoll(ctrl)
+	tests := []struct {
+		name        string
+		expectedRes *types.ActionResponse
+		setup       func(*mock_game.MockPoll)
+	}{
 
-	game.EXPECT().Poll(vs.factionID).Return(poll).Times(2)
-	poll.EXPECT().AddElectors(vs.actorID)
-	poll.EXPECT().SetWeight(vs.actorID, vs.weight).Return(true)
-	poll.EXPECT().Vote(vs.actorID, types.PlayerID(""))
-
-	expectedRes := &types.ActionResponse{
-		Ok:        true,
-		IsSkipped: true,
-		Message:   "Skipped!",
+		{
+			name: "Failure (Skip failed)",
+			expectedRes: &types.ActionResponse{
+				Ok:      false,
+				Message: "CANT_VOTE error",
+			},
+			setup: func(mp *mock_game.MockPoll) {
+				mp.EXPECT().Vote(vs.actorID, types.PlayerID("")).
+					Return(false, fmt.Errorf("CANT_VOTE error"))
+			},
+		},
+		{
+			name: "Ok",
+			expectedRes: &types.ActionResponse{
+				Ok:        true,
+				IsSkipped: true,
+				Message:   "Skipped!",
+			},
+			setup: func(mp *mock_game.MockPoll) {
+				mp.EXPECT().Vote(vs.actorID, types.PlayerID("")).
+					Return(true, nil)
+			},
+		},
 	}
 
-	v, _ := NewVote(game, &VoteActionSetting{
-		FactionID: vs.factionID,
-		PlayerID:  vs.actorID,
-		Weight:    vs.weight,
-	})
-	res := v.(*vote).skip(&types.ActionRequest{
-		ActorID:   vs.actorID,
-		IsSkipped: true,
-	})
+	for _, test := range tests {
+		vs.Run(test.name, func() {
+			ctrl := gomock.NewController(vs.T())
+			defer ctrl.Finish()
+			game := mock_game.NewMockGame(ctrl)
+			poll := mock_game.NewMockPoll(ctrl)
 
-	vs.Equal(expectedRes, res)
+			game.EXPECT().Poll(vs.factionID).Return(poll).Times(2)
+			poll.EXPECT().AddElectors(vs.actorID)
+			poll.EXPECT().SetWeight(vs.actorID, vs.weight).Return(true)
+
+			v, _ := NewVote(game, &VoteActionSetting{
+				FactionID: vs.factionID,
+				PlayerID:  vs.actorID,
+				Weight:    vs.weight,
+			})
+			test.setup(poll)
+
+			res := v.(*vote).skip(&types.ActionRequest{
+				ActorID:   vs.actorID,
+				IsSkipped: true,
+			})
+
+			vs.Equal(test.expectedRes, res)
+		})
+	}
 }
 
 func (vs VoteSuite) TestPerform() {

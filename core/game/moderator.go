@@ -107,14 +107,14 @@ func (m *moderator) runScheduler() {
 				m.scheduler.TurnID() == vars.MidTurn {
 				duration = m.discussionDuration
 
-				m.game.Poll(vars.VillagerFactionID).Open()
+				m.game.Poll(vars.VillagerFactionID).Open() // nolint: errcheck
 				defer m.handlePoll(vars.VillagerFactionID)
 			} else {
 				duration = m.turnDuration
 
 				if m.scheduler.PhaseID() == vars.NightPhaseID &&
 					m.scheduler.TurnID() == vars.MidTurn {
-					m.game.Poll(vars.WerewolfFactionID).Open()
+					m.game.Poll(vars.WerewolfFactionID).Open() // nolint: errcheck
 					defer m.handlePoll(vars.WerewolfFactionID)
 				}
 			}
