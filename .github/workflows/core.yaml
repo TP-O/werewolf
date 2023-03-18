@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - production
     paths:
       - .github/workflows/core.yml
       - core/**
