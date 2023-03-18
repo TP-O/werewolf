@@ -95,7 +95,7 @@ jobs:
 
       - name: Run test
         working-directory: chat
-        run: pnpm test:e2e
+        run: pnpm test
 
   e2e-test:
     runs-on: ubuntu-22.04
@@ -133,10 +133,10 @@ jobs:
 
       - name: Run test
         working-directory: chat
-        run: pnpm test
+        run: pnpm test:e2e
 
   build:
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && contains(github.event.head_commit.message, '[skip build]') == false
 
     needs:
       - lint
@@ -173,17 +173,17 @@ jobs:
 
             refs/heads/production)
               echo "TAGS=\
-              ghcr.io/${{ github.repository }}-chat:staging-latest, \
-              ghcr.io/${{ github.repository }}-chat:staging-${{ github.sha }}" >> $GITHUB_OUTPUT
+              ghcr.io/${{ github.repository }}-chat:latest, \
+              ghcr.io/${{ github.repository }}-chat:${{ github.sha }}" >> $GITHUB_OUTPUT
               ;;
 
             *)
-              echo "This branch can't be built"
+              echo "This branch can't be built";
+              exit 1;
               ;;
           esac
 
       - name: Build and push
-        if: steps.tags.outputs.TAGS != ''
         uses: docker/build-push-action@v4
         with:
           push: true

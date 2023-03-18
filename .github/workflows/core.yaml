@@ -82,7 +82,7 @@ jobs:
         run: go test ./... -cover
 
   build:
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && contains(github.event.head_commit.message, '[skip build]') == false
 
     needs:
       - lint
@@ -118,17 +118,17 @@ jobs:
 
             refs/heads/production)
               echo "TAGS=\
-              ghcr.io/${{ github.repository }}-core:staging-latest, \
-              ghcr.io/${{ github.repository }}-core:staging-${{ github.sha }}" >> $GITHUB_OUTPUT
+              ghcr.io/${{ github.repository }}-core:latest, \
+              ghcr.io/${{ github.repository }}-core:${{ github.sha }}" >> $GITHUB_OUTPUT
               ;;
 
             *)
-              echo "This branch can't be built"
+              echo "This branch can't be built";
+              exit 1;
               ;;
           esac
 
       - name: Build and push
-        if: steps.tags.outputs.TAGS != ''
         uses: docker/build-push-action@v4
         with:
           push: true
