@@ -5,23 +5,49 @@ on:
   push:
     branches:
       - main
+      - production
     paths:
       - client/**
+      - '!client/.vsconfig'
+  pull_request:
+    paths: 
+      - client/**
+      - '!client/.vsconfig'
+
+env:
+  ITCH_USERNAME: tp-o
+  ITCH_STAGING_GAME_ID: staging-werewolf
+  ITCH_GAME_ID: werewolf
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - uses: game-ci/unity-test-runner@v2
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        with:
+          projectPath: client
+
+  build:
+    if: github.event_name == 'push' && contains(github.event.head_commit.message, '[skip build]') == false
+
+    runs-on: ubuntu-22.04
+    needs:
+      - test
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
       - uses: actions/cache@v2
         with:
-          path: client/Werewolf/Library
-          key: Library-MyProjectName-TargetPlatform
+          path: client/Library
+          key: ${{ runner.os }}-unity-lib-client
           restore-keys: |
-            Library-MyProjectName-
-            Library-
+            ${{ runner.os }}-unity-lib-
 
       - uses: game-ci/unity-builder@v2
         env:
@@ -30,11 +56,47 @@ jobs:
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
           targetPlatform: WebGL
-          projectPath: client/Werewolf
-          customParameters: -WebGLCompressionFormat Disabled
+          projectPath: client
 
       - uses: actions/upload-artifact@v2
         with:
           name: Build
           path: build
 
+  publish:
+    runs-on: ubuntu-22.04
+    needs:
+       - build
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: Build
+          path: build
+
+      - name: Create game ID
+        id: game-id
+        run: |
+          case ${{ github.ref }} in
+
+            refs/heads/main)
+              echo "ID=$ITCH_STAGING_GAME_ID" >> $GITHUB_OUTPUT
+              ;;
+
+            refs/heads/production)
+              echo "ID=$ITCH_GAME_ID" >> $GITHUB_OUTPUT
+              ;;
+
+            *)
+              echo "This branch can't be published";
+              exit 1;
+              ;;
+          esac
+
+      - name: Publish
+        uses: KikimoraGames/itch-publish@v0.0.3
+        with:
+          butlerApiKey: ${{secrets.BUTLER_API_KEY}}
+          gameData: build
+          itchUsername: ${{ env.ITCH_USERNAME }}
+          itchGameId: ${{ steps.game-id.outputs.ID }}
+          buildChannel: webgl
