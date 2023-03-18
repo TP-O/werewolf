@@ -27,6 +27,9 @@ on:
       - '!core/.gitignore'
       - '!core/**.md'
 
+env:
+  WORKDIR: core
+
 jobs:
   lint:
     runs-on: ubuntu-22.04
@@ -42,9 +45,19 @@ jobs:
         uses: golangci/golangci-lint-action@v3
         with:
           version: latest
-          working-directory: core
+          working-directory: ${{ env.WORKDIR }}
           args: --tests=false
           skip-pkg-cache: false
+
+  lint-dockerfile:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        
+      - uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: ${{ env.WORKDIR }}/Dockerfile
 
   test:
     runs-on: ubuntu-22.04
@@ -66,20 +79,20 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${{ steps.go-pkg-cache.outputs.STORE_PATH }}
-          key: ${{ runner.os }}-go-pkg-${{ hashFiles('core/go.sum') }}
+          key: ${{ runner.os }}-go-pkg-${{ hashFiles('${{ env.WORKDIR }}/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-pkg-
 
       - name: Install packages
-        working-directory: core
+        working-directory: ${{ env.WORKDIR }}
         run: go mod download
 
       - name: Create cofig
-        working-directory: core
+        working-directory: ${{ env.WORKDIR }}
         run: cp config.example.yaml config.yaml
 
       - name: Run test
-        working-directory: core
+        working-directory: ${{ env.WORKDIR }}
         run: go test ./... -cover
 
   build:
@@ -87,6 +100,7 @@ jobs:
 
     needs:
       - lint
+      - lint-dockerfile
       - test
     runs-on: ubuntu-22.04
     steps:
@@ -113,14 +127,14 @@ jobs:
 
             refs/heads/main)
               echo "TAGS=\
-              ghcr.io/${{ github.repository }}-core:staging-latest, \
-              ghcr.io/${{ github.repository }}-core:staging-${{ github.sha }}" >> $GITHUB_OUTPUT
+              ghcr.io/${{ github.repository }}-$WORKDIR:staging-latest, \
+              ghcr.io/${{ github.repository }}-$WORKDIR:staging-${{ github.sha }}" >> $GITHUB_OUTPUT
               ;;
 
             refs/heads/production)
               echo "TAGS=\
-              ghcr.io/${{ github.repository }}-core:latest, \
-              ghcr.io/${{ github.repository }}-core:${{ github.sha }}" >> $GITHUB_OUTPUT
+              ghcr.io/${{ github.repository }}-$WORKDIR:latest, \
+              ghcr.io/${{ github.repository }}-$WORKDIR:${{ github.sha }}" >> $GITHUB_OUTPUT
               ;;
 
             *)
@@ -133,7 +147,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           push: true
-          context: ./core
+          context: ./${{ env.WORKDIR }}
           tags: ${{ steps.tags.outputs.TAGS }}
           cache-from: type=gha
           cache-to: type=gha,mode=max

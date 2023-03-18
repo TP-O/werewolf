@@ -25,6 +25,9 @@ on:
       - '!chat/.gitignore'
       - '!chat/**.md'
 
+env:
+  WORKDIR: chat
+
 jobs:
   lint:
     runs-on: ubuntu-22.04
@@ -53,12 +56,22 @@ jobs:
             ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies
-        working-directory: chat
+        working-directory: ${{ env.WORKDIR }}
         run: pnpm i
 
       - name: Lint
-        working-directory: chat
+        working-directory: ${{ env.WORKDIR }}
         run: pnpm lint
+
+  lint-dockerfile:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: ${{ env.WORKDIR }}/Dockerfile
 
   unit-test:
     runs-on: ubuntu-22.04
@@ -87,15 +100,15 @@ jobs:
             ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies
-        working-directory: chat
+        working-directory: ${{ env.WORKDIR }}
         run: pnpm i
 
       - name: Create cofig
-        working-directory: chat
+        working-directory: ${{ env.WORKDIR }}
         run: cp .env.example .env
 
       - name: Run test
-        working-directory: chat
+        working-directory: ${{ env.WORKDIR }}
         run: pnpm test
 
   e2e-test:
@@ -125,15 +138,15 @@ jobs:
             ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies
-        working-directory: chat
+        working-directory: ${{ env.WORKDIR }}
         run: pnpm i
 
       - name: Create cofig
-        working-directory: chat
+        working-directory: ${{ env.WORKDIR }}
         run: cp .env.example .env
 
       - name: Run test
-        working-directory: chat
+        working-directory: ${{ env.WORKDIR }}
         run: pnpm test:e2e
 
   build:
@@ -141,6 +154,7 @@ jobs:
 
     needs:
       - lint
+      - lint-dockerfile
       - unit-test
       - e2e-test
     runs-on: ubuntu-22.04
@@ -168,14 +182,14 @@ jobs:
 
             refs/heads/main)
               echo "TAGS=\
-              ghcr.io/${{ github.repository }}-chat:staging-latest, \
-              ghcr.io/${{ github.repository }}-chat:staging-${{ github.sha }}" >> $GITHUB_OUTPUT
+              ghcr.io/${{ github.repository }}-$WORKDIR:staging-latest, \
+              ghcr.io/${{ github.repository }}-$WORKDIR:staging-${{ github.sha }}" >> $GITHUB_OUTPUT
               ;;
 
             refs/heads/production)
               echo "TAGS=\
-              ghcr.io/${{ github.repository }}-chat:latest, \
-              ghcr.io/${{ github.repository }}-chat:${{ github.sha }}" >> $GITHUB_OUTPUT
+              ghcr.io/${{ github.repository }}-$WORKDIR:latest, \
+              ghcr.io/${{ github.repository }}-$WORKDIR:${{ github.sha }}" >> $GITHUB_OUTPUT
               ;;
 
             *)
@@ -188,7 +202,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           push: true
-          context: ./chat
+          context: ./${{ env.WORKDIR }}
           tags: ${{ steps.tags.outputs.TAGS }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
