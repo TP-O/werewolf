@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - development
       - production
     paths:
       - .github/workflows/chat.yml
@@ -18,7 +19,7 @@ on:
       - main
     paths:
       - .github/workflows/chat.yml
-      - core/**
+      - chat/**
       - '!chat/.vscode/**'
       - '!chat/docs/**'
       - '!chat/.editorconfig'
@@ -150,7 +151,9 @@ jobs:
         run: pnpm test:e2e
 
   build:
-    if: github.event_name == 'push' && contains(github.event.head_commit.message, '[skip build]') == false
+    if: |
+      github.event_name == 'push' &&
+      contains(fromJson('["refs/heads/development", "refs/heads/production"]'), github.ref)
 
     needs:
       - lint
@@ -180,7 +183,7 @@ jobs:
         run: |
           case ${{ github.ref }} in
 
-            refs/heads/main)
+            refs/heads/development)
               echo "TAGS=\
               ghcr.io/${{ github.repository }}-$WORKDIR:staging-latest, \
               ghcr.io/${{ github.repository }}-$WORKDIR:staging-${{ github.sha }}" >> $GITHUB_OUTPUT

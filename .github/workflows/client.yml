@@ -5,11 +5,14 @@ on:
   push:
     branches:
       - main
+      - development
       - production
     paths:
       - client/**
       - '!client/.vsconfig'
   pull_request:
+    branches:
+      - main
     paths: 
       - client/**
       - '!client/.vsconfig'
@@ -33,7 +36,9 @@ jobs:
           projectPath: client
 
   build:
-    if: github.event_name == 'push' && contains(github.event.head_commit.message, '[skip build]') == false
+    if: |
+      github.event_name == 'push' &&
+      contains(fromJson('["refs/heads/development", "refs/heads/production"]'), github.ref)
 
     runs-on: ubuntu-22.04
     needs:
@@ -78,7 +83,7 @@ jobs:
         run: |
           case ${{ github.ref }} in
 
-            refs/heads/main)
+            refs/heads/development)
               echo "ID=$ITCH_STAGING_GAME_ID" >> $GITHUB_OUTPUT
               ;;
 

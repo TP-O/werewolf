@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - development
       - production
     paths:
       - .github/workflows/core.yml
@@ -96,7 +97,9 @@ jobs:
         run: go test ./... -cover
 
   build:
-    if: github.event_name == 'push' && contains(github.event.head_commit.message, '[skip build]') == false
+    if: |
+      github.event_name == 'push' &&
+      contains(fromJson('["refs/heads/development", "refs/heads/production"]'), github.ref)
 
     needs:
       - lint
@@ -125,7 +128,7 @@ jobs:
         run: |
           case ${{ github.ref }} in
 
-            refs/heads/main)
+            refs/heads/development)
               echo "TAGS=\
               ghcr.io/${{ github.repository }}-$WORKDIR:staging-latest, \
               ghcr.io/${{ github.repository }}-$WORKDIR:staging-${{ github.sha }}" >> $GITHUB_OUTPUT
