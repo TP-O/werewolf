@@ -1,0 +1,211 @@
+name: chat
+
+on:
+  push:
+    branches:
+      - main
+      - development
+      - production
+    paths:
+      - .github/workflows/chat.yml
+      - chat/**
+      - '!chat/.vscode/**'
+      - '!chat/docs/**'
+      - '!chat/.editorconfig'
+      - '!chat/.gitignore'
+      - '!chat/**.md'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/chat.yml
+      - chat/**
+      - '!chat/.vscode/**'
+      - '!chat/docs/**'
+      - '!chat/.editorconfig'
+      - '!chat/.gitignore'
+      - '!chat/**.md'
+
+env:
+  WORKDIR: chat
+
+jobs:
+  lint:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Use pNPM
+        uses: pnpm/action-setup@v2
+        with:
+          version: 7
+          run_install: false
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        working-directory: ${{ env.WORKDIR }}
+        run: pnpm i
+
+      - name: Lint
+        working-directory: ${{ env.WORKDIR }}
+        run: pnpm lint
+
+  lint-dockerfile:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: ${{ env.WORKDIR }}/Dockerfile
+
+  unit-test:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Use pNPM
+        uses: pnpm/action-setup@v2
+        with:
+          version: 7
+          run_install: false
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        working-directory: ${{ env.WORKDIR }}
+        run: pnpm i
+
+      - name: Create cofig
+        working-directory: ${{ env.WORKDIR }}
+        run: cp .env.example .env
+
+      - name: Run test
+        working-directory: ${{ env.WORKDIR }}
+        run: pnpm test
+
+  e2e-test:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Use pNPM
+        uses: pnpm/action-setup@v2
+        with:
+          version: 7
+          run_install: false
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        working-directory: ${{ env.WORKDIR }}
+        run: pnpm i
+
+      - name: Create cofig
+        working-directory: ${{ env.WORKDIR }}
+        run: cp .env.example .env
+
+      - name: Run test
+        working-directory: ${{ env.WORKDIR }}
+        run: pnpm test:e2e
+
+  build:
+    if: |
+      github.event_name == 'push' &&
+      contains(fromJson('["refs/heads/development", "refs/heads/production"]'), github.ref)
+
+    needs:
+      - lint
+      - lint-dockerfile
+      - unit-test
+      - e2e-test
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ secrets.GHCR_USERNAME }}
+          password: ${{ secrets.GHCR_PERSONAL_ACCESS_TOKEN }}
+
+      - name: Create image tags
+        id: tags
+        run: |
+          case ${{ github.ref }} in
+
+            refs/heads/development)
+              echo "TAGS=\
+              ghcr.io/${{ github.repository }}-$WORKDIR:staging-latest, \
+              ghcr.io/${{ github.repository }}-$WORKDIR:staging-${{ github.sha }}" >> $GITHUB_OUTPUT
+              ;;
+
+            refs/heads/production)
+              echo "TAGS=\
+              ghcr.io/${{ github.repository }}-$WORKDIR:latest, \
+              ghcr.io/${{ github.repository }}-$WORKDIR:${{ github.sha }}" >> $GITHUB_OUTPUT
+              ;;
+
+            *)
+              echo "This branch can't be built";
+              exit 1;
+              ;;
+          esac
+
+      - name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          push: true
+          context: ./${{ env.WORKDIR }}
+          tags: ${{ steps.tags.outputs.TAGS }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
