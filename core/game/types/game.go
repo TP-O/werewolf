@@ -27,7 +27,12 @@ func (p PhaseID) PreviousPhaseID(lastPhaseID PhaseID) PhaseID {
 }
 
 // GameID is ID type of game.
-type GameID = uint64
+type GameID uint64
+
+// IsUnknown checks if faction ID is 0.
+func (g GameID) IsUnknown() bool {
+	return g == 0
+}
 
 // GameStatusID is ID type of game status.
 type GameStatusID = uint8
@@ -47,7 +52,9 @@ type GameSetting struct {
 	PlayerIDs []PlayerID
 }
 
+// ModeratorInit contains game and time settings.
 type ModeratorInit struct {
+	// GameSetting is the its own game setting.
 	GameSetting
 
 	// TurnDuration is the duration of a turn.

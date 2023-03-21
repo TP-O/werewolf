@@ -45,14 +45,20 @@ func NewModerator(init *types.ModeratorInit) (contract.Moderator, error) {
 	})
 	if err != nil {
 		return nil, err
+	} else {
+		m.game = game
 	}
 
-	m.game = game
 	return m, nil
 }
 
-func (m *moderator) SetGameID(gameID types.GameID) {
+func (m *moderator) SetGameID(gameID types.GameID) bool {
+	if m.game.StatusID() != vars.Idle {
+		return false
+	}
+
 	m.gameID = gameID
+	return true
 }
 
 // checkWinConditions checks if any faction satisfies its win condition,
@@ -148,7 +154,7 @@ func (m *moderator) waitForPreparation() {
 
 // StartGame starts the game.
 func (m *moderator) StartGame() int64 {
-	if m.game.StatusID() != vars.Idle {
+	if m.gameID.IsUnknown() || m.game.StatusID() != vars.Idle {
 		return -1
 	}
 

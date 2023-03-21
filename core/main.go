@@ -2,7 +2,8 @@ package main
 
 import (
 	"database/sql"
-	"uwwolf/api"
+	"uwwolf/app/api"
+	"uwwolf/app/service"
 	"uwwolf/db"
 	"uwwolf/db/rdb"
 	"uwwolf/util"
@@ -35,7 +36,10 @@ func main() {
 		db.NewStore(dbi)
 	}
 
-	api.StartApi()
+	roomService := service.NewRoomService(rdb.Client())
+	gameService := service.NewGameService(db.DB())
+	apiServer := api.NewAPIServer(roomService, gameService)
+	apiServer.Run()
 
 	// m := game.NewModerator(&game.ModeratorInit{
 	// 	Scheduler:          game.NewScheduler(vars.NightPhaseID),
