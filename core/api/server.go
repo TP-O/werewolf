@@ -31,13 +31,12 @@ func setupRouter() *gin.Engine {
 
 	gameGroup := r.Group("/game")
 
-	gameGroup.POST("/start", func(c *gin.Context) {
-		var err error
-		playerID := types.PlayerID(c.GetString("playerID"))
+	gameGroup.PUT("/setting", func(ctx *gin.Context) {
+		playerID := types.PlayerID(ctx.GetString("playerID"))
 
-		var payload dto.StartGameDto
-		if err := c.ShouldBind(&payload); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
+		var payload types.ModeratorInit
+		if err := ctx.ShouldBind(&payload); err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{
 				"message": "Invalid request",
 			})
 			return
@@ -46,31 +45,63 @@ func setupRouter() *gin.Engine {
 		var room dto.Room
 		roomJson := queryRoom.Run(context.Background(), rdb.Client(), []string{}, playerID).String()
 		if err := json.Unmarshal([]byte(roomJson), &room); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
+			ctx.JSON(http.StatusInternalServerError, gin.H{
 				"message": "Something wrong",
 			})
 			return
 		}
 
 		if playerID != room.OwnerID {
-			c.JSON(http.StatusInternalServerError, gin.H{
+			ctx.JSON(http.StatusInternalServerError, gin.H{
+				"message": "Not owner",
+			})
+			return
+		}
+
+		room.ModeratorInit = payload
+		roomByte, err := json.Marshal(room)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{
+				"message": "Something wrong",
+			})
+			return
+		}
+
+		rdb.Client().Set(context.Background(), fmt.Sprintf("room:%v", room.ID), string(roomByte), -1)
+	})
+
+	gameGroup.POST("/start", func(ctx *gin.Context) {
+		var err error
+		playerID := types.PlayerID(ctx.GetString("playerID"))
+
+		var room dto.Room
+		roomJson := queryRoom.Run(context.Background(), rdb.Client(), []string{}, playerID).String()
+		if err := json.Unmarshal([]byte(roomJson), &room); err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{
+				"message": "Something wrong",
+			})
+			return
+		}
+
+		if playerID != room.OwnerID {
+			ctx.JSON(http.StatusInternalServerError, gin.H{
 				"message": "Not owner",
 			})
 			return
 		}
 
 		mod, err := game.NewModerator(&types.ModeratorInit{
-			TurnDuration:       payload.TurnDuration,
-			DiscussionDuration: payload.DiscussionDuration,
+			TurnDuration:       room.TurnDuration,
+			DiscussionDuration: room.DiscussionDuration,
 			GameSetting: types.GameSetting{
-				RoleIDs:          payload.RoleIDs,
-				RequiredRoleIDs:  payload.RequiredRoleIDs,
-				NumberWerewolves: payload.NumberWerewolves,
+				RoleIDs:          room.RoleIDs,
+				RequiredRoleIDs:  room.RequiredRoleIDs,
+				NumberWerewolves: room.NumberWerewolves,
 				PlayerIDs:        room.PlayerIDs,
 			},
 		})
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
+			ctx.JSON(http.StatusInternalServerError, gin.H{
 				"message": err.Error(),
 			})
 			return
@@ -78,7 +109,7 @@ func setupRouter() *gin.Engine {
 
 		gameRecord, err := db.DB().CreateGame(context.Background())
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
+			ctx.JSON(http.StatusInternalServerError, gin.H{
 				"message": "Unable to create game",
 			})
 			return
@@ -89,7 +120,7 @@ func setupRouter() *gin.Engine {
 
 		// Notify players
 
-		c.JSON(http.StatusOK, gin.H{
+		ctx.JSON(http.StatusOK, gin.H{
 			"message": "Ok",
 		})
 	})

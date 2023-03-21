@@ -23,6 +23,8 @@ type StartGameDto struct {
 }
 
 type Room struct {
+	ID        string           `json:"id"`
 	OwnerID   types.PlayerID   `json:"owner_id"`
 	PlayerIDs []types.PlayerID `json:"player_ids"`
+	types.ModeratorInit
 }
