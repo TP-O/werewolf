@@ -37,7 +37,7 @@ type game struct {
 	polls map[types.FactionID]contract.Poll
 }
 
-func NewGame(scheduler contract.Scheduler, setting *types.GameSetting) contract.Game {
+func NewGame(scheduler contract.Scheduler, setting *types.GameSetting) (contract.Game, error) {
 	game := game{
 		numberWerewolves: setting.NumberWerewolves,
 		statusID:         vars.Idle,
@@ -56,7 +56,7 @@ func NewGame(scheduler contract.Scheduler, setting *types.GameSetting) contract.
 	game.polls[vars.VillagerFactionID] = NewPoll()
 	game.polls[vars.WerewolfFactionID] = NewPoll()
 
-	return &game
+	return &game, nil
 }
 
 // StatusID retusn current game status ID.

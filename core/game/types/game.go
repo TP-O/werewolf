@@ -1,5 +1,7 @@
 package types
 
+import "time"
+
 // PhaseID is ID type of phase.
 type PhaseID uint8
 
@@ -43,4 +45,14 @@ type GameSetting struct {
 
 	// PlayerIDs is player ID list playing the game.
 	PlayerIDs []PlayerID
+}
+
+type ModeratorInit struct {
+	GameSetting
+
+	// TurnDuration is the duration of a turn.
+	TurnDuration time.Duration
+
+	// DiscussionDuration is the duration of the villager discussion.
+	DiscussionDuration time.Duration
 }

@@ -1,6 +1,10 @@
 package main
 
 import (
+	"database/sql"
+	"uwwolf/api"
+	"uwwolf/db"
+	"uwwolf/db/rdb"
 	"uwwolf/util"
 
 	_ "github.com/lib/pq"
@@ -22,12 +26,16 @@ func main() {
 	// }))
 
 	util.LoadConfig(".")
-	// redis.ConnectRedis()
+	rdb.ConnectRedis()
 
-	// dbi, err := sql.Open("postgres", "postgres://ww_username:ww_password@postgres/ww_db?sslmode=disable")
-	// if err != nil {
-	// 	panic(err)
-	// }
+	dbi, err := sql.Open("postgres", "postgres://ww_username:ww_password@postgres/ww_db?sslmode=disable")
+	if err != nil {
+		panic(err)
+	} else {
+		db.NewStore(dbi)
+	}
+
+	api.StartApi()
 
 	// m := game.NewModerator(&game.ModeratorInit{
 	// 	Scheduler:          game.NewScheduler(vars.NightPhaseID),

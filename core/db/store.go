@@ -13,11 +13,20 @@ type Store struct {
 	db *sql.DB
 }
 
+var store *Store
+
+func DB() *Store {
+	return store
+}
+
 func NewStore(db *sql.DB) *Store {
-	return &Store{
-		Queries: New(db),
-		db:      db,
+	if store == nil {
+		store = &Store{
+			Queries: New(db),
+			db:      db,
+		}
 	}
+	return store
 }
 
 func (s *Store) execTx(ctx context.Context, fn func(q *Queries) error) error {
