@@ -3,7 +3,7 @@
 //   sqlc v1.17.2
 // source: game.sql
 
-package db
+package postgres
 
 import (
 	"context"

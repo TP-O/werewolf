@@ -1,22 +1,18 @@
 package api
 
 import (
-	"context"
-	"encoding/json"
-	"fmt"
 	"net/http"
 	"uwwolf/app/dto"
-	"uwwolf/app/service"
-	"uwwolf/db/rdb"
 	"uwwolf/game/types"
 
 	"github.com/gin-gonic/gin"
 )
 
-func (s ApiServer) updateGameSetting(ctx *gin.Context) {
+// updateGameConfig replaces old game config to the new one.
+func (s ApiServer) updateGameConfig(ctx *gin.Context) {
 	playerID := types.PlayerID(ctx.GetString("playerID"))
 
-	var payload dto.UpdateGameSettingDto
+	var payload dto.UpdateGameConfigDto
 	if err := ctx.ShouldBind(&payload); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": "Invalid request",
@@ -39,21 +35,12 @@ func (s ApiServer) updateGameSetting(ctx *gin.Context) {
 		return
 	}
 
-	room.DiscussionDuration = payload.DiscussionDuration
-	room.TurnDuration = payload.TurnDuration
-	room.RoleIDs = payload.RoleIDs
-	room.RequiredRoleIDs = payload.RequiredRoleIDs
-	room.NumberWerewolves = payload.NumberWerewolves
-
-	roomByte, err := json.Marshal(room)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"message": "Something wrong",
+	if err := s.gameService.UpdateGameConfig(room.ID, payload); err != nil {
+		ctx.JSON(http.StatusMethodNotAllowed, gin.H{
+			"message": "Unable to update setting!",
 		})
 		return
 	}
-
-	rdb.Client().Set(context.Background(), fmt.Sprintf("%v:%v", service.WaitingRoomRedisNamespace, room.ID), string(roomByte), -1)
 
 	ctx.JSON(http.StatusOK, gin.H{
 		"message": "Ok",

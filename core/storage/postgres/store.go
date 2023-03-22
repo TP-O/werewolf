@@ -1,9 +1,10 @@
-package db
+package postgres
 
 import (
 	"context"
 	"database/sql"
 	"strconv"
+	"uwwolf/config"
 	"uwwolf/game/contract"
 	"uwwolf/game/types"
 )
@@ -13,33 +14,25 @@ type Store struct {
 	db *sql.DB
 }
 
-var store *Store
+func Connect(db *sql.DB) *Store {
+	db.SetMaxOpenConns(config.Postgres().PollSize)
+	db.SetMaxIdleConns(config.Postgres().PollSize)
+	db.SetConnMaxIdleTime(0)
 
-func DB() *Store {
-	return store
-}
-
-func NewStore(db *sql.DB) *Store {
-	if store == nil {
-		store = &Store{
-			Queries: New(db),
-			db:      db,
-		}
+	return &Store{
+		Queries: New(db),
+		db:      db,
 	}
-	return store
 }
 
 func (s *Store) execTx(ctx context.Context, fn func(q *Queries) error) error {
-	var err error
-
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
 		return err
 	}
 
 	q := New(tx)
-	err = fn(q)
-	if err != nil {
+	if err = fn(q); err != nil {
 		if err = tx.Rollback(); err != nil {
 			return err
 		}

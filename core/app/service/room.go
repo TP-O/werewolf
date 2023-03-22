@@ -31,12 +31,12 @@ const (
 
 var queryRoom = redis.NewScript(fmt.Sprintf(`
     local player_id = ARGV[1]
-    local room_id = redis.call("GET", %v + player_id)
+    local room_id = redis.call("GET", %q + player_id)
     if not room_id then
         return nil
     end
 
-    return redis.call("GET", %v + room_id)
+    return redis.call("GET", %q + room_id)
 `, PlayerID2RoomIDRedisNamespace, WaitingRoomRedisNamespace))
 
 // PlayerWaitingRoom returns the room containing the given player ID.

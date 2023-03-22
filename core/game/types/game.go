@@ -37,8 +37,8 @@ func (g GameID) IsUnknown() bool {
 // GameStatusID is ID type of game status.
 type GameStatusID = uint8
 
-// GameSetting is setting of game.
-type GameSetting struct {
+// GameInitialization is the required options to start a game.
+type GameInitialization struct {
 	// RoleIDs is role ID list that can be played in the game.
 	RoleIDs []RoleID
 
@@ -52,10 +52,10 @@ type GameSetting struct {
 	PlayerIDs []PlayerID
 }
 
-// ModeratorInit contains game and time settings.
-type ModeratorInit struct {
-	// GameSetting is the its own game setting.
-	GameSetting
+// GameConfig is the game configuration.
+type GameConfig struct {
+	// GameInitialization is the required options to start a game.
+	GameInitialization
 
 	// TurnDuration is the duration of a turn.
 	TurnDuration time.Duration

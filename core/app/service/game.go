@@ -2,35 +2,45 @@ package service
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
-	"uwwolf/db"
+	"uwwolf/app/data"
+	"uwwolf/app/dto"
 	"uwwolf/game"
 	"uwwolf/game/contract"
 	"uwwolf/game/types"
+	"uwwolf/game/vars"
+	"uwwolf/storage/postgres"
+
+	"github.com/redis/go-redis/v9"
 )
 
 type GameService interface {
-	RegisterGame(modInit *types.ModeratorInit) (contract.Moderator, error)
+	RegisterGame(config *types.GameConfig) (contract.Moderator, error)
+	UpdateGameConfig(roomID string, config dto.UpdateGameConfigDto) error
+	GameConfig(roomID string) *data.GameConfig
 }
 
 type gameService struct {
-	store *db.Store
+	rdb *redis.ClusterClient
+	pdb *postgres.Store
 }
 
-func NewGameService(db *db.Store) GameService {
+func NewGameService(rdb *redis.ClusterClient, pdb *postgres.Store) GameService {
 	return &gameService{
-		store: db,
+		rdb,
+		pdb,
 	}
 }
 
 // RegisterGame creates a moderator and assigns a game for it.
-func (gs gameService) RegisterGame(modInit *types.ModeratorInit) (contract.Moderator, error) {
-	mod, err := game.NewModerator(modInit)
+func (gs gameService) RegisterGame(config *types.GameConfig) (contract.Moderator, error) {
+	mod, err := game.NewModerator(config)
 	if err != nil {
 		return nil, err
 	}
 
-	gameRecord, err := db.DB().CreateGame(context.Background())
+	gameRecord, err := gs.pdb.CreateGame(context.Background())
 	if err != nil {
 		return nil, fmt.Errorf("Unable to create game")
 	}
@@ -41,4 +51,30 @@ func (gs gameService) RegisterGame(modInit *types.ModeratorInit) (contract.Moder
 	}
 
 	return mod, nil
+}
+
+func (gs gameService) UpdateGameConfig(roomID string, config dto.UpdateGameConfigDto) error {
+	gs.rdb.Set(
+		context.Background(),
+		"dsds",
+		config,
+		-1,
+	)
+
+	return nil
+}
+
+func (gs gameService) GameConfig(roomID string) *data.GameConfig {
+	var config *data.GameConfig
+	configJson := gs.rdb.Get(context.Background(), "").String()
+	if err := json.Unmarshal([]byte(configJson), config); err != nil {
+		return &data.GameConfig{
+			RoleIDs:            []types.RoleID{vars.SeerRoleID},
+			NumberWerewolves:   1,
+			TurnDuration:       20,
+			DiscussionDuration: 90,
+		}
+	}
+
+	return config
 }

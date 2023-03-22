@@ -37,18 +37,18 @@ type game struct {
 	polls map[types.FactionID]contract.Poll
 }
 
-func NewGame(scheduler contract.Scheduler, setting *types.GameSetting) (contract.Game, error) {
+func NewGame(scheduler contract.Scheduler, init *types.GameInitialization) (contract.Game, error) {
 	game := game{
-		numberWerewolves: setting.NumberWerewolves,
+		numberWerewolves: init.NumberWerewolves,
 		statusID:         vars.Idle,
-		roleIDs:          setting.RoleIDs,
-		requiredRoleIDs:  setting.RequiredRoleIDs,
+		roleIDs:          init.RoleIDs,
+		requiredRoleIDs:  init.RequiredRoleIDs,
 		scheduler:        scheduler,
 		players:          make(map[types.PlayerID]contract.Player),
 		polls:            make(map[types.FactionID]contract.Poll),
 	}
 
-	for _, id := range setting.PlayerIDs {
+	for _, id := range init.PlayerIDs {
 		game.players[id] = NewPlayer(&game, id)
 	}
 

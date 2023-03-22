@@ -3,7 +3,7 @@ package api
 import (
 	"fmt"
 	"uwwolf/app/service"
-	"uwwolf/util"
+	"uwwolf/config"
 
 	"github.com/gin-gonic/gin"
 )
@@ -24,8 +24,8 @@ func (s *ApiServer) setupRouter() *gin.Engine {
 	r := gin.Default()
 
 	gameGroup := r.Group("/game")
-	gameGroup.PUT("/setting", s.registerGame)
-	gameGroup.POST("/start", s.updateGameSetting)
+	gameGroup.PUT("/setting", s.updateGameConfig)
+	gameGroup.POST("/start", s.startGame)
 
 	return r
 }
@@ -33,7 +33,7 @@ func (s *ApiServer) setupRouter() *gin.Engine {
 func (s ApiServer) Run() {
 	r := s.setupRouter()
 
-	if err := r.Run(fmt.Sprintf(":%v", util.Config().App.Port)); err != nil {
+	if err := r.Run(fmt.Sprintf(":%v", config.App().Port)); err != nil {
 		panic(err)
 	}
 }

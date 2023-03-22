@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"sync"
 	"time"
+	"uwwolf/config"
 	"uwwolf/game/contract"
 	"uwwolf/game/types"
 	"uwwolf/game/vars"
-	"uwwolf/util"
 
 	"golang.org/x/exp/slices"
 )
@@ -27,7 +27,7 @@ type moderator struct {
 	winningFaction     types.FactionID
 }
 
-func NewModerator(init *types.ModeratorInit) (contract.Moderator, error) {
+func NewModerator(init *types.GameConfig) (contract.Moderator, error) {
 	m := &moderator{
 		nextTurnSignal:     make(chan bool),
 		finishSignal:       make(chan bool),
@@ -37,7 +37,7 @@ func NewModerator(init *types.ModeratorInit) (contract.Moderator, error) {
 		scheduler:          NewScheduler(vars.NightPhaseID),
 	}
 
-	game, err := NewGame(m.scheduler, &types.GameSetting{
+	game, err := NewGame(m.scheduler, &types.GameInitialization{
 		RoleIDs:          init.RoleIDs,
 		RequiredRoleIDs:  init.RequiredRoleIDs,
 		NumberWerewolves: init.NumberWerewolves,
@@ -139,7 +139,7 @@ func (m *moderator) runScheduler() {
 func (m *moderator) waitForPreparation() {
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
-		util.Config().Game.PreparationDuration,
+		config.Game().PreparationDuration,
 	)
 	defer cancel()
 

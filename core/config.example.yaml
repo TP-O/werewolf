@@ -2,12 +2,13 @@ app:
   debug: true
   env: development
   port: 8080
-database:
+postgres:
   host: postgres
   port: 5432
   username: ww_username
   password: ww_password
   database: ww_db
+  poll_size: 10
 redis:
   sentinel_addresses:
     - redis:5000
@@ -16,6 +17,7 @@ redis:
   master_name: mymaster
   username: default
   password: redis_password
+  poll_size: 10
 game:
   min_capacity: 5
   max_capacity: 20

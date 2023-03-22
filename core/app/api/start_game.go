@@ -2,13 +2,14 @@ package api
 
 import (
 	"net/http"
+	"time"
 	"uwwolf/game/types"
 
 	"github.com/gin-gonic/gin"
 )
 
-// registerGame creates a game moderator and then starts the game.
-func (s ApiServer) registerGame(ctx *gin.Context) {
+// startGame creates a game moderator and then starts the game.
+func (s ApiServer) startGame(ctx *gin.Context) {
 	playerID := types.PlayerID(ctx.GetString("playerID"))
 
 	room := s.roomService.PlayerWaitingRoom(playerID)
@@ -26,7 +27,17 @@ func (s ApiServer) registerGame(ctx *gin.Context) {
 		return
 	}
 
-	mod, err := s.gameService.RegisterGame(&types.ModeratorInit{})
+	config := s.gameService.GameConfig(room.ID)
+	mod, err := s.gameService.RegisterGame(&types.GameConfig{
+		TurnDuration:       time.Duration(config.TurnDuration) * time.Second,
+		DiscussionDuration: time.Duration(config.DiscussionDuration) * time.Second,
+		GameInitialization: types.GameInitialization{
+			RoleIDs:          config.RoleIDs,
+			RequiredRoleIDs:  config.RequiredRoleIDs,
+			NumberWerewolves: config.NumberWerewolves,
+			PlayerIDs:        room.PlayerIDs,
+		},
+	})
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"message": err.Error(),
