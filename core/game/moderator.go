@@ -27,21 +27,21 @@ type moderator struct {
 	winningFaction     types.FactionID
 }
 
-func NewModerator(init *types.GameConfig) (contract.Moderator, error) {
+func NewModerator(reg *types.GameRegistration) (contract.Moderator, error) {
 	m := &moderator{
 		nextTurnSignal:     make(chan bool),
 		finishSignal:       make(chan bool),
 		mutex:              new(sync.Mutex),
-		turnDuration:       init.TurnDuration,
-		discussionDuration: init.DiscussionDuration,
+		turnDuration:       reg.TurnDuration,
+		discussionDuration: reg.DiscussionDuration,
 		scheduler:          NewScheduler(vars.NightPhaseID),
 	}
 
 	game, err := NewGame(m.scheduler, &types.GameInitialization{
-		RoleIDs:          init.RoleIDs,
-		RequiredRoleIDs:  init.RequiredRoleIDs,
-		NumberWerewolves: init.NumberWerewolves,
-		PlayerIDs:        init.PlayerIDs,
+		RoleIDs:          reg.RoleIDs,
+		RequiredRoleIDs:  reg.RequiredRoleIDs,
+		NumberWerewolves: reg.NumberWerewolves,
+		PlayerIDs:        reg.PlayerIDs,
 	})
 	if err != nil {
 		return nil, err

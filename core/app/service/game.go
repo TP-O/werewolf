@@ -4,8 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"time"
 	"uwwolf/app/data"
 	"uwwolf/app/dto"
+	"uwwolf/app/enum"
 	"uwwolf/game"
 	"uwwolf/game/contract"
 	"uwwolf/game/types"
@@ -16,7 +18,7 @@ import (
 )
 
 type GameService interface {
-	RegisterGame(config *types.GameConfig) (contract.Moderator, error)
+	RegisterGame(config *data.GameConfig, playerIDs []types.PlayerID) (contract.Moderator, error)
 	UpdateGameConfig(roomID string, config dto.UpdateGameConfigDto) error
 	GameConfig(roomID string) *data.GameConfig
 }
@@ -34,8 +36,17 @@ func NewGameService(rdb *redis.ClusterClient, pdb *postgres.Store) GameService {
 }
 
 // RegisterGame creates a moderator and assigns a game for it.
-func (gs gameService) RegisterGame(config *types.GameConfig) (contract.Moderator, error) {
-	mod, err := game.NewModerator(config)
+func (gs gameService) RegisterGame(config *data.GameConfig, playerIDs []types.PlayerID) (contract.Moderator, error) {
+	mod, err := game.NewModerator(&types.GameRegistration{
+		TurnDuration:       time.Duration(config.TurnDuration) * time.Second,
+		DiscussionDuration: time.Duration(config.DiscussionDuration) * time.Second,
+		GameInitialization: types.GameInitialization{
+			RoleIDs:          config.RoleIDs,
+			RequiredRoleIDs:  config.RequiredRoleIDs,
+			NumberWerewolves: config.NumberWerewolves,
+			PlayerIDs:        playerIDs,
+		},
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -54,20 +65,28 @@ func (gs gameService) RegisterGame(config *types.GameConfig) (contract.Moderator
 }
 
 func (gs gameService) UpdateGameConfig(roomID string, config dto.UpdateGameConfigDto) error {
+	encodedConfig, err := json.Marshal(config)
+	if err != nil {
+		return err
+	}
+
 	gs.rdb.Set(
 		context.Background(),
-		"dsds",
-		config,
+		enum.RoomGameConfigRedisNamespace+roomID,
+		string(encodedConfig),
 		-1,
 	)
-
 	return nil
 }
 
 func (gs gameService) GameConfig(roomID string) *data.GameConfig {
 	var config *data.GameConfig
-	configJson := gs.rdb.Get(context.Background(), "").String()
-	if err := json.Unmarshal([]byte(configJson), config); err != nil {
+
+	encodedConfig := gs.rdb.Get(
+		context.Background(),
+		enum.RoomGameConfigRedisNamespace+roomID,
+	).String()
+	if err := json.Unmarshal([]byte(encodedConfig), config); err != nil {
 		return &data.GameConfig{
 			RoleIDs:            []types.RoleID{vars.SeerRoleID},
 			NumberWerewolves:   1,

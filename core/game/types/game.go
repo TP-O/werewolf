@@ -52,8 +52,8 @@ type GameInitialization struct {
 	PlayerIDs []PlayerID
 }
 
-// GameConfig is the game configuration.
-type GameConfig struct {
+// GameRegistration contains the game configuration and joined players.
+type GameRegistration struct {
 	// GameInitialization is the required options to start a game.
 	GameInitialization
 

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"uwwolf/app/data"
+	"uwwolf/app/enum"
 	"uwwolf/game/types"
 
 	"github.com/redis/go-redis/v9"
@@ -24,12 +25,7 @@ func NewRoomService(rdb *redis.ClusterClient) RoomService {
 	}
 }
 
-const (
-	PlayerID2RoomIDRedisNamespace = "pID-rID:"
-	WaitingRoomRedisNamespace     = "waiting-room:"
-)
-
-var queryRoom = redis.NewScript(fmt.Sprintf(`
+var queryWaitingRoomScript = fmt.Sprintf(`
     local player_id = ARGV[1]
     local room_id = redis.call("GET", %q + player_id)
     if not room_id then
@@ -37,13 +33,19 @@ var queryRoom = redis.NewScript(fmt.Sprintf(`
     end
 
     return redis.call("GET", %q + room_id)
-`, PlayerID2RoomIDRedisNamespace, WaitingRoomRedisNamespace))
+`, enum.PlayerID2RoomIDRedisNamespace, enum.WaitingRoomRedisNamespace)
 
 // PlayerWaitingRoom returns the room containing the given player ID.
 func (rs roomService) PlayerWaitingRoom(playerID types.PlayerID) *data.WaitingRoom {
 	var room *data.WaitingRoom
-	roomJson := queryRoom.Run(context.Background(), rs.rdb, []string{}, playerID).String()
-	if err := json.Unmarshal([]byte(roomJson), room); err != nil {
+
+	encodedRoom := rs.rdb.Eval(
+		context.Background(),
+		queryWaitingRoomScript,
+		[]string{},
+		playerID,
+	).String()
+	if err := json.Unmarshal([]byte(encodedRoom), room); err != nil {
 		return nil
 	}
 

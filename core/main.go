@@ -1,8 +1,7 @@
 package main
 
 import (
-	"fmt"
-	"uwwolf/config"
+	"uwwolf/game/types"
 
 	_ "github.com/lib/pq"
 )
@@ -22,10 +21,23 @@ func main() {
 	// 	},
 	// }))
 
-	config.Load(".")
-	fmt.Println(config.App().Port)
-
+	// config.Load(".")
 	// rdb := redis.Connect()
+
+	type AA struct {
+		AA types.PlayerID `json:"aaa"`
+		BB string
+	}
+
+	a := AA{
+		AA: "ccc",
+		BB: "CCCCCC",
+	}
+	// b, _ := msgpack.Marshal(a)
+	// fmt.Println(string(b))
+
+	// rdb.Set(context.Background(), "aaa", string(b), -1)
+	// rdb.Set(context.Background(), "aaa2", "ccc", -1)
 
 	// db, err := sql.Open("postgres", "postgres://ww_username:ww_password@postgres/ww_db?sslmode=disable")
 	// if err != nil {

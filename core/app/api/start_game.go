@@ -2,7 +2,6 @@ package api
 
 import (
 	"net/http"
-	"time"
 	"uwwolf/game/types"
 
 	"github.com/gin-gonic/gin"
@@ -28,16 +27,7 @@ func (s ApiServer) startGame(ctx *gin.Context) {
 	}
 
 	config := s.gameService.GameConfig(room.ID)
-	mod, err := s.gameService.RegisterGame(&types.GameConfig{
-		TurnDuration:       time.Duration(config.TurnDuration) * time.Second,
-		DiscussionDuration: time.Duration(config.DiscussionDuration) * time.Second,
-		GameInitialization: types.GameInitialization{
-			RoleIDs:          config.RoleIDs,
-			RequiredRoleIDs:  config.RequiredRoleIDs,
-			NumberWerewolves: config.NumberWerewolves,
-			PlayerIDs:        room.PlayerIDs,
-		},
-	})
+	mod, err := s.gameService.RegisterGame(config, room.PlayerIDs)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"message": err.Error(),
