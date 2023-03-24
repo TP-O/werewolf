@@ -3,9 +3,12 @@ package api
 import (
 	"fmt"
 	"uwwolf/app/service"
+	"uwwolf/app/validation"
 	"uwwolf/config"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
+	"github.com/go-playground/validator/v10"
 )
 
 type ApiServer struct {
@@ -23,17 +26,25 @@ func NewAPIServer(roomService service.RoomService, gameService service.GameServi
 func (s *ApiServer) setupRouter() *gin.Engine {
 	r := gin.Default()
 
-	gameGroup := r.Group("/game")
-	gameGroup.PUT("/setting", s.updateGameConfig)
-	gameGroup.POST("/start", s.startGame)
+	gameSetup := r.Group("/game")
+
+	gameSetup.POST("/config", s.ReplaceGameConfig)
+	gameSetup.POST("/start", s.StartGame)
 
 	return r
 }
 
 func (s ApiServer) Run() {
-	r := s.setupRouter()
+	if config.App().Env == "production" {
+		gin.SetMode(gin.ReleaseMode)
+	}
 
-	if err := r.Run(fmt.Sprintf(":%v", config.App().Port)); err != nil {
+	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
+		validation.ImproveValidator(v)
+	}
+
+	route := s.setupRouter()
+	if err := route.Run(fmt.Sprintf(":%v", config.App().Port)); err != nil {
 		panic(err)
 	}
 }

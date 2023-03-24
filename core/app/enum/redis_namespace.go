@@ -1,7 +1,7 @@
 package enum
 
 const (
-	PlayerID2RoomIDRedisNamespace = "pid-to-rid:"
-	WaitingRoomRedisNamespace     = "waiting-room:"
-	RoomGameConfigRedisNamespace  = "room-game-config:"
+	PlayerID2WatingRoomIDRNs = "waiting-room-id:"
+	WaitingRoomRNs           = "waiting-room:"
+	RoomID2GameConfigRNs     = "room-game-config:"
 )

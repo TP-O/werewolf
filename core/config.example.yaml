@@ -19,7 +19,7 @@ redis:
   password: redis_password
   poll_size: 10
 game:
-  min_capacity: 5
+  min_capacity: 4
   max_capacity: 20
   preparation_duration: 10s
   min_turn_duration: 20s

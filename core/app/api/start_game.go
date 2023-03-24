@@ -2,32 +2,32 @@ package api
 
 import (
 	"net/http"
-	"uwwolf/game/types"
+	"uwwolf/app/data"
+	"uwwolf/app/enum"
 
 	"github.com/gin-gonic/gin"
 )
 
-// startGame creates a game moderator and then starts the game.
-func (s ApiServer) startGame(ctx *gin.Context) {
-	playerID := types.PlayerID(ctx.GetString("playerID"))
+// StartGame creates a game moderator and then starts the game.
+func (as ApiServer) StartGame(ctx *gin.Context) {
+	v, _ := ctx.Get(enum.WaitingRoomCtxKey)
+	room, ok := v.(*data.WaitingRoom)
+	if room == nil || !ok {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Unable to update game config!",
+		})
+		return
+	}
 
-	room := s.roomService.PlayerWaitingRoom(playerID)
-	if room == nil {
+	cfg := as.gameService.GameConfig(room.ID)
+	if err := as.gameService.CheckBeforeRegistration(*room, cfg); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": "You're not in any room!",
+			"message": err.Error(),
 		})
 		return
 	}
 
-	if playerID != room.OwnerID {
-		ctx.JSON(http.StatusMethodNotAllowed, gin.H{
-			"message": "Only the room owner can start the game!",
-		})
-		return
-	}
-
-	config := s.gameService.GameConfig(room.ID)
-	mod, err := s.gameService.RegisterGame(config, room.PlayerIDs)
+	mod, err := as.gameService.RegisterGame(cfg, room.PlayerIDs)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"message": err.Error(),

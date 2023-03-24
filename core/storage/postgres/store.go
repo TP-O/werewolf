@@ -9,23 +9,29 @@ import (
 	"uwwolf/game/types"
 )
 
-type Store struct {
+type Store interface {
+	Querier
+
+	StoreGame(ctx context.Context, params *StoreGameParams) error
+}
+
+type store struct {
 	*Queries
 	db *sql.DB
 }
 
-func Connect(db *sql.DB) *Store {
+func Connect(db *sql.DB) Store {
 	db.SetMaxOpenConns(config.Postgres().PollSize)
 	db.SetMaxIdleConns(config.Postgres().PollSize)
 	db.SetConnMaxIdleTime(0)
 
-	return &Store{
+	return &store{
 		Queries: New(db),
 		db:      db,
 	}
 }
 
-func (s *Store) execTx(ctx context.Context, fn func(q *Queries) error) error {
+func (s *store) execTx(ctx context.Context, fn func(q *Queries) error) error {
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
 		return err
@@ -49,7 +55,7 @@ type StoreGameParams struct {
 	Records          []string
 }
 
-func (s *Store) StoreGame(ctx context.Context, params *StoreGameParams) error {
+func (s *store) StoreGame(ctx context.Context, params *StoreGameParams) error {
 	return s.execTx(ctx, func(q *Queries) error {
 		var err error
 

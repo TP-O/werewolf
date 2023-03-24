@@ -15,6 +15,7 @@ func Connect() *redis.ClusterClient {
 		Username:        config.Redis().Username,
 		Password:        config.Redis().Password,
 		PoolSize:        config.Redis().PollSize,
+		ConnMaxIdleTime: 0,
 		MinRetryBackoff: 5 * time.Second,
 		MaxRetryBackoff: 10 * time.Second,
 		MaxRetries:      10,
