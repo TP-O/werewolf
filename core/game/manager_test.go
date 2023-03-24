@@ -3,6 +3,7 @@ package game
 import (
 	"fmt"
 	"testing"
+	"uwwolf/config"
 	"uwwolf/game/types"
 	mock_game "uwwolf/mock/game"
 
@@ -23,8 +24,8 @@ func TestManagerSuite(t *testing.T) {
 }
 
 func (ms ManagerSuite) TestManager() {
-	m1 := Manager()
-	m2 := Manager()
+	m1 := Manager(config.Game{})
+	m2 := Manager(config.Game{})
 
 	ms.Require().NotNil(m1)
 	ms.Require().True(m1 == m2)
@@ -34,7 +35,7 @@ func (ms ManagerSuite) TestManager() {
 func (ms ManagerSuite) TestModerator() {
 	mod := mock_game.NewMockModerator(nil)
 
-	m := Manager()
+	m := Manager(config.Game{})
 	m.(*manager).moderators[ms.gameID] = mod
 
 	ms.Require().True(m.Moderator(ms.gameID) == mod)
@@ -63,7 +64,7 @@ func (ms ManagerSuite) TestRegiserGame() {
 
 	for _, test := range tests {
 		ms.Run(test.name, func() {
-			m := Manager()
+			m := Manager(config.Game{})
 			test.setup(m.(*manager))
 
 			mod, err := m.RegisterGame(&types.GameRegistration{

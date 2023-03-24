@@ -7,6 +7,7 @@ import (
 	"uwwolf/game/vars"
 	"uwwolf/util"
 
+	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
 )
 
@@ -172,7 +173,7 @@ func (g *game) selectRoleIDs() {
 	}
 
 	// Select random roles
-	roleIDs := util.FilterSlice(g.roleIDs, func(roleID types.RoleID) bool {
+	roleIDs := lo.Filter(g.roleIDs, func(roleID types.RoleID, _ int) bool {
 		return !slices.Contains(g.requiredRoleIDs, roleID)
 	})
 	for {

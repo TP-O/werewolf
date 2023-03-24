@@ -5,9 +5,9 @@ import (
 	"uwwolf/game/types"
 	"uwwolf/game/vars"
 	mock_game "uwwolf/mock/game"
-	"uwwolf/util"
 
 	"github.com/golang/mock/gomock"
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/suite"
 	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
@@ -343,7 +343,7 @@ func (gs GameSuite) TestSelectRoleIDs() {
 			gs.Contains(g.(*game).selectedRoleIDs, roleID)
 		}
 		gs.Len(g.(*game).selectedRoleIDs, 3)
-		gs.False(util.IsDuplicateSlice(g.(*game).selectedRoleIDs))
+		gs.Empty(lo.FindDuplicates(g.(*game).selectedRoleIDs))
 		gs.Condition(func() (success bool) {
 			return slices.Contains(g.(*game).selectedRoleIDs, vars.HunterRoleID) ||
 				slices.Contains(g.(*game).selectedRoleIDs, vars.TwoSistersRoleID) ||
@@ -472,7 +472,7 @@ func (gs GameSuite) TestPrepare() {
 		gs.Contains(g.(*game).selectedRoleIDs, roleID)
 	}
 	gs.Len(g.(*game).selectedRoleIDs, 3)
-	gs.False(util.IsDuplicateSlice(g.(*game).selectedRoleIDs))
+	gs.Empty(lo.FindDuplicates(g.(*game).selectedRoleIDs))
 	gs.Condition(func() (success bool) {
 		return slices.Contains(g.(*game).selectedRoleIDs, vars.HunterRoleID) ||
 			slices.Contains(g.(*game).selectedRoleIDs, vars.TwoSistersRoleID) ||

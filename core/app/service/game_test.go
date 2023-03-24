@@ -199,8 +199,7 @@ func (gss GameServiceSuite) TestCheckBeforeRegistration() {
 			name: "Too many players",
 			room: data.WaitingRoom{
 				PlayerIDs: []types.PlayerID{
-					"1", "2", "3", "4", "5", "6", "7", "8", "9", "10",
-					"11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21",
+					"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11",
 				},
 			},
 			cfg:         data.GameConfig{},
@@ -256,7 +255,10 @@ func (gss GameServiceSuite) TestCheckBeforeRegistration() {
 
 	for _, test := range tests {
 		gss.Run(test.name, func() {
-			svc := service.NewGameService(config.Game{}, nil, nil, nil)
+			svc := service.NewGameService(config.Game{
+				MinCapacity: 4,
+				MaxCapacity: 10,
+			}, nil, nil, nil)
 			err := svc.CheckBeforeRegistration(test.room, test.cfg)
 
 			gss.Require().Equal(test.expectedErr, err)
