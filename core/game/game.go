@@ -7,6 +7,7 @@ import (
 	"uwwolf/game/vars"
 	"uwwolf/util"
 
+	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
 )
 
@@ -37,18 +38,18 @@ type game struct {
 	polls map[types.FactionID]contract.Poll
 }
 
-func NewGame(scheduler contract.Scheduler, setting *types.GameSetting) contract.Game {
+func NewGame(scheduler contract.Scheduler, init *types.GameInitialization) contract.Game {
 	game := game{
-		numberWerewolves: setting.NumberWerewolves,
+		numberWerewolves: init.NumberWerewolves,
 		statusID:         vars.Idle,
-		roleIDs:          setting.RoleIDs,
-		requiredRoleIDs:  setting.RequiredRoleIDs,
+		roleIDs:          init.RoleIDs,
+		requiredRoleIDs:  init.RequiredRoleIDs,
 		scheduler:        scheduler,
 		players:          make(map[types.PlayerID]contract.Player),
 		polls:            make(map[types.FactionID]contract.Poll),
 	}
 
-	for _, id := range setting.PlayerIDs {
+	for _, id := range init.PlayerIDs {
 		game.players[id] = NewPlayer(&game, id)
 	}
 
@@ -172,7 +173,7 @@ func (g *game) selectRoleIDs() {
 	}
 
 	// Select random roles
-	roleIDs := util.FilterSlice(g.roleIDs, func(roleID types.RoleID) bool {
+	roleIDs := lo.Filter(g.roleIDs, func(roleID types.RoleID, _ int) bool {
 		return !slices.Contains(g.requiredRoleIDs, roleID)
 	})
 	for {

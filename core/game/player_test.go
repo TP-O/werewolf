@@ -253,7 +253,7 @@ func (ps PlayerSuite) TestAssignRole() {
 		setup              func(*player)
 	}{
 		{
-			name:               "Falure (Assigned roleID)",
+			name:               "Failure (Assigned roleID)",
 			roleID:             ps.role1_1ID,
 			expectedStatus:     false,
 			expectedErr:        fmt.Errorf("This role is already assigned ¯\\_(ツ)_/¯"),
@@ -268,7 +268,7 @@ func (ps PlayerSuite) TestAssignRole() {
 			},
 		},
 		{
-			name:               "Falure (Invalid roleID)",
+			name:               "Failure (Invalid roleID)",
 			roleID:             types.RoleID(0),
 			expectedStatus:     false,
 			expectedErr:        fmt.Errorf("Non-existent role ¯\\_ಠ_ಠ_/¯"),
@@ -372,7 +372,7 @@ func (ps PlayerSuite) TestRevokeRole() {
 		setup              func(*player, *mock_game.MockRole, *mock_game.MockRole)
 	}{
 		{
-			name:               "Falure (Must have at least one role)",
+			name:               "Failure (Must have at least one role)",
 			roleID:             ps.role1_1ID,
 			expectedStatus:     false,
 			expectedErr:        fmt.Errorf("Player must player at least one role ヾ(⌐■_■)ノ♪"),
@@ -387,7 +387,7 @@ func (ps PlayerSuite) TestRevokeRole() {
 			},
 		},
 		{
-			name:               "Falure (Non-existent role)",
+			name:               "Failure (Non-existent role)",
 			roleID:             types.RoleID(0),
 			expectedStatus:     false,
 			expectedErr:        fmt.Errorf("Non-existent role ID  ¯\\_(ツ)_/¯"),
@@ -496,7 +496,7 @@ func (ps PlayerSuite) TestActivateAbility() {
 		setup       func(*player, *mock_game.MockScheduler, *mock_game.MockRole)
 	}{
 		{
-			name: "Falure (Dead)",
+			name: "Failure (Dead)",
 			req:  &types.ActivateAbilityRequest{},
 			expectedRes: &types.ActionResponse{
 				Ok:      false,
@@ -507,7 +507,7 @@ func (ps PlayerSuite) TestActivateAbility() {
 			},
 		},
 		{
-			name: "Falure (Not in turn)",
+			name: "Failure (Not in turn)",
 			req:  &types.ActivateAbilityRequest{},
 			expectedRes: &types.ActionResponse{
 				Ok:      false,

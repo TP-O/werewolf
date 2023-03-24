@@ -4,11 +4,8 @@ import "uwwolf/game/types"
 
 // Moderator controlls a game.
 type Moderator interface {
-	// InitGame creates a new idle game instance.
-	InitGame(newGame *types.GameSetting) bool
-
 	// StartGame starts the game.
-	StartGame() bool
+	StartGame() int64
 
 	// FinishGame ends the game.
 	FinishGame() bool

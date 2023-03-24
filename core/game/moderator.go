@@ -5,29 +5,19 @@ import (
 	"fmt"
 	"sync"
 	"time"
+	"uwwolf/config"
 	"uwwolf/game/contract"
 	"uwwolf/game/types"
 	"uwwolf/game/vars"
-	"uwwolf/util"
 
 	"golang.org/x/exp/slices"
 )
-
-type ModeratorInit struct {
-	GameID    types.GameID
-	Scheduler contract.Scheduler
-
-	// TurnDuration is the duration of a turn.
-	TurnDuration time.Duration
-
-	// DiscussionDuration is the duration of the villager discussion.
-	DiscussionDuration time.Duration
-}
 
 // moderator controlls a game.
 type moderator struct {
 	gameID             types.GameID
 	game               contract.Game
+	config             config.Game
 	scheduler          contract.Scheduler
 	mutex              *sync.Mutex
 	nextTurnSignal     chan bool
@@ -38,30 +28,25 @@ type moderator struct {
 	winningFaction     types.FactionID
 }
 
-func NewModerator(init *ModeratorInit) contract.Moderator {
-	return &moderator{
+func NewModerator(config config.Game, reg *types.GameRegistration) contract.Moderator {
+	m := &moderator{
+		gameID:             reg.ID,
+		config:             config,
 		nextTurnSignal:     make(chan bool),
 		finishSignal:       make(chan bool),
 		mutex:              new(sync.Mutex),
-		gameID:             init.GameID,
-		turnDuration:       init.TurnDuration,
-		discussionDuration: init.DiscussionDuration,
-		scheduler:          init.Scheduler,
+		turnDuration:       reg.TurnDuration,
+		discussionDuration: reg.DiscussionDuration,
+		scheduler:          NewScheduler(vars.NightPhaseID),
 	}
-}
+	m.game = NewGame(m.scheduler, &types.GameInitialization{
+		RoleIDs:          reg.RoleIDs,
+		RequiredRoleIDs:  reg.RequiredRoleIDs,
+		NumberWerewolves: reg.NumberWerewolves,
+		PlayerIDs:        reg.PlayerIDs,
+	})
 
-// InitGame creates a new idle game instance.
-func (m *moderator) InitGame(setting *types.GameSetting) bool {
-	if m.game != nil {
-		return false
-	}
-
-	// if game, err := m.db.CreateGame(context.Background()); err != nil {
-	// 	return false
-	// } else {
-	m.game = NewGame(m.scheduler, setting)
-
-	return true
+	return m
 }
 
 // checkWinConditions checks if any faction satisfies its win condition,
@@ -142,7 +127,7 @@ func (m *moderator) runScheduler() {
 func (m *moderator) waitForPreparation() {
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
-		util.Config().Game.PreparationDuration,
+		m.config.PreparationDuration,
 	)
 	defer cancel()
 
@@ -156,18 +141,20 @@ func (m *moderator) waitForPreparation() {
 }
 
 // StartGame starts the game.
-func (m *moderator) StartGame() bool {
-	if m.game.StatusID() != vars.Idle || m.game.Prepare() == -1 {
-		return false
+func (m *moderator) StartGame() int64 {
+	if m.gameID.IsUnknown() || m.game.StatusID() != vars.Idle {
+		return -1
 	}
 
 	fmt.Println("Starting")
 
-	m.waitForPreparation()
-	m.game.Start()
-	go m.runScheduler()
+	go func() {
+		m.waitForPreparation()
+		m.game.Start()
+		go m.runScheduler()
+	}()
 
-	return true
+	return m.game.Prepare()
 }
 
 // FinishGame ends the game.

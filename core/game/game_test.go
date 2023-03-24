@@ -5,9 +5,9 @@ import (
 	"uwwolf/game/types"
 	"uwwolf/game/vars"
 	mock_game "uwwolf/mock/game"
-	"uwwolf/util"
 
 	"github.com/golang/mock/gomock"
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/suite"
 	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
@@ -41,7 +41,7 @@ func (gs GameSuite) TestNewGame() {
 	defer ctrl.Finish()
 	scheduler := mock_game.NewMockScheduler(ctrl)
 
-	setting := &types.GameSetting{
+	setting := &types.GameInitialization{
 		NumberWerewolves: 10,
 		RoleIDs:          []types.RoleID{gs.role1ID, gs.role2ID, gs.role3ID},
 		RequiredRoleIDs:  []types.RoleID{gs.role1ID, gs.role2ID},
@@ -70,7 +70,7 @@ func (gs GameSuite) TestStatusID() {
 	defer ctrl.Finish()
 	scheduler := mock_game.NewMockScheduler(ctrl)
 
-	g := NewGame(scheduler, &types.GameSetting{})
+	g := NewGame(scheduler, &types.GameInitialization{})
 	g.(*game).statusID = vars.Starting
 
 	gs.Equal(vars.Starting, g.StatusID())
@@ -81,7 +81,7 @@ func (gs GameSuite) TestScheduler() {
 	defer ctrl.Finish()
 	scheduler := mock_game.NewMockScheduler(ctrl)
 
-	g := NewGame(scheduler, &types.GameSetting{})
+	g := NewGame(scheduler, &types.GameInitialization{})
 
 	gs.Same(scheduler, g.Scheduler())
 }
@@ -92,7 +92,7 @@ func (gs GameSuite) TestPoll() {
 	scheduler := mock_game.NewMockScheduler(ctrl)
 	poll := mock_game.NewMockPoll(ctrl)
 
-	g := NewGame(scheduler, &types.GameSetting{})
+	g := NewGame(scheduler, &types.GameInitialization{})
 	g.(*game).polls[vars.VillagerFactionID] = poll
 
 	gs.Same(poll, g.Poll(vars.VillagerFactionID))
@@ -104,7 +104,7 @@ func (gs GameSuite) TestPlayer() {
 	scheduler := mock_game.NewMockScheduler(ctrl)
 	player := mock_game.NewMockPlayer(ctrl)
 
-	g := NewGame(scheduler, &types.GameSetting{})
+	g := NewGame(scheduler, &types.GameInitialization{})
 	g.(*game).players[gs.player1ID] = player
 
 	gs.Same(player, g.Player(gs.player1ID))
@@ -118,7 +118,7 @@ func (gs GameSuite) TestPlayers() {
 	player2 := mock_game.NewMockPlayer(ctrl)
 	player3 := mock_game.NewMockPlayer(ctrl)
 
-	g := NewGame(scheduler, &types.GameSetting{})
+	g := NewGame(scheduler, &types.GameInitialization{})
 	g.(*game).players[gs.player1ID] = player1
 	g.(*game).players[gs.player2ID] = player2
 	g.(*game).players[gs.player3ID] = player3
@@ -143,7 +143,7 @@ func (gs GameSuite) TestAlivePlayerIDsWithRoleID() {
 	player3.EXPECT().IsDead().Return(false)
 	player3.EXPECT().RoleIDs().Return([]types.RoleID{gs.role1ID, gs.role3ID})
 
-	g := NewGame(scheduler, &types.GameSetting{})
+	g := NewGame(scheduler, &types.GameInitialization{})
 	g.(*game).players[gs.player1ID] = player1
 	g.(*game).players[gs.player2ID] = player2
 	g.(*game).players[gs.player3ID] = player3
@@ -167,7 +167,7 @@ func (gs GameSuite) TestAlivePlayerIDsWithFactionID() {
 	player3.EXPECT().IsDead().Return(false)
 	player3.EXPECT().FactionID().Return(vars.VillagerFactionID)
 
-	g := NewGame(scheduler, &types.GameSetting{})
+	g := NewGame(scheduler, &types.GameInitialization{})
 	g.(*game).players[gs.player1ID] = player1
 	g.(*game).players[gs.player2ID] = player2
 	g.(*game).players[gs.player3ID] = player3
@@ -191,7 +191,7 @@ func (gs GameSuite) TestAlivePlayerIDsWithoutFactionID() {
 	player3.EXPECT().IsDead().Return(false)
 	player3.EXPECT().FactionID().Return(vars.VillagerFactionID)
 
-	g := NewGame(scheduler, &types.GameSetting{})
+	g := NewGame(scheduler, &types.GameInitialization{})
 	g.(*game).players[gs.player1ID] = player1
 	g.(*game).players[gs.player2ID] = player2
 	g.(*game).players[gs.player3ID] = player3
@@ -204,7 +204,7 @@ func (gs GameSuite) TestAlivePlayerIDsWithoutFactionID() {
 func (gs GameSuite) TestSelectRoleID() {
 	tests := []struct {
 		name                       string
-		setting                    *types.GameSetting
+		setting                    *types.GameInitialization
 		roleID                     types.RoleID
 		werewolfCounter            int
 		nonWerewolfCounter         int
@@ -215,7 +215,7 @@ func (gs GameSuite) TestSelectRoleID() {
 	}{
 		{
 			name: "False (Selected role id list is enough)",
-			setting: &types.GameSetting{
+			setting: &types.GameInitialization{
 				NumberWerewolves: 1,
 				PlayerIDs: []types.PlayerID{
 					gs.player1ID,
@@ -232,7 +232,7 @@ func (gs GameSuite) TestSelectRoleID() {
 			expectedSelectedRoleIDs:    []types.RoleID{},
 		}, {
 			name: "False (Selected role id list is enough while set isn't fully selected)",
-			setting: &types.GameSetting{
+			setting: &types.GameInitialization{
 				NumberWerewolves: 1,
 				PlayerIDs: []types.PlayerID{
 					gs.player1ID,
@@ -250,7 +250,7 @@ func (gs GameSuite) TestSelectRoleID() {
 		},
 		{
 			name: "True (Non-Werewolf role)",
-			setting: &types.GameSetting{
+			setting: &types.GameInitialization{
 				NumberWerewolves: 1,
 				PlayerIDs: []types.PlayerID{
 					gs.player1ID,
@@ -269,7 +269,7 @@ func (gs GameSuite) TestSelectRoleID() {
 		// Update if new werewolf role added
 		{
 			name: "True (Werewolf role)",
-			setting: &types.GameSetting{
+			setting: &types.GameInitialization{
 				NumberWerewolves: 1,
 				PlayerIDs: []types.PlayerID{
 					gs.player1ID,
@@ -327,7 +327,7 @@ func (gs GameSuite) TestSelectRoleIDs() {
 
 	// Check random
 	for i := 0; i < 10; i++ {
-		g := NewGame(scheduler, &types.GameSetting{
+		g := NewGame(scheduler, &types.GameInitialization{
 			NumberWerewolves: 1,
 			RoleIDs:          roleIDs,
 			RequiredRoleIDs:  requiredRoleIDs,
@@ -343,7 +343,7 @@ func (gs GameSuite) TestSelectRoleIDs() {
 			gs.Contains(g.(*game).selectedRoleIDs, roleID)
 		}
 		gs.Len(g.(*game).selectedRoleIDs, 3)
-		gs.False(util.IsDuplicateSlice(g.(*game).selectedRoleIDs))
+		gs.Empty(lo.FindDuplicates(g.(*game).selectedRoleIDs))
 		gs.Condition(func() (success bool) {
 			return slices.Contains(g.(*game).selectedRoleIDs, vars.HunterRoleID) ||
 				slices.Contains(g.(*game).selectedRoleIDs, vars.TwoSistersRoleID) ||
@@ -395,7 +395,7 @@ func (gs GameSuite) TestAssignRoles() {
 
 			player1.EXPECT().ID().Return(gs.player1ID)
 
-			g := NewGame(scheduler, &types.GameSetting{})
+			g := NewGame(scheduler, &types.GameInitialization{})
 
 			g.(*game).players[gs.player1ID] = player1
 			test.setup(g.(*game), player1)
@@ -439,7 +439,7 @@ func (gs GameSuite) TestPrepare() {
 		vars.SeerRoleID,
 	}
 
-	g := NewGame(scheduler, &types.GameSetting{
+	g := NewGame(scheduler, &types.GameInitialization{
 		NumberWerewolves: 1,
 		RoleIDs:          roleIDs,
 		RequiredRoleIDs:  requiredRoleIDs,
@@ -472,7 +472,7 @@ func (gs GameSuite) TestPrepare() {
 		gs.Contains(g.(*game).selectedRoleIDs, roleID)
 	}
 	gs.Len(g.(*game).selectedRoleIDs, 3)
-	gs.False(util.IsDuplicateSlice(g.(*game).selectedRoleIDs))
+	gs.Empty(lo.FindDuplicates(g.(*game).selectedRoleIDs))
 	gs.Condition(func() (success bool) {
 		return slices.Contains(g.(*game).selectedRoleIDs, vars.HunterRoleID) ||
 			slices.Contains(g.(*game).selectedRoleIDs, vars.TwoSistersRoleID) ||
@@ -504,7 +504,7 @@ func (gs GameSuite) TestStart() {
 			defer ctrl.Finish()
 			scheduler := mock_game.NewMockScheduler(ctrl)
 
-			g := NewGame(scheduler, &types.GameSetting{})
+			g := NewGame(scheduler, &types.GameInitialization{})
 			g.(*game).statusID = test.statusID
 
 			ok := g.Start()
@@ -538,7 +538,7 @@ func (gs GameSuite) TestFinish() {
 			defer ctrl.Finish()
 			scheduler := mock_game.NewMockScheduler(ctrl)
 
-			g := NewGame(scheduler, &types.GameSetting{})
+			g := NewGame(scheduler, &types.GameInitialization{})
 			g.(*game).statusID = test.statusID
 
 			ok := g.Start()
@@ -605,7 +605,7 @@ func (gs GameSuite) TestPlay() {
 			scheduler := mock_game.NewMockScheduler(ctrl)
 			player1 := mock_game.NewMockPlayer(ctrl)
 
-			g := NewGame(scheduler, &types.GameSetting{})
+			g := NewGame(scheduler, &types.GameInitialization{})
 			test.setup(g.(*game), player1)
 
 			res := g.Play(gs.player1ID, test.req)
@@ -676,7 +676,7 @@ func (gs GameSuite) TestKillPlayer() {
 			scheduler := mock_game.NewMockScheduler(ctrl)
 			player1 := mock_game.NewMockPlayer(ctrl)
 
-			g := NewGame(scheduler, &types.GameSetting{})
+			g := NewGame(scheduler, &types.GameInitialization{})
 			test.setup(g.(*game), player1)
 
 			p := g.KillPlayer(test.playerID, test.isExited)

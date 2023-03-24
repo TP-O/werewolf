@@ -3,14 +3,13 @@ package game
 import (
 	"testing"
 	"time"
+	"uwwolf/config"
 	"uwwolf/game/types"
 	"uwwolf/game/vars"
 	mock_game "uwwolf/mock/game"
-	"uwwolf/util"
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/suite"
-	"golang.org/x/exp/maps"
 )
 
 type ModeratorSuite struct {
@@ -29,73 +28,24 @@ func TestModeratorSuite(t *testing.T) {
 func (ms ModeratorSuite) TestNewModerator() {
 	ctrl := gomock.NewController(ms.T())
 	defer ctrl.Finish()
-	scheduler := mock_game.NewMockScheduler(ctrl)
 
-	init := &ModeratorInit{
-		GameID:             types.GameID(1),
-		Scheduler:          scheduler,
+	reg := &types.GameRegistration{
+		ID: types.GameID(1),
+
 		TurnDuration:       5 * time.Second,
 		DiscussionDuration: 10 * time.Second,
+		GameInitialization: types.GameInitialization{},
 	}
-	m := NewModerator(init).(*moderator)
+	m := NewModerator(config.Game{}, reg).(*moderator)
 
-	ms.Equal(init.GameID, m.gameID)
-	ms.Equal(init.Scheduler, m.scheduler)
-	ms.Equal(init.TurnDuration, m.turnDuration)
-	ms.Equal(init.DiscussionDuration, m.discussionDuration)
-	ms.Nil(m.game)
+	ms.Equal(reg.ID, m.gameID)
+	ms.Equal(reg.TurnDuration, m.turnDuration)
+	ms.Equal(reg.DiscussionDuration, m.discussionDuration)
+	ms.NotNil(m.game)
+	ms.NotNil(m.scheduler)
 	ms.NotNil(m.finishSignal)
 	ms.NotNil(m.nextTurnSignal)
 	ms.NotNil(m.mutex)
-}
-
-func (ms ModeratorSuite) TestInitGame() {
-	tests := []struct {
-		name           string
-		setting        *types.GameSetting
-		expectedStatus bool
-		setup          func(*moderator)
-	}{
-		{
-			name:           "False (Game is already existed)",
-			setting:        &types.GameSetting{},
-			expectedStatus: false,
-			setup: func(m *moderator) {
-				m.game = NewGame(nil, &types.GameSetting{})
-			},
-		},
-		{
-			name: "True",
-			setting: &types.GameSetting{
-				RoleIDs:          []types.RoleID{1, 2, 3},
-				RequiredRoleIDs:  []types.RoleID{2},
-				NumberWerewolves: 1,
-				PlayerIDs:        []types.PlayerID{"1", "2", "3"},
-			},
-			expectedStatus: true,
-			setup:          func(m *moderator) {},
-		},
-	}
-
-	for _, test := range tests {
-		ms.Run(test.name, func() {
-			ctrl := gomock.NewController(ms.T())
-			defer ctrl.Finish()
-
-			m := NewModerator(&ModeratorInit{}).(*moderator)
-			test.setup(m)
-
-			status := m.InitGame(test.setting)
-
-			ms.Equal(test.expectedStatus, status)
-			if test.expectedStatus == true {
-				ms.Equal(test.setting.RoleIDs, m.game.(*game).roleIDs)
-				ms.Equal(test.setting.RequiredRoleIDs, m.game.(*game).requiredRoleIDs)
-				ms.Equal(test.setting.NumberWerewolves, m.game.(*game).numberWerewolves)
-				ms.ElementsMatch(test.setting.PlayerIDs, maps.Keys(m.game.(*game).players))
-			}
-		})
-	}
 }
 
 func (ms ModeratorSuite) TestCheckWinConditions() {
@@ -150,7 +100,7 @@ func (ms ModeratorSuite) TestCheckWinConditions() {
 			defer ctrl.Finish()
 			game := mock_game.NewMockGame(ctrl)
 
-			m := NewModerator(&ModeratorInit{}).(*moderator)
+			m := NewModerator(config.Game{}, &types.GameRegistration{}).(*moderator)
 			m.game = game
 			test.setup(m, game)
 
@@ -207,7 +157,7 @@ func (ms ModeratorSuite) TestHandlePoll() {
 			game := mock_game.NewMockGame(ctrl)
 			poll := mock_game.NewMockPoll(ctrl)
 
-			m := NewModerator(&ModeratorInit{}).(*moderator)
+			m := NewModerator(config.Game{}, &types.GameRegistration{}).(*moderator)
 			m.game = game
 			test.setup(game, poll)
 
@@ -353,7 +303,7 @@ func (ms ModeratorSuite) TestRunScheduler() {
 			scheduler := mock_game.NewMockScheduler(ctrl)
 			poll := mock_game.NewMockPoll(ctrl)
 
-			m := NewModerator(&ModeratorInit{}).(*moderator)
+			m := NewModerator(config.Game{}, &types.GameRegistration{}).(*moderator)
 			m.game = game
 			m.scheduler = scheduler
 			test.setup(m, game, scheduler, poll)
@@ -365,23 +315,27 @@ func (ms ModeratorSuite) TestRunScheduler() {
 
 func (ms ModeratorSuite) TestWaitForPreparation() {
 	tests := []struct {
-		name  string
-		setup func(*moderator, *mock_game.MockGame)
+		name   string
+		config config.Game
+		setup  func(mod *moderator, game *mock_game.MockGame)
 	}{
 		{
 			name: "Wait until timeout",
-			setup: func(m *moderator, mg *mock_game.MockGame) {
-				util.Config().Game.PreparationDuration = 0 * time.Second
+			config: config.Game{
+				PreparationDuration: 0,
 			},
+			setup: func(mod *moderator, game *mock_game.MockGame) {},
 		},
 		{
 			name: "Wait until finishSignal emitted",
-			setup: func(m *moderator, mg *mock_game.MockGame) {
-				util.Config().Game.PreparationDuration = 99 * time.Hour
-				mg.EXPECT().StatusID().Return(vars.Finished)
+			config: config.Game{
+				PreparationDuration: 99 * time.Second,
+			},
+			setup: func(mod *moderator, game *mock_game.MockGame) {
+				game.EXPECT().StatusID().Return(vars.Finished)
 
 				go func() {
-					m.finishSignal <- true
+					mod.finishSignal <- true
 				}()
 			},
 		},
@@ -393,10 +347,7 @@ func (ms ModeratorSuite) TestWaitForPreparation() {
 			defer ctrl.Finish()
 			game := mock_game.NewMockGame(ctrl)
 
-			duration := util.Config().Game.PreparationDuration
-			defer func() { util.Config().Game.PreparationDuration = duration }()
-
-			m := NewModerator(&ModeratorInit{}).(*moderator)
+			m := NewModerator(test.config, &types.GameRegistration{}).(*moderator)
 			m.game = game
 			test.setup(m, game)
 
@@ -407,35 +358,35 @@ func (ms ModeratorSuite) TestWaitForPreparation() {
 
 func (ms ModeratorSuite) TestStartGame() {
 	tests := []struct {
-		name           string
-		expectedStatus bool
-		setup          func(*mock_game.MockGame)
+		name         string
+		expectedTime int64
+		setup        func(game *mock_game.MockGame)
 	}{
 		{
-			name:           "False (Game status isn't idle)",
-			expectedStatus: false,
-			setup: func(mg *mock_game.MockGame) {
-				mg.EXPECT().StatusID().Return(vars.Starting)
+			name:         "False (Game status isn't idle)",
+			expectedTime: -1,
+			setup: func(game *mock_game.MockGame) {
+				game.EXPECT().StatusID().Return(vars.Starting)
 			},
 		},
 		{
-			name:           "False (Game preparation is failed)",
-			expectedStatus: false,
-			setup: func(mg *mock_game.MockGame) {
-				mg.EXPECT().StatusID().Return(vars.Idle)
-				mg.EXPECT().Prepare().Return(int64(-1))
+			name:         "False (Game preparation is failed)",
+			expectedTime: -1,
+			setup: func(game *mock_game.MockGame) {
+				game.EXPECT().StatusID().Return(vars.Idle)
+				game.EXPECT().Start().MaxTimes(1)
+				game.EXPECT().Prepare().Return(int64(-1))
+				game.EXPECT().StatusID().Return(vars.Finished).MaxTimes(1)
 			},
 		},
 		{
-			name:           "Ok",
-			expectedStatus: true,
-			setup: func(mg *mock_game.MockGame) {
-				mg.EXPECT().StatusID().Return(vars.Idle)
-				mg.EXPECT().Prepare().Return(int64(999))
-				mg.EXPECT().Start()
-				mg.EXPECT().StatusID().Return(vars.Finished).MaxTimes(1)
-
-				util.Config().Game.PreparationDuration = 0 * time.Second
+			name:         "Ok",
+			expectedTime: 999,
+			setup: func(game *mock_game.MockGame) {
+				game.EXPECT().StatusID().Return(vars.Idle)
+				game.EXPECT().Prepare().Return(int64(999))
+				game.EXPECT().Start().MaxTimes(1)
+				game.EXPECT().StatusID().Return(vars.Finished).MaxTimes(1)
 			},
 		},
 	}
@@ -446,16 +397,16 @@ func (ms ModeratorSuite) TestStartGame() {
 			defer ctrl.Finish()
 			game := mock_game.NewMockGame(ctrl)
 
-			duration := util.Config().Game.PreparationDuration
-			defer func() { util.Config().Game.PreparationDuration = duration }()
-
-			m := NewModerator(&ModeratorInit{}).(*moderator)
+			m := NewModerator(config.Game{}, &types.GameRegistration{
+				ID: types.GameID(1),
+			}).(*moderator)
 			m.game = game
+
 			test.setup(game)
 
-			ok := m.StartGame()
+			t := m.StartGame()
 
-			ms.Equal(test.expectedStatus, ok)
+			ms.Equal(test.expectedTime, t)
 		})
 	}
 }
@@ -493,7 +444,7 @@ func (ms ModeratorSuite) TestFinishGame() {
 			defer ctrl.Finish()
 			game := mock_game.NewMockGame(ctrl)
 
-			m := NewModerator(&ModeratorInit{}).(*moderator)
+			m := NewModerator(config.Game{}, &types.GameRegistration{}).(*moderator)
 			m.game = game
 			test.setup(m, game)
 
@@ -517,7 +468,7 @@ func (ms ModeratorSuite) TestRequestPlay() {
 		setup       func(*moderator, *mock_game.MockGame)
 	}{
 		{
-			name: "Falure (Play is locked)",
+			name: "Failure (Play is locked)",
 			expectedRes: &types.ActionResponse{
 				Ok:      false,
 				Message: "Turn is over!",
@@ -527,7 +478,7 @@ func (ms ModeratorSuite) TestRequestPlay() {
 			},
 		},
 		{
-			name: "Falure (Play is already played)",
+			name: "Failure (Play is already played)",
 			expectedRes: &types.ActionResponse{
 				Ok:      false,
 				Message: "You played this turn!",
@@ -556,7 +507,7 @@ func (ms ModeratorSuite) TestRequestPlay() {
 			defer ctrl.Finish()
 			game := mock_game.NewMockGame(ctrl)
 
-			m := NewModerator(&ModeratorInit{}).(*moderator)
+			m := NewModerator(config.Game{}, &types.GameRegistration{}).(*moderator)
 			m.game = game
 			test.setup(m, game)
 
