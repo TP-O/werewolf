@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"uwwolf/config"
 
 	_ "github.com/lib/pq"
@@ -23,12 +22,11 @@ func main() {
 	// }))
 
 	config.Load(".")
+
 	// rdb := redis.Connect()
 
 	// res := httptest.NewRecorder()
 	// ctx, r := gin.CreateTestContext(res)
-
-	fmt.Println(5 / 2)
 
 	// svr := api.NewAPIServer(nil, nil)
 	// r.POST("/test", func(_ *gin.Context) {

@@ -12,12 +12,14 @@ import (
 )
 
 type ApiServer struct {
+	config      config.App
 	roomService service.RoomService
 	gameService service.GameService
 }
 
-func NewAPIServer(roomService service.RoomService, gameService service.GameService) *ApiServer {
+func NewAPIServer(config config.App, roomService service.RoomService, gameService service.GameService) *ApiServer {
 	return &ApiServer{
+		config,
 		roomService,
 		gameService,
 	}
@@ -34,17 +36,17 @@ func (s *ApiServer) setupRouter() *gin.Engine {
 	return r
 }
 
-func (s ApiServer) Run() {
-	if config.App().Env == "production" {
+func (as ApiServer) Run() {
+	if as.config.Env == "production" {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
-		validation.ImproveValidator(v)
+		validation.Setup(v)
 	}
 
-	route := s.setupRouter()
-	if err := route.Run(fmt.Sprintf(":%v", config.App().Port)); err != nil {
+	route := as.setupRouter()
+	if err := route.Run(fmt.Sprintf(":%v", as.config.Port)); err != nil {
 		panic(err)
 	}
 }

@@ -3,7 +3,6 @@ package api_test
 import (
 	"testing"
 	"uwwolf/app/validation"
-	"uwwolf/config"
 	"uwwolf/game/types"
 
 	"github.com/gin-gonic/gin/binding"
@@ -21,10 +20,8 @@ func (ass *ApiServiceSuite) SetupSuite() {
 	ass.playerID1 = types.PlayerID("1")
 	ass.playerID2 = types.PlayerID("2")
 
-	config.Load("../../")
-
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
-		validation.ImproveValidator(v)
+		validation.Setup(v)
 	}
 }
 

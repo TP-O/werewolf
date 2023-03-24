@@ -10,6 +10,7 @@ import (
 	"uwwolf/app/data"
 	"uwwolf/app/dto"
 	"uwwolf/app/enum"
+	"uwwolf/config"
 	mock_service "uwwolf/mock/app/service"
 	"uwwolf/util"
 
@@ -237,16 +238,16 @@ func (ass ApiServiceSuite) TestReplaceGameConfig() {
 				}
 				ctx.Set(enum.WaitingRoomCtxKey, room)
 
-				var cfg dto.ReplaceGameConfigDto
+				var gameCfg dto.ReplaceGameConfigDto
 				json.Unmarshal([]byte(`{
                     "role_ids": [3, 4],
                     "required_role_ids": [3],
                     "number_werewolves": 1,
                     "turn_duration": 50,
                     "discussion_duration": 90
-                }`), &cfg)
+                }`), &gameCfg)
 
-				gameSvc.EXPECT().UpdateGameConfig(room.ID, cfg).Return(fmt.Errorf("Update failed"))
+				gameSvc.EXPECT().UpdateGameConfig(room.ID, gameCfg).Return(fmt.Errorf("Update failed"))
 			},
 			check: func(res *httptest.ResponseRecorder) {
 				ass.Equal(http.StatusInternalServerError, res.Code)
@@ -271,16 +272,16 @@ func (ass ApiServiceSuite) TestReplaceGameConfig() {
 				}
 				ctx.Set(enum.WaitingRoomCtxKey, room)
 
-				var cfg dto.ReplaceGameConfigDto
+				var gameCfg dto.ReplaceGameConfigDto
 				json.Unmarshal([]byte(`{
                     "role_ids": [3, 4],
                     "required_role_ids": [3],
                     "number_werewolves": 1,
                     "turn_duration": 50,
                     "discussion_duration": 90
-                }`), &cfg)
+                }`), &gameCfg)
 
-				gameSvc.EXPECT().UpdateGameConfig(room.ID, cfg)
+				gameSvc.EXPECT().UpdateGameConfig(room.ID, gameCfg)
 			},
 			check: func(res *httptest.ResponseRecorder) {
 				ass.Equal(http.StatusOK, res.Code)
@@ -299,7 +300,7 @@ func (ass ApiServiceSuite) TestReplaceGameConfig() {
 
 			test.setup(ctx, gameSvc)
 
-			svr := api.NewAPIServer(nil, gameSvc)
+			svr := api.NewAPIServer(config.App{}, nil, gameSvc)
 			r.POST("/test", func(_ *gin.Context) {
 				svr.ReplaceGameConfig(ctx)
 			})

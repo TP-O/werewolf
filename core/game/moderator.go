@@ -17,6 +17,7 @@ import (
 type moderator struct {
 	gameID             types.GameID
 	game               contract.Game
+	config             config.Game
 	scheduler          contract.Scheduler
 	mutex              *sync.Mutex
 	nextTurnSignal     chan bool
@@ -27,9 +28,10 @@ type moderator struct {
 	winningFaction     types.FactionID
 }
 
-func NewModerator(reg *types.GameRegistration) contract.Moderator {
+func NewModerator(config config.Game, reg *types.GameRegistration) contract.Moderator {
 	m := &moderator{
 		gameID:             reg.ID,
+		config:             config,
 		nextTurnSignal:     make(chan bool),
 		finishSignal:       make(chan bool),
 		mutex:              new(sync.Mutex),
@@ -125,7 +127,7 @@ func (m *moderator) runScheduler() {
 func (m *moderator) waitForPreparation() {
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
-		config.Game().PreparationDuration,
+		m.config.PreparationDuration,
 	)
 	defer cancel()
 

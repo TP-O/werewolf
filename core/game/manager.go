@@ -2,19 +2,22 @@ package game
 
 import (
 	"fmt"
+	"uwwolf/config"
 	"uwwolf/game/contract"
 	"uwwolf/game/types"
 )
 
 type manager struct {
+	config     config.Game
 	moderators map[types.GameID]contract.Moderator
 }
 
 var m contract.Manager
 
-func Manager() contract.Manager {
+func Manager(config config.Game) contract.Manager {
 	if m == nil {
 		m = &manager{
+			config:     config,
 			moderators: make(map[types.GameID]contract.Moderator),
 		}
 	}
@@ -30,6 +33,6 @@ func (m *manager) RegisterGame(registration *types.GameRegistration) (contract.M
 		return nil, fmt.Errorf("Game is already running!")
 	}
 
-	m.moderators[registration.ID] = NewModerator(registration)
+	m.moderators[registration.ID] = NewModerator(m.config, registration)
 	return m.moderators[registration.ID], nil
 }

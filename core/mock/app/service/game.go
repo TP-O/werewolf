@@ -38,17 +38,17 @@ func (m *MockGameService) EXPECT() *MockGameServiceMockRecorder {
 }
 
 // CheckBeforeRegistration mocks base method.
-func (m *MockGameService) CheckBeforeRegistration(room data.WaitingRoom, cfg data.GameConfig) error {
+func (m *MockGameService) CheckBeforeRegistration(room data.WaitingRoom, gameCfg data.GameConfig) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CheckBeforeRegistration", room, cfg)
+	ret := m.ctrl.Call(m, "CheckBeforeRegistration", room, gameCfg)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // CheckBeforeRegistration indicates an expected call of CheckBeforeRegistration.
-func (mr *MockGameServiceMockRecorder) CheckBeforeRegistration(room, cfg interface{}) *gomock.Call {
+func (mr *MockGameServiceMockRecorder) CheckBeforeRegistration(room, gameCfg interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckBeforeRegistration", reflect.TypeOf((*MockGameService)(nil).CheckBeforeRegistration), room, cfg)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckBeforeRegistration", reflect.TypeOf((*MockGameService)(nil).CheckBeforeRegistration), room, gameCfg)
 }
 
 // GameConfig mocks base method.

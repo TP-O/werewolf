@@ -2,19 +2,15 @@ package config
 
 import "github.com/spf13/viper"
 
-type app struct {
+type App struct {
 	Debug bool   `mapstructure:"debug"`
 	Env   string `mapstructure:"env"`
 	Port  uint16 `mapstructure:"port"`
 }
 
-var _ configLoader = (*app)(nil)
+var _ configLoader = (*App)(nil)
 
-func App() app {
-	return cfg.App
-}
-
-func (app) loadDefault() {
+func (App) loadDefault() {
 	viper.SetDefault("app", map[string]interface{}{
 		"debug": true,
 		"env":   "development",

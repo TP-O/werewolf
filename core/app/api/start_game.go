@@ -19,15 +19,15 @@ func (as ApiServer) StartGame(ctx *gin.Context) {
 		return
 	}
 
-	cfg := as.gameService.GameConfig(room.ID)
-	if err := as.gameService.CheckBeforeRegistration(*room, cfg); err != nil {
+	gameCfg := as.gameService.GameConfig(room.ID)
+	if err := as.gameService.CheckBeforeRegistration(*room, gameCfg); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
 		return
 	}
 
-	mod, err := as.gameService.RegisterGame(cfg, room.PlayerIDs)
+	mod, err := as.gameService.RegisterGame(gameCfg, room.PlayerIDs)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"message": err.Error(),

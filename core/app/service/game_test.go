@@ -54,7 +54,7 @@ func (gss GameServiceSuite) TestNewGameService() {
 	rdb, _ := redismock.NewClusterMock()
 	manager := mock_game.NewMockManager(ctrl)
 
-	svc := service.NewGameService(rdb, pdb, manager)
+	svc := service.NewGameService(config.Game{}, rdb, pdb, manager)
 
 	gss.Require().NotNil(svc)
 	gss.Require().False(reflect.ValueOf(svc).Elem().FieldByName("rdb").IsNil())
@@ -113,7 +113,7 @@ func (gss GameServiceSuite) TestGameConfig() {
 
 			test.setup(rmock)
 
-			svc := service.NewGameService(rdb, pdb, manager)
+			svc := service.NewGameService(config.Game{}, rdb, pdb, manager)
 			config := svc.GameConfig(gss.roomID)
 
 			gss.Require().Equal(test.expectedResult, config)
@@ -172,7 +172,7 @@ func (gss GameServiceSuite) TestUpdateGameConfig() {
 
 			test.setup(rmock)
 
-			svc := service.NewGameService(rdb, pdb, manager)
+			svc := service.NewGameService(config.Game{}, rdb, pdb, manager)
 			err := svc.UpdateGameConfig(gss.roomID, test.config)
 
 			gss.Require().Equal(test.expectedErr, err)
@@ -256,7 +256,7 @@ func (gss GameServiceSuite) TestCheckBeforeRegistration() {
 
 	for _, test := range tests {
 		gss.Run(test.name, func() {
-			svc := service.NewGameService(nil, nil, nil)
+			svc := service.NewGameService(config.Game{}, nil, nil, nil)
 			err := svc.CheckBeforeRegistration(test.room, test.cfg)
 
 			gss.Require().Equal(test.expectedErr, err)
@@ -319,7 +319,7 @@ func (gss GameServiceSuite) TestRegisterGame() {
 
 			test.setup(pdb, manager, moderator)
 
-			svc := service.NewGameService(rdb, pdb, manager)
+			svc := service.NewGameService(config.Game{}, rdb, pdb, manager)
 			mod, err := svc.RegisterGame(test.config, gss.joinedPlayerIDs)
 
 			if test.expectedErr != nil {

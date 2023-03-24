@@ -20,9 +20,9 @@ type store struct {
 	db *sql.DB
 }
 
-func Connect(db *sql.DB) Store {
-	db.SetMaxOpenConns(config.Postgres().PollSize)
-	db.SetMaxIdleConns(config.Postgres().PollSize)
+func Connect(db *sql.DB, config config.Postgres) Store {
+	db.SetMaxOpenConns(config.PollSize)
+	db.SetMaxIdleConns(config.PollSize)
 	db.SetConnMaxIdleTime(0)
 
 	return &store{

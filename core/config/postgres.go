@@ -2,7 +2,7 @@ package config
 
 import "github.com/spf13/viper"
 
-type postgres struct {
+type Postgres struct {
 	Host     string `mapstructure:"host"`
 	Port     uint16 `mapstructure:"port"`
 	Username string `mapstructure:"username"`
@@ -11,13 +11,9 @@ type postgres struct {
 	PollSize int    `mapstructure:"pool_size"`
 }
 
-var _ configLoader = (*postgres)(nil)
+var _ configLoader = (*Postgres)(nil)
 
-func Postgres() postgres {
-	return cfg.Postgres
-}
-
-func (postgres) loadDefault() {
+func (Postgres) loadDefault() {
 	viper.SetDefault("postgres", map[string]interface{}{
 		"host":      "postgres",
 		"port":      5432,

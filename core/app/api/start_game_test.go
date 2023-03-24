@@ -7,6 +7,7 @@ import (
 	"uwwolf/app/api"
 	"uwwolf/app/data"
 	"uwwolf/app/enum"
+	"uwwolf/config"
 	mock_service "uwwolf/mock/app/service"
 	mock_game "uwwolf/mock/game"
 	"uwwolf/util"
@@ -40,11 +41,11 @@ func (ass ApiServiceSuite) TestStartGame() {
 				}
 				ctx.Set(enum.WaitingRoomCtxKey, room)
 
-				cfg := data.GameConfig{
+				gameCfg := data.GameConfig{
 					NumberWerewolves: 1,
 				}
-				gameSvc.EXPECT().GameConfig(room.ID).Return(cfg)
-				gameSvc.EXPECT().CheckBeforeRegistration(*room, cfg).Return(fmt.Errorf("Check failed"))
+				gameSvc.EXPECT().GameConfig(room.ID).Return(gameCfg)
+				gameSvc.EXPECT().CheckBeforeRegistration(*room, gameCfg).Return(fmt.Errorf("Check failed"))
 			},
 			check: func(res *httptest.ResponseRecorder) {
 				ass.Equal(http.StatusBadRequest, res.Code)
@@ -62,12 +63,12 @@ func (ass ApiServiceSuite) TestStartGame() {
 				}
 				ctx.Set(enum.WaitingRoomCtxKey, room)
 
-				cfg := data.GameConfig{
+				gameCfg := data.GameConfig{
 					NumberWerewolves: 1,
 				}
-				gameSvc.EXPECT().GameConfig(room.ID).Return(cfg)
-				gameSvc.EXPECT().CheckBeforeRegistration(*room, cfg)
-				gameSvc.EXPECT().RegisterGame(cfg, room.PlayerIDs).
+				gameSvc.EXPECT().GameConfig(room.ID).Return(gameCfg)
+				gameSvc.EXPECT().CheckBeforeRegistration(*room, gameCfg)
+				gameSvc.EXPECT().RegisterGame(gameCfg, room.PlayerIDs).
 					Return(nil, fmt.Errorf("Register failed"))
 			},
 			check: func(res *httptest.ResponseRecorder) {
@@ -86,12 +87,12 @@ func (ass ApiServiceSuite) TestStartGame() {
 				}
 				ctx.Set(enum.WaitingRoomCtxKey, room)
 
-				cfg := data.GameConfig{
+				gameCfg := data.GameConfig{
 					NumberWerewolves: 1,
 				}
-				gameSvc.EXPECT().GameConfig(room.ID).Return(cfg)
-				gameSvc.EXPECT().CheckBeforeRegistration(*room, cfg)
-				gameSvc.EXPECT().RegisterGame(cfg, room.PlayerIDs).Return(mod, nil)
+				gameSvc.EXPECT().GameConfig(room.ID).Return(gameCfg)
+				gameSvc.EXPECT().CheckBeforeRegistration(*room, gameCfg)
+				gameSvc.EXPECT().RegisterGame(gameCfg, room.PlayerIDs).Return(mod, nil)
 				mod.EXPECT().StartGame()
 			},
 			check: func(res *httptest.ResponseRecorder) {
@@ -112,7 +113,7 @@ func (ass ApiServiceSuite) TestStartGame() {
 
 			test.setup(ctx, gameSvc, mod)
 
-			svr := api.NewAPIServer(nil, gameSvc)
+			svr := api.NewAPIServer(config.App{}, nil, gameSvc)
 			r.POST("/test", func(_ *gin.Context) {
 				svr.StartGame(ctx)
 			})

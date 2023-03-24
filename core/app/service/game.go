@@ -28,13 +28,16 @@ type GameService interface {
 
 	// CheckBeforeRegistration checks the combination of room and game config before
 	// registering a game. This makes sure the game runs properly without any unexpectation.
-	CheckBeforeRegistration(room data.WaitingRoom, cfg data.GameConfig) error
+	CheckBeforeRegistration(room data.WaitingRoom, gameCfg data.GameConfig) error
 
 	// RegisterGame create a game with the given config and player ID list.
 	RegisterGame(config data.GameConfig, playerIDs []types.PlayerID) (contract.Moderator, error)
 }
 
 type gameService struct {
+	// config is global game config.
+	config config.Game
+
 	// rdb is redis connection.
 	rdb *redis.ClusterClient
 	// pdb is postgreSQL connection.
@@ -44,8 +47,14 @@ type gameService struct {
 	gameManager contract.Manager
 }
 
-func NewGameService(rdb *redis.ClusterClient, pdb postgres.Store, gameManager contract.Manager) GameService {
+func NewGameService(
+	config config.Game,
+	rdb *redis.ClusterClient,
+	pdb postgres.Store,
+	gameManager contract.Manager,
+) GameService {
 	return &gameService{
+		config,
 		rdb,
 		pdb,
 		gameManager,
@@ -87,16 +96,16 @@ func (gs gameService) UpdateGameConfig(roomID string, config dto.ReplaceGameConf
 
 // CheckBeforeRegistration checks the combination of room and game config before
 // registering a game. This makes sure the game runs properly without any unexpectation.
-func (gs gameService) CheckBeforeRegistration(room data.WaitingRoom, cfg data.GameConfig) error {
-	if len(room.PlayerIDs) < int(config.Game().MinCapacity) {
+func (gs gameService) CheckBeforeRegistration(room data.WaitingRoom, gameCfg data.GameConfig) error {
+	if len(room.PlayerIDs) < int(gs.config.MinCapacity) {
 		return fmt.Errorf("Invite more players to play!")
-	} else if len(room.PlayerIDs) > int(config.Game().MaxCapacity) {
+	} else if len(room.PlayerIDs) > int(gs.config.MaxCapacity) {
 		return fmt.Errorf("Too many players!")
 	}
 
 	numberOfPlayers := len(room.PlayerIDs)
-	if (numberOfPlayers%2 == 0 && numberOfPlayers/2 <= int(cfg.NumberWerewolves)) ||
-		(numberOfPlayers%2 != 0 && numberOfPlayers/2 < int(cfg.NumberWerewolves)) {
+	if (numberOfPlayers%2 == 0 && numberOfPlayers/2 <= int(gameCfg.NumberWerewolves)) ||
+		(numberOfPlayers%2 != 0 && numberOfPlayers/2 < int(gameCfg.NumberWerewolves)) {
 		return fmt.Errorf("Unblanced number of werewolves!")
 	}
 

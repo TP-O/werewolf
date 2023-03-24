@@ -2,7 +2,7 @@ package config
 
 import "github.com/spf13/viper"
 
-type redis struct {
+type Redis struct {
 	Username          string   `mapstructure:"username"`
 	Password          string   `mapstructure:"password"`
 	MasterName        string   `mapstructure:"master_name"`
@@ -10,13 +10,9 @@ type redis struct {
 	PollSize          int      `mapstructure:"pool_size"`
 }
 
-var _ configLoader = (*redis)(nil)
+var _ configLoader = (*Redis)(nil)
 
-func Redis() redis {
-	return cfg.Redis
-}
-
-func (redis) loadDefault() {
+func (Redis) loadDefault() {
 	viper.SetDefault("redis", map[string]interface{}{
 		"username":    "username",
 		"password":    "password",

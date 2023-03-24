@@ -8,13 +8,13 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-func Connect() *redis.ClusterClient {
+func Connect(config config.Redis) *redis.ClusterClient {
 	client := redis.NewFailoverClusterClient(&redis.FailoverOptions{
-		MasterName:      config.Redis().MasterName,
-		SentinelAddrs:   config.Redis().SentinelAddresses,
-		Username:        config.Redis().Username,
-		Password:        config.Redis().Password,
-		PoolSize:        config.Redis().PollSize,
+		MasterName:      config.MasterName,
+		SentinelAddrs:   config.SentinelAddresses,
+		Username:        config.Username,
+		Password:        config.Password,
+		PoolSize:        config.PollSize,
 		ConnMaxIdleTime: 0,
 		MinRetryBackoff: 5 * time.Second,
 		MaxRetryBackoff: 10 * time.Second,

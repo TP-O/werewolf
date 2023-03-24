@@ -6,7 +6,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-type game struct {
+type Game struct {
 	MinCapacity           uint8         `mapstructure:"min_capacity"`
 	MaxCapacity           uint8         `mapstructure:"max_capacity"`
 	PreparationDuration   time.Duration `mapstructure:"preparation_duration"`
@@ -16,13 +16,9 @@ type game struct {
 	MaxDiscussionDuration time.Duration `mapstructure:"max_discussion_duration"`
 }
 
-var _ configLoader = (*game)(nil)
+var _ configLoader = (*Game)(nil)
 
-func Game() game {
-	return cfg.Game
-}
-
-func (game) loadDefault() {
+func (Game) loadDefault() {
 	viper.SetDefault("game", map[string]interface{}{
 		"min_capacity":            5,
 		"max_capacicty":           20,

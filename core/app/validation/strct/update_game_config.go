@@ -14,13 +14,15 @@ import (
 
 const TurnDurationTag = "turn_duration"
 
-func AddTurnDurationTag(ut ut.Translator) error {
-	message := "{0} must be from " +
-		strconv.Itoa(int(config.Game().MinTurnDuration.Seconds())) +
-		" to " +
-		strconv.Itoa(int(config.Game().MaxTurnDuration.Seconds())) +
-		" seconds"
-	return ut.Add(TurnDurationTag, message, true)
+func AddTurnDurationTag(config config.Game) func(ut ut.Translator) error {
+	return func(ut ut.Translator) error {
+		message := "{0} must be from " +
+			strconv.Itoa(int(config.MinTurnDuration.Seconds())) +
+			" to " +
+			strconv.Itoa(int(config.MaxTurnDuration.Seconds())) +
+			" seconds"
+		return ut.Add(TurnDurationTag, message, true)
+	}
 }
 
 func RegisterTurnDurationMessage(ut ut.Translator, fe validator.FieldError) string {
@@ -28,11 +30,11 @@ func RegisterTurnDurationMessage(ut ut.Translator, fe validator.FieldError) stri
 	return t
 }
 
-func validateTurnDuration(sl validator.StructLevel, cfg *dto.ReplaceGameConfigDto) {
-	if cfg.TurnDuration < uint16(config.Game().MinTurnDuration.Seconds()) ||
-		cfg.TurnDuration > uint16(config.Game().MaxTurnDuration.Seconds()) {
+func validateTurnDuration(sl validator.StructLevel, config config.Game, gameCfg *dto.ReplaceGameConfigDto) {
+	if gameCfg.TurnDuration < uint16(config.MinTurnDuration.Seconds()) ||
+		gameCfg.TurnDuration > uint16(config.MaxTurnDuration.Seconds()) {
 		sl.ReportError(
-			cfg.TurnDuration,
+			gameCfg.TurnDuration,
 			"turn_duration",
 			"TurnDuration",
 			TurnDurationTag,
@@ -43,13 +45,15 @@ func validateTurnDuration(sl validator.StructLevel, cfg *dto.ReplaceGameConfigDt
 
 const DiscussionDurationTag = "discussion_duration"
 
-func AddDiscussionDurationTag(ut ut.Translator) error {
-	message := "{0} must be from " +
-		strconv.Itoa(int(config.Game().MinDiscussionDuration.Seconds())) +
-		" to " +
-		strconv.Itoa(int(config.Game().MaxDiscussionDuration.Seconds())) +
-		" seconds"
-	return ut.Add(DiscussionDurationTag, message, true)
+func AddDiscussionDurationTag(config config.Game) func(ut ut.Translator) error {
+	return func(ut ut.Translator) error {
+		message := "{0} must be from " +
+			strconv.Itoa(int(config.MinDiscussionDuration.Seconds())) +
+			" to " +
+			strconv.Itoa(int(config.MaxDiscussionDuration.Seconds())) +
+			" seconds"
+		return ut.Add(DiscussionDurationTag, message, true)
+	}
 }
 
 func RegisterDiscussionDurationMessage(ut ut.Translator, fe validator.FieldError) string {
@@ -57,11 +61,11 @@ func RegisterDiscussionDurationMessage(ut ut.Translator, fe validator.FieldError
 	return t
 }
 
-func validateDiscussionDuration(sl validator.StructLevel, cfg *dto.ReplaceGameConfigDto) {
-	if cfg.DiscussionDuration < uint16(config.Game().MinDiscussionDuration.Seconds()) ||
-		cfg.DiscussionDuration > uint16(config.Game().MaxDiscussionDuration.Seconds()) {
+func validateDiscussionDuration(sl validator.StructLevel, config config.Game, gameCfg *dto.ReplaceGameConfigDto) {
+	if gameCfg.DiscussionDuration < uint16(config.MinDiscussionDuration.Seconds()) ||
+		gameCfg.DiscussionDuration > uint16(config.MaxDiscussionDuration.Seconds()) {
 		sl.ReportError(
-			cfg.DiscussionDuration,
+			gameCfg.DiscussionDuration,
 			DiscussionDurationTag,
 			"DiscussionDuration",
 			DiscussionDurationTag,
@@ -82,11 +86,11 @@ func RegisterRoleIDsMessage(ut ut.Translator, fe validator.FieldError) string {
 	return t
 }
 
-func validateRoleIDs(sl validator.StructLevel, cfg *dto.ReplaceGameConfigDto) {
-	for _, roleID := range cfg.RoleIDs {
+func validateRoleIDs(sl validator.StructLevel, gameCfg *dto.ReplaceGameConfigDto) {
+	for _, roleID := range gameCfg.RoleIDs {
 		if !slices.Contains(maps.Keys(vars.RoleSets), roleID) {
 			sl.ReportError(
-				cfg.RoleIDs,
+				gameCfg.RoleIDs,
 				RoleIDTag,
 				"RoleIDs",
 				RoleIDTag,
@@ -109,11 +113,11 @@ func RegisterRequiredRoleIDsMessage(ut ut.Translator, fe validator.FieldError) s
 	return t
 }
 
-func validateRequiredRoleIDs(sl validator.StructLevel, cfg *dto.ReplaceGameConfigDto) {
-	for _, roleID := range cfg.RequiredRoleIDs {
-		if !slices.Contains(cfg.RoleIDs, roleID) {
+func validateRequiredRoleIDs(sl validator.StructLevel, gameCfg *dto.ReplaceGameConfigDto) {
+	for _, roleID := range gameCfg.RequiredRoleIDs {
+		if !slices.Contains(gameCfg.RoleIDs, roleID) {
 			sl.ReportError(
-				cfg.RequiredRoleIDs,
+				gameCfg.RequiredRoleIDs,
 				RequiredRoleIDsTag,
 				"RequiredRoleIDs",
 				RequiredRoleIDsTag,
@@ -124,10 +128,12 @@ func validateRequiredRoleIDs(sl validator.StructLevel, cfg *dto.ReplaceGameConfi
 	}
 }
 
-func ValidateGameConfig(sl validator.StructLevel) {
-	cfg := sl.Current().Interface().(dto.ReplaceGameConfigDto)
-	validateTurnDuration(sl, &cfg)
-	validateDiscussionDuration(sl, &cfg)
-	validateRoleIDs(sl, &cfg)
-	validateRequiredRoleIDs(sl, &cfg)
+func ValidateGameConfig(config config.Game) func(sl validator.StructLevel) {
+	return func(sl validator.StructLevel) {
+		gameCfg := sl.Current().Interface().(dto.ReplaceGameConfigDto)
+		validateTurnDuration(sl, config, &gameCfg)
+		validateDiscussionDuration(sl, config, &gameCfg)
+		validateRoleIDs(sl, &gameCfg)
+		validateRequiredRoleIDs(sl, &gameCfg)
+	}
 }

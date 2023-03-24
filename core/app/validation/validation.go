@@ -5,6 +5,7 @@ import (
 	"strings"
 	"uwwolf/app/dto"
 	"uwwolf/app/validation/strct"
+	"uwwolf/config"
 
 	"github.com/go-playground/locales/en"
 	ut "github.com/go-playground/universal-translator"
@@ -16,7 +17,7 @@ var (
 	trans ut.Translator
 )
 
-func ImproveValidator(validate *validator.Validate) {
+func Setup(validate *validator.Validate) {
 	uni := ut.New(en.New())
 	trans, _ = uni.GetTranslator("en")
 	en_translations.RegisterDefaultTranslations(validate, trans) // nolint errcheck
@@ -27,22 +28,23 @@ func ImproveValidator(validate *validator.Validate) {
 		return name[0]
 	})
 
-	addCutomizedValidationTags(trans, validate)
+	config := config.Load("../..").Game
+	addCutomizedValidationTags(trans, validate, config)
 	addCustomizedFieldRules(validate)
-	addCustomizedStructRules(validate)
+	addCustomizedStructRules(validate, config)
 }
 
-func addCutomizedValidationTags(trans ut.Translator, validate *validator.Validate) {
+func addCutomizedValidationTags(trans ut.Translator, validate *validator.Validate, config config.Game) {
 	validate.RegisterTranslation( // nolint errcheck
 		strct.TurnDurationTag,
 		trans,
-		strct.AddTurnDurationTag,
+		strct.AddTurnDurationTag(config),
 		strct.RegisterTurnDurationMessage,
 	)
 	validate.RegisterTranslation( // nolint errcheck
 		strct.DiscussionDurationTag,
 		trans,
-		strct.AddDiscussionDurationTag,
+		strct.AddDiscussionDurationTag(config),
 		strct.RegisterDiscussionDurationMessage,
 	)
 	validate.RegisterTranslation( // nolint errcheck
@@ -63,8 +65,8 @@ func addCustomizedFieldRules(validate *validator.Validate) {
 	//
 }
 
-func addCustomizedStructRules(validate *validator.Validate) {
-	validate.RegisterStructValidation(strct.ValidateGameConfig, dto.ReplaceGameConfigDto{})
+func addCustomizedStructRules(validate *validator.Validate, config config.Game) {
+	validate.RegisterStructValidation(strct.ValidateGameConfig(config), dto.ReplaceGameConfigDto{})
 }
 
 type validationErrors = map[string]string
