@@ -27,8 +27,9 @@ type moderator struct {
 	winningFaction     types.FactionID
 }
 
-func NewModerator(reg *types.GameRegistration) (contract.Moderator, error) {
+func NewModerator(reg *types.GameRegistration) contract.Moderator {
 	m := &moderator{
+		gameID:             reg.ID,
 		nextTurnSignal:     make(chan bool),
 		finishSignal:       make(chan bool),
 		mutex:              new(sync.Mutex),
@@ -36,29 +37,14 @@ func NewModerator(reg *types.GameRegistration) (contract.Moderator, error) {
 		discussionDuration: reg.DiscussionDuration,
 		scheduler:          NewScheduler(vars.NightPhaseID),
 	}
-
-	game, err := NewGame(m.scheduler, &types.GameInitialization{
+	m.game = NewGame(m.scheduler, &types.GameInitialization{
 		RoleIDs:          reg.RoleIDs,
 		RequiredRoleIDs:  reg.RequiredRoleIDs,
 		NumberWerewolves: reg.NumberWerewolves,
 		PlayerIDs:        reg.PlayerIDs,
 	})
-	if err != nil {
-		return nil, err
-	} else {
-		m.game = game
-	}
 
-	return m, nil
-}
-
-func (m *moderator) SetGameID(gameID types.GameID) bool {
-	if m.game.StatusID() != vars.Idle {
-		return false
-	}
-
-	m.gameID = gameID
-	return true
+	return m
 }
 
 // checkWinConditions checks if any faction satisfies its win condition,

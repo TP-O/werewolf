@@ -57,6 +57,9 @@ type GameRegistration struct {
 	// GameInitialization is the required options to start a game.
 	GameInitialization
 
+	// ID is game ID.
+	ID GameID
+
 	// TurnDuration is the duration of a turn.
 	TurnDuration time.Duration
 

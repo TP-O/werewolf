@@ -18,7 +18,6 @@ func Manager() contract.Manager {
 			moderators: make(map[types.GameID]contract.Moderator),
 		}
 	}
-
 	return m
 }
 
@@ -26,13 +25,11 @@ func (m *manager) Moderator(gameID types.GameID) contract.Moderator {
 	return m.moderators[gameID]
 }
 
-func (m *manager) AddModerator(gameID types.GameID, moderator contract.Moderator) (bool, error) {
-	if m.moderators[gameID] != nil {
-		return false, fmt.Errorf("Game is already running!")
+func (m *manager) RegisterGame(registration *types.GameRegistration) (contract.Moderator, error) {
+	if m.moderators[registration.ID] != nil {
+		return nil, fmt.Errorf("Game is already running!")
 	}
 
-	m.moderators[gameID] = moderator
-	moderator.SetGameID(gameID)
-
-	return true, nil
+	m.moderators[registration.ID] = NewModerator(registration)
+	return m.moderators[registration.ID], nil
 }
