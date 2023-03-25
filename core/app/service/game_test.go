@@ -11,11 +11,11 @@ import (
 	"uwwolf/app/enum"
 	"uwwolf/app/service"
 	"uwwolf/config"
+	"uwwolf/db/postgres"
 	"uwwolf/game/types"
 	"uwwolf/game/vars"
+	mock_storage "uwwolf/mock/db"
 	mock_game "uwwolf/mock/game"
-	mock_storage "uwwolf/mock/storage"
-	"uwwolf/storage/postgres"
 
 	"github.com/go-redis/redismock/v9"
 	"github.com/golang/mock/gomock"

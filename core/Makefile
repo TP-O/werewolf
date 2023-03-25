@@ -12,8 +12,8 @@ mockgen:
 	mockgen -source game/contract/role.go -destination mock/game/role.go -package mock_game
 	mockgen -source game/contract/moderator.go -destination mock/game/moderator.go -package mock_game
 	mockgen -source game/contract/manager.go -destination mock/game/manager.go -package mock_game
-	mockgen -source storage/postgres/store.go -destination mock/storage/postgres.go -package mock_storage \
-        -aux_files=uwwolf/storage/postgres=storage/postgres/querier.go
+	mockgen -source db/postgres/store.go -destination mock/db/postgres.go -package mock_storage \
+        -aux_files=uwwolf/db/postgres=db/postgres/querier.go
 	mockgen -source app/service/room.go -destination mock/app/service/room.go -package mock_service
 	mockgen -source app/service/game.go -destination mock/app/service/game.go -package mock_service
 

@@ -9,10 +9,10 @@ import (
 	"uwwolf/app/dto"
 	"uwwolf/app/enum"
 	"uwwolf/config"
+	"uwwolf/db/postgres"
 	"uwwolf/game/contract"
 	"uwwolf/game/types"
 	"uwwolf/game/vars"
-	"uwwolf/storage/postgres"
 
 	"github.com/redis/go-redis/v9"
 )
