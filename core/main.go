@@ -54,6 +54,5 @@ func main() {
 	if err := svr.Shutdown(ctx); err != nil {
 		log.Println(err)
 	}
-
 	log.Println("Exited")
 }
