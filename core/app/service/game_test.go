@@ -39,8 +39,6 @@ func (gss *GameServiceSuite) SetupSuite() {
 		types.PlayerID("2"),
 		types.PlayerID("3"),
 	}
-
-	config.Load("../../")
 }
 
 func TestGameServiceSuite(t *testing.T) {

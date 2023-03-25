@@ -43,7 +43,7 @@ func Load(path string) *config {
 
 		loadDefaultConfig(cfg)
 		if err := viper.Unmarshal(cfg); err != nil {
-			panic(err)
+			log.Panic(err)
 		}
 	}
 

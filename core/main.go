@@ -1,110 +1,56 @@
 package main
 
 import (
+	"context"
+	"log"
+	"os/signal"
+	"syscall"
+	"time"
+	"uwwolf/app/api"
+	"uwwolf/app/service"
 	"uwwolf/config"
+	"uwwolf/game"
+	"uwwolf/storage/postgres"
+	"uwwolf/storage/redis"
 
 	_ "github.com/lib/pq"
 )
 
 func main() {
-	// fmt.Println(validator.ValidateStruct(types.GameSetting{
-	// 	TurnDuration:       50,
-	// 	DiscussionDuration: 90,
-	// 	RoleIDs:            []enum.RoleID{1, 2},
-	// 	NumberWerewolves:   1,
-	// 	PlayerIDs: []enum.PlayerID{
-	// 		"11111111111111111111",
-	// 		"22222222222222222222",
-	// 		"33333333333333333333",
-	// 		"44444444444444444444",
-	// 		"55555555555555555555",
-	// 	},
-	// }))
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer stop()
 
-	config.Load(".")
+	config := config.Load(".")
 
-	// rdb := redis.Connect()
+	log.Println("Connecting to Redis...")
+	rdb := redis.Connect(config.Redis)
 
-	// res := httptest.NewRecorder()
-	// ctx, r := gin.CreateTestContext(res)
+	log.Println("Connecting to PostgreSQL...")
+	pdb := postgres.Connect(config.Postgres)
 
-	// svr := api.NewAPIServer(nil, nil)
-	// r.POST("/test", func(_ *gin.Context) {
-	// 	svr.ReplaceGameConfig(ctx)
-	// })
+	gameManager := game.Manager(config.Game)
 
-	// ctx.Request, _ = http.NewRequest(http.MethodPost, "/test", bytes.NewBufferString(`{
+	roomService := service.NewRoomService(rdb)
+	gameService := service.NewGameService(config.Game, rdb, pdb, gameManager)
+	apiServer := api.NewAPIServer(config.App, roomService, gameService)
 
-	// }`))
-	// r.ServeHTTP(res, ctx.Request)
+	log.Println("Starting API server...")
+	svr := apiServer.Server()
+	if err := svr.ListenAndServe(); err != nil {
+		log.Fatal(err)
+	}
 
-	// Use config
-	// db, err := sql.Open("postgres", "postgres://ww_username:ww_password@postgres/ww_db?sslmode=disable")
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// pdb := postgres.Connect(db)
+	<-ctx.Done()
+	log.Println("Shutting down...")
 
-	// roomService := service.NewRoomService(rdb)
-	// gameService := service.NewGameService(rdb, pdb)
-	// apiServer := api.NewAPIServer(roomService, gameService)
-	// apiServer.Run()
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := svr.Shutdown(ctx); err != nil {
+		log.Fatal(err)
+	}
 
-	// m := game.NewModerator(&game.ModeratorInit{
-	// 	Scheduler:          game.NewScheduler(vars.NightPhaseID),
-	// 	TurnDuration:       5 * time.Second,
-	// 	DiscussionDuration: 10 * time.Second,
-	// })
+	rdb.Close()
+	pdb.Close()
 
-	// m.InitGame(&types.GameSetting{
-	// 	RoleIDs:          []types.RoleID{},
-	// 	NumberWerewolves: 1,
-	// 	PlayerIDs: []types.PlayerID{
-	// 		"1",
-	// 		"2",
-	// 		"3",
-	// 		"4",
-	// 		"5",
-	// 	},
-	// })
-	// m.StartGame()
-
-	// time.Sleep(3 * time.Second)
-
-	// m.RequestPlay("1", &types.ActivateAbilityRequest{
-	// 	TargetID: "2",
-	// })
-	// m.RequestPlay("2", &types.ActivateAbilityRequest{
-	// 	TargetID: "1",
-	// })
-	// m.RequestPlay("3", &types.ActivateAbilityRequest{
-	// 	TargetID: "4",
-	// })
-	// m.RequestPlay("4", &types.ActivateAbilityRequest{
-	// 	TargetID: "5",
-	// })
-	// m.RequestPlay("5", &types.ActivateAbilityRequest{
-	// 	TargetID: "3",
-	// })
-
-	// time.Sleep(8 * time.Second)
-	// m.RequestPlay("1", &types.ActivateAbilityRequest{
-	// 	TargetID: "2",
-	// })
-	// m.RequestPlay("2", &types.ActivateAbilityRequest{
-	// 	TargetID: "1",
-	// })
-	// m.RequestPlay("3", &types.ActivateAbilityRequest{
-	// 	TargetID: "4",
-	// })
-	// m.RequestPlay("4", &types.ActivateAbilityRequest{
-	// 	TargetID: "5",
-	// })
-	// m.RequestPlay("5", &types.ActivateAbilityRequest{
-	// 	TargetID: "3",
-	// })
-
-	// m.FinishGame()
-
-	// time.Sleep(1 * time.Hour)
+	log.Println("Exited")
 }

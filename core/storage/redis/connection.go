@@ -2,6 +2,7 @@ package redis
 
 import (
 	"context"
+	"log"
 	"time"
 	"uwwolf/config"
 
@@ -21,7 +22,7 @@ func Connect(config config.Redis) *redis.ClusterClient {
 		MaxRetries:      10,
 	})
 	if err := client.Ping(context.Background()).Err(); err != nil {
-		panic(err)
+		log.Panic(err)
 	}
 
 	return client

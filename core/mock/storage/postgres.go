@@ -49,6 +49,20 @@ func (mr *MockStoreMockRecorder) AssignGameRoles(ctx, arg interface{}) *gomock.C
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AssignGameRoles", reflect.TypeOf((*MockStore)(nil).AssignGameRoles), ctx, arg)
 }
 
+// Close mocks base method.
+func (m *MockStore) Close() error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Close")
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Close indicates an expected call of Close.
+func (mr *MockStoreMockRecorder) Close() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Close", reflect.TypeOf((*MockStore)(nil).Close))
+}
+
 // CreateGame mocks base method.
 func (m *MockStore) CreateGame(ctx context.Context) (postgres.Game, error) {
 	m.ctrl.T.Helper()

@@ -14,7 +14,7 @@ func (as ApiServer) StartGame(ctx *gin.Context) {
 	room, ok := v.(*data.WaitingRoom)
 	if room == nil || !ok {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"message": "Unable to update game config!",
+			"message": "Unable to start game!",
 		})
 		return
 	}

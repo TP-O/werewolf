@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	"net/http"
 	"uwwolf/app/service"
 	"uwwolf/app/validation"
 	"uwwolf/config"
@@ -36,7 +37,7 @@ func (s *ApiServer) setupRouter() *gin.Engine {
 	return r
 }
 
-func (as ApiServer) Run() {
+func (as ApiServer) Server() *http.Server {
 	if as.config.Env == "production" {
 		gin.SetMode(gin.ReleaseMode)
 	}
@@ -46,7 +47,9 @@ func (as ApiServer) Run() {
 	}
 
 	route := as.setupRouter()
-	if err := route.Run(fmt.Sprintf(":%v", as.config.Port)); err != nil {
-		panic(err)
+
+	return &http.Server{
+		Addr:    fmt.Sprintf(":%v", as.config.Port),
+		Handler: route,
 	}
 }

@@ -28,7 +28,7 @@ func (ass ApiServiceSuite) TestStartGame() {
 			check: func(res *httptest.ResponseRecorder) {
 				ass.Equal(http.StatusInternalServerError, res.Code)
 				ass.Equal(
-					"Unable to update game config!",
+					"Unable to start game!",
 					util.JsonToMap(res.Body.String())["message"],
 				)
 			},

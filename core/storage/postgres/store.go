@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"strconv"
-	"uwwolf/config"
 	"uwwolf/game/contract"
 	"uwwolf/game/types"
 )
@@ -12,6 +11,7 @@ import (
 type Store interface {
 	Querier
 
+	Close() error
 	StoreGame(ctx context.Context, params *StoreGameParams) error
 }
 
@@ -20,15 +20,8 @@ type store struct {
 	db *sql.DB
 }
 
-func Connect(db *sql.DB, config config.Postgres) Store {
-	db.SetMaxOpenConns(config.PollSize)
-	db.SetMaxIdleConns(config.PollSize)
-	db.SetConnMaxIdleTime(0)
-
-	return &store{
-		Queries: New(db),
-		db:      db,
-	}
+func (s *store) Close() error {
+	return s.db.Close()
 }
 
 func (s *store) execTx(ctx context.Context, fn func(q *Queries) error) error {
