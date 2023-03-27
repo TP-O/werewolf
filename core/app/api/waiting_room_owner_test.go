@@ -70,7 +70,7 @@ func (ass ApiServiceSuite) TestWaitingRoomOwner() {
 			res := httptest.NewRecorder()
 			ctx, r := gin.CreateTestContext(res)
 
-			svr := api.NewAPIServer(config.App{}, roomSvc, nil)
+			svr := api.NewServer(config.App{}, roomSvc, nil)
 			r.POST("/test", func(_ *gin.Context) {
 				ctx.Set(enum.PlayerIDCtxKey, string(ass.playerID1))
 				svr.WaitingRoomOwner(ctx)

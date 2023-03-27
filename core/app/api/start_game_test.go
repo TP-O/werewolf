@@ -113,7 +113,7 @@ func (ass ApiServiceSuite) TestStartGame() {
 
 			test.setup(ctx, gameSvc, mod)
 
-			svr := api.NewAPIServer(config.App{}, nil, gameSvc)
+			svr := api.NewServer(config.App{}, nil, gameSvc)
 			r.POST("/test", func(_ *gin.Context) {
 				svr.StartGame(ctx)
 			})

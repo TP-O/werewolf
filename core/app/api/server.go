@@ -12,33 +12,16 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-type ApiServer struct {
+type Server struct {
+	*http.Server
+
 	config      config.App
 	roomService service.RoomService
 	gameService service.GameService
 }
 
-func NewAPIServer(config config.App, roomService service.RoomService, gameService service.GameService) *ApiServer {
-	return &ApiServer{
-		config,
-		roomService,
-		gameService,
-	}
-}
-
-func (s *ApiServer) setupRouter() *gin.Engine {
-	r := gin.Default()
-
-	gameSetup := r.Group("/game")
-
-	gameSetup.POST("/config", s.ReplaceGameConfig)
-	gameSetup.POST("/start", s.StartGame)
-
-	return r
-}
-
-func (as ApiServer) Server() *http.Server {
-	if as.config.Env == "production" {
+func NewServer(config config.App, roomService service.RoomService, gameService service.GameService) *Server {
+	if config.Env == "production" {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
@@ -46,10 +29,29 @@ func (as ApiServer) Server() *http.Server {
 		validation.Setup(v)
 	}
 
-	route := as.setupRouter()
-
-	return &http.Server{
-		Addr:    fmt.Sprintf(":%v", as.config.Port),
-		Handler: route,
+	svr := &Server{
+		config:      config,
+		roomService: roomService,
+		gameService: gameService,
 	}
+	svr.Server = &http.Server{
+		Addr:    fmt.Sprintf(":%v", config.Port),
+		Handler: svr.router(),
+	}
+
+	return svr
+}
+
+func (s Server) router() *gin.Engine {
+	r := gin.Default()
+
+	r.Use(gin.Recovery())
+
+	gameSetup := r.Group("/game")
+	gameSetup.Use(s.WaitingRoomOwner)
+
+	gameSetup.POST("/config", s.ReplaceGameConfig)
+	gameSetup.POST("/start", s.StartGame)
+
+	return r
 }

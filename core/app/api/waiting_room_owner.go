@@ -9,10 +9,10 @@ import (
 )
 
 // WaitingRoomOwner gets the waiting room owned by the authenticated player.
-func (as ApiServer) WaitingRoomOwner(ctx *gin.Context) {
+func (s Server) WaitingRoomOwner(ctx *gin.Context) {
 	playerID := types.PlayerID(ctx.GetString(enum.PlayerIDCtxKey))
 
-	room, ok := as.roomService.PlayerWaitingRoom(playerID)
+	room, ok := s.roomService.PlayerWaitingRoom(playerID)
 	if !ok {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": "You're not in any room!",

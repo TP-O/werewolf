@@ -55,4 +55,6 @@ func main() {
 		log.Println(err)
 	}
 	log.Println("Exited")
+
+	// runtime.GOMAXPROCS(1)
 }

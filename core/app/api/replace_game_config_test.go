@@ -300,7 +300,7 @@ func (ass ApiServiceSuite) TestReplaceGameConfig() {
 
 			test.setup(ctx, gameSvc)
 
-			svr := api.NewAPIServer(config.App{}, nil, gameSvc)
+			svr := api.NewServer(config.App{}, nil, gameSvc)
 			r.POST("/test", func(_ *gin.Context) {
 				svr.ReplaceGameConfig(ctx)
 			})

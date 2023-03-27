@@ -12,7 +12,7 @@ import (
 )
 
 // ReplaceGameConfig replaces old game config to the new one.
-func (as ApiServer) ReplaceGameConfig(ctx *gin.Context) {
+func (s Server) ReplaceGameConfig(ctx *gin.Context) {
 	var payload dto.ReplaceGameConfigDto
 	if err := ctx.ShouldBindJSON(&payload); err != nil {
 		fmt.Println(validation.FormatValidationError(err))
@@ -33,7 +33,7 @@ func (as ApiServer) ReplaceGameConfig(ctx *gin.Context) {
 		return
 	}
 
-	if err := as.gameService.UpdateGameConfig(room.ID, payload); err != nil {
+	if err := s.gameService.UpdateGameConfig(room.ID, payload); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Something went wrong!",
 		})
