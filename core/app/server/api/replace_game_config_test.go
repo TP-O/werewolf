@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"uwwolf/app/api"
 	"uwwolf/app/data"
 	"uwwolf/app/dto"
 	"uwwolf/app/enum"
+	"uwwolf/app/server/api"
 	"uwwolf/config"
 	mock_service "uwwolf/mock/app/service"
 	"uwwolf/util"
@@ -300,7 +300,7 @@ func (ass ApiServiceSuite) TestReplaceGameConfig() {
 
 			test.setup(ctx, gameSvc)
 
-			svr := api.NewServer(config.App{}, nil, gameSvc)
+			svr := api.NewHandler(config.App{}, nil, gameSvc)
 			r.POST("/test", func(_ *gin.Context) {
 				svr.ReplaceGameConfig(ctx)
 			})

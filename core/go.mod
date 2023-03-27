@@ -10,6 +10,7 @@ require (
 	github.com/go-playground/validator/v10 v10.12.0
 	github.com/go-redis/redismock/v9 v9.0.2
 	github.com/golang/mock v1.6.0
+	github.com/gorilla/websocket v1.5.0
 	github.com/lib/pq v1.10.7
 	github.com/redis/go-redis/v9 v9.0.2
 	github.com/samber/lo v1.38.1

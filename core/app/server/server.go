@@ -1,8 +1,10 @@
-package api
+package server
 
 import (
 	"fmt"
 	"net/http"
+	"uwwolf/app/server/api"
+	ws "uwwolf/app/server/echo"
 	"uwwolf/app/service"
 	"uwwolf/app/validation"
 	"uwwolf/config"
@@ -29,29 +31,26 @@ func NewServer(config config.App, roomService service.RoomService, gameService s
 		validation.Setup(v)
 	}
 
+	router := gin.Default()
+	router.Use(gin.Recovery())
+
+	apiRouter := router.Group("/api")
+	apiHandler := api.NewHandler(config, roomService, gameService)
+	apiHandler.Use(apiRouter)
+
+	echoRouter := router.Group("/echo")
+	echoHandler := ws.NewHandler(config)
+	echoHandler.Use(echoRouter)
+
 	svr := &Server{
 		config:      config,
 		roomService: roomService,
 		gameService: gameService,
 	}
 	svr.Server = &http.Server{
-		Addr:    fmt.Sprintf(":%v", config.Port),
-		Handler: svr.router(),
+		Addr:    fmt.Sprintf(":%d", config.Port),
+		Handler: router,
 	}
 
 	return svr
-}
-
-func (s Server) router() *gin.Engine {
-	r := gin.Default()
-
-	r.Use(gin.Recovery())
-
-	gameSetup := r.Group("/game")
-	gameSetup.Use(s.WaitingRoomOwner)
-
-	gameSetup.POST("/config", s.ReplaceGameConfig)
-	gameSetup.POST("/start", s.StartGame)
-
-	return r
 }
