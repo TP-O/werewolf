@@ -1,6 +1,8 @@
 package echo
 
 import (
+	"encoding/json"
+	"fmt"
 	"log"
 	"uwwolf/config"
 
@@ -10,39 +12,51 @@ import (
 
 type Handler struct {
 	*websocket.Upgrader
+
+	boadcaster *Broadcaster
 }
 
 func NewHandler(config config.App) *Handler {
-	svr := &Handler{
-		Upgrader: &websocket.Upgrader{},
+	return &Handler{
+		Upgrader:   &websocket.Upgrader{},
+		boadcaster: NewBroadcaster(),
 	}
-
-	return svr
 }
+
+var clientCounter = 0
 
 func (h Handler) connect(ctx *gin.Context) {
 	w, r := ctx.Writer, ctx.Request
-	c, err := h.Upgrader.Upgrade(w, r, nil)
+	conn, err := h.Upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Println("upgrade:", err)
+		log.Println("Uprage to WS:", err)
 		return
 	}
-	defer c.Close()
+	defer conn.Close()
+
+	client := NewClient(fmt.Sprintf("%d", clientCounter), h.boadcaster, conn)
+	h.boadcaster.AddClient(client)
+	defer h.boadcaster.RemoveClient(client.id)
+	clientCounter++
 	for {
-		mt, message, err := c.ReadMessage()
+		_, byteMsg, err := conn.ReadMessage()
 		if err != nil {
-			log.Println("read:", err)
+			log.Println("Read message:", err)
 			break
 		}
-		log.Printf("recv:%s", message)
-		err = c.WriteMessage(mt, message)
+
+		var msg EventMessage
+		err = json.Unmarshal(byteMsg, &msg)
 		if err != nil {
-			log.Println("write:", err)
-			break
+			continue
+		}
+
+		if dispatcher := h.boadcaster.Dispatcher(msg.Event); dispatcher != nil {
+			dispatcher(client, msg)
 		}
 	}
 }
 
 func (h Handler) Use(router *gin.RouterGroup) {
-	router.GET("/connect", h.connect)
+	router.GET("/", h.connect)
 }

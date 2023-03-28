@@ -1,59 +1,70 @@
 package echo
 
-import (
-	"fmt"
-	"log"
+type Event = int
 
-	"github.com/gorilla/websocket"
+const (
+	SyncEvent Event = iota
 )
 
-type Room struct {
-	clientIDs []string
+type EventMessage struct {
+	Event Event `json:"event"`
 }
 
+type Dispatcher = func(client *Client, msg EventMessage)
+
 type Broadcaster struct {
-	clients map[string]*websocket.Conn
-	rooms   map[string]*Room
-	events  map[string]func(client *websocket.Conn)
+	clients     map[ClientID]*Client
+	rooms       map[RoomID]*Room
+	dispatchers map[Event]Dispatcher
 }
 
 func NewBroadcaster() *Broadcaster {
-	return &Broadcaster{}
-}
-
-func (b Broadcaster) AddClient(clientID string, client *websocket.Conn) {
-	b.clients[clientID] = client
-
-	for {
-		var msg any
-		err := client.ReadJSON(&msg)
-		if err != nil {
-			log.Println("read:", err)
-			break
-		}
-		log.Printf("recv:%s", msg)
+	return &Broadcaster{
+		clients:     make(map[ClientID]*Client),
+		rooms:       make(map[RoomID]*Room),
+		dispatchers: make(map[Event]Dispatcher),
 	}
 }
 
-func (b Broadcaster) Emit(msg string, to []string) {
+func (b Broadcaster) Client(clientID ClientID) *Client {
+	return b.clients[clientID]
+}
+
+func (b *Broadcaster) AddClient(client *Client) {
+	if client != nil {
+		b.clients[client.id] = client
+	}
+}
+
+func (b *Broadcaster) RemoveClient(clientID ClientID) {
+	client := b.clients[clientID]
+	if client == nil {
+		return
+	}
+
+	client.LeaveAllRooms()
+	delete(b.clients, clientID)
+}
+
+func (b Broadcaster) Emit(msg EventMessage, to []ClientID) {
 	for _, clientID := range to {
-		err := b.clients[clientID].WriteMessage(1, []byte(msg))
-		if err != nil {
-			fmt.Println("write:", err)
+		b.clients[clientID].conn.WriteJSON(msg) // nolint errcheck
+	}
+}
+
+func (b Broadcaster) EmitRoom(msg EventMessage, to []RoomID) {
+	for _, roomID := range to {
+		room := b.rooms[roomID]
+		if room != nil {
+			room.Broadcast(msg)
 		}
 	}
 }
 
-func (b Broadcaster) EmitRoom(msg string, roomID string) error {
-	room := b.rooms[roomID]
-	if room == nil {
-		return fmt.Errorf("Room does not exist!")
-	}
-
-	b.Emit(msg, room.clientIDs)
-	return nil
+func (b *Broadcaster) On(event Event, dispatcher Dispatcher) {
+	b.dispatchers[event] = dispatcher
 }
 
-func (b Broadcaster) On(event string, fn func(client *websocket.Conn)) {
-	b.events[event] = fn
+func (b *Broadcaster) Dispatcher(event Event) Dispatcher {
+	return b.dispatchers[event]
 }
