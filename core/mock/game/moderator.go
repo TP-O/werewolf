@@ -48,6 +48,21 @@ func (mr *MockModeratorMockRecorder) FinishGame() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FinishGame", reflect.TypeOf((*MockModerator)(nil).FinishGame))
 }
 
+// MovePlayer mocks base method.
+func (m *MockModerator) MovePlayer(playerID types.PlayerID, x, y float64) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "MovePlayer", playerID, x, y)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// MovePlayer indicates an expected call of MovePlayer.
+func (mr *MockModeratorMockRecorder) MovePlayer(playerID, x, y interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MovePlayer", reflect.TypeOf((*MockModerator)(nil).MovePlayer), playerID, x, y)
+}
+
 // RequestPlay mocks base method.
 func (m *MockModerator) RequestPlay(playerID types.PlayerID, req *types.ActivateAbilityRequest) *types.ActionResponse {
 	m.ctrl.T.Helper()

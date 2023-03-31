@@ -10,6 +10,8 @@ type Moderator interface {
 	// FinishGame ends the game.
 	FinishGame() bool
 
+	MovePlayer(playerID types.PlayerID, x float64, y float64) (bool, error)
+
 	// RequestPlay receives the play request from the player.
 	RequestPlay(playerID types.PlayerID, req *types.ActivateAbilityRequest) *types.ActionResponse
 }

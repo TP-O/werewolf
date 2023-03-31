@@ -10,6 +10,7 @@ import (
 	"uwwolf/game/types"
 	"uwwolf/game/vars"
 
+	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
 )
 
@@ -19,6 +20,7 @@ type moderator struct {
 	game               contract.Game
 	config             config.Game
 	scheduler          contract.Scheduler
+	observer           contract.Observer
 	mutex              *sync.Mutex
 	nextTurnSignal     chan bool
 	finishSignal       chan bool
@@ -38,6 +40,14 @@ func NewModerator(config config.Game, reg *types.GameRegistration) contract.Mode
 		turnDuration:       reg.TurnDuration,
 		discussionDuration: reg.DiscussionDuration,
 		scheduler:          NewScheduler(vars.NightPhaseID),
+		observer: NewObserver(ObserverSettings{
+			PlayerWidth:  32,
+			PlayerHeight: 32,
+			MapWidth:     1000,
+			MapHeight:    1000,
+			CellWidth:    16,
+			CellHeight:   16,
+		}),
 	}
 	m.game = NewGame(m.scheduler, &types.GameInitialization{
 		RoleIDs:          reg.RoleIDs,
@@ -151,6 +161,7 @@ func (m *moderator) StartGame() int64 {
 	go func() {
 		m.waitForPreparation()
 		m.game.Start()
+		m.observer.ObservePlayers(maps.Keys(m.game.Players()))
 		go m.runScheduler()
 	}()
 
@@ -175,6 +186,19 @@ func (m *moderator) FinishGame() bool {
 	m.game.Finish()
 
 	return true
+}
+
+func (m *moderator) MovePlayer(playerID types.PlayerID, x float64, y float64) (bool, error) {
+	player := m.game.Player(playerID)
+	if player == nil {
+		return false, fmt.Errorf("Player does not exist!")
+	}
+
+	if !m.observer.MovePlayer(playerID, x, y) {
+		return false, fmt.Errorf("Unable to move to this position!")
+	}
+
+	return true, nil
 }
 
 // RequestPlay receives the play request from the player.
