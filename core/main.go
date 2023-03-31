@@ -3,10 +3,11 @@ package main
 import (
 	"context"
 	"log"
+	"net/http"
 	"os/signal"
 	"syscall"
 	"time"
-	"uwwolf/app/api"
+	"uwwolf/app/server"
 	"uwwolf/app/service"
 	"uwwolf/config"
 	"uwwolf/db/postgres"
@@ -17,6 +18,8 @@ import (
 )
 
 func main() {
+	// runtime.GOMAXPROCS(1)
+
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
@@ -36,12 +39,11 @@ func main() {
 
 	roomService := service.NewRoomService(rdb)
 	gameService := service.NewGameService(config.Game, rdb, pdb, gameManager)
-	apiServer := api.NewAPIServer(config.App, roomService, gameService)
-	svr := apiServer.Server()
+	server := server.NewServer(config.App, roomService, gameService)
 
 	go func() {
-		log.Println("Starting API server...")
-		if err := svr.ListenAndServe(); err != nil {
+		log.Printf("Server is listening on port %d", config.App.Port)
+		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Panic(err)
 		}
 	}()
@@ -51,8 +53,8 @@ func main() {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	if err := svr.Shutdown(ctx); err != nil {
-		log.Println(err)
+	if err := server.Shutdown(ctx); err != nil {
+		log.Println(err.Error())
 	}
 
 	log.Println("Exited")

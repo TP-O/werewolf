@@ -3,9 +3,9 @@ package api_test
 import (
 	"net/http"
 	"net/http/httptest"
-	"uwwolf/app/api"
 	"uwwolf/app/data"
 	"uwwolf/app/enum"
+	"uwwolf/app/server/api"
 	"uwwolf/config"
 	mock_service "uwwolf/mock/app/service"
 	"uwwolf/util"
@@ -70,7 +70,7 @@ func (ass ApiServiceSuite) TestWaitingRoomOwner() {
 			res := httptest.NewRecorder()
 			ctx, r := gin.CreateTestContext(res)
 
-			svr := api.NewAPIServer(config.App{}, roomSvc, nil)
+			svr := api.NewHandler(config.App{}, roomSvc, nil)
 			r.POST("/test", func(_ *gin.Context) {
 				ctx.Set(enum.PlayerIDCtxKey, string(ass.playerID1))
 				svr.WaitingRoomOwner(ctx)
