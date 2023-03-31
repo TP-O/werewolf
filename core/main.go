@@ -44,7 +44,7 @@ func main() {
 	go func() {
 		log.Printf("Server is listening on port %d", config.App.Port)
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatal(err)
+			log.Panic(err)
 		}
 	}()
 
