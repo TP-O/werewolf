@@ -25,7 +25,7 @@ func (Game) loadDefault() {
 		"preparation_time":        "10s",
 		"min_turn_duration":       "20s",
 		"max_turn_duration":       "60s",
-		"min_discussion_duration": "60s",
+		"min_discussion_duration": "40s",
 		"max_discussion_duration": "360s",
 	})
 }
