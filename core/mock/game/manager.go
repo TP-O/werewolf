@@ -49,6 +49,20 @@ func (mr *MockManagerMockRecorder) Moderator(gameID interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Moderator", reflect.TypeOf((*MockManager)(nil).Moderator), gameID)
 }
 
+// ModeratorOfPlayer mocks base method.
+func (m *MockManager) ModeratorOfPlayer(playerID types.PlayerID) contract.Moderator {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ModeratorOfPlayer", playerID)
+	ret0, _ := ret[0].(contract.Moderator)
+	return ret0
+}
+
+// ModeratorOfPlayer indicates an expected call of ModeratorOfPlayer.
+func (mr *MockManagerMockRecorder) ModeratorOfPlayer(playerID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ModeratorOfPlayer", reflect.TypeOf((*MockManager)(nil).ModeratorOfPlayer), playerID)
+}
+
 // RegisterGame mocks base method.
 func (m *MockManager) RegisterGame(registration *types.GameRegistration) (contract.Moderator, error) {
 	m.ctrl.T.Helper()

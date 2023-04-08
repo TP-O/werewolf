@@ -7,10 +7,11 @@ const (
 )
 
 type EventMessage struct {
-	Event Event `json:"event"`
+	Event Event          `json:"event"`
+	Data  map[string]any `json:"data"`
 }
 
-type Dispatcher = func(client *Client, msg EventMessage)
+type Dispatcher = func(client *Client, msg map[string]any)
 
 type Broadcaster struct {
 	clients     map[ClientID]*Client

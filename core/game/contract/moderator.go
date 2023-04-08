@@ -4,6 +4,8 @@ import "uwwolf/game/types"
 
 // Moderator controlls a game.
 type Moderator interface {
+	GameID() types.GameID
+
 	// StartGame starts the game.
 	StartGame() int64
 

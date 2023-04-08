@@ -22,7 +22,7 @@ type Server struct {
 	gameService service.GameService
 }
 
-func NewServer(config config.App, roomService service.RoomService, gameService service.GameService) *Server {
+func NewServer(config config.App, gameCfg config.Game, roomService service.RoomService, gameService service.GameService) *Server {
 	if config.Env == "production" {
 		gin.SetMode(gin.ReleaseMode)
 	}
@@ -39,7 +39,7 @@ func NewServer(config config.App, roomService service.RoomService, gameService s
 	apiHandler.Use(apiRouter)
 
 	echoRouter := router.Group("/echo")
-	echoHandler := ws.NewHandler(config)
+	echoHandler := ws.NewHandler(config, gameCfg)
 	echoHandler.Use(echoRouter)
 
 	svr := &Server{

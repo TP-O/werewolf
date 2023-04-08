@@ -58,6 +58,9 @@ func NewModerator(config config.Game, reg *types.GameRegistration) contract.Mode
 
 	return m
 }
+func (m moderator) GameID() types.GameID {
+	return m.gameID
+}
 
 // checkWinConditions checks if any faction satisfies its win condition,
 // if any, finish the game.

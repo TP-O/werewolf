@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os/signal"
+	"runtime"
 	"syscall"
 	"time"
 	"uwwolf/app/server"
@@ -18,7 +19,7 @@ import (
 )
 
 func main() {
-	// runtime.GOMAXPROCS(1)
+	runtime.GOMAXPROCS(1)
 
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
@@ -39,7 +40,7 @@ func main() {
 
 	roomService := service.NewRoomService(rdb)
 	gameService := service.NewGameService(config.Game, rdb, pdb, gameManager)
-	server := server.NewServer(config.App, roomService, gameService)
+	server := server.NewServer(config.App, config.Game, roomService, gameService)
 
 	go func() {
 		log.Printf("Server is listening on port %d", config.App.Port)
