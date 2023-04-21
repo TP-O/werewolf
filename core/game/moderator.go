@@ -5,22 +5,27 @@ import (
 	"fmt"
 	"sync"
 	"time"
-	"uwwolf/config"
-	"uwwolf/game/contract"
-	"uwwolf/game/types"
-	"uwwolf/game/vars"
 
-	"golang.org/x/exp/maps"
+	"uwwolf/config"
+	"uwwolf/game/declare"
+	"uwwolf/game/mechanism"
+	"uwwolf/game/mechanism/contract"
+	"uwwolf/game/tool"
+	"uwwolf/game/types"
+
 	"golang.org/x/exp/slices"
 )
 
 // moderator controlls a game.
 type moderator struct {
-	gameID             types.GameID
-	game               contract.Game
+	gameID types.GameID
+
+	// gameStatus is the current game status ID.
+	gameStatus types.GameStatusID
+
+	world              contract.World
 	config             config.Game
-	scheduler          contract.Scheduler
-	observer           contract.Observer
+	scheduler          tool.Scheduler
 	mutex              *sync.Mutex
 	nextTurnSignal     chan bool
 	finishSignal       chan bool
@@ -30,26 +35,38 @@ type moderator struct {
 	winningFaction     types.FactionID
 }
 
-func NewModerator(config config.Game, reg *types.GameRegistration) contract.Moderator {
+// Moderator controlls a game.
+type Moderator interface {
+	GameID() types.GameID
+
+	// StatusID retusn current game status ID.
+	GameStatus() types.GameStatusID
+
+	// StartGame starts the game.
+	StartGame() int64
+
+	// FinishGame ends the game.
+	FinishGame() bool
+
+	MovePlayer(playerID types.PlayerID, x float64, y float64) (bool, error)
+
+	// RequestPlay receives the play request from the player.
+	RequestPlay(playerID types.PlayerID, req *types.ActivateAbilityRequest) *types.ActionResponse
+}
+
+func NewModerator(config config.Game, reg *types.GameRegistration) Moderator {
 	m := &moderator{
 		gameID:             reg.ID,
+		gameStatus:         declare.Idle,
 		config:             config,
 		nextTurnSignal:     make(chan bool),
 		finishSignal:       make(chan bool),
 		mutex:              new(sync.Mutex),
 		turnDuration:       reg.TurnDuration,
 		discussionDuration: reg.DiscussionDuration,
-		scheduler:          NewScheduler(vars.NightPhaseID),
-		observer: NewObserver(ObserverSettings{
-			PlayerWidth:  32,
-			PlayerHeight: 32,
-			MapWidth:     1000,
-			MapHeight:    1000,
-			CellWidth:    16,
-			CellHeight:   16,
-		}),
+		scheduler:          tool.NewScheduler(declare.NightPhaseID),
 	}
-	m.game = NewGame(m.scheduler, &types.GameInitialization{
+	m.world = mechanism.NewWorld(m.scheduler, &types.GameInitialization{
 		RoleIDs:          reg.RoleIDs,
 		RequiredRoleIDs:  reg.RequiredRoleIDs,
 		NumberWerewolves: reg.NumberWerewolves,
@@ -58,21 +75,27 @@ func NewModerator(config config.Game, reg *types.GameRegistration) contract.Mode
 
 	return m
 }
+
 func (m moderator) GameID() types.GameID {
 	return m.gameID
+}
+
+// StatusID retusn current world status ID.
+func (m moderator) GameStatus() types.GameStatusID {
+	return m.gameStatus
 }
 
 // checkWinConditions checks if any faction satisfies its win condition,
 // if any, finish the game.
 func (m *moderator) checkWinConditions() {
 	m.mutex.Lock()
-	if len(m.game.AlivePlayerIDsWithFactionID(vars.WerewolfFactionID)) == 0 {
+	if len(m.world.AlivePlayerIDsWithFactionID(declare.WerewolfFactionID)) == 0 {
 		// Villager wins if all werewolves are dead
-		m.winningFaction = vars.VillagerFactionID
-	} else if len(m.game.AlivePlayerIDsWithFactionID(vars.WerewolfFactionID)) >=
-		len(m.game.AlivePlayerIDsWithoutFactionID(vars.WerewolfFactionID)) {
+		m.winningFaction = declare.VillagerFactionID
+	} else if len(m.world.AlivePlayerIDsWithFactionID(declare.WerewolfFactionID)) >=
+		len(m.world.AlivePlayerIDsWithoutFactionID(declare.WerewolfFactionID)) {
 		// Werewolf wins if the number is overwhelming or equal to villager
-		m.winningFaction = vars.WerewolfFactionID
+		m.winningFaction = declare.WerewolfFactionID
 	}
 	m.mutex.Unlock()
 
@@ -83,17 +106,18 @@ func (m *moderator) checkWinConditions() {
 
 // handlePoll handles poll result of each faction.
 func (m moderator) handlePoll(factionID types.FactionID) {
-	if poll := m.game.Poll(factionID); poll != nil && poll.Close() {
-		if record := poll.Record(vars.ZeroRound); record != nil &&
-			!record.WinnerID.IsUnknown() {
-			m.game.KillPlayer(record.WinnerID, false)
+	if poll := m.world.Poll(factionID); poll != nil && poll.Close() {
+		if record := poll.Record(declare.ZeroRound); !record.WinnerID.IsUnknown() {
+			if player := m.world.Player(record.WinnerID); player != nil {
+				player.Die(false)
+			}
 		}
 	}
 }
 
 // runScheduler switches turns automatically.
 func (m *moderator) runScheduler() {
-	for m.game.StatusID() == vars.Starting {
+	for m.GameStatus() == declare.Starting {
 		m.mutex.Lock()
 		m.playedPlayerID = make([]types.PlayerID, 0)
 		m.scheduler.NextTurn()
@@ -101,19 +125,19 @@ func (m *moderator) runScheduler() {
 		func() {
 			var duration time.Duration
 
-			if m.scheduler.PhaseID() == vars.DayPhaseID &&
-				m.scheduler.TurnID() == vars.MidTurn {
+			if m.scheduler.PhaseID() == declare.DayPhaseID &&
+				m.scheduler.TurnID() == declare.MidTurn {
 				duration = m.discussionDuration
 
-				m.game.Poll(vars.VillagerFactionID).Open() // nolint: errcheck
-				defer m.handlePoll(vars.VillagerFactionID)
+				m.world.Poll(declare.VillagerFactionID).Open() // nolint: errcheck
+				defer m.handlePoll(declare.VillagerFactionID)
 			} else {
 				duration = m.turnDuration
 
-				if m.scheduler.PhaseID() == vars.NightPhaseID &&
-					m.scheduler.TurnID() == vars.MidTurn {
-					m.game.Poll(vars.WerewolfFactionID).Open() // nolint: errcheck
-					defer m.handlePoll(vars.WerewolfFactionID)
+				if m.scheduler.PhaseID() == declare.NightPhaseID &&
+					m.scheduler.TurnID() == declare.MidTurn {
+					m.world.Poll(declare.WerewolfFactionID).Open() // nolint: errcheck
+					defer m.handlePoll(declare.WerewolfFactionID)
 				}
 			}
 
@@ -155,20 +179,21 @@ func (m *moderator) waitForPreparation() {
 
 // StartGame starts the game.
 func (m *moderator) StartGame() int64 {
-	if m.gameID.IsUnknown() || m.game.StatusID() != vars.Idle {
+	if m.gameID.IsUnknown() || m.GameStatus() != declare.Idle {
 		return -1
 	}
 
 	fmt.Println("Starting")
 
 	go func() {
+		m.gameStatus = declare.Waiting
 		m.waitForPreparation()
-		m.game.Start()
-		m.observer.ObservePlayers(maps.Keys(m.game.Players()))
+		m.gameStatus = declare.Starting
+		// m.gameID.ObservePlayers(maps.Keys(m.world.Players()))
 		go m.runScheduler()
 	}()
 
-	return m.game.Prepare()
+	return m.world.Load()
 }
 
 // FinishGame ends the game.
@@ -176,7 +201,7 @@ func (m *moderator) FinishGame() bool {
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
 
-	if m.game.StatusID() == vars.Finished {
+	if m.GameStatus() == declare.Finished {
 		return false
 	}
 
@@ -186,20 +211,20 @@ func (m *moderator) FinishGame() bool {
 	m.finishSignal <- true
 	close(m.finishSignal)
 	close(m.nextTurnSignal)
-	m.game.Finish()
+	m.gameStatus = declare.Finished
 
 	return true
 }
 
 func (m *moderator) MovePlayer(playerID types.PlayerID, x float64, y float64) (bool, error) {
-	player := m.game.Player(playerID)
+	player := m.world.Player(playerID)
 	if player == nil {
 		return false, fmt.Errorf("Player does not exist!")
 	}
 
-	if !m.observer.MovePlayer(playerID, x, y) {
-		return false, fmt.Errorf("Unable to move to this position!")
-	}
+	// if !m.observer.MovePlayer(playerID, x, y) {
+	// 	return false, fmt.Errorf("Unable to move to this position!")
+	// }
 
 	return true, nil
 }
@@ -224,7 +249,15 @@ func (m *moderator) RequestPlay(
 		}
 	}
 
-	res := m.game.Play(playerID, req)
+	player := m.world.Player(playerID)
+	if player == nil {
+		return &types.ActionResponse{
+			Ok:      false,
+			Message: "Non-existent player!",
+		}
+	}
+
+	res := player.ActivateAbility(req)
 	if res.Ok {
 		m.playedPlayerID = append(m.playedPlayerID, playerID)
 
@@ -236,7 +269,7 @@ func (m *moderator) RequestPlay(
 		// Cache player request
 		// m.rdb.LPush(
 		// 	context.Background(),
-		// 	fmt.Sprint(m.gameID),
+		// 	fmt.Sprint(m.worldID),
 		// 	fmt.Sprint(res.TargetID),
 		// 	fmt.Sprint(res.ActionID),
 		// 	fmt.Sprint(res.RoleID),
