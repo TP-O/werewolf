@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"uwwolf/pkg/quadtree"
 
 	_ "github.com/lib/pq"
 )
@@ -48,12 +49,64 @@ func main() {
 
 	// log.Println("Exited")
 
-	m1 := map[string]string{
-		"a": "1",
+	// m := tool.NewMap()
+	// m.AddEntity(1, tool.EntitySettings{
+	// 	X:     2,
+	// 	Y:     2,
+	// 	Speed: 3,
+	// })
+	// if ok, err := m.MoveEntity(1, orb.Point{2.1, 2.1}); !ok {
+	// 	fmt.Println(err)
+	// } else {
+	// 	fmt.Println("Moved")
+	// }
+
+	qt := &quadtree.Quadtree{
+		Bounds: quadtree.Bounds{
+			X:      0,
+			Y:      0,
+			Width:  100,
+			Height: 100,
+		},
+		MaxObjects: 10,
+		MaxLevels:  4,
+		Level:      0,
+		Objects:    make([]quadtree.IBounds, 0),
+		Nodes:      make([]quadtree.Quadtree, 0),
 	}
-	m2 := m1
 
-	m1["a"] = "2"
+	qt.Insert(&quadtree.Bounds{
+		X:      1,
+		Y:      1,
+		Width:  10,
+		Height: 10,
+	})
+	qt.Insert(&quadtree.Bounds{
+		X:      1,
+		Y:      1,
+		Width:  10,
+		Height: 10,
+	})
+	qt.Insert(&quadtree.Bounds{
+		X:      1,
+		Y:      1,
+		Width:  10,
+		Height: 10,
+	})
+	qt.Insert(&quadtree.Bounds{
+		X:      50,
+		Y:      50,
+		Width:  10,
+		Height: 10,
+	})
 
-	fmt.Println(m1, m2)
+	intersections := qt.RetrieveIntersections(&quadtree.Bounds{
+		X:      0,
+		Y:      0,
+		Width:  20,
+		Height: 20,
+	})
+
+	fmt.Println(intersections)
+	fmt.Println(qt.TotalNodes())
 }

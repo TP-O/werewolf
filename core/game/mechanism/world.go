@@ -49,6 +49,7 @@ func NewWorld(scheduler tool.Scheduler, init *types.GameInitialization) contract
 		scheduler:        scheduler,
 		players:          make(map[types.PlayerID]contract.Player),
 		polls:            make(map[types.FactionID]tool.Poll),
+		gameMap:          tool.NewMap(),
 	}
 
 	for _, id := range init.PlayerIDs {
