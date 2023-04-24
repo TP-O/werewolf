@@ -48,7 +48,7 @@ type Moderator interface {
 	// FinishGame ends the game.
 	FinishGame() bool
 
-	MovePlayer(playerID types.PlayerID, x float64, y float64) (bool, error)
+	Player(ID types.PlayerID) contract.Player
 
 	// RequestPlay receives the play request from the player.
 	RequestPlay(playerID types.PlayerID, req *types.ActivateAbilityRequest) *types.ActionResponse
@@ -83,6 +83,10 @@ func (m moderator) GameID() types.GameID {
 // StatusID retusn current world status ID.
 func (m moderator) GameStatus() types.GameStatusID {
 	return m.gameStatus
+}
+
+func (m moderator) Player(ID types.PlayerID) contract.Player {
+	return m.world.Player(ID)
 }
 
 // checkWinConditions checks if any faction satisfies its win condition,
@@ -214,19 +218,6 @@ func (m *moderator) FinishGame() bool {
 	m.gameStatus = declare.Finished
 
 	return true
-}
-
-func (m *moderator) MovePlayer(playerID types.PlayerID, x float64, y float64) (bool, error) {
-	player := m.world.Player(playerID)
-	if player == nil {
-		return false, fmt.Errorf("Player does not exist!")
-	}
-
-	// if !m.observer.MovePlayer(playerID, x, y) {
-	// 	return false, fmt.Errorf("Unable to move to this position!")
-	// }
-
-	return true, nil
 }
 
 // RequestPlay receives the play request from the player.

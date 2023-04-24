@@ -52,8 +52,17 @@ func NewWorld(scheduler tool.Scheduler, init *types.GameInitialization) contract
 		gameMap:          tool.NewMap(),
 	}
 
-	for _, id := range init.PlayerIDs {
+	for i, id := range init.PlayerIDs {
 		world.players[id] = NewPlayer(&world, id)
+		world.gameMap.AddEntity(string(id), tool.EntitySettings{
+			Type:    tool.PlayerEntity,
+			X:       float64(64*i) + 200,
+			Y:       50,
+			Width:   64,
+			Height:  64,
+			IsSolid: true,
+			Speed:   1,
+		})
 	}
 
 	// Create polls for villagers and werewolves

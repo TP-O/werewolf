@@ -2,6 +2,8 @@ package contract
 
 import (
 	"uwwolf/game/types"
+
+	"github.com/paulmach/orb"
 )
 
 // Player represents the player in a game.
@@ -48,5 +50,5 @@ type Player interface {
 	ActivateAbility(req *types.ActivateAbilityRequest) *types.ActionResponse
 
 	// Move moves the player to the specified location.
-	Move(x float64, y float64) (bool, error)
+	Move(position orb.Point) (bool, error)
 }

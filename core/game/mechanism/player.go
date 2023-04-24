@@ -6,8 +6,10 @@ import (
 	"uwwolf/game/declare"
 	"uwwolf/game/mechanism/contract"
 	"uwwolf/game/mechanism/role"
+	"uwwolf/game/tool"
 	"uwwolf/game/types"
 
+	"github.com/paulmach/orb"
 	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
 )
@@ -90,6 +92,7 @@ func (p *player) Die(isExited bool) bool {
 		role.OnAfterDeath()
 		role.OnRevoke()
 	}
+	p.world.Map().RemoveEntity(tool.EntityID(fmt.Sprintf("%v_%v", tool.PlayerEntity, p.ID())))
 
 	return true
 }
@@ -164,7 +167,6 @@ func (p *player) ActivateAbility(req *types.ActivateAbilityRequest) *types.Actio
 	}
 }
 
-func (p *player) Move(x float64, y float64) (bool, error) {
-	// return p.world.MovePlayer(p.ID(), x, y)
-	return false, nil
+func (p *player) Move(position orb.Point) (bool, error) {
+	return p.world.Map().MoveEntity(tool.EntityID(fmt.Sprintf("%v_%v", tool.PlayerEntity, p.ID())), position)
 }

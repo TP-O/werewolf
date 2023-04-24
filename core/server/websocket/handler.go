@@ -10,6 +10,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
+	"github.com/paulmach/orb"
 )
 
 type Handler struct {
@@ -80,7 +81,7 @@ func (h *Handler) SyncPosition(client *Client, data map[string]any) {
 
 	mod := h.gameManger.ModeratorOfPlayer(types.PlayerID(client.ID()))
 	if mod != nil {
-		ok, _ := mod.MovePlayer(types.PlayerID(client.ID()), x, y)
+		ok, _ := mod.Player(types.PlayerID(client.ID())).Move(orb.Point{x, y})
 		if ok {
 			client.EmitRoom(EventMessage{
 				Event: SyncEvent,
