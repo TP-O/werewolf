@@ -5,20 +5,21 @@ import (
 	"log"
 	"net/http"
 	"os/signal"
+	"runtime"
 	"syscall"
 	"time"
-	"uwwolf/app/server"
-	"uwwolf/app/service"
 	"uwwolf/config"
-	"uwwolf/db/postgres"
-	"uwwolf/db/redis"
+	"uwwolf/db"
 	"uwwolf/game"
+	"uwwolf/redis"
+	"uwwolf/server"
+	"uwwolf/server/service"
 
 	_ "github.com/lib/pq"
 )
 
 func main() {
-	// runtime.GOMAXPROCS(1)
+	runtime.GOMAXPROCS(1)
 
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
@@ -31,15 +32,15 @@ func main() {
 	log.Println("Connected to Redis...")
 
 	log.Println("Connecting to PostgreSQL...")
-	pdb := postgres.Connect(config.Postgres)
+	pdb := db.Connect(config.Postgres)
 	defer pdb.Close()
 	log.Println("Connected to PostgreSQL...")
 
-	gameManager := game.Manager(config.Game)
+	gameManager := game.NewManager(config.Game)
 
 	roomService := service.NewRoomService(rdb)
 	gameService := service.NewGameService(config.Game, rdb, pdb, gameManager)
-	server := server.NewServer(config.App, roomService, gameService)
+	server := server.NewServer(config.App, config.Game, roomService, gameService)
 
 	go func() {
 		log.Printf("Server is listening on port %d", config.App.Port)

@@ -4,18 +4,18 @@ dev:
 	docker-compose up
 
 mockgen:
-	mockgen -source game/contract/game.go -destination mock/game/game.go -package mock_game
-	mockgen -source game/contract/player.go -destination mock/game/player.go -package mock_game
-	mockgen -source game/contract/poll.go -destination mock/game/poll.go -package mock_game
-	mockgen -source game/contract/scheduler.go -destination mock/game/scheduler.go -package mock_game
-	mockgen -source game/contract/action.go -destination mock/game/action.go -package mock_game
-	mockgen -source game/contract/role.go -destination mock/game/role.go -package mock_game
-	mockgen -source game/contract/moderator.go -destination mock/game/moderator.go -package mock_game
-	mockgen -source game/contract/manager.go -destination mock/game/manager.go -package mock_game
-	mockgen -source db/postgres/store.go -destination mock/db/postgres.go -package mock_storage \
-        -aux_files=uwwolf/db/postgres=db/postgres/querier.go
-	mockgen -source app/service/room.go -destination mock/app/service/room.go -package mock_service
-	mockgen -source app/service/game.go -destination mock/app/service/game.go -package mock_service
+	mockgen -source game/mechanism/contract/world.go -destination util/mock/game/world.go -package mock_game
+	mockgen -source game/mechanism/contract/player.go -destination util/mock/game/player.go -package mock_game
+	mockgen -source game/mechanism/contract/action.go -destination util/mock/game/action.go -package mock_game
+	mockgen -source game/mechanism/contract/role.go -destination util/mock/game/role.go -package mock_game
+	mockgen -source game/tool/poll.go -destination util/mock/game/poll.go -package mock_game
+	mockgen -source game/tool/scheduler.go -destination util/mock/game/scheduler.go -package mock_game
+	mockgen -source game/moderator.go -destination util/mock/game/moderator.go -package mock_game
+	mockgen -source game/manager.go -destination util/mock/game/manager.go -package mock_game
+	mockgen -source db/store.go -destination util/mock/db/postgres.go -package mock_storage \
+        -aux_files=uwwolf/db=db/querier.go
+	mockgen -source server/service/room.go -destination util/mock/server/service/room.go -package mock_service
+	mockgen -source server/service/game.go -destination util/mock/server/service/game.go -package mock_service
 
 protobuf:
 	rm -rf grpc/pb/*
