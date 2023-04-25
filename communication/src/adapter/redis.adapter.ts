@@ -2,11 +2,12 @@ import { IoAdapter } from '@nestjs/platform-socket.io';
 import Redis from 'ioredis';
 import { ServerOptions } from 'socket.io';
 import { createAdapter } from '@socket.io/redis-adapter';
-import { RedisClient } from 'src/common/decorator';
+import { NestFastifyApplication } from '@nestjs/platform-fastify';
 
 export class RedisIoAdapter extends IoAdapter {
-  @RedisClient()
-  private readonly redis: Redis;
+  constructor(app: NestFastifyApplication, private readonly redis: Redis) {
+    super(app);
+  }
 
   private adapterConstructor: ReturnType<typeof createAdapter>;
 

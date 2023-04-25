@@ -13,9 +13,11 @@ async function main() {
 }
 
 main()
-  .catch((e) => {
-    console.error(e);
-  })
-  .finally(async () => {
+  .then(async () => {
     await client.$disconnect();
+  })
+  .catch(async (e) => {
+    await client.$disconnect();
+    console.log(e);
+    process.exit(1);
   });

@@ -1,12 +1,7 @@
-import {
-  BadRequestException,
-  ForbiddenException,
-  Injectable,
-} from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { Server, Socket } from 'socket.io';
 import { AuthService } from 'src/common/service/auth.service';
-import { AppConfig } from 'src/config';
 import { ActiveStatus, EmitEvent, ListenEvent, RoomEvent } from 'src/enum';
 import { EmitEvents } from 'src/type';
 import { SendPrivateMessageDto, SendRoomMessageDto } from '../message/dto';
@@ -53,10 +48,6 @@ export class CommunicationService {
    * @param user
    */
   private async handleConflict(server: Server<null, EmitEvents>, user: User) {
-    if (!AppConfig.disconnectIfConflict) {
-      throw new BadRequestException('Your account is in use!');
-    }
-
     const { disconnectedId, leftRooms } = await this.userService.disconnect(
       user,
     );

@@ -16,7 +16,6 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { CORSConfig, ValidationConfig } from 'src/config';
 import { ListenEvent } from 'src/enum';
 import { AllExceptionFilter, WsExceptionsFilter } from 'src/common/filter';
 import {
@@ -38,10 +37,15 @@ import { SendRoomMessageDto, SendPrivateMessageDto } from '../message/dto';
 
 @Injectable()
 @UseFilters(new AllExceptionFilter(), new WsExceptionsFilter())
-@UsePipes(new ValidationPipe(ValidationConfig))
+@UsePipes(
+  new ValidationPipe({
+    whitelist: true,
+    stopAtFirstError: false,
+    transform: true,
+  }),
+)
 @WebSocketGateway<GatewayMetadata>({
   namespace: '/',
-  cors: CORSConfig,
 })
 export class CommunicationGateway
   implements OnGatewayConnection, OnGatewayDisconnect

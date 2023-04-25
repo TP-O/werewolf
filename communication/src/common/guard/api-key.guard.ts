@@ -6,12 +6,16 @@ import {
 } from '@nestjs/common';
 import { FastifyRequest } from 'fastify';
 import * as aes256 from 'aes256';
-import { AppConfig } from 'src/config';
-
-const cipher = aes256.createCipher(AppConfig.secretKey);
+import { AppConfig } from 'src/config/app';
 
 @Injectable()
 export class ApiKeyGuard implements CanActivate {
+  _cipher: any;
+
+  constructor(private appConfig: AppConfig) {
+    this._cipher = aes256.createCipher(appConfig.secret);
+  }
+
   async canActivate(context: ExecutionContext) {
     const request = context.switchToHttp().getRequest<FastifyRequest>();
     const apiKey = request.query['apiKey'];
@@ -21,9 +25,9 @@ export class ApiKeyGuard implements CanActivate {
     }
 
     try {
-      const decryptedApiKey = cipher.decrypt(apiKey);
+      const decryptedApiKey = this._cipher.decrypt(apiKey);
 
-      if (decryptedApiKey !== AppConfig.apiKey) {
+      if (decryptedApiKey !== this.appConfig.secret) {
         throw new ForbiddenException('Api key is invalid!');
       }
     } catch (_) {

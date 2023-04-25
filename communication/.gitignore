@@ -35,6 +35,7 @@ lerna-debug.log*
 !.vscode/extensions.json
 
 .env
+config.yaml
 
 /.docker/postgres/data/
 /.docker/redis/data/

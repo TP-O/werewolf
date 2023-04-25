@@ -6,6 +6,7 @@ import { PrismaService } from 'src/common/service/prisma.service';
 import { MessageModule } from '../message/message.module';
 import { CommunicationService } from './communication.service';
 import { CommunicationGateway } from './communication.gateway';
+import { FirebaseService } from 'src/common/service/firebase.service';
 
 @Module({
   imports: [UserModule, RoomModule, MessageModule],
@@ -14,6 +15,7 @@ import { CommunicationGateway } from './communication.gateway';
     CommunicationService,
     AuthService,
     PrismaService,
+    FirebaseService,
   ],
   exports: [CommunicationGateway],
 })

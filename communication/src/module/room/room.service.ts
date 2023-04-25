@@ -5,20 +5,23 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import Redis from 'ioredis';
-import { AppConfig } from 'src/config';
-import { RedisClient } from 'src/common/decorator';
 import { CacheNamespace } from 'src/enum';
 import { Room } from './room.type';
 import { CreatePersistentRoomsDto, CreateTemporaryRoomsDto } from './dto';
 import { PrismaService } from 'src/common/service/prisma.service';
 import { v4 as uuidv4 } from 'uuid';
+import { RedisService } from 'src/common/service/redis.service';
 
 @Injectable()
 export class RoomService {
-  @RedisClient()
-  private readonly redis: Redis;
+  private readonly _redis: Redis;
 
-  constructor(private prismaService: PrismaService) {}
+  constructor(
+    private prismaService: PrismaService,
+    redisService: RedisService,
+  ) {
+    this._redis = redisService.client;
+  }
 
   /**
    * Check if user is in any room.
@@ -27,7 +30,7 @@ export class RoomService {
    * @returns
    */
   private async isMemberOfAny(memberId: number) {
-    const roomIds = await this.redis.llen(
+    const roomIds = await this._redis.llen(
       `${CacheNamespace.UId2RIds}${memberId}`,
     );
 
@@ -43,7 +46,7 @@ export class RoomService {
   private async storeRooms(rooms: Room[]) {
     const socketIdsList: string[][] = [];
     const joinerIdsList: number[][] = [];
-    const redisPipe = this.redis.pipeline();
+    const redisPipe = this._redis.pipeline();
 
     rooms.map((room) => {
       const memberSIdKeys = room.memberIds.map((mId) => {
@@ -136,7 +139,7 @@ export class RoomService {
    */
   async remove(roomIds: string[]) {
     const rooms: Room[] = (
-      await this.redis.mget(
+      await this._redis.mget(
         ...roomIds.map((rId) => `${CacheNamespace.Room}${rId}`),
       )
     )
@@ -144,7 +147,7 @@ export class RoomService {
       .map((roomJSON) => JSON.parse(roomJSON));
     const socketIdsList: string[][] = [];
     const leaverIdsList: number[][] = [];
-    const redisPipe = this.redis.pipeline();
+    const redisPipe = this._redis.pipeline();
 
     rooms.forEach((room) => {
       const memberSIdKeys = room.memberIds.map((mId) => {
@@ -176,7 +179,7 @@ export class RoomService {
    */
   async addMembers(roomId: string, memberIds: number[]) {
     const room = await this.get(roomId);
-    const redisPipe = this.redis.pipeline();
+    const redisPipe = this._redis.pipeline();
     const memberSIdKeys: string[] = [];
 
     memberIds.forEach((mId) => {
@@ -207,7 +210,7 @@ export class RoomService {
    */
   async removeMembers(roomId: string, memberIds: number[]) {
     const room = await this.get(roomId);
-    const redisPipe = this.redis.pipeline();
+    const redisPipe = this._redis.pipeline();
     const memberSIdKeys: string[] = [];
 
     memberIds.forEach((mId) => {
@@ -245,7 +248,7 @@ export class RoomService {
       room.isMuted = mute;
     }
 
-    await this.redis.set(
+    await this._redis.set(
       `${CacheNamespace.Room}${roomId}`,
       JSON.stringify(room),
     );
@@ -263,10 +266,7 @@ export class RoomService {
    * @returns updated room.
    */
   async book(bookerId: number, isPublic = false) {
-    if (
-      !AppConfig.allowJoinMultipleRooms &&
-      (await this.isMemberOfAny(bookerId))
-    ) {
+    if (await this.isMemberOfAny(bookerId)) {
       throw new BadRequestException(
         'Please leave current room before creating a new one',
       );
@@ -284,7 +284,7 @@ export class RoomService {
       refusedIds: [],
     };
 
-    await this.redis
+    await this._redis
       .pipeline()
       .set(`${CacheNamespace.Room}${room.id}`, JSON.stringify(room))
       .lpush(`${CacheNamespace.UId2RIds}${bookerId}`, room.id)
@@ -300,7 +300,7 @@ export class RoomService {
    * @returns
    */
   async get(roomId: string) {
-    const roomJSON = await this.redis.get(`${CacheNamespace.Room}${roomId}`);
+    const roomJSON = await this._redis.get(`${CacheNamespace.Room}${roomId}`);
 
     if (roomJSON === null) {
       throw new BadRequestException('Room does not exist!');
@@ -319,7 +319,7 @@ export class RoomService {
    */
   async getMany(roomIds: string[]) {
     const rooms: Room[] = [];
-    const redisPipe = this.redis.pipeline();
+    const redisPipe = this._redis.pipeline();
     roomIds.forEach((rId) => redisPipe.get(`${CacheNamespace.Room}${rId}`));
 
     (await redisPipe.exec()).forEach((val) => {
@@ -341,10 +341,7 @@ export class RoomService {
    * @returns updated room.
    */
   async join(joinerId: number, roomId: string) {
-    if (
-      !AppConfig.allowJoinMultipleRooms &&
-      (await this.isMemberOfAny(joinerId))
-    ) {
+    if (await this.isMemberOfAny(joinerId)) {
       throw new BadRequestException(
         'Please leave current room before joining another one!',
       );
@@ -364,7 +361,7 @@ export class RoomService {
     room.waitingIds.splice(room.waitingIds.indexOf(joinerId), 1);
     room.refusedIds.splice(room.waitingIds.indexOf(joinerId), 1);
 
-    await this.redis
+    await this._redis
       .pipeline()
       .set(`${CacheNamespace.Room}${room.id}`, JSON.stringify(room))
       .lpush(`${CacheNamespace.UId2RIds}${joinerId}`, room.id)
@@ -392,7 +389,7 @@ export class RoomService {
       room.refusedIds.push(leaverId);
     }
 
-    const redisPipe = this.redis.pipeline();
+    const redisPipe = this._redis.pipeline();
 
     // Delete room if all members have left
     if (room.memberIds.length === 0 && !room.isPersistent) {
@@ -423,7 +420,7 @@ export class RoomService {
    */
   async leaveMany(leaverId: number, ...roomIds: string[]) {
     if (roomIds.length === 0) {
-      roomIds = await this.redis.lrange(
+      roomIds = await this._redis.lrange(
         `${CacheNamespace.UId2RIds}${leaverId}`,
         0,
         -1,
@@ -435,7 +432,7 @@ export class RoomService {
     }
 
     let rooms = await this.getMany(roomIds);
-    const redisPipe = this.redis.pipeline();
+    const redisPipe = this._redis.pipeline();
 
     rooms = rooms.map((room) => {
       room.memberIds.splice(room.memberIds.indexOf(leaverId), 1);
@@ -497,7 +494,7 @@ export class RoomService {
     room.memberIds.splice(deletedMemberIndex, 1);
     room.refusedIds.push(memberId);
 
-    const [[, kickedMemberSId]] = await this.redis
+    const [[, kickedMemberSId]] = await this._redis
       .pipeline()
       .get(`${CacheNamespace.UID2SId}${memberId}`)
       .set(`${CacheNamespace.Room}${room.id}`, JSON.stringify(room))
@@ -537,7 +534,7 @@ export class RoomService {
 
     room.ownerId = candidateId;
 
-    await this.redis.set(
+    await this._redis.set(
       `${CacheNamespace.Room}${room.id}`,
       JSON.stringify(room),
     );
@@ -555,7 +552,7 @@ export class RoomService {
    * @returns updated room and guest socket ids.
    */
   async invite(inviter: number, guestId: number, roomId: string) {
-    const [[, roomJSON], [, guestSId]] = (await this.redis
+    const [[, roomJSON], [, guestSId]] = (await this._redis
       .pipeline()
       .get(`${CacheNamespace.Room}${roomId}`)
       .get(`${CacheNamespace.UID2SId}${guestId}`)
@@ -588,7 +585,7 @@ export class RoomService {
     room.waitingIds.push(guestId);
     room.refusedIds.splice(room.waitingIds.indexOf(guestId), 1);
 
-    await this.redis.set(
+    await this._redis.set(
       `${CacheNamespace.Room}${room.id}`,
       JSON.stringify(room),
     );
@@ -619,16 +616,13 @@ export class RoomService {
       throw new BadRequestException('You are not invited to this room!');
     }
 
-    const redisPipe = this.redis.pipeline();
+    const redisPipe = this._redis.pipeline();
 
     room.waitingIds.splice(deletedWaitingIndex, 1);
 
     if (isAccpeted) {
       // Leave all current rooms if multi-room join is disabled
-      if (
-        !AppConfig.allowJoinMultipleRooms &&
-        (await this.isMemberOfAny(guestId))
-      ) {
+      if (await this.isMemberOfAny(guestId)) {
         leftRooms = await this.leaveMany(guestId);
       }
 

@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
-import { ScheduleModule } from '@nestjs/schedule';
-import { CronService } from './common/service/cron.service';
 import { CommunicationModule } from './module/communication/communication.module';
 import { MessageModule } from './module/message/message.module';
 import { RoomModule } from './module/room/room.module';
 import { UserModule } from './module/user/user.module';
+import { TypedConfigModule, fileLoader } from 'nest-typed-config';
+import { RootConfig } from './config/main';
 
 @Module({
   imports: [
@@ -12,8 +12,13 @@ import { UserModule } from './module/user/user.module';
     UserModule,
     RoomModule,
     MessageModule,
-    ScheduleModule.forRoot(),
+    TypedConfigModule.forRoot({
+      schema: RootConfig,
+      load: fileLoader({
+        absolutePath: 'config.yaml',
+      }),
+    }),
   ],
-  providers: [CronService],
+  providers: [],
 })
 export class AppModule {}

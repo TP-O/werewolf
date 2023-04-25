@@ -1,20 +1,22 @@
 import { Injectable } from '@nestjs/common';
 import { User } from '@prisma/client';
 import Redis from 'ioredis';
-import { RedisClient } from 'src/common/decorator';
 import { PrismaService } from 'src/common/service/prisma.service';
 import { ActiveStatus, CacheNamespace } from 'src/enum';
 import { RoomService } from '../room/room.service';
+import { RedisService } from 'src/common/service/redis.service';
 
 @Injectable()
 export class UserService {
-  @RedisClient()
-  private readonly redis: Redis;
+  private readonly _redis: Redis;
 
   constructor(
     private prismaService: PrismaService,
     private roomService: RoomService,
-  ) { }
+    private redisService: RedisService,
+  ) {
+    this._redis = redisService.client;
+  }
 
   /**
    * Get user by id.
@@ -37,7 +39,9 @@ export class UserService {
    * @returns
    */
   async getBySocketId(socketId: string) {
-    const userId = await this.redis.get(`${CacheNamespace.SId2UId}${socketId}`);
+    const userId = await this._redis.get(
+      `${CacheNamespace.SId2UId}${socketId}`,
+    );
 
     if (userId == null) {
       return null;
@@ -55,7 +59,9 @@ export class UserService {
    * @returns
    */
   async getIdBySocketId(socketId: string) {
-    const userId = await this.redis.get(`${CacheNamespace.SId2UId}${socketId}`);
+    const userId = await this._redis.get(
+      `${CacheNamespace.SId2UId}${socketId}`,
+    );
 
     return parseInt(userId, 10);
   }
@@ -67,7 +73,9 @@ export class UserService {
    * @returns
    */
   async getSocketIdByUserId(userId: number) {
-    const socketId = await this.redis.get(`${CacheNamespace.UID2SId}${userId}`);
+    const socketId = await this._redis.get(
+      `${CacheNamespace.UID2SId}${userId}`,
+    );
 
     return socketId;
   }
@@ -80,7 +88,7 @@ export class UserService {
    */
   async getSocketIdsByUserIds(userIds: number[]) {
     const sIdKeys = userIds.map((uid) => `${CacheNamespace.UID2SId}${uid}`);
-    const sIds = await this.redis.mget(...sIdKeys);
+    const sIds = await this._redis.mget(...sIdKeys);
 
     return sIds;
   }
@@ -92,7 +100,7 @@ export class UserService {
    * @returns
    */
   async getJoinedRoomIds(userId: number) {
-    const roomIds = await this.redis.lrange(
+    const roomIds = await this._redis.lrange(
       `${CacheNamespace.UId2RIds}${userId}`,
       0,
       -1,
@@ -214,7 +222,7 @@ export class UserService {
       },
     });
 
-    await this.redis
+    await this._redis
       .pipeline()
       .set(`${CacheNamespace.SId2UId}${socketId}`, user.id)
       .set(`${CacheNamespace.UID2SId}${user.id}`, socketId)
@@ -237,7 +245,7 @@ export class UserService {
 
     user.statusId = null;
 
-    await this.redis
+    await this._redis
       .pipeline()
       .del(`${CacheNamespace.SId2UId}${sId}`)
       .del(`${CacheNamespace.UID2SId}${user.id}`)

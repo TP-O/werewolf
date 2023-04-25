@@ -1,11 +1,22 @@
 import { INestApplication, Injectable, OnModuleInit } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
-import { AppConfig } from 'src/config';
+import { AppConfig } from 'src/config/app';
+import { DbConfig } from 'src/config/db';
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit {
-  constructor() {
-    if (AppConfig.debug) {
+  private _debug: boolean;
+
+  constructor(appConfig: AppConfig, dbConfig: DbConfig) {
+    const datasources = {
+      db: {
+        // eslint-disable-next-line prettier/prettier
+        url: `postgresql://${dbConfig.username}:${ dbConfig.password}@${
+          dbConfig.host}:${dbConfig.port}/${
+          dbConfig.database}?schema=public&connection_limit=${dbConfig.pollSize}&pool_timeout=0`,
+      },
+    };
+    if (appConfig.debug) {
       super({
         log: [
           {
@@ -13,16 +24,20 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
             level: 'query',
           },
         ],
+        datasources,
       });
     } else {
-      super();
+      super({
+        datasources,
+      });
     }
+    this._debug = appConfig.debug;
   }
 
   async onModuleInit() {
     await this.$connect();
 
-    if (AppConfig.debug) {
+    if (this._debug) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       this.$on('query', async (e) => {
