@@ -1,7 +1,0 @@
-{
-  "editor.codeActionsOnSave": {
-    "source.fixAll": true,
-  },
-  "editor.formatOnSave": true,
-  "git.ignoreLimitWarning": true,
-}
