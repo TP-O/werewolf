@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { User } from '@prisma/client';
 import Redis from 'ioredis';
 import { PrismaService } from 'src/common/service/prisma.service';
 import { ActiveStatus, CacheNamespace } from 'src/enum';
 import { RoomService } from '../room/room.service';
 import { RedisService } from 'src/common/service/redis.service';
+import { Player } from '@prisma/client';
+import { PlayerId } from './player.type';
 
 @Injectable()
 export class UserService {
@@ -24,8 +25,8 @@ export class UserService {
    * @param userId
    * @returns
    */
-  async getById(userId: number) {
-    const user = await this.prismaService.user.findUnique({
+  async getById(userId: PlayerId) {
+    const user = await this.prismaService.player.findUnique({
       where: { id: userId },
     });
 
@@ -47,7 +48,7 @@ export class UserService {
       return null;
     }
 
-    const user = await this.getById(parseInt(userId, 10));
+    const user = await this.getById(userId);
 
     return user;
   }
@@ -63,7 +64,7 @@ export class UserService {
       `${CacheNamespace.SId2UId}${socketId}`,
     );
 
-    return parseInt(userId, 10);
+    return userId;
   }
 
   /**
@@ -72,7 +73,7 @@ export class UserService {
    * @param userId
    * @returns
    */
-  async getSocketIdByUserId(userId: number) {
+  async getSocketIdByUserId(userId: PlayerId) {
     const socketId = await this._redis.get(
       `${CacheNamespace.UID2SId}${userId}`,
     );
@@ -86,7 +87,7 @@ export class UserService {
    * @param userIds
    * @returns
    */
-  async getSocketIdsByUserIds(userIds: number[]) {
+  async getSocketIdsByUserIds(userIds: PlayerId[]) {
     const sIdKeys = userIds.map((uid) => `${CacheNamespace.UID2SId}${uid}`);
     const sIds = await this._redis.mget(...sIdKeys);
 
@@ -115,8 +116,8 @@ export class UserService {
    * @param userId
    * @returns
    */
-  async getOnlineFriendsSocketIds(userId: number) {
-    const onlineFriends = await this.prismaService.user.findMany({
+  async getOnlineFriendsSocketIds(userId: PlayerId) {
+    const onlineFriends = await this.prismaService.player.findMany({
       select: {
         id: true,
       },
@@ -130,9 +131,9 @@ export class UserService {
             },
           },
           {
-            invitedFriends: {
+            requestedFriends: {
               some: {
-                inviterId: userId,
+                senderId: userId,
               },
             },
           },
@@ -161,18 +162,18 @@ export class UserService {
    * @param userId
    * @returns
    */
-  async getFriendList(userId: number) {
-    const friendList = await this.prismaService.user.findMany({
+  async getFriendList(userId: PlayerId) {
+    const friendList = await this.prismaService.player.findMany({
       where: {
         OR: {
           acceptedFriends: {
             every: {
-              inviterId: userId,
+              acceptorId: userId,
             },
           },
-          invitedFriends: {
+          requestedFriends: {
             every: {
-              acceptorId: userId,
+              senderId: userId,
             },
           },
         },
@@ -189,12 +190,12 @@ export class UserService {
    * @param ndUserId
    * @returns
    */
-  async areFriends(stUserId: number, ndUserId: number) {
+  async areFriends(stUserId: PlayerId, ndUserId: PlayerId) {
     const relationship = await this.prismaService.friendRelationship.findFirst({
       where: {
         OR: [
-          { inviterId: stUserId, acceptorId: ndUserId },
-          { inviterId: ndUserId, acceptorId: stUserId },
+          { senderId: stUserId, acceptorId: ndUserId },
+          { senderId: ndUserId, acceptorId: stUserId },
         ],
       },
     });
@@ -210,10 +211,10 @@ export class UserService {
    * @param socketId conntected socket id.
    * @returns updated user.
    */
-  async connect(user: User, socketId: string) {
+  async connect(user: Player, socketId: string) {
     user.statusId = ActiveStatus.Online;
 
-    await this.prismaService.user.update({
+    await this.prismaService.player.update({
       data: {
         statusId: user.statusId,
       },
@@ -239,7 +240,7 @@ export class UserService {
    * @param user
    * @return updated user and left rooms.
    */
-  async disconnect(user: User) {
+  async disconnect(user: Player) {
     const sId = await this.getSocketIdByUserId(user.id);
     const leftRooms = await this.roomService.leaveMany(user.id);
 
@@ -251,7 +252,7 @@ export class UserService {
       .del(`${CacheNamespace.UID2SId}${user.id}`)
       .exec();
 
-    await this.prismaService.user.update({
+    await this.prismaService.player.update({
       data: {
         statusId: user.statusId,
       },

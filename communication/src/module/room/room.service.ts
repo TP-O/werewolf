@@ -11,6 +11,7 @@ import { CreatePersistentRoomsDto, CreateTemporaryRoomsDto } from './dto';
 import { PrismaService } from 'src/common/service/prisma.service';
 import { v4 as uuidv4 } from 'uuid';
 import { RedisService } from 'src/common/service/redis.service';
+import { PlayerId } from '../user/player.type';
 
 @Injectable()
 export class RoomService {
@@ -29,7 +30,7 @@ export class RoomService {
    * @param memberId
    * @returns
    */
-  private async isMemberOfAny(memberId: number) {
+  private async isMemberOfAny(memberId: PlayerId) {
     const roomIds = await this._redis.llen(
       `${CacheNamespace.UId2RIds}${memberId}`,
     );
@@ -45,7 +46,7 @@ export class RoomService {
    */
   private async storeRooms(rooms: Room[]) {
     const socketIdsList: string[][] = [];
-    const joinerIdsList: number[][] = [];
+    const joinerIdsList: PlayerId[][] = [];
     const redisPipe = this._redis.pipeline();
 
     rooms.map((room) => {
@@ -93,40 +94,17 @@ export class RoomService {
   }
 
   /**
-   * Store chat room of a game into database.
-   *
-   * @param id
-   * @returns created chat room.
-   */
-  private async storeChatRoom(id: number) {
-    try {
-      return await this.prismaService.chatRoom.create({
-        select: {
-          id: true,
-        },
-        data: {
-          id,
-        },
-      });
-    } catch (_) {
-      throw new BadRequestException('Unable to create chat room!');
-    }
-  }
-
-  /**
    * Create persistent rooms with given settings.
    *
    * @param dto
    * @returns created rooms and socket ids of members.
    */
   async createPersistently(dto: CreatePersistentRoomsDto) {
-    const { id: gameId } = await this.storeChatRoom(dto.gameId);
-
     return this.storeRooms(
       dto.rooms.map((setting) => ({
         ...setting,
-        id: `${gameId}:${setting.id}`,
-        gameId,
+        id: `${dto.gameId}:${setting.id}`,
+        gameId: dto.gameId,
       })),
     );
   }
@@ -146,7 +124,7 @@ export class RoomService {
       .filter((roomJSON) => roomJSON != null)
       .map((roomJSON) => JSON.parse(roomJSON));
     const socketIdsList: string[][] = [];
-    const leaverIdsList: number[][] = [];
+    const leaverIdsList: PlayerId[][] = [];
     const redisPipe = this._redis.pipeline();
 
     rooms.forEach((room) => {
@@ -177,7 +155,7 @@ export class RoomService {
    * @param memberIds
    * @returns updated room and socket id of members.
    */
-  async addMembers(roomId: string, memberIds: number[]) {
+  async addMembers(roomId: string, memberIds: PlayerId[]) {
     const room = await this.get(roomId);
     const redisPipe = this._redis.pipeline();
     const memberSIdKeys: string[] = [];
@@ -208,7 +186,7 @@ export class RoomService {
    * @param memberIds
    * @returns updated room and socket id of members.
    */
-  async removeMembers(roomId: string, memberIds: number[]) {
+  async removeMembers(roomId: string, memberIds: PlayerId[]) {
     const room = await this.get(roomId);
     const redisPipe = this._redis.pipeline();
     const memberSIdKeys: string[] = [];
@@ -265,7 +243,7 @@ export class RoomService {
    * @param isPublic if true, anyone can join without invitation.
    * @returns updated room.
    */
-  async book(bookerId: number, isPublic = false) {
+  async book(bookerId: PlayerId, isPublic = false) {
     if (await this.isMemberOfAny(bookerId)) {
       throw new BadRequestException(
         'Please leave current room before creating a new one',
@@ -340,7 +318,7 @@ export class RoomService {
    * @param roomId
    * @returns updated room.
    */
-  async join(joinerId: number, roomId: string) {
+  async join(joinerId: PlayerId, roomId: string) {
     if (await this.isMemberOfAny(joinerId)) {
       throw new BadRequestException(
         'Please leave current room before joining another one!',
@@ -378,7 +356,7 @@ export class RoomService {
    * @param roomId
    * @returns updated room.
    */
-  async leave(leaverId: number, roomId: string) {
+  async leave(leaverId: PlayerId, roomId: string) {
     const room = await this.get(roomId);
     const deletedMemberIndex = room.memberIds.indexOf(leaverId);
 
@@ -418,7 +396,7 @@ export class RoomService {
    * @param roomIds empty if leaving all rooms.
    * @returns updated rooms.
    */
-  async leaveMany(leaverId: number, ...roomIds: string[]) {
+  async leaveMany(leaverId: PlayerId, ...roomIds: string[]) {
     if (roomIds.length === 0) {
       roomIds = await this._redis.lrange(
         `${CacheNamespace.UId2RIds}${leaverId}`,
@@ -472,7 +450,7 @@ export class RoomService {
    * @param roomId
    * @returns updated room and socket id of kicked member.
    */
-  async kick(kickerId: number, memberId: number, roomId: string) {
+  async kick(kickerId: PlayerId, memberId: PlayerId, roomId: string) {
     if (kickerId === memberId) {
       const room = await this.leave(kickerId, roomId);
 
@@ -518,8 +496,8 @@ export class RoomService {
    * @returns update room.
    */
   async transferOwnership(
-    ownerId: number,
-    candidateId: number,
+    ownerId: PlayerId,
+    candidateId: PlayerId,
     roomId: string,
   ) {
     const room = await this.get(roomId);
@@ -551,7 +529,7 @@ export class RoomService {
    * @param roomId
    * @returns updated room and guest socket ids.
    */
-  async invite(inviter: number, guestId: number, roomId: string) {
+  async invite(inviter: PlayerId, guestId: PlayerId, roomId: string) {
     const [[, roomJSON], [, guestSId]] = (await this._redis
       .pipeline()
       .get(`${CacheNamespace.Room}${roomId}`)
@@ -604,7 +582,7 @@ export class RoomService {
    * @returns updated room and left rooms.
    */
   async respondInvitation(
-    guestId: number,
+    guestId: PlayerId,
     isAccpeted: boolean,
     roomId: string,
   ) {

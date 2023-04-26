@@ -13,8 +13,4 @@ export class RedisConfig {
   @IsString()
   @IsNotEmpty()
   public readonly password!: string;
-
-  @IsNumber()
-  @Min(1)
-  public readonly pollSize!: number;
 }

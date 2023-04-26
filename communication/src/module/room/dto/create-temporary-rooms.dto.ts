@@ -11,6 +11,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { Room } from '../room.type';
+import { PlayerId } from 'src/module/user/player.type';
 
 class CreateRoomDto implements Room {
   @IsBoolean()
@@ -18,12 +19,12 @@ class CreateRoomDto implements Room {
 
   @ValidateIf((dto: CreateRoomDto, v) => !dto.memberIds?.includes(v))
   @Equals(undefined, { message: '$property must be contained in memberIds' })
-  ownerId: number;
+  ownerId: PlayerId;
 
   @IsNumber({}, { each: true })
   @Min(1, { each: true })
   @ArrayUnique()
-  memberIds: number[];
+  memberIds: PlayerId[];
 
   id: string;
 
@@ -33,9 +34,9 @@ class CreateRoomDto implements Room {
 
   gameId = 0;
 
-  waitingIds: number[] = [];
+  waitingIds: PlayerId[] = [];
 
-  refusedIds: number[] = [];
+  refusedIds: PlayerId[] = [];
 }
 
 export class CreateTemporaryRoomsDto {

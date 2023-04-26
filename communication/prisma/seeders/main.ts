@@ -1,15 +1,13 @@
 import { PrismaClient } from '@prisma/client';
-import { seedFriendRelationship } from './friend-relationship.seeder';
-import { seedGame } from './game.seeder';
-import { seedStatus } from './status.seeder';
-import { seedUser } from './user.seeder';
+import { seedFriendRelationship } from './friend-relationship';
+import { seedPlayerStatus } from './player-status';
+import { seedPlayer } from './player';
 const client = new PrismaClient();
 
 async function main() {
-  await seedStatus(client);
-  await seedUser(client);
+  await seedPlayerStatus(client);
+  await seedPlayer(client);
   await seedFriendRelationship(client);
-  await seedGame(client);
 }
 
 main()

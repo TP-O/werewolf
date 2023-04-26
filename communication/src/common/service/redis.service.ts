@@ -1,9 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleDestroy } from '@nestjs/common';
 import { Redis } from 'ioredis';
 import { RedisConfig } from 'src/config/redis';
 
 @Injectable()
-export class RedisService {
+export class RedisService implements OnModuleDestroy {
   private _client: Redis;
 
   constructor(config: RedisConfig) {
@@ -11,7 +11,12 @@ export class RedisService {
       host: config.host,
       port: config.port,
       password: config.password,
+      enableAutoPipelining: true,
     });
+  }
+
+  async onModuleDestroy() {
+    await this._client.quit();
   }
 
   public get client() {

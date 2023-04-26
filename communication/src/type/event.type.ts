@@ -1,18 +1,19 @@
 import { ActiveStatus, EmitEvent, RoomEvent } from 'src/enum';
 import { Room } from 'src/module/room/room.type';
 import { WsErrorResponse } from './error.type';
+import { PlayerId } from 'src/module/user/player.type';
 
 type SuccessResponse = {
   message: string;
 };
 
 type UpdateFriendStatusData = {
-  id: number;
+  id: PlayerId;
   status: ActiveStatus | null;
 };
 
 type ReceivePrivateMessageData = {
-  senderId: number;
+  senderId: PlayerId;
   content: string;
 };
 
@@ -21,13 +22,13 @@ type ReceiveRoomMessageData = ReceivePrivateMessageData & {
 };
 
 type ReceiveRoomInvitationData = {
-  inviterId: number;
+  inviterId: PlayerId;
   roomId: string;
 };
 
 type ReceiveRoomChangesData = {
   event: RoomEvent;
-  actorIds: number[];
+  actorIds: PlayerId[];
   room: Partial<Room> & Pick<Room, 'id'>;
 };
 

@@ -1,11 +1,9 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
-import { User } from '@prisma/client';
 import { Server, Socket } from 'socket.io';
 import { AuthService } from 'src/common/service/auth.service';
 import { ActiveStatus, EmitEvent, ListenEvent, RoomEvent } from 'src/enum';
 import { EmitEvents } from 'src/type';
 import { SendPrivateMessageDto, SendRoomMessageDto } from '../message/dto';
-import { MessageService } from '../message/message.service';
 import {
   BookRoomDto,
   InviteToRoomDto,
@@ -17,13 +15,13 @@ import {
 } from '../room/dto';
 import { RoomService } from '../room/room.service';
 import { UserService } from '../user/user.service';
+import { Player } from '@prisma/client';
 
 @Injectable()
 export class CommunicationService {
   constructor(
     private authService: AuthService,
     private userService: UserService,
-    private messageService: MessageService,
     private roomService: RoomService,
   ) {}
 
@@ -47,7 +45,7 @@ export class CommunicationService {
    * @param server websocket server.
    * @param user
    */
-  private async handleConflict(server: Server<null, EmitEvents>, user: User) {
+  private async handleConflict(server: Server<null, EmitEvents>, user: Player) {
     const { disconnectedId, leftRooms } = await this.userService.disconnect(
       user,
     );
@@ -164,7 +162,6 @@ export class CommunicationService {
     client: Socket,
     payload: SendPrivateMessageDto,
   ) {
-    await this.messageService.createPrivateMessage(client.userId, payload);
     const receiverSId = await this.userService.getSocketIdByUserId(
       payload.receiverId,
     );
@@ -197,14 +194,6 @@ export class CommunicationService {
 
     if (!room.memberIds.includes(client.userId)) {
       throw new ForbiddenException('You are not in this room!');
-    }
-
-    if (room.isPersistent) {
-      await this.messageService.createRoomMessage(
-        client.userId,
-        room.gameId,
-        payload,
-      );
     }
 
     server.to(payload.roomId).emit(EmitEvent.ReceiveRoomMessage, {

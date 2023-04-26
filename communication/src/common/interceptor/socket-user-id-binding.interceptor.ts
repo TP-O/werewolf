@@ -21,7 +21,7 @@ export class SocketUserIdBindingInterceptor implements NestInterceptor {
     const client = context.switchToWs().getClient() as Socket<null, EmitEvents>;
     const userId = await this.userService.getIdBySocketId(client.id);
 
-    if (userId > 0) {
+    if (userId) {
       client.userId = userId;
 
       return next.handle();

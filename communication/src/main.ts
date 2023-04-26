@@ -3,13 +3,13 @@ import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
-import { RedisIoAdapter } from './adapter';
 import { AppModule } from './app.module';
 import { AllExceptionFilter, HttpExceptionFilter } from './common/filter';
 import { PrismaService } from './common/service/prisma.service';
 import { ValidationPipe } from '@nestjs/common';
 import { RedisService } from './common/service/redis.service';
 import { AppConfig } from './config/app';
+import { ChatAdapter } from './module/communication/chat.adapter';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -25,9 +25,9 @@ async function bootstrap() {
   });
 
   const redisService = app.get(RedisService);
-  const redisIoAdapter = new RedisIoAdapter(app, redisService.client);
-  await redisIoAdapter.connectToRedis();
-  app.useWebSocketAdapter(redisIoAdapter);
+  const chatAdapter = new ChatAdapter(app, redisService.client);
+  await chatAdapter.connectToRedis();
+  app.useWebSocketAdapter(chatAdapter);
 
   const prismaService = app.get(PrismaService);
   await prismaService.enableShutdownHooks(app);

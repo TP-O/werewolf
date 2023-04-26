@@ -13,6 +13,7 @@ import {
 import { MuteRoomDto } from './dto/mute-room.dto';
 import { RoomService } from './room.service';
 import { Room } from './room.type';
+import { PlayerId } from '../user/player.type';
 
 @Controller('rooms')
 export class RoomController {
@@ -31,7 +32,7 @@ export class RoomController {
   private notifyRoomJoins(
     socketIdsList: string[][],
     rooms: Room[],
-    joinerIdsLst: number[][],
+    joinerIdsLst: PlayerId[][],
   ) {
     socketIdsList.forEach((sIds, i) => {
       this.communicationGateway.server.to(sIds).socketsJoin(rooms[i].id);
@@ -55,7 +56,7 @@ export class RoomController {
   private notifyRoomLeaves(
     socketIdsList: string[][],
     rooms: Room[],
-    leaverIdsList: number[][],
+    leaverIdsList: PlayerId[][],
   ) {
     socketIdsList.forEach((sIds, i) => {
       this.communicationGateway.server.to(sIds).socketsLeave(rooms[i].id);

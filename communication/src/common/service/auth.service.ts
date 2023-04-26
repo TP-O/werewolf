@@ -52,9 +52,9 @@ export class AuthService {
       throw new UnauthorizedException('Invalid access token!');
     }
 
-    const user = await this.prismaService.user.findUnique({
+    const user = await this.prismaService.player.findUnique({
       where: {
-        fid,
+        id: fid,
       },
     });
 

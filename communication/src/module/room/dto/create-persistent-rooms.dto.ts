@@ -11,6 +11,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { Room } from '../room.type';
+import { PlayerId } from 'src/module/user/player.type';
 
 class CreatePersistentRoomDto implements Room {
   @IsString()
@@ -23,9 +24,9 @@ class CreatePersistentRoomDto implements Room {
   @IsNumber({}, { each: true })
   @IsPositive({ each: true })
   @ArrayUnique()
-  memberIds: number[];
+  memberIds: PlayerId[];
 
-  ownerId: number;
+  ownerId: PlayerId;
 
   gameId: number;
 
@@ -33,9 +34,9 @@ class CreatePersistentRoomDto implements Room {
 
   isPersistent = true;
 
-  waitingIds: number[] = [];
+  waitingIds: PlayerId[] = [];
 
-  refusedIds: number[] = [];
+  refusedIds: PlayerId[] = [];
 }
 
 export class CreatePersistentRoomsDto {

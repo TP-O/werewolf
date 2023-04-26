@@ -1,11 +1,13 @@
+import { PlayerId } from '../user/player.type';
+
 export type Room = {
   id: string;
   isPublic: boolean;
   isPersistent: boolean;
   isMuted: boolean;
   gameId: number;
-  ownerId: number;
-  memberIds: number[];
-  waitingIds: number[];
-  refusedIds: number[];
+  ownerId: PlayerId;
+  memberIds: PlayerId[];
+  waitingIds: PlayerId[];
+  refusedIds: PlayerId[];
 };

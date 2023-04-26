@@ -1,82 +1,38 @@
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
   binaryTargets = ["linux-musl"]
 }
 
 datasource db {
   provider = "postgresql"
-  url      = "postgresql://ww_usernaaaame:ww_password@postgres:5432/ww_db?schema=public"
+  url      = "postgresql://ww_username:ww_password@postgres:5432/ww_db?schema=public"
 }
 
-model User {
-  id               Int                  @id @default(autoincrement())
-  fid              String               @unique @db.VarChar(28)
+model Player {
+  id               String               @id @db.VarChar(28)
   username         String               @unique @db.VarChar(16)
-  statusId         Int?                 @map("status_id")
-  acceptedFriends  FriendRelationship[] @relation("inviter")
-  invitedFriends   FriendRelationship[] @relation("acceptor")
-  sentMessages     PrivateMessage[]     @relation("sender")
-  receivedMessages PrivateMessage[]     @relation("receiver")
-  status           Status?              @relation(fields: [statusId], references: [id])
-  roomMessages     RoomMessage[]
+  statusId         Int                  @map("status_id") @db.SmallInt
+  requestedFriends FriendRelationship[] @relation("sender")
+  acceptedFriends  FriendRelationship[] @relation("acceptor")
+  status           PlayerStatus         @relation(fields: [statusId], references: [id])
 
-  @@map("users")
+  @@map("players")
 }
 
 model FriendRelationship {
-  inviterId  Int  @map("inviter_id")
-  acceptorId Int  @map("acceptor_id")
-  inviter    User @relation(name: "inviter", fields: [inviterId], references: [id])
-  acceptor   User @relation(name: "acceptor", fields: [acceptorId], references: [id])
+  senderId   String @map("inviter_id")
+  acceptorId String @map("acceptor_id")
+  sender     Player @relation(name: "sender", fields: [senderId], references: [id])
+  acceptor   Player @relation(name: "acceptor", fields: [acceptorId], references: [id])
 
-  @@unique([inviterId, acceptorId])
+  @@unique([senderId, acceptorId])
   @@map("friend_relationships")
 }
 
-model PrivateMessage {
-  id         Int      @id @default(autoincrement())
-  senderId   Int      @map("sender_id")
-  receiverId Int      @map("receiver_id")
-  content    String
-  createdAt  DateTime @default(now()) @map("created_at")
-  sender     User     @relation(name: "sender", fields: [senderId], references: [id])
-  receiver   User     @relation(name: "receiver", fields: [receiverId], references: [id])
+model PlayerStatus {
+  id     Int      @id @default(autoincrement()) @db.SmallInt
+  name   String   @unique @db.VarChar(16)
+  player Player[]
 
-  @@map("private_messages")
-}
-
-model Status {
-  id   Int    @id @default(autoincrement())
-  name String @unique @db.VarChar(16)
-  User User[]
-
-  @@map("active status")
-}
-
-model Game {
-  id        Int       @id @default(autoincrement())
-  chatRooms ChatRoom?
-
-  @@map("games")
-}
-
-model ChatRoom {
-  id           Int           @id
-  createdAt    DateTime      @default(now()) @map("created_at")
-  game         Game          @relation(fields: [id], references: [id])
-  roomMessages RoomMessage[]
-
-  @@map("chat_rooms")
-}
-
-model RoomMessage {
-  id        Int      @id @default(autoincrement())
-  roomId    Int      @map("room_id")
-  senderId  Int      @map("sender_id")
-  content   String
-  createdAt DateTime @default(now()) @map("created_at")
-  room      ChatRoom @relation(fields: [roomId], references: [id])
-  sender    User     @relation(fields: [senderId], references: [id])
-
-  @@map("room_messages")
+  @@map("player_statuses")
 }

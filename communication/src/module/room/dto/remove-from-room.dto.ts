@@ -5,6 +5,7 @@ import {
   IsString,
   Min,
 } from 'class-validator';
+import { PlayerId } from 'src/module/user/player.type';
 
 export class RemoveFromRoomDto {
   @IsString()
@@ -14,5 +15,5 @@ export class RemoveFromRoomDto {
   @IsNumber({}, { each: true })
   @Min(1, { each: true })
   @ArrayUnique()
-  memberIds: number[];
+  memberIds: PlayerId[];
 }

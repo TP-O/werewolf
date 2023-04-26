@@ -1,9 +1,10 @@
 import { User } from '@prisma/client';
 import { ListenEvent } from './enum/event.enum';
+import { PlayerId } from './module/user/player.type';
 
 declare module 'socket.io' {
   class Socket {
-    userId?: number;
+    userId?: PlayerId;
     eventName?: ListenEvent;
   }
 }

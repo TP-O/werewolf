@@ -1,5 +1,4 @@
-export enum ActiveStatus {
-  Offline = null,
-  Online = 1,
-  Busy = 2,
+export enum PlayerStatus {
+  Offline = 1,
+  Online = 2,
 }

@@ -20,8 +20,8 @@ dependencies:
     specifier: ^4.13.0
     version: 4.13.0(prisma@4.13.0)
   '@socket.io/redis-adapter':
-    specifier: ^7.2.0
-    version: 7.2.0
+    specifier: ^8.1.0
+    version: 8.1.0(socket.io-adapter@2.5.2)
   aes256:
     specifier: ^1.1.0
     version: 1.1.0
@@ -2873,18 +2873,18 @@ packages:
   /@socket.io/component-emitter@3.1.0:
     resolution: {integrity: sha512-+9jVqKhRSpsc591z5vX+X5Yyw+he/HCB4iQ/RYxw35CEPaY1gnsNE43nf9n9AaYjAQrTiI/mOwKUKdUs9vf7Xg==}
 
-  /@socket.io/redis-adapter@7.2.0:
-    resolution: {integrity: sha512-/r6oF6Myz0K9uatB/pfCi0BhKg/KRMh1OokrqcjlNz6aq40WiXdFLRbHJQuwGHq/KvB+D6141K+IynbVxZGvhw==}
+  /@socket.io/redis-adapter@8.1.0(socket.io-adapter@2.5.2):
+    resolution: {integrity: sha512-8nGMKcQ+DWpgefxA/Pi25aLajVilRPKwu29mZXu5cT+WGVYItcCkfMr4RsMmyYXUyJf00mN+7WinVLihmJwpXA==}
     engines: {node: '>=10.0.0'}
+    peerDependencies:
+      socket.io-adapter: ^2.4.0
     dependencies:
       debug: 4.3.4
-      notepack.io: 2.2.0
+      notepack.io: 3.0.1
       socket.io-adapter: 2.5.2
-      uid2: 0.0.3
+      uid2: 1.0.0
     transitivePeerDependencies:
-      - bufferutil
       - supports-color
-      - utf-8-validate
     dev: false
 
   /@tootallnate/once@1.1.2:
@@ -7411,8 +7411,8 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: true
 
-  /notepack.io@2.2.0:
-    resolution: {integrity: sha512-9b5w3t5VSH6ZPosoYnyDONnUTF8o0UkBw7JLA6eBlYJWyGT1Q3vQa8Hmuj1/X6RYvHjjygBDgw6fJhe0JEojfw==}
+  /notepack.io@3.0.1:
+    resolution: {integrity: sha512-TKC/8zH5pXIAMVQio2TvVDTtPRX+DJPHDqjRbxogtFiByHyzKmy96RA0JtCQJ+WouyyL4A10xomQzgbUT+1jCg==}
     dev: false
 
   /npm-bundled@1.1.2:
@@ -9257,8 +9257,9 @@ packages:
     dev: false
     optional: true
 
-  /uid2@0.0.3:
-    resolution: {integrity: sha512-5gSP1liv10Gjp8cMEnFd6shzkL/D6W1uhXSFNCxDC+YI8+L8wkCYCbJ7n77Ezb4wE/xzMogecE+DtamEe9PZjg==}
+  /uid2@1.0.0:
+    resolution: {integrity: sha512-+I6aJUv63YAcY9n4mQreLUt0d4lvwkkopDNmpomkAUz0fAkEMV9pRWxN0EjhW1YfRhcuyHg2v3mwddCDW1+LFQ==}
+    engines: {node: '>= 4.0.0'}
     dev: false
 
   /uid@2.0.2:
