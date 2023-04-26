@@ -2,9 +2,9 @@ import { ExceptionFilter, Catch, ArgumentsHost } from '@nestjs/common';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { Socket } from 'socket.io';
 import { Log } from 'src/common/decorator/log.decorator';
-import { EmitEvent } from 'src/enum';
-import { EmitEvents, LoggedError } from 'src/type';
 import { Logger } from 'winston';
+import { LoggedError } from '../type';
+import { EmitEvent, EmitEventFunc } from 'src/module/chat';
 
 @Catch()
 export class AllExceptionFilter implements ExceptionFilter {
@@ -21,7 +21,7 @@ export class AllExceptionFilter implements ExceptionFilter {
         this.handleHttpException(exception, host);
         break;
 
-      case 'rpc':
+      default:
         break;
     }
 
@@ -29,7 +29,7 @@ export class AllExceptionFilter implements ExceptionFilter {
   }
 
   private handleWsException(exception: LoggedError, host: ArgumentsHost) {
-    const client = host.switchToWs().getClient() as Socket<null, EmitEvents>;
+    const client = host.switchToWs().getClient() as Socket<null, EmitEventFunc>;
 
     exception.hostType = 'ws';
     exception.event = client.eventName;

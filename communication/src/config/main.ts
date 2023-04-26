@@ -1,9 +1,9 @@
 import { Type } from 'class-transformer';
 import { ValidateNested } from 'class-validator';
-import { AppConfig } from './app';
-import { DbConfig } from './db';
-import { RedisConfig } from './redis';
-import { FirebaseConfig } from './firebase';
+import { AppConfig } from './app.config';
+import { DbConfig } from './db.config';
+import { RedisConfig } from './redis.config';
+import { FirebaseConfig } from './firebase.config';
 
 export class RootConfig {
   @Type(() => AppConfig)

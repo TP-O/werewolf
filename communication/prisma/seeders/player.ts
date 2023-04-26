@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { PlayerStatus } from 'src/enum';
+import { PlayerStatus } from 'src/module/player';
 
 export async function seedPlayer(client: PrismaClient) {
   return client.player.createMany({

@@ -1,5 +1,5 @@
 import { IsInt, IsNotEmpty, IsPositive, IsString } from 'class-validator';
-import { PlayerId } from 'src/module/user/player.type';
+import { PlayerId } from 'src/module/player';
 
 export class InviteToRoomDto {
   @IsString()

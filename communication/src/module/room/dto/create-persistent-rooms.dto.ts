@@ -11,7 +11,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { Room } from '../room.type';
-import { PlayerId } from 'src/module/user/player.type';
+import { PlayerId } from 'src/module/player';
 
 class CreatePersistentRoomDto implements Room {
   @IsString()

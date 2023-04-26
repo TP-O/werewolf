@@ -1,12 +1,12 @@
 import { IsInt, IsNotEmpty, IsPositive, IsString } from 'class-validator';
 import { PlayerId } from 'src/module/player';
 
-export class TransferOwnershipDto {
-  @IsString()
-  @IsNotEmpty()
-  roomId: string;
-
+export class SendPrivateMessageDto {
   @IsInt()
   @IsPositive()
-  candidateId: PlayerId;
+  receiverId: PlayerId;
+
+  @IsString()
+  @IsNotEmpty()
+  content: string;
 }

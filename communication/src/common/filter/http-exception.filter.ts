@@ -6,7 +6,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { FastifyReply } from 'fastify';
-import { ErrorMessage } from 'src/type';
+import { ErrorMessage } from '../type';
 
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {

@@ -10,3 +10,4 @@ export * from './create-persistent-rooms.dto';
 export * from './remove-rooms.dto';
 export * from './add-to-room.dto';
 export * from './remove-from-room.dto';
+export * from './mute-room.dto';

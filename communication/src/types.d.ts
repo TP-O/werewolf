@@ -1,16 +1,16 @@
-import { User } from '@prisma/client';
-import { ListenEvent } from './enum/event.enum';
-import { PlayerId } from './module/user/player.type';
+import { Player } from '@prisma/client';
+import { ListenEvent } from './module/chat/chat.enum';
+import { PlayerId } from './module/player/player.type';
 
 declare module 'socket.io' {
   class Socket {
-    userId?: PlayerId;
+    playerId?: PlayerId;
     eventName?: ListenEvent;
   }
 }
 
 declare module 'fastify' {
   export class FastifyRequest {
-    user?: User;
+    player?: Player;
   }
 }

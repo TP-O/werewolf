@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { FastifyRequest } from 'fastify';
 import * as aes256 from 'aes256';
-import { AppConfig } from 'src/config/app';
+import { AppConfig } from 'src/config';
 
 @Injectable()
 export class ApiKeyGuard implements CanActivate {

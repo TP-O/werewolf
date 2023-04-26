@@ -1,5 +1,5 @@
 import { IsInt, IsString, IsNotEmpty, IsPositive } from 'class-validator';
-import { PlayerId } from 'src/module/user/player.type';
+import { PlayerId } from 'src/module/player';
 
 export class KickOutOfRoomDto {
   @IsString()

@@ -5,11 +5,10 @@ import {
 } from '@nestjs/platform-fastify';
 import { AppModule } from './app.module';
 import { AllExceptionFilter, HttpExceptionFilter } from './common/filter';
-import { PrismaService } from './common/service/prisma.service';
 import { ValidationPipe } from '@nestjs/common';
-import { RedisService } from './common/service/redis.service';
-import { AppConfig } from './config/app';
-import { ChatAdapter } from './module/communication/chat.adapter';
+import { AppConfig } from './config/app.config';
+import { ChatAdapter } from './module/chat/chat.adapter';
+import { PrismaService, RedisService } from './module/common';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(

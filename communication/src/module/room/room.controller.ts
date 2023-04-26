@@ -1,25 +1,24 @@
 import { Body, Controller, Delete, Post, Res, UseGuards } from '@nestjs/common';
 import { FastifyReply } from 'fastify';
 import { ApiKeyGuard } from 'src/common/guard';
-import { EmitEvent, RoomEvent } from 'src/enum';
-import { CommunicationGateway } from '../communication/communication.gateway';
 import {
   AddToRoomDto,
   CreatePersistentRoomsDto,
   CreateTemporaryRoomsDto,
+  MuteRoomDto,
   RemoveFromRoomDto,
   RemoveRoomsDto,
 } from './dto';
-import { MuteRoomDto } from './dto/mute-room.dto';
+import { PlayerId } from '../player';
+import { ChatGateway, EmitEvent, RoomEvent } from '../chat';
 import { RoomService } from './room.service';
 import { Room } from './room.type';
-import { PlayerId } from '../user/player.type';
 
 @Controller('rooms')
 export class RoomController {
   constructor(
     private roomService: RoomService,
-    private communicationGateway: CommunicationGateway,
+    private chatGateway: ChatGateway,
   ) {}
 
   /**
@@ -35,14 +34,12 @@ export class RoomController {
     joinerIdsLst: PlayerId[][],
   ) {
     socketIdsList.forEach((sIds, i) => {
-      this.communicationGateway.server.to(sIds).socketsJoin(rooms[i].id);
-      this.communicationGateway.server
-        .to(sIds)
-        .emit(EmitEvent.ReceiveRoomChanges, {
-          event: RoomEvent.Join,
-          actorIds: joinerIdsLst[i],
-          room: rooms[i],
-        });
+      this.chatGateway.server.to(sIds).socketsJoin(rooms[i].id);
+      this.chatGateway.server.to(sIds).emit(EmitEvent.ReceiveRoomChanges, {
+        event: RoomEvent.Join,
+        actorIds: joinerIdsLst[i],
+        room: rooms[i],
+      });
     });
   }
 
@@ -59,14 +56,12 @@ export class RoomController {
     leaverIdsList: PlayerId[][],
   ) {
     socketIdsList.forEach((sIds, i) => {
-      this.communicationGateway.server.to(sIds).socketsLeave(rooms[i].id);
-      this.communicationGateway.server
-        .to(sIds)
-        .emit(EmitEvent.ReceiveRoomChanges, {
-          event: RoomEvent.Leave,
-          actorIds: leaverIdsList[i],
-          room: rooms[i],
-        });
+      this.chatGateway.server.to(sIds).socketsLeave(rooms[i].id);
+      this.chatGateway.server.to(sIds).emit(EmitEvent.ReceiveRoomChanges, {
+        event: RoomEvent.Leave,
+        actorIds: leaverIdsList[i],
+        room: rooms[i],
+      });
     });
   }
 
@@ -181,13 +176,11 @@ export class RoomController {
   async mute(@Body() payload: MuteRoomDto, @Res() response: FastifyReply) {
     const room = await this.roomService.allowChat(payload.roomId, payload.mute);
 
-    this.communicationGateway.server
-      .to(room.id)
-      .emit(EmitEvent.ReceiveRoomChanges, {
-        event: RoomEvent.Mute,
-        actorIds: [],
-        room,
-      });
+    this.chatGateway.server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
+      event: RoomEvent.Mute,
+      actorIds: [],
+      room,
+    });
     response.code(201).send({
       data: room,
     });

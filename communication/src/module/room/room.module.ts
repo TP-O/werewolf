@@ -1,14 +1,12 @@
 import { forwardRef, Module } from '@nestjs/common';
-import { PrismaService } from 'src/common/service/prisma.service';
-import { CommunicationModule } from '../communication/communication.module';
+import { ChatModule } from '../chat/chat.module';
 import { RoomController } from './room.controller';
 import { RoomService } from './room.service';
-import { RedisService } from 'src/common/service/redis.service';
 
 @Module({
-  imports: [forwardRef(() => CommunicationModule)],
+  imports: [forwardRef(() => ChatModule)],
   controllers: [RoomController],
-  providers: [RoomService, PrismaService, RedisService],
+  providers: [RoomService],
   exports: [RoomService],
 })
 export class RoomModule {
