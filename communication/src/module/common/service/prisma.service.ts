@@ -1,12 +1,15 @@
 import { INestApplication, Injectable, OnModuleInit } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { AppConfig, DbConfig } from 'src/config';
+import { LoggerService } from './logger.service';
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit {
-  private _debug: boolean;
+  private readonly _debug: boolean;
 
-  constructor(appConfig: AppConfig, dbConfig: DbConfig) {
+  private readonly logger: LoggerService;
+
+  constructor(appConfig: AppConfig, dbConfig: DbConfig, logger: LoggerService) {
     const datasources = {
       db: {
         // eslint-disable-next-line prettier/prettier
@@ -30,7 +33,10 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
         datasources,
       });
     }
+
     this._debug = appConfig.debug;
+    this.logger = logger;
+    this.logger.setContext(PrismaService.name);
   }
 
   async onModuleInit() {
@@ -42,12 +48,12 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
       this.$on('query', async (e) => {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        console.log(`${e.query} ${e.params}`);
+        this.logger.log(`${e.query} ${e.params}`);
       });
     }
   }
 
-  async enableShutdownHooks(app: INestApplication) {
+  enableShutdownHooks(app: INestApplication) {
     this.$on('beforeExit', async () => {
       await app.close();
     });

@@ -6,6 +6,7 @@ import { FirebaseConfig } from 'src/config';
 @Injectable()
 export class FirebaseService {
   constructor(config: FirebaseConfig) {
+    //Prevent duplicate app initialization
     if (getApps().length === 0) {
       initializeApp({
         credential: cert({

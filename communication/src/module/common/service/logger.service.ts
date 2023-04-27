@@ -22,8 +22,14 @@ const writer = createLogger({
   scope: Scope.TRANSIENT,
 })
 export class LoggerService extends ConsoleLogger {
-  private readonly _logError!: boolean;
+  /**
+   * Enable error logs writing.
+   */
+  private readonly _logError: boolean;
 
+  /**
+   * Logger instance.
+   */
   private readonly _logWriter = writer;
 
   constructor(config: AppConfig) {
@@ -36,6 +42,7 @@ export class LoggerService extends ConsoleLogger {
       return;
     }
 
+    // https://github.com/nestjs/nest/pull/11571
     if (context) {
       super.error(message, stack, context);
     } else {

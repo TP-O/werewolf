@@ -31,7 +31,7 @@ async function bootstrap() {
   app.useWebSocketAdapter(chatAdapter);
 
   const prismaService = app.get(PrismaService);
-  await prismaService.enableShutdownHooks(app);
+  prismaService.enableShutdownHooks(app);
 
   app.setGlobalPrefix('api/v1');
   app.useGlobalFilters(
