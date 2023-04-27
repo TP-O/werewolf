@@ -1,4 +1,4 @@
-FROM node:18.15-alpine3.16 as build-stage
+FROM node:20-alpine3.16 as build-stage
 
 WORKDIR /app
 
@@ -10,7 +10,7 @@ RUN npx pnpm install \
   && npx prisma generate \
   && npx pnpm build
 
-FROM node:18.15-alpine3.16
+FROM node:20-alpine3.16
 
 LABEL maintainer="Le Tran Phong <letranphong2k1@gmail.com>"
 

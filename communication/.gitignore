@@ -39,3 +39,6 @@ config.yaml
 
 /.docker/postgres/data/
 /.docker/redis/data/
+
+index.mjs
+index.js

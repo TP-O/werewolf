@@ -1,10 +1,10 @@
 import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common';
 import { FastifyReply, FastifyRequest } from 'fastify';
-import { AuthGuard } from 'src/common/guard';
 import { PlayerService } from './player.service';
+import { TokenGuard } from 'src/common/guard';
 
 @Controller('players')
-@UseGuards(AuthGuard)
+@UseGuards(TokenGuard)
 export class PlayerController {
   constructor(private playerService: PlayerService) {}
 

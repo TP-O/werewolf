@@ -36,10 +36,6 @@ export class AppConfig {
   @MinLength(20)
   public readonly secret!: string;
 
-  @IsString()
-  @MinLength(20)
-  public readonly decrypted!: string;
-
   @Type(() => CorsOptions)
   @ValidateNested()
   public readonly cors!: CorsOptions;

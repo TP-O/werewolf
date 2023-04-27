@@ -51,8 +51,7 @@ export class AuthService {
         id,
       },
     });
-
-    if (player == null) {
+    if (!player) {
       throw new InternalServerErrorException(
         'Please connect again after a while!',
       );

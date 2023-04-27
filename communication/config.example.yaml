@@ -3,7 +3,6 @@ app:
   debug: true
   port: 8079
   secret:
-  decrypted:
   cors:
     origins:
       - "*"

@@ -13,7 +13,7 @@
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/src/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\"",
-    "test": "echo \"jest\"",
+    "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
@@ -28,7 +28,6 @@
     "@nestjs/websockets": "^9.4.0",
     "@prisma/client": "^4.13.0",
     "@socket.io/redis-adapter": "^8.1.0",
-    "aes256": "^1.1.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.13.2",
     "dotenv": "^16.0.3",
@@ -48,6 +47,7 @@
     "@asyncapi/generator": "^1.9.18",
     "@asyncapi/html-template": "0.25.2",
     "@firebase/app-types": "^0.7.0",
+    "@golevelup/ts-jest": "^0.3.5",
     "@nestjs/cli": "^9.4.2",
     "@nestjs/schematics": "^9.1.0",
     "@nestjs/testing": "^9.4.0",
@@ -88,7 +88,10 @@
       "**/*.(t|j)s"
     ],
     "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "moduleNameMapper": {
+      "src/(.*)": "<rootDir>/$1"
+    }
   },
   "prisma": {
     "seed": "ts-node  -r tsconfig-paths/register prisma/seeders/database.seeder.ts"

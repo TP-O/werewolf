@@ -1,6 +1,5 @@
 import { Body, Controller, Delete, Post, Res, UseGuards } from '@nestjs/common';
 import { FastifyReply } from 'fastify';
-import { ApiKeyGuard } from 'src/common/guard';
 import {
   AddToRoomDto,
   CreatePersistentRoomsDto,
@@ -13,8 +12,10 @@ import { PlayerId } from '../player';
 import { ChatGateway, EmitEvent, RoomEvent } from '../chat';
 import { RoomService } from './room.service';
 import { Room } from './room.type';
+import { HmacGuard } from 'src/common/guard';
 
 @Controller('rooms')
+@UseGuards(HmacGuard)
 export class RoomController {
   constructor(
     private roomService: RoomService,
@@ -72,7 +73,6 @@ export class RoomController {
    * @param response
    */
   @Post('temporary')
-  @UseGuards(ApiKeyGuard)
   async createTemporarily(
     @Body() payload: CreateTemporaryRoomsDto,
     @Res() response: FastifyReply,
@@ -93,7 +93,6 @@ export class RoomController {
    * @param response
    */
   @Post('persistent')
-  @UseGuards(ApiKeyGuard)
   async createPersistently(
     @Body() payload: CreatePersistentRoomsDto,
     @Res() response: FastifyReply,
@@ -114,7 +113,6 @@ export class RoomController {
    * @param response
    */
   @Delete()
-  @UseGuards(ApiKeyGuard)
   async remove(@Body() payload: RemoveRoomsDto, @Res() response: FastifyReply) {
     const { rooms, socketIdsList, leaverIdsList } =
       await this.roomService.remove(payload.ids);
@@ -132,7 +130,6 @@ export class RoomController {
    * @param response
    */
   @Post('members')
-  @UseGuards(ApiKeyGuard)
   async addMembers(
     @Body() payload: AddToRoomDto,
     @Res() response: FastifyReply,
@@ -155,7 +152,6 @@ export class RoomController {
    * @param response
    */
   @Delete('members')
-  @UseGuards(ApiKeyGuard)
   async removeMembers(
     @Body() payload: RemoveFromRoomDto,
     @Res() response: FastifyReply,
@@ -172,7 +168,6 @@ export class RoomController {
   }
 
   @Post('mute')
-  @UseGuards(ApiKeyGuard)
   async mute(@Body() payload: MuteRoomDto, @Res() response: FastifyReply) {
     const room = await this.roomService.allowChat(payload.roomId, payload.mute);
 
