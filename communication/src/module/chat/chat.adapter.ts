@@ -15,7 +15,7 @@ export class ChatAdapter extends IoAdapter {
     this.adapterConstructor = createAdapter(this.redis, this.redis);
   }
 
-  createIOServer(port: number, options?: ServerOptions): any {
+  createIOServer(port: number, options?: ServerOptions) {
     const server = super.createIOServer(port, options);
     server.adapter(this.adapterConstructor);
     return server;

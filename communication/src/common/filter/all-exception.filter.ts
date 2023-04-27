@@ -1,57 +1,76 @@
 import { ExceptionFilter, Catch, ArgumentsHost } from '@nestjs/common';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { Socket } from 'socket.io';
-import { Log } from 'src/common/decorator/log.decorator';
-import { Logger } from 'winston';
 import { LoggedError } from '../type';
 import { EmitEvent, EmitEventFunc } from 'src/module/chat';
+import { LoggerService } from 'src/module/common';
 
 @Catch()
 export class AllExceptionFilter implements ExceptionFilter {
-  @Log()
-  private readonly logger: Logger;
+  constructor(private readonly logger: LoggerService) {
+    this.logger.setContext(AllExceptionFilter.name);
+  }
 
-  catch(exception: LoggedError, host: ArgumentsHost) {
+  catch(exception: Error, host: ArgumentsHost) {
+    let loggedErr: LoggedError;
     switch (host.getType()) {
       case 'ws':
-        this.handleWsException(exception, host);
+        loggedErr = this.handleWsException(exception, host);
         break;
 
       case 'http':
-        this.handleHttpException(exception, host);
+        loggedErr = this.handleHttpException(exception, host);
         break;
 
       default:
         break;
     }
 
-    this.logger.error(exception);
+    if (loggedErr) {
+      this.logger.error(loggedErr, exception.stack);
+    }
   }
 
-  private handleWsException(exception: LoggedError, host: ArgumentsHost) {
+  private handleWsException(
+    exception: Error,
+    host: ArgumentsHost,
+  ): LoggedError {
     const client = host.switchToWs().getClient() as Socket<null, EmitEventFunc>;
-
-    exception.hostType = 'ws';
-    exception.event = client.eventName;
-    exception.payload = host.switchToWs().getData();
+    const loggedError: LoggedError = {
+      name: exception.name,
+      message: exception.message,
+      hostType: 'ws',
+      event: client.eventName,
+      payload: host.switchToWs().getData(),
+    };
 
     client.emit(EmitEvent.Error, {
       event: client.eventName,
       message: 'Unknown error!',
     });
+
+    return loggedError;
   }
 
-  private handleHttpException(exception: LoggedError, host: ArgumentsHost) {
+  private handleHttpException(
+    exception: Error,
+    host: ArgumentsHost,
+  ): LoggedError {
     const response = host.switchToHttp().getResponse<FastifyReply>();
     const request = host.switchToHttp().getRequest<FastifyRequest>();
-
-    exception.hostType = 'http';
-    exception.url = request.url;
-    exception.payload = request.body;
+    const loggedError: LoggedError = {
+      name: exception.name,
+      message: exception.message,
+      hostType: 'http',
+      url: request.url,
+      payload: request.body,
+    };
 
     response.code(500).send({
       statusCode: 500,
       message: 'Unknown error!',
     });
+
+    return loggedError;
   }
 }

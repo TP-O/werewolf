@@ -8,7 +8,7 @@ import { AllExceptionFilter, HttpExceptionFilter } from './common/filter';
 import { ValidationPipe } from '@nestjs/common';
 import { AppConfig } from './config/app.config';
 import { ChatAdapter } from './module/chat/chat.adapter';
-import { PrismaService, RedisService } from './module/common';
+import { LoggerService, PrismaService, RedisService } from './module/common';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -17,6 +17,8 @@ async function bootstrap() {
   );
   const config = app.get(AppConfig);
 
+  const logger = new LoggerService(config);
+  app.useLogger(logger);
   app.enableCors({
     origin: config.cors.origins,
     methods: ['GET', 'POST'],
@@ -32,7 +34,10 @@ async function bootstrap() {
   await prismaService.enableShutdownHooks(app);
 
   app.setGlobalPrefix('api/v1');
-  app.useGlobalFilters(new AllExceptionFilter(), new HttpExceptionFilter());
+  app.useGlobalFilters(
+    new AllExceptionFilter(logger),
+    new HttpExceptionFilter(),
+  );
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,

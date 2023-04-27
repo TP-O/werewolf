@@ -37,7 +37,7 @@ import { ChatService } from './chat.service';
 import { ListenEvent } from './chat.enum';
 
 @Injectable()
-@UseFilters(new AllExceptionFilter(), new ChatExceptionFilter())
+@UseFilters(AllExceptionFilter, ChatExceptionFilter)
 @UsePipes(
   new ValidationPipe({
     whitelist: true,
