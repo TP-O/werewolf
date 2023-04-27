@@ -10,7 +10,7 @@ import { ErrorMessage } from '../type';
 
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
-  catch(exception: HttpException, host: ArgumentsHost) {
+  catch(exception: HttpException, host: ArgumentsHost): void {
     const response = host.switchToHttp().getResponse<FastifyReply>();
     const status = exception.getStatus();
     let message: ErrorMessage;

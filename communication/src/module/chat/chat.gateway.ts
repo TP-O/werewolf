@@ -16,7 +16,7 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { AllExceptionFilter } from 'src/common/filter';
+import { AllExceptionFilter, WsExceptionFilter } from 'src/common/filter';
 import {
   EventNameBindingInterceptor,
   SocketPlayerIdBindingInterceptor,
@@ -31,13 +31,12 @@ import {
   TransferOwnershipDto,
 } from '../room/dto';
 import { SendRoomMessageDto, SendPrivateMessageDto } from './dto';
-import { ChatExceptionFilter } from './chat.filter';
 import { EmitEventFunc } from './chat.type';
 import { ChatService } from './chat.service';
 import { ListenEvent } from './chat.enum';
 
 @Injectable()
-@UseFilters(AllExceptionFilter, ChatExceptionFilter)
+@UseFilters(AllExceptionFilter, WsExceptionFilter)
 @UsePipes(
   new ValidationPipe({
     whitelist: true,

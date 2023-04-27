@@ -6,13 +6,19 @@ import {
 } from '@nestjs/common';
 import { BaseWsExceptionFilter, WsException } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
-import { EmitEventFunc } from './chat.type';
+import { EmitEventFunc } from '../../module/chat/chat.type';
 import { ErrorMessage } from 'src/common/type';
-import { EmitEvent } from './chat.enum';
+import { EmitEvent } from '../../module/chat/chat.enum';
 
+/**
+ * Filter the exceptions from gateway.
+ *
+ * HttpException is caught here because the gateway can use
+ * services throwing http exception.
+ */
 @Catch(WsException, HttpException)
-export class ChatExceptionFilter extends BaseWsExceptionFilter {
-  catch(exception: Error, host: ArgumentsHost) {
+export class WsExceptionFilter extends BaseWsExceptionFilter {
+  catch(exception: Error, host: ArgumentsHost): void {
     const client = host.switchToWs().getClient() as Socket<null, EmitEventFunc>;
     let message: ErrorMessage;
 

@@ -5,21 +5,24 @@ import { LoggedError } from '../type';
 import { EmitEvent, EmitEventFunc } from 'src/module/chat';
 import { LoggerService } from 'src/module/common';
 
+/**
+ * Filter all unexpected exceptions.
+ */
 @Catch()
 export class AllExceptionFilter implements ExceptionFilter {
   constructor(private readonly logger: LoggerService) {
     this.logger.setContext(AllExceptionFilter.name);
   }
 
-  catch(exception: Error, host: ArgumentsHost) {
+  catch(exception: Error, host: ArgumentsHost): void {
     let loggedErr: LoggedError;
     switch (host.getType()) {
       case 'ws':
-        loggedErr = this.handleWsException(exception, host);
+        loggedErr = this._handleWsException(exception, host);
         break;
 
       case 'http':
-        loggedErr = this.handleHttpException(exception, host);
+        loggedErr = this._handleHttpException(exception, host);
         break;
 
       default:
@@ -31,7 +34,7 @@ export class AllExceptionFilter implements ExceptionFilter {
     }
   }
 
-  private handleWsException(
+  private _handleWsException(
     exception: Error,
     host: ArgumentsHost,
   ): LoggedError {
@@ -52,7 +55,7 @@ export class AllExceptionFilter implements ExceptionFilter {
     return loggedError;
   }
 
-  private handleHttpException(
+  private _handleHttpException(
     exception: Error,
     host: ArgumentsHost,
   ): LoggedError {
