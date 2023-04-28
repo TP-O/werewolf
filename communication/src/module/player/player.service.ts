@@ -2,121 +2,59 @@ import { Injectable } from '@nestjs/common';
 import Redis from 'ioredis';
 import { Player } from '@prisma/client';
 import { PrismaService, RedisService } from '../common';
-import { RoomService } from '../room';
-import { PlayerId } from './player.type';
-import { RedisNamespace } from 'src/common/enum';
+import { PlayerId, SocketId } from './player.type';
 import { PlayerStatus } from './player.enum';
+import { RedisNamespace } from '../common/enum/redis.enum';
 
 @Injectable()
 export class PlayerService {
   private readonly _redis: Redis;
 
   constructor(
-    private prismaService: PrismaService,
-    private roomService: RoomService,
     redisService: RedisService,
+    private readonly prismaService: PrismaService,
   ) {
     this._redis = redisService.client;
   }
 
   /**
-   * Get player by id.
+   * Get player by ID.
    *
-   * @param playerId
-   * @returns
+   * @param id The player ID.
    */
-  async getById(playerId: PlayerId) {
-    const player = await this.prismaService.player.findUnique({
-      where: { id: playerId },
+  getById(id: PlayerId): Promise<Player | null> {
+    return this.prismaService.player.findUnique({
+      where: { id },
     });
-
-    return player;
   }
 
   /**
-   * Get player by socket id.
+   * Get socket ID by player ID.
    *
-   * @param socketId
-   * @returns
+   * @param id The player ID.
    */
-  async getBySocketId(socketId: string) {
-    const playerId = await this._redis.get(
-      `${RedisNamespace.SId2UId}${socketId}`,
-    );
-
-    if (playerId == null) {
-      return null;
-    }
-
-    const player = await this.getById(playerId);
-
-    return player;
-  }
-
-  /**
-   * Get player id by socket id.
-   *
-   * @param socketId
-   * @returns
-   */
-  async getIdBySocketId(socketId: string) {
-    const playerId = await this._redis.get(
-      `${RedisNamespace.SId2UId}${socketId}`,
-    );
-
-    return playerId;
-  }
-
-  /**
-   * Get socket id by player id.
-   *
-   * @param playerId
-   * @returns
-   */
-  async getSocketIdByplayerId(playerId: PlayerId) {
-    const socketId = await this._redis.get(
-      `${RedisNamespace.UID2SId}${playerId}`,
-    );
-
-    return socketId;
+  getSocketId(id: PlayerId): Promise<SocketId | null> {
+    return this._redis.get(`${RedisNamespace.Id2Sid}${id}`);
   }
 
   /**
    * Get socket ids by player ids.
    *
-   * @param playerIds
-   * @returns
+   * @param ids The list of player ID.
    */
-  async getSocketIdsByplayerIds(playerIds: PlayerId[]) {
-    const sIdKeys = playerIds.map((uid) => `${RedisNamespace.UID2SId}${uid}`);
-    const sIds = await this._redis.mget(...sIdKeys);
-
-    return sIds;
-  }
-
-  /**
-   * Get player's joined room id list.
-   *
-   * @param playerId
-   * @returns
-   */
-  async getJoinedRoomIds(playerId: number) {
-    const roomIds = await this._redis.lrange(
-      `${RedisNamespace.UId2RIds}${playerId}`,
-      0,
-      -1,
+  async getSocketIds(ids: PlayerId[]): Promise<SocketId[]> {
+    const sids = await this._redis.mget(
+      ...ids.map((id) => `${RedisNamespace.Id2Sid}${id}`),
     );
-
-    return roomIds;
+    return sids.filter((sid) => !!sid) as SocketId[];
   }
 
   /**
-   * Get socket id list of the player's online friends.
+   * Get socket ID list of the player's online friends.
    *
-   * @param playerId
-   * @returns
+   * @param id The player ID.
    */
-  async getOnlineFriendsSocketIds(playerId: PlayerId) {
+  async getFriendsSocketIds(id: PlayerId): Promise<SocketId[]> {
     const onlineFriends = await this.prismaService.player.findMany({
       select: {
         id: true,
@@ -126,141 +64,129 @@ export class PlayerService {
           {
             acceptedFriends: {
               some: {
-                acceptorId: playerId,
+                acceptorId: id,
               },
             },
           },
           {
             requestedFriends: {
               some: {
-                senderId: playerId,
+                senderId: id,
               },
             },
           },
         ],
         NOT: {
-          statusId: null,
+          statusId: PlayerStatus.Offline,
         },
       },
     });
-
     if (onlineFriends.length === 0) {
       return [];
     }
 
-    const onlineFriendsIds = onlineFriends.map((friend) => friend.id);
-    const onlineFriendsSIds = await this.getSocketIdsByplayerIds(
-      onlineFriendsIds,
-    );
-
-    return onlineFriendsSIds;
+    return this.getSocketIds(onlineFriends.map((friend) => friend.id));
   }
 
   /**
-   * Get player's friend list.
+   * Get the player's friend list.
    *
-   * @param playerId
-   * @returns
+   * @param id The player ID.
    */
-  async getFriendList(playerId: PlayerId) {
-    const friendList = await this.prismaService.player.findMany({
+  getFriends(id: PlayerId): Promise<Player[]> {
+    return this.prismaService.player.findMany({
       where: {
         OR: {
           acceptedFriends: {
             every: {
-              acceptorId: playerId,
+              acceptorId: id,
             },
           },
           requestedFriends: {
             every: {
-              senderId: playerId,
+              senderId: id,
             },
           },
         },
       },
     });
-
-    return friendList;
   }
 
   /**
    * Check if two players are friends.
    *
-   * @param stplayerId
-   * @param ndplayerId
-   * @returns
+   * @param id1 The first player ID.
+   * @param id2 The second player ID,
    */
-  async areFriends(stplayerId: PlayerId, ndplayerId: PlayerId) {
+  async areFriends(id1: PlayerId, id2: PlayerId): Promise<boolean> {
     const relationship = await this.prismaService.friendRelationship.findFirst({
       where: {
         OR: [
-          { senderId: stplayerId, acceptorId: ndplayerId },
-          { senderId: ndplayerId, acceptorId: stplayerId },
+          { senderId: id1, acceptorId: id2 },
+          { senderId: id2, acceptorId: id1 },
         ],
       },
     });
-
-    return relationship != null;
+    return relationship !== null;
   }
 
-  /**
-   * Change the player status to online and then
-   * bind socket id to player id.
-   *
-   * @param player
-   * @param socketId conntected socket id.
-   * @returns updated player.
-   */
-  async connect(player: Player, socketId: string) {
-    player.statusId = PlayerStatus.Online;
+  // /**
+  //  * Change the player status to online and then
+  //  * bind socket id to player id.
+  //  *
+  //  * @param player
+  //  * @param socketId conntected socket id.
+  //  */
+  // async connect(player: Player, socketId: string) {
+  //   player.statusId = PlayerStatus.Online;
 
-    await this.prismaService.player.update({
-      data: {
-        statusId: player.statusId,
-      },
-      where: {
-        id: player.id,
-      },
-    });
+  //   await this.prismaService.player.update({
+  //     data: {
+  //       statusId: player.statusId,
+  //     },
+  //     where: {
+  //       id: player.id,
+  //     },
+  //   });
 
-    await this._redis
-      .pipeline()
-      .set(`${RedisNamespace.SId2UId}${socketId}`, player.id)
-      .set(`${RedisNamespace.UID2SId}${player.id}`, socketId)
-      .exec();
+  //   await this._redis
+  //     .pipeline()
+  //     .set(`${RedisNamespace.SId2UId}${socketId}`, player.id)
+  //     .set(`${RedisNamespace.UID2SId}${player.id}`, socketId)
+  //     .exec();
 
-    return player;
-  }
+  //   return player;
+  // }
 
-  /**
-   * Unbind socket id from player id after that change
-   * the player status to offline and leave all joined
-   * rooms.
-   *
-   * @param player
-   * @return updated player and left rooms.
-   */
-  async disconnect(player: Player) {
-    const sId = await this.getSocketIdByplayerId(player.id);
-    const leftRooms = await this.roomService.leaveMany(player.id);
+  // /**
+  //  * Unbind socket id from player id after that change
+  //  * the player status to offline and leave all joined
+  //  * rooms.
+  //  *
+  //  * @param player
+  //  * @return updated player and left rooms.
+  //  */
+  // async disconnect(player: Player) {
+  //   const sId = await this.getSocketIdByplayerId(player.id);
+  //   const leftRooms = await this.roomService.leaveMany(player.id);
 
-    player.statusId = null;
+  //   player.statusId = null;
 
-    await this._redis
-      .pipeline()
-      .del(`${RedisNamespace.SId2UId}${sId}`)
-      .del(`${RedisNamespace.UID2SId}${player.id}`)
-      .exec();
+  //   await this._redis
+  //     .pipeline()
+  //     .del(`${RedisNamespace.SId2UId}${sId}`)
+  //     .del(`${RedisNamespace.UID2SId}${player.id}`)
+  //     .exec();
 
-    await this.prismaService.player.update({
-      data: {
-        statusId: player.statusId,
-      },
-      where: {
-        id: player.id,
-      },
-    });
+  //   await this.prismaService.player.update({
+  //     data: {
+  //       statusId: player.statusId,
+  //     },
+  //     where: {
+  //       id: player.id,
+  //     },
+  //   });
 
-    return { player, leftRooms, disconnectedId: sId };
-  }
+  //   return { player, leftRooms, disconnectedId: sId };
+  // }
 }

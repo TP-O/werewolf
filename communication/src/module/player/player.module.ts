@@ -10,6 +10,4 @@ import { AuthModule } from '../auth';
   providers: [PlayerService],
   exports: [PlayerService],
 })
-export class PlayerModule {
-  //
-}
+export class PlayerModule {}

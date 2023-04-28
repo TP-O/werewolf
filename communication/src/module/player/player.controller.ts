@@ -1,7 +1,9 @@
-import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common';
-import { FastifyReply, FastifyRequest } from 'fastify';
+import { Controller, Get, Res, UseGuards } from '@nestjs/common';
+import { FastifyReply } from 'fastify';
 import { PlayerService } from './player.service';
 import { TokenGuard } from 'src/common/guard';
+import { HttpPlayer } from 'src/common/decorator';
+import { Player } from '@prisma/client';
 
 @Controller('players')
 @UseGuards(TokenGuard)
@@ -9,22 +11,19 @@ export class PlayerController {
   constructor(private playerService: PlayerService) {}
 
   /**
-   * Get friend list of logged in player.
+   * Get friends of the logged-in player.
    *
    * @param request
    * @param response
    */
   @Get('friends')
-  async getFriendList(
-    @Req() request: FastifyRequest,
+  async getFriends(
+    @HttpPlayer() player: Player,
     @Res() response: FastifyReply,
-  ) {
-    const friendList = await this.playerService.getFriendList(
-      request.player.id,
-    );
-
+  ): Promise<void> {
+    const friends = await this.playerService.getFriends(player.id);
     response.code(200).send({
-      data: friendList,
+      data: friends,
     });
   }
 }
