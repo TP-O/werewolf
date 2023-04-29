@@ -1,0 +1,74 @@
+version: "3.8"
+
+services:
+    app:
+        build:
+            context: .
+        image: werewolf-communication:dev
+        volumes:
+            - ./:/app
+        ports:
+            - 8079:8079
+        entrypoint:
+            - /bin/sh
+        command:
+            - -c
+            - npm run start:dev
+        networks:
+            - postgres-network
+            - redis-network
+        depends_on:
+            - postgres
+            - redis
+        restart: unless-stopped
+
+    postgres:
+        image: postgres:15.2-alpine
+        environment:
+            - PGPORT=5432
+            - POSTGRES_DB=ww_db
+            - POSTGRES_USER=ww_username
+            - POSTGRES_PASSWORD=ww_password
+        volumes:
+            - ./.docker/postgres/data:/var/lib/postgresql/data
+        networks:
+            - postgres-network
+        restart: unless-stopped
+
+    adminer:
+        image: dockette/adminer:pgsql
+        ports:
+        - 8081:80
+        networks:
+            - postgres-network
+        depends_on:
+            - postgres
+        restart: unless-stopped
+
+    redis:
+        image: bitnami/redis:7.0.11
+        environment:
+            - REDIS_PORT_NUMBER=6379
+            - REDIS_PASSWORD=redis_pass
+        volumes:
+          - ./.docker/redis/data:/data
+        networks:
+            - redis-network
+        restart: unless-stopped
+
+    redis-insight:
+        image: redislabs/redisinsight:latest
+        user: root
+        ports:
+            - 8082:8001
+        volumes:
+            - .docker/redis/data/redis-insight:/db
+        depends_on:
+            - redis
+        networks:
+            - redis-network
+        restart: unless-stopped
+
+networks:
+    postgres-network:
+    redis-network:
