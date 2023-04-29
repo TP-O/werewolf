@@ -1,11 +1,11 @@
-import { IsNotEmpty, IsString, MinLength } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class SendRoomMessageDto {
   @IsString()
-  @MinLength(13)
-  roomId: string;
+  @IsNotEmpty()
+  roomId!: string;
 
   @IsString()
   @IsNotEmpty()
-  content: string;
+  content!: string;
 }

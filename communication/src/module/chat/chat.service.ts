@@ -1,26 +1,21 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Inject,
   Injectable,
+  NotFoundException,
+  UnauthorizedException,
   forwardRef,
 } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { SendPrivateMessageDto, SendRoomMessageDto } from './dto';
-import {
-  BookRoomDto,
-  InviteToRoomDto,
-  JoinRoomDto,
-  KickOutOfRoomDto,
-  LeaveRoomDto,
-  RespondRoomInvitationDto,
-  TransferOwnershipDto,
-} from '../room/dto';
-import { Player } from '@prisma/client';
 import { AuthService } from '../auth';
-import { PlayerService, PlayerStatus } from '../player';
+import { PlayerId, PlayerService, PlayerStatus, SocketId } from '../player';
 import { RoomService } from '../room';
-import { EmitEventFunc } from './chat.type';
-import { EmitEvent, ListenEvent, RoomEvent } from './chat.enum';
+import { EmitEvent, ListenEvent, RoomChangeType } from './chat.enum';
+import { EmitEventMap } from './chat.type';
+import { LoggerService } from '../common';
+import { Player } from '@prisma/client';
 
 @Injectable()
 export class ChatService {
@@ -30,71 +25,9 @@ export class ChatService {
     private playerService: PlayerService,
     @Inject(forwardRef(() => RoomService))
     private roomService: RoomService,
-  ) {}
-
-  /**
-   * Verify token.
-   *
-   * @param headerAuthorization
-   * @returns player record.
-   */
-  private async validateAuthorization(headerAuthorization: string) {
-    const token = String(headerAuthorization).replace('Bearer ', '');
-    const player = await this.authService.getPlayer(token);
-
-    return player;
-  }
-
-  /**
-   * Solve conflict if multiple people connect to the
-   * same account.
-   *
-   * @param server websocket server.
-   * @param player
-   */
-  private async handleConflict(
-    server: Server<null, EmitEventFunc>,
-    player: Player,
+    private logger: LoggerService,
   ) {
-    const { disconnectedId, leftRooms } = await this.playerService.disconnect(
-      player,
-    );
-
-    server.to(disconnectedId).emit(EmitEvent.Error, {
-      event: ListenEvent.Connect,
-      message: 'This account is being connected by someone else!',
-    });
-    server.to(disconnectedId).disconnectSockets();
-
-    leftRooms.forEach((room) => {
-      if (room.memberIds.length > 0) {
-        server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
-          event: RoomEvent.Leave,
-          actorIds: [player.id],
-          room,
-        });
-      }
-    });
-  }
-
-  /**
-   * Check if the connection satisfies some sepecific conditions
-   * before allowing the connection.
-   *
-   * @param server websocket server.
-   * @param client socket client.
-   * @returns updated player.
-   */
-  private async validateConnection(server: Server, client: Socket) {
-    const player = await this.validateAuthorization(
-      client.handshake.headers.authorization,
-    );
-
-    if (player.statusId != null) {
-      await this.handleConflict(server, player);
-    }
-
-    return player;
+    this.logger.setContext(ChatService.name);
   }
 
   /**
@@ -103,15 +36,20 @@ export class ChatService {
    * @param server websocket server.
    * @param client socket client.
    */
-  async connect(server: Server<null, EmitEventFunc>, client: Socket) {
+  async connect(
+    server: Server<EmitEventMap>,
+    client: Socket<EmitEventMap, EmitEventMap, EmitEventMap, { id: PlayerId }>,
+  ): Promise<void> {
     try {
-      const player = await this.validateConnection(server, client);
-      await this.playerService.connect(player, client.id);
+      const player = await this._validateConnection(server, client);
+      await this.playerService.connect(player.id, client.id);
+      client.data.id = player.id;
 
-      const friendSIds = await this.playerService.getOnlineFriendsSocketIds(
-        player.id,
-      );
-      server.to(friendSIds).emit(EmitEvent.UpdateFriendStatus, {
+      // Notify online friends
+      const friendSids = (
+        await this.playerService.getFriendsSocketIds(player.id)
+      ).filter((sid) => !!sid) as SocketId[];
+      server.to(friendSids).emit(EmitEvent.FriendStatus, {
         id: player.id,
         status: PlayerStatus.Online,
       });
@@ -125,277 +63,153 @@ export class ChatService {
   }
 
   /**
+   * Check if the connection satisfies some sepecific conditions
+   * before allowing the connection.
+   *
+   * @param server websocket server.
+   * @param client socket client.
+   */
+  private async _validateConnection(
+    server: Server<EmitEventMap>,
+    client: Socket,
+  ): Promise<Player> {
+    const player = await this._validateAuthorization(
+      client.handshake.headers.authorization ?? '',
+    );
+
+    const sid = await this.playerService.getSocketId(player.id);
+    if (sid) {
+      server.to(sid).emit(EmitEvent.Error, {
+        event: ListenEvent.Connect,
+        message: 'This account is being connected by someone else!',
+      });
+      server.to(sid).disconnectSockets();
+      this.disconnect(server, client);
+    }
+
+    return player;
+  }
+
+  /**
+   * Verify token.
+   *
+   * @param headerAuthorization
+   * @returns player record.
+   */
+  private async _validateAuthorization(
+    headerAuthorization: string,
+  ): Promise<Player> {
+    const token = String(headerAuthorization).replace('Bearer ', '');
+    if (!token) {
+      throw new UnauthorizedException('Invalid token!');
+    }
+
+    const player = await this.authService.getPlayer(token);
+    return player;
+  }
+
+  /**
    * Disconnect the client.
    *
    * @param server websocket server.
    * @param client socket client.
    */
-  async disconnect(server: Server<null, EmitEventFunc>, client: Socket) {
+  async disconnect(
+    server: Server<EmitEventMap>,
+    client: Socket<EmitEventMap, EmitEventMap, EmitEventMap, { id: PlayerId }>,
+  ): Promise<void> {
     try {
-      const player = await this.playerService.getBySocketId(client.id);
-
-      if (player != null) {
-        const friendSIds = await this.playerService.getOnlineFriendsSocketIds(
-          player.id,
-        );
-        const { leftRooms } = await this.playerService.disconnect(player);
-
-        server.to(friendSIds).emit(EmitEvent.UpdateFriendStatus, {
-          id: player.id,
-          status: PlayerStatus.Offline,
+      if (client.data.id) {
+        // Notify online friends
+        const friendSids = (
+          await this.playerService.getFriendsSocketIds(client.data.id)
+        ).filter((sid) => !!sid) as SocketId[];
+        server.to(friendSids).emit(EmitEvent.FriendStatus, {
+          id: client.data.id,
+          status: PlayerStatus.Online,
         });
 
-        leftRooms.forEach((room) => {
-          if (room.memberIds.length > 0) {
-            server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
-              event: RoomEvent.Leave,
-              actorIds: [client.playerId],
-              room,
-            });
-          }
+        const rooms = await this.roomService.removeFromRooms(
+          [], // Leave all rooms
+          client.data.id,
+        );
+        rooms.forEach((room) => {
+          server.to(room.id).emit(EmitEvent.RoomChange, {
+            changeType: RoomChangeType.Leave,
+            room: {
+              id: room.id,
+              memberIds: room.memberIds,
+            },
+          });
+          client.leave(room.id);
         });
       }
     } catch (error) {
-      //
+      this.logger.error(
+        `[SID: ${client.id} - ID: ${client.data.id}] Disconnect failed`,
+      );
     }
   }
 
   /**
    * Send a private message to friend.
    *
-   * @param server websocket server.
-   * @param client socket client.
+   * @param server
+   * @param client
    * @param payload
    */
   async sendPrivateMessage(
-    server: Server<null, EmitEventFunc>,
-    client: Socket,
+    server: Server<EmitEventMap>,
+    client: Socket<EmitEventMap, EmitEventMap, EmitEventMap, { id: PlayerId }>,
     payload: SendPrivateMessageDto,
-  ) {
-    const receiverSId = await this.playerService.getSocketIdByplayerId(
-      payload.receiverId,
-    );
-
-    if (receiverSId != null) {
-      server.to(receiverSId).emit(EmitEvent.ReceivePrivateMessage, {
-        ...payload,
-        senderId: client.playerId,
-      });
+  ): Promise<void> {
+    if (!client.data.id) {
+      return;
     }
+
+    const sid = await this.playerService.getSocketId(payload.receiverId);
+    if (!sid) {
+      throw new BadRequestException('This player is offline!');
+    }
+
+    server.to(sid).emit(EmitEvent.PrivateMessage, {
+      ...payload,
+      senderId: client.data.id,
+    });
   }
 
   /**
    * Send a message to joined room.
    *
-   * @param server websocket server.
-   * @param client socket client.
+   * @param server
+   * @param client
    * @param payload
    */
   async sendRoomMessage(
-    server: Server<null, EmitEventFunc>,
-    client: Socket,
+    server: Server<EmitEventMap>,
+    client: Socket<EmitEventMap, EmitEventMap, EmitEventMap, { id: PlayerId }>,
     payload: SendRoomMessageDto,
-  ) {
+  ): Promise<void> {
+    if (!client.data.id) {
+      return;
+    }
+
     const room = await this.roomService.get(payload.roomId);
+    if (!room) {
+      throw new NotFoundException("Room doesn't exist!");
+    }
+
+    if (!room.memberIds.includes(client.data.id)) {
+      throw new ForbiddenException('You are not in this room!');
+    }
 
     if (room.isMuted) {
       throw new ForbiddenException('Unable to chat at this time!');
     }
 
-    if (!room.memberIds.includes(client.playerId)) {
-      throw new ForbiddenException('You are not in this room!');
-    }
-
-    server.to(payload.roomId).emit(EmitEvent.ReceiveRoomMessage, {
+    server.to(payload.roomId).emit(EmitEvent.RoomMessage, {
       ...payload,
-      senderId: client.playerId,
+      senderId: client.data.id,
     });
-  }
-
-  /**
-   * Create a room that is deleted after all members leave.
-   *
-   * @param client socket client.
-   * @param payload
-   */
-  async createTemporaryRoom(client: Socket, payload: BookRoomDto) {
-    const room = await this.roomService.book(client.playerId, payload.isPublic);
-    client.join(room.id);
-
-    client.emit(EmitEvent.ReceiveRoomChanges, {
-      event: RoomEvent.Create,
-      actorIds: [client.playerId],
-      room,
-    });
-  }
-
-  /**
-   * Join to new room.
-   *
-   * @param server websocket server.
-   * @param client socket client.
-   * @param payload
-   */
-  async joinRoom(
-    server: Server<null, EmitEventFunc>,
-    client: Socket,
-    payload: JoinRoomDto,
-  ) {
-    const room = await this.roomService.join(client.playerId, payload.roomId);
-    client.join(room.id);
-
-    server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
-      event: RoomEvent.Join,
-      actorIds: [client.playerId],
-      room,
-    });
-  }
-
-  /**
-   * Leave the joined room.
-   *
-   * @param server websocket server.
-   * @param client socket client.
-   * @param payload
-   */
-  async leaveRoom(
-    server: Server<null, EmitEventFunc>,
-    client: Socket,
-    payload: LeaveRoomDto,
-  ) {
-    const room = await this.roomService.leave(client.playerId, payload.roomId);
-    client.leave(room.id);
-
-    server
-      .to(client.id)
-      .to(room.id)
-      .emit(EmitEvent.ReceiveRoomChanges, {
-        event: RoomEvent.Leave,
-        actorIds: [client.playerId],
-        room,
-      });
-  }
-
-  /**
-   * Kick a member out of the room.
-   *
-   * @param server websocket server.
-   * @param client socket client.
-   * @param payload
-   */
-  async kickOutOfRoom(
-    server: Server<null, EmitEventFunc>,
-    client: Socket,
-    payload: KickOutOfRoomDto,
-  ) {
-    const { room, kickedMemberSocketId } = await this.roomService.kick(
-      client.playerId,
-      payload.memberId,
-      payload.roomId,
-    );
-
-    server
-      .to(kickedMemberSocketId)
-      .to(room.id)
-      .emit(EmitEvent.ReceiveRoomChanges, {
-        event: RoomEvent.Kick,
-        actorIds: [client.playerId],
-        room,
-      });
-
-    server.to(kickedMemberSocketId).socketsLeave(room.id);
-  }
-
-  /**
-   * Transfer room ownership to a member in that room.
-   *
-   * @param server websocket server.
-   * @param client socket client.
-   * @param payload
-   */
-  async transferRoomOwnership(
-    server: Server<null, EmitEventFunc>,
-    client: Socket,
-    payload: TransferOwnershipDto,
-  ) {
-    const room = await this.roomService.transferOwnership(
-      client.playerId,
-      payload.candidateId,
-      payload.roomId,
-    );
-
-    server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
-      event: RoomEvent.Owner,
-      actorIds: [client.playerId],
-      room,
-    });
-  }
-
-  /**
-   * Send a room invitation to player.
-   *
-   * @param server websocket server.
-   * @param client socket client.
-   * @param payload
-   */
-  async inviteToRoom(
-    server: Server<null, EmitEventFunc>,
-    client: Socket,
-    payload: InviteToRoomDto,
-  ) {
-    const { room, guestSocketId } = await this.roomService.invite(
-      client.playerId,
-      payload.guestId,
-      payload.roomId,
-    );
-
-    server.to(guestSocketId).emit(EmitEvent.ReceiveRoomInvitation, {
-      roomId: room.id,
-      inviterId: client.playerId,
-    });
-    server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
-      event: RoomEvent.Invite,
-      actorIds: [client.playerId],
-      room,
-    });
-  }
-
-  /**
-   * Respond to a room invitation.
-   *
-   * @param server websocket server.
-   * @param client socket client.
-   * @param payload
-   */
-  async respondRoomInvitation(
-    server: Server<null, EmitEventFunc>,
-    client: Socket,
-    payload: RespondRoomInvitationDto,
-  ) {
-    const { room, leftRooms } = await this.roomService.respondInvitation(
-      client.playerId,
-      payload.isAccpeted,
-      payload.roomId,
-    );
-
-    if (payload.isAccpeted) {
-      client.join(room.id);
-
-      server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
-        event: RoomEvent.Join,
-        actorIds: [client.playerId],
-        room,
-      });
-
-      leftRooms.forEach((room) => {
-        if (room.memberIds.length > 0) {
-          server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
-            event: RoomEvent.Leave,
-            actorIds: [client.playerId],
-            room,
-          });
-        }
-      });
-    }
   }
 }

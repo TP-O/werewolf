@@ -9,16 +9,15 @@ import { Socket } from 'socket.io';
 import { ListenEvent } from '../chat.enum';
 
 @Injectable()
-export class EventNameBindingInterceptor implements NestInterceptor {
-  constructor(private readonly eventName: ListenEvent) {}
+export class EventBindingInterceptor implements NestInterceptor {
+  constructor(private readonly event: ListenEvent) {}
 
   async intercept(
     context: ExecutionContext,
     next: CallHandler,
   ): Promise<Observable<any>> {
-    const client = context.switchToWs().getClient() as Socket;
-    client.eventName = this.eventName;
-
+    const client = context.switchToWs().getClient<Socket>();
+    client.event = this.event;
     return next.handle();
   }
 }

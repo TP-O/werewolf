@@ -2,7 +2,7 @@ import { ExceptionFilter, Catch, ArgumentsHost } from '@nestjs/common';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { Socket } from 'socket.io';
 import { LoggedError } from '../type';
-import { EmitEvent, EmitEventFunc } from 'src/module/chat';
+import { EmitEvent, EmitEventMap } from 'src/module/chat';
 import { LoggerService } from 'src/module/common';
 
 /**
@@ -15,7 +15,7 @@ export class AllExceptionFilter implements ExceptionFilter {
   }
 
   catch(exception: Error, host: ArgumentsHost): void {
-    let loggedErr: LoggedError;
+    let loggedErr: LoggedError | undefined;
     switch (host.getType()) {
       case 'ws':
         loggedErr = this._handleWsException(exception, host);
@@ -26,6 +26,7 @@ export class AllExceptionFilter implements ExceptionFilter {
         break;
 
       default:
+        loggedErr = undefined;
         break;
     }
 
@@ -38,17 +39,17 @@ export class AllExceptionFilter implements ExceptionFilter {
     exception: Error,
     host: ArgumentsHost,
   ): LoggedError {
-    const client = host.switchToWs().getClient() as Socket<null, EmitEventFunc>;
+    const client = host.switchToWs().getClient() as Socket<EmitEventMap>;
     const loggedError: LoggedError = {
       name: exception.name,
       message: exception.message,
       hostType: 'ws',
-      event: client.eventName,
+      event: client.event,
       payload: host.switchToWs().getData(),
     };
 
     client.emit(EmitEvent.Error, {
-      event: client.eventName,
+      event: client.event,
       message: 'Unknown error!',
     });
 

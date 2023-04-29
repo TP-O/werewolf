@@ -1,29 +1,21 @@
 export enum ListenEvent {
   Connect = 'connect',
-  SendPrivateMessage = 'send_private_message',
-  SendRoomMessage = 'send_room_message',
-  BookRoom = 'book_room',
-  JoinRoom = 'join_room',
-  LeaveRoom = 'leave_room',
-  KickOutOfRoom = 'kick_out_of_room',
-  TranserOwnership = 'transfer_ownership',
+  PrivateMessage = 'private_message',
+  RoomMessage = 'room_message',
 }
 
 export enum EmitEvent {
   Error = 'error',
   Success = 'success',
-  UpdateFriendStatus = 'update_friend_status',
-  ReceivePrivateMessage = 'receive_private_message',
-  ReceiveRoomMessage = 'receive_room_message',
-  ReceiveRoomInvitation = 'receive_room_invitation',
-  ReceiveRoomChanges = 'receive_room_changes',
+  FriendStatus = 'friend_status',
+  PrivateMessage = 'private_message',
+  RoomMessage = 'room_message',
+  RoomChange = 'room_change',
 }
 
-export enum RoomEvent {
-  Kick = 1,
-  Leave = 2,
-  Join = 3,
-  Owner = 4,
-  Remove = 6,
-  Mute = 7,
+export enum RoomChangeType {
+  Join,
+  Leave,
+  Owner,
+  Setting,
 }

@@ -2,15 +2,20 @@ import {
   BadRequestException,
   CanActivate,
   ExecutionContext,
+  Inject,
   Injectable,
   UnauthorizedException,
+  forwardRef,
 } from '@nestjs/common';
 import { FastifyRequest } from 'fastify';
-import { PlayerService } from 'src/module/player';
+import { OnlinePlayer, PlayerService } from 'src/module/player';
 
 @Injectable()
 export class RequireActiveGuard implements CanActivate {
-  constructor(private readonly playerService: PlayerService) {}
+  constructor(
+    @Inject(forwardRef(() => PlayerService))
+    private readonly playerService: PlayerService,
+  ) {}
 
   async canActivate(ctx: ExecutionContext): Promise<boolean> {
     const request = ctx.switchToHttp().getRequest<FastifyRequest>();
@@ -23,7 +28,7 @@ export class RequireActiveGuard implements CanActivate {
       throw new BadRequestException('You are offline!');
     }
 
-    request.player.sid = sid;
+    (request.player as OnlinePlayer).sid = sid;
     return true;
   }
 }

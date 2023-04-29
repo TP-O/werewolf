@@ -232,7 +232,7 @@ export class RoomService {
   /**
    * Remove member from many rooms.
    *
-   * @param ids The list of room ID.
+   * @param ids The list of room ID. All rooms if empty.
    * @param memberId The removed member ID.
    */
   async removeFromRooms(ids: RoomId[], memberId: PlayerId): Promise<Room[]> {

@@ -3,7 +3,7 @@ import { PlayerModule } from '../player';
 import { RoomModule, RoomService } from '../room';
 import { AuthModule } from '../auth';
 import { ChatService } from './chat.service';
-import { ChatGateway } from '.';
+import { ChatGateway } from './chat.gateway';
 
 @Module({
   imports: [PlayerModule, RoomModule, AuthModule],

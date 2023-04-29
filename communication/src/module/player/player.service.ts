@@ -139,63 +139,38 @@ export class PlayerService {
     return relationship !== null;
   }
 
-  // /**
-  //  * Change the player status to online and then
-  //  * bind socket id to player id.
-  //  *
-  //  * @param player
-  //  * @param socketId conntected socket id.
-  //  */
-  // async connect(player: Player, socketId: string) {
-  //   player.statusId = PlayerStatus.Online;
+  /**
+   * Store player connection state.
+   *
+   * @param id The player ID.
+   * @param socketId The player socket ID.
+   */
+  async connect(id: PlayerId, socketId: SocketId) {
+    await this.prismaService.player.update({
+      data: {
+        statusId: PlayerStatus.Online,
+      },
+      where: {
+        id,
+      },
+    });
+    await this._redis.set(`${RedisNamespace.Id2Sid}${id}`, socketId);
+  }
 
-  //   await this.prismaService.player.update({
-  //     data: {
-  //       statusId: player.statusId,
-  //     },
-  //     where: {
-  //       id: player.id,
-  //     },
-  //   });
-
-  //   await this._redis
-  //     .pipeline()
-  //     .set(`${RedisNamespace.SId2UId}${socketId}`, player.id)
-  //     .set(`${RedisNamespace.UID2SId}${player.id}`, socketId)
-  //     .exec();
-
-  //   return player;
-  // }
-
-  // /**
-  //  * Unbind socket id from player id after that change
-  //  * the player status to offline and leave all joined
-  //  * rooms.
-  //  *
-  //  * @param player
-  //  * @return updated player and left rooms.
-  //  */
-  // async disconnect(player: Player) {
-  //   const sId = await this.getSocketIdByplayerId(player.id);
-  //   const leftRooms = await this.roomService.leaveMany(player.id);
-
-  //   player.statusId = null;
-
-  //   await this._redis
-  //     .pipeline()
-  //     .del(`${RedisNamespace.SId2UId}${sId}`)
-  //     .del(`${RedisNamespace.UID2SId}${player.id}`)
-  //     .exec();
-
-  //   await this.prismaService.player.update({
-  //     data: {
-  //       statusId: player.statusId,
-  //     },
-  //     where: {
-  //       id: player.id,
-  //     },
-  //   });
-
-  //   return { player, leftRooms, disconnectedId: sId };
-  // }
+  /**
+   * Remove player connection state.
+   *
+   * @param id The player ID.
+   */
+  async disconnect(id: PlayerId) {
+    await this.prismaService.player.update({
+      data: {
+        statusId: PlayerStatus.Offline,
+      },
+      where: {
+        id: id,
+      },
+    });
+    await this._redis.del(`${RedisNamespace.Id2Sid}${id}`);
+  }
 }

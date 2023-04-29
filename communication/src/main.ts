@@ -26,7 +26,7 @@ async function bootstrap() {
   });
 
   const redisService = app.get(RedisService);
-  const chatAdapter = new ChatAdapter(app, redisService.client);
+  const chatAdapter = new ChatAdapter(redisService.client, app);
   await chatAdapter.connectToRedis();
   app.useWebSocketAdapter(chatAdapter);
 
@@ -42,7 +42,6 @@ async function bootstrap() {
     new ValidationPipe({
       whitelist: true,
       stopAtFirstError: false,
-      transform: true,
     }),
   );
 

@@ -1,43 +1,37 @@
 import { WsErrorResponse } from 'src/common/type';
 import { PlayerId, PlayerStatus } from '../player';
-import { EmitEvent, RoomEvent } from './chat.enum';
+import { EmitEvent, RoomChangeType } from './chat.enum';
 import { Room } from '../room';
 
 type SuccessResponse = {
   message: string;
 };
 
-type UpdateFriendStatusData = {
+type FriendStatusData = {
   id: PlayerId;
   status: PlayerStatus;
 };
 
-type ReceivePrivateMessageData = {
+type PrivateMessageData = {
   senderId: PlayerId;
   content: string;
 };
 
-type ReceiveRoomMessageData = ReceivePrivateMessageData & {
+type RoomMessageData = PrivateMessageData & {
   roomId: string;
 };
 
-type ReceiveRoomInvitationData = {
-  inviterId: PlayerId;
-  roomId: string;
+type RoomData = {
+  changeType: RoomChangeType;
+  changerId?: PlayerId;
+  room: Pick<Room, 'id'> & Partial<Room>;
 };
 
-type ReceiveRoomChangesData = {
-  event: RoomEvent;
-  actorIds: PlayerId[];
-  room: Partial<Room> & Pick<Room, 'id'>;
-};
-
-export type EmitEventFunc = {
+export type EmitEventMap = {
   [EmitEvent.Error]: (response: WsErrorResponse) => void;
   [EmitEvent.Success]: (response: SuccessResponse) => void;
-  [EmitEvent.UpdateFriendStatus]: (data: UpdateFriendStatusData) => void;
-  [EmitEvent.ReceivePrivateMessage]: (data: ReceivePrivateMessageData) => void;
-  [EmitEvent.ReceiveRoomMessage]: (data: ReceiveRoomMessageData) => void;
-  [EmitEvent.ReceiveRoomInvitation]: (data: ReceiveRoomInvitationData) => void;
-  [EmitEvent.ReceiveRoomChanges]: (data: ReceiveRoomChangesData) => void;
+  [EmitEvent.FriendStatus]: (data: FriendStatusData) => void;
+  [EmitEvent.PrivateMessage]: (data: PrivateMessageData) => void;
+  [EmitEvent.RoomMessage]: (data: RoomMessageData) => void;
+  [EmitEvent.RoomChange]: (data: RoomData) => void;
 };

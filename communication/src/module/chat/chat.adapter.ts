@@ -5,14 +5,14 @@ import { createAdapter } from '@socket.io/redis-adapter';
 import { NestFastifyApplication } from '@nestjs/platform-fastify';
 
 export class ChatAdapter extends IoAdapter {
-  private adapterConstructor: ReturnType<typeof createAdapter>;
+  private adapterConstructor!: ReturnType<typeof createAdapter>;
 
-  constructor(app: NestFastifyApplication, private readonly redis: Redis) {
+  constructor(private readonly redis: Redis, app: NestFastifyApplication) {
     super(app);
   }
 
   async connectToRedis(): Promise<void> {
-    this.adapterConstructor = createAdapter(this.redis, this.redis);
+    this.adapterConstructor = createAdapter(this.redis, this.redis.duplicate());
   }
 
   createIOServer(port: number, options?: ServerOptions) {
