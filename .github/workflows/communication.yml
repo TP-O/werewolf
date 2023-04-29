@@ -1,4 +1,4 @@
-name: chat
+name: communication
 
 on:
   push:
@@ -7,27 +7,27 @@ on:
       - development
       - production
     paths:
-      - .github/workflows/chat.yml
-      - chat/**
-      - '!chat/.vscode/**'
-      - '!chat/docs/**'
-      - '!chat/.editorconfig'
-      - '!chat/.gitignore'
-      - '!chat/**.md'
+      - .github/workflows/communication.yml
+      - communication/**
+      - '!communication/.vscode/**'
+      - '!communication/docs/**'
+      - '!communication/.editorconfig'
+      - '!communication/.gitignore'
+      - '!communication/**.md'
   pull_request:
     branches:
       - main
     paths:
-      - .github/workflows/chat.yml
-      - chat/**
-      - '!chat/.vscode/**'
-      - '!chat/docs/**'
-      - '!chat/.editorconfig'
-      - '!chat/.gitignore'
-      - '!chat/**.md'
+      - .github/workflows/communication.yml
+      - communication/**
+      - '!communication/.vscode/**'
+      - '!communication/docs/**'
+      - '!communication/.editorconfig'
+      - '!communication/.gitignore'
+      - '!communication/**.md'
 
 env:
-  WORKDIR: chat
+  WORKDIR: communication
 
 jobs:
   lint:
@@ -104,9 +104,9 @@ jobs:
         working-directory: ${{ env.WORKDIR }}
         run: pnpm i
 
-      - name: Create cofig
+      - name: Generate prisma client
         working-directory: ${{ env.WORKDIR }}
-        run: cp .env.example .env
+        run: pnpm prisma generate
 
       - name: Run test
         working-directory: ${{ env.WORKDIR }}
@@ -144,7 +144,11 @@ jobs:
 
       - name: Create cofig
         working-directory: ${{ env.WORKDIR }}
-        run: cp .env.example .env
+        run: cp config.example.yaml config.yaml
+        
+      - name: Generate prisma client
+        working-directory: ${{ env.WORKDIR }}
+        run: pnpm prisma generate
 
       - name: Run test
         working-directory: ${{ env.WORKDIR }}
