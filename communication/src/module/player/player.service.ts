@@ -42,11 +42,18 @@ export class PlayerService {
    *
    * @param ids The list of player ID.
    */
-  async getSocketIds(ids: PlayerId[]): Promise<SocketId[]> {
+  async getSocketIds(
+    ids: PlayerId[],
+  ): Promise<Record<PlayerId, SocketId | null>> {
     const sids = await this._redis.mget(
       ...ids.map((id) => `${RedisNamespace.Id2Sid}${id}`),
     );
-    return sids.filter((sid) => !!sid) as SocketId[];
+    const id2Sid: Record<PlayerId, SocketId | null> = {};
+    sids.forEach((sid, i) => {
+      id2Sid[ids[i]] = sid;
+    });
+
+    return id2Sid;
   }
 
   /**
@@ -54,7 +61,7 @@ export class PlayerService {
    *
    * @param id The player ID.
    */
-  async getFriendsSocketIds(id: PlayerId): Promise<SocketId[]> {
+  async getFriendsSocketIds(id: PlayerId): Promise<(SocketId | null)[]> {
     const onlineFriends = await this.prismaService.player.findMany({
       select: {
         id: true,
@@ -85,7 +92,9 @@ export class PlayerService {
       return [];
     }
 
-    return this.getSocketIds(onlineFriends.map((friend) => friend.id));
+    return Object.values(
+      await this.getSocketIds(onlineFriends.map((friend) => friend.id)),
+    );
   }
 
   /**

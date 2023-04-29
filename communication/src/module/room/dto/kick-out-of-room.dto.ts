@@ -1,12 +1,13 @@
-import { IsInt, IsString, IsNotEmpty, IsPositive } from 'class-validator';
+import { IsString, IsNotEmpty } from 'class-validator';
 import { PlayerId } from 'src/module/player';
+import { RoomId } from '../room.type';
 
 export class KickOutOfRoomDto {
   @IsString()
   @IsNotEmpty()
-  roomId: string;
+  id!: RoomId;
 
-  @IsInt()
-  @IsPositive()
-  memberId: PlayerId;
+  @IsString()
+  @IsNotEmpty()
+  memberId!: PlayerId;
 }

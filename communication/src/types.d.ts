@@ -1,6 +1,6 @@
 import { Player } from '@prisma/client';
 import { ListenEvent } from './module/chat/chat.enum';
-import { PlayerId } from './module/player/player.type';
+import { OnlinePlayer, PlayerId } from './module/player/player.type';
 
 declare module 'socket.io' {
   class Socket {
@@ -11,6 +11,6 @@ declare module 'socket.io' {
 
 declare module 'fastify' {
   export class FastifyRequest {
-    player?: Player;
+    player?: Player | OnlinePlayer;
   }
 }

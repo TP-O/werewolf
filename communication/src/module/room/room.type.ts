@@ -1,13 +1,11 @@
 import { PlayerId } from '../player';
 
+export type RoomId = string;
+
 export type Room = {
-  id: string;
-  isPublic: boolean;
-  isPersistent: boolean;
+  id: RoomId;
   isMuted: boolean;
-  gameId: number;
-  ownerId: PlayerId;
+  password?: string;
+  ownerId?: PlayerId;
   memberIds: PlayerId[];
-  waitingIds: PlayerId[];
-  refusedIds: PlayerId[];
 };

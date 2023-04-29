@@ -4,13 +4,15 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import Redis from 'ioredis';
-import { Room } from './room.type';
-import { v4 as uuidv4 } from 'uuid';
+import Redis, { ChainableCommander } from 'ioredis';
+import { Room, RoomId } from './room.type';
 import { RedisService } from '../common';
 import { PlayerId } from '../player';
-import { RedisNamespace } from 'src/common/enum';
-import { CreatePersistentRoomsDto, CreateTemporaryRoomsDto } from './dto';
+import { RedisNamespace } from '../common/enum/redis.enum';
+import randomstring from 'randomstring';
+import _merge from 'just-merge';
+
+const ROOM_ID_LENGTH = 5;
 
 @Injectable()
 export class RoomService {
@@ -21,284 +23,32 @@ export class RoomService {
   }
 
   /**
-   * Check if player is in any room.
+   * Get room by ID.
    *
-   * @param memberId
-   * @returns
+   * @param id The room ID.
    */
-  private async isMemberOfAny(memberId: PlayerId) {
-    const roomIds = await this._redis.llen(
-      `${RedisNamespace.UId2RIds}${memberId}`,
-    );
-
-    return roomIds > 0;
-  }
-
-  /**
-   * Store rooms temporarily.
-   *
-   * @param rooms
-   * @returns created rooms and socket ids of members.
-   */
-  private async storeRooms(rooms: Room[]) {
-    const socketIdsList: string[][] = [];
-    const joinerIdsList: PlayerId[][] = [];
-    const redisPipe = this._redis.pipeline();
-
-    rooms.map((room) => {
-      const memberSIdKeys = room.memberIds.map((mId) => {
-        // By the way, bind room id with member id
-        redisPipe.lpush(`${RedisNamespace.UId2RIds}${mId}`, room.id);
-
-        return `${RedisNamespace.UID2SId}${mId}`;
-      });
-
-      joinerIdsList.push(room.memberIds);
-      redisPipe
-        .mget(...memberSIdKeys)
-        .set(`${RedisNamespace.Room}${room.id}`, JSON.stringify(room));
-
-      return room;
-    });
-
-    (await redisPipe.exec()).forEach((res) => {
-      if (Array.isArray(res[1])) {
-        socketIdsList.push(res[1]);
-      }
-    });
-
-    return {
-      rooms,
-      socketIdsList,
-      joinerIdsList,
-    };
-  }
-
-  /**
-   * Create temporary rooms with given settings.
-   *
-   * @param dto
-   * @returns created rooms and socket ids of members.
-   */
-  async createTemporarily(dto: CreateTemporaryRoomsDto) {
-    return this.storeRooms(
-      dto.rooms.map((setting) => ({
-        ...setting,
-        id: uuidv4(),
-      })),
-    );
-  }
-
-  /**
-   * Create persistent rooms with given settings.
-   *
-   * @param dto
-   * @returns created rooms and socket ids of members.
-   */
-  async createPersistently(dto: CreatePersistentRoomsDto) {
-    return this.storeRooms(
-      dto.rooms.map((setting) => ({
-        ...setting,
-        id: `${dto.gameId}:${setting.id}`,
-        gameId: dto.gameId,
-      })),
-    );
-  }
-
-  /**
-   * Remove many rooms by given room ids.
-   *
-   * @param roomIds
-   * @returns removed rooms and socket ids of members in removed rooms.
-   */
-  async remove(roomIds: string[]) {
-    const rooms: Room[] = (
-      await this._redis.mget(
-        ...roomIds.map((rId) => `${RedisNamespace.Room}${rId}`),
-      )
-    )
-      .filter((roomJSON) => roomJSON != null)
-      .map((roomJSON) => JSON.parse(roomJSON));
-    const socketIdsList: string[][] = [];
-    const leaverIdsList: PlayerId[][] = [];
-    const redisPipe = this._redis.pipeline();
-
-    rooms.forEach((room) => {
-      const memberSIdKeys = room.memberIds.map((mId) => {
-        // By the way, remove room id from member id
-        redisPipe.lrem(`${RedisNamespace.UId2RIds}${mId}`, 1, room.id);
-
-        return `${RedisNamespace.UID2SId}${mId}`;
-      });
-
-      leaverIdsList.push(room.memberIds);
-      redisPipe.mget(...memberSIdKeys).del(`${RedisNamespace.Room}${room.id}`);
-    });
-
-    (await redisPipe.exec()).forEach((res) => {
-      if (Array.isArray(res[1])) {
-        socketIdsList.push(res[1]);
-      }
-    });
-
-    return { rooms, socketIdsList, leaverIdsList };
-  }
-
-  /**
-   * Add members to room.
-   *
-   * @param roomId
-   * @param memberIds
-   * @returns updated room and socket id of members.
-   */
-  async addMembers(roomId: string, memberIds: PlayerId[]) {
-    const room = await this.get(roomId);
-    const redisPipe = this._redis.pipeline();
-    const memberSIdKeys: string[] = [];
-
-    memberIds.forEach((mId) => {
-      if (!room.memberIds.includes(mId)) {
-        room.memberIds.push(mId);
-        memberSIdKeys.push(`${RedisNamespace.UID2SId}${mId}`);
-        redisPipe.lpush(`${RedisNamespace.UId2RIds}${mId}`, room.id);
-      }
-    });
-
-    const redisRes = await redisPipe
-      .set(`${RedisNamespace.Room}${room.id}`, JSON.stringify(room))
-      .mget(...memberSIdKeys)
-      .exec();
-
-    return {
-      room,
-      socketIds: (redisRes[redisPipe.length - 1][1] as string[]) || [],
-    };
-  }
-
-  /**
-   * Remove members from room.
-   *
-   * @param roomId
-   * @param memberIds
-   * @returns updated room and socket id of members.
-   */
-  async removeMembers(roomId: string, memberIds: PlayerId[]) {
-    const room = await this.get(roomId);
-    const redisPipe = this._redis.pipeline();
-    const memberSIdKeys: string[] = [];
-
-    memberIds.forEach((mId) => {
-      const removedMemberIndex = room.memberIds.indexOf(mId);
-
-      if (removedMemberIndex !== -1) {
-        room.memberIds.splice(removedMemberIndex, 1);
-        memberSIdKeys.push(`${RedisNamespace.UID2SId}${mId}`);
-        redisPipe.lrem(`${RedisNamespace.UId2RIds}${mId}`, 1, room.id);
-      }
-    });
-
-    const redisRes = await redisPipe
-      .set(`${RedisNamespace.Room}${room.id}`, JSON.stringify(room))
-      .mget(...memberSIdKeys)
-      .exec();
-
-    return {
-      room,
-      socketIds: (redisRes[redisPipe.length - 1][1] as string[]) || [],
-    };
-  }
-
-  /**
-   * Allow chatting in room or not.
-   *
-   * @param roomId
-   * @param mute
-   * @returns updated room.
-   */
-  async allowChat(roomId: string, mute = true) {
-    const room = await this.get(roomId);
-
-    if (room.isMuted !== mute) {
-      room.isMuted = mute;
+  async get(id: RoomId): Promise<Room | null> {
+    const roomJson = await this._redis.get(`${RedisNamespace.Room}${id}`);
+    if (!roomJson) {
+      return null;
     }
 
-    await this._redis.set(
-      `${RedisNamespace.Room}${roomId}`,
-      JSON.stringify(room),
-    );
-
-    return room;
+    return JSON.parse(roomJson);
   }
 
   /**
-   * Create a room and add the booker to its member list.
-   * If multi-room join is disabled, the booker must not
-   * enter any room before creating the room.
-   *
-   * @param bookerId
-   * @param isPublic if true, anyone can join without invitation.
-   * @returns updated room.
+   * Get rooms by ID.
+   *W
+   * @param ids The list of room ID.
    */
-  async book(bookerId: PlayerId, isPublic = false) {
-    if (await this.isMemberOfAny(bookerId)) {
-      throw new BadRequestException(
-        'Please leave current room before creating a new one',
-      );
-    }
-
-    const room: Room = {
-      id: uuidv4(),
-      isPublic,
-      isPersistent: false,
-      isMuted: false,
-      gameId: 0,
-      ownerId: bookerId,
-      memberIds: [bookerId],
-      waitingIds: [],
-      refusedIds: [],
-    };
-
-    await this._redis
-      .pipeline()
-      .set(`${RedisNamespace.Room}${room.id}`, JSON.stringify(room))
-      .lpush(`${RedisNamespace.UId2RIds}${bookerId}`, room.id)
-      .exec();
-
-    return room;
-  }
-
-  /**
-   * Get room by id.
-   *
-   * @param roomId
-   * @returns
-   */
-  async get(roomId: string) {
-    const roomJSON = await this._redis.get(`${RedisNamespace.Room}${roomId}`);
-
-    if (roomJSON === null) {
-      throw new BadRequestException('Room does not exist!');
-    }
-
-    const room: Room = JSON.parse(roomJSON);
-
-    return room;
-  }
-
-  /**
-   * Get rooms by ids.
-   *
-   * @param roomIds
-   * @returns
-   */
-  async getMany(roomIds: string[]) {
+  async getMany(ids: RoomId[]) {
     const rooms: Room[] = [];
-    const redisPipe = this._redis.pipeline();
-    roomIds.forEach((rId) => redisPipe.get(`${RedisNamespace.Room}${rId}`));
 
-    (await redisPipe.exec()).forEach((val) => {
-      if (typeof val[1] === 'string') {
-        rooms.push(JSON.parse(val[1] as string));
+    const redisPipe = this._redis.pipeline();
+    ids.forEach((id) => redisPipe.get(`${RedisNamespace.Room}${id}`));
+    (await redisPipe.exec())?.forEach(([err, json]) => {
+      if (!err && typeof json === 'string') {
+        rooms.push(JSON.parse(json));
       }
     });
 
@@ -306,179 +56,263 @@ export class RoomService {
   }
 
   /**
-   * Add player to room. If multi-room join is disabled,
-   * the booker must not enter any room before creating
-   * the room.
+   * Get list of room ID containing the given player ID.
    *
-   * @param joinerId
-   * @param roomId
-   * @returns updated room.
+   * @param id The player ID.
    */
-  async join(joinerId: PlayerId, roomId: string) {
-    if (await this.isMemberOfAny(joinerId)) {
-      throw new BadRequestException(
-        'Please leave current room before joining another one!',
-      );
-    }
+  getRoomIdsOfPlayer(id: PlayerId): Promise<RoomId[]> {
+    return this._redis.lrange(`${RedisNamespace.Id2Rids}${id}`, 0, -1);
+  }
 
-    const room = await this.get(roomId);
-
-    if (!room.isPublic || room.isPersistent) {
-      throw new ForbiddenException('This room is private!');
-    }
-
-    if (room.memberIds.includes(joinerId)) {
-      throw new BadRequestException('You have already joined this room!');
-    }
-
-    room.memberIds.push(joinerId);
-    room.waitingIds.splice(room.waitingIds.indexOf(joinerId), 1);
-    room.refusedIds.splice(room.waitingIds.indexOf(joinerId), 1);
-
+  /**
+   * Create the room..
+   *
+   * @param room The created room.
+   */
+  async create(room: Omit<Room, 'id'>): Promise<Room> {
+    const id = randomstring.generate(ROOM_ID_LENGTH);
     await this._redis
       .pipeline()
-      .set(`${RedisNamespace.Room}${room.id}`, JSON.stringify(room))
-      .lpush(`${RedisNamespace.UId2RIds}${joinerId}`, room.id)
+      .set(`${RedisNamespace.Room}${id}`, JSON.stringify({ ...room, id }))
+      .lpush(`${RedisNamespace.Id2Rids}${id}`, id)
       .exec();
 
-    return room;
+    return { ...room, id };
   }
 
   /**
-   * Remove player from room. Transfer ownership for to a member
-   * in room if leaver is owner. Empty room will be deleted.
+   * Create new rooms and replace the old one if available.
    *
-   * @param leaverId
-   * @param roomId
-   * @returns updated room.
+   * @param rooms The list of new room.
    */
-  async leave(leaverId: PlayerId, roomId: string) {
-    const room = await this.get(roomId);
-    const deletedMemberIndex = room.memberIds.indexOf(leaverId);
-
-    if (deletedMemberIndex === -1) {
-      throw new ForbiddenException('You are not in this room!');
-    } else {
-      room.memberIds.splice(deletedMemberIndex, 1);
-      room.refusedIds.push(leaverId);
-    }
-
+  async forceCreateMany(rooms: Room[]): Promise<Room[]> {
     const redisPipe = this._redis.pipeline();
-
-    // Delete room if all members have left
-    if (room.memberIds.length === 0 && !room.isPersistent) {
-      redisPipe.del(`${RedisNamespace.Room}${room.id}`);
-    } else {
-      // Assign owner to the first member
-      if (leaverId === room.ownerId) {
-        room.ownerId = room.memberIds[0];
-      }
-
+    rooms.forEach((room) => {
+      room.memberIds.forEach((id) => {
+        redisPipe.lpush(`${RedisNamespace.Id2Rids}${id}`, room.id);
+      });
       redisPipe.set(`${RedisNamespace.Room}${room.id}`, JSON.stringify(room));
-    }
-
-    await redisPipe
-      .lrem(`${RedisNamespace.UId2RIds}${leaverId}`, 1, room.id)
-      .exec();
-
-    return room;
-  }
-
-  /**
-   * Remove player from many rooms. Logic is the same
-   * as `leave` method.
-   *
-   * @param leaverId
-   * @param roomIds empty if leaving all rooms.
-   * @returns updated rooms.
-   */
-  async leaveMany(leaverId: PlayerId, ...roomIds: string[]) {
-    if (roomIds.length === 0) {
-      roomIds = await this._redis.lrange(
-        `${RedisNamespace.UId2RIds}${leaverId}`,
-        0,
-        -1,
-      );
-
-      if (roomIds.length === 0) {
-        return [];
-      }
-    }
-
-    let rooms = await this.getMany(roomIds);
-    const redisPipe = this._redis.pipeline();
-
-    rooms = rooms.map((room) => {
-      room.memberIds.splice(room.memberIds.indexOf(leaverId), 1);
-      room.refusedIds.push(leaverId);
-
-      // Delete room if all members have left
-      if (room.memberIds.length === 0 && !room.isPersistent) {
-        redisPipe.del(`${RedisNamespace.Room}${room.id}`);
-      } else {
-        // Assign owner to the first member
-        if (leaverId === room.ownerId) {
-          room.ownerId = room.memberIds[0];
-        }
-
-        redisPipe.set(`${RedisNamespace.Room}${room.id}`, JSON.stringify(room));
-      }
-
-      redisPipe
-        .lrem(`${RedisNamespace.UId2RIds}${leaverId}`, 1, room.id)
-        .exec();
-
-      return room;
     });
-
     await redisPipe.exec();
 
     return rooms;
   }
 
   /**
-   * Kick member out of room. Kicker must be the owner
-   * and member must be in the room, otherwise the action
-   * is declined.
+   * Remove many rooms.
    *
-   * @param kickerId
-   * @param memberId
-   * @param roomId
-   * @returns updated room and socket id of kicked member.
+   * @param ids The list of removed room ID.
    */
-  async kick(kickerId: PlayerId, memberId: PlayerId, roomId: string) {
-    if (kickerId === memberId) {
-      const room = await this.leave(kickerId, roomId);
+  async removeMany(ids: RoomId[]): Promise<Room[]> {
+    const rooms: Room[] = (
+      (
+        await this._redis.mget(
+          ...ids.map((id) => `${RedisNamespace.Room}${id}`),
+        )
+      ).filter((roomJson) => roomJson) as string[]
+    ).map((roomJson) => JSON.parse(roomJson));
 
-      return { room, kickedMemberSId: kickerId };
+    const redisPipe = this._redis.pipeline();
+    rooms.forEach((room) => {
+      room.memberIds.forEach((id) => {
+        redisPipe.lrem(`${RedisNamespace.Id2Rids}${id}`, 1, room.id);
+      });
+      redisPipe.del(`${RedisNamespace.Room}${room.id}`);
+    });
+    await redisPipe.exec();
+
+    return rooms;
+  }
+
+  /**
+   * Add member to room.
+   *
+   * @param id The room ID.
+   * @param playerID The added player ID.
+   * @param password The room password.
+   */
+  async join(id: RoomId, memberId: PlayerId, password?: string): Promise<Room> {
+    const room = await this.get(id);
+    if (!room) {
+      throw new NotFoundException("Room doesn't exist!");
     }
 
-    const room = await this.get(roomId);
-
-    if (room.ownerId !== kickerId) {
-      throw new ForbiddenException('You are not owner of this room!');
+    if (room.password && room.password !== password) {
+      throw new BadRequestException('Incorrect password!');
     }
 
-    const deletedMemberIndex = room.memberIds.indexOf(memberId);
-
-    if (deletedMemberIndex === -1) {
-      throw new BadRequestException('Member is not in this room!');
-    }
-
-    room.memberIds.splice(deletedMemberIndex, 1);
-    room.refusedIds.push(memberId);
-
-    const [[, kickedMemberSId]] = await this._redis
-      .pipeline()
-      .get(`${RedisNamespace.UID2SId}${memberId}`)
+    const redisPipe = this._redis.pipeline();
+    this._createAddMembersPipepline(redisPipe, room, [memberId]);
+    await redisPipe
       .set(`${RedisNamespace.Room}${room.id}`, JSON.stringify(room))
-      .lrem(`${RedisNamespace.UId2RIds}${memberId}`, 1, room.id)
       .exec();
 
-    return {
-      room,
-      kickedMemberSocketId: kickedMemberSId as string,
-    };
+    return room;
+  }
+
+  /**
+   * Add members to room.
+   *
+   * @param id The room ID.
+   * @param memberIds The list of added player ID.
+   */
+  async forceAddMembers(id: RoomId, memberIds: PlayerId[]): Promise<Room> {
+    const room = await this.get(id);
+    if (!room) {
+      throw new NotFoundException("Room doesn't exist!");
+    }
+
+    const redisPipe = this._redis.pipeline();
+    this._createAddMembersPipepline(redisPipe, room, memberIds);
+    if (redisPipe.length) {
+      await redisPipe
+        .set(`${RedisNamespace.Room}${room.id}`, JSON.stringify(room))
+        .exec();
+    }
+
+    return room;
+  }
+
+  /**
+   * Create redis pipeline to add members to room.
+   *
+   * @param pipe The redis pipeline instance.
+   * @param room The room.
+   * @param memberIds The list of added member ID.
+   */
+  _createAddMembersPipepline(
+    pipe: ChainableCommander,
+    room: Room,
+    memberIds: PlayerId[],
+  ): ChainableCommander {
+    memberIds.forEach((mid) => {
+      if (room.memberIds.includes(mid)) {
+        throw new BadRequestException('Player is already in this room!');
+      }
+
+      room.memberIds.push(mid);
+      pipe.lpush(`${RedisNamespace.Id2Rids}${mid}`, room.id);
+    });
+
+    return pipe;
+  }
+
+  /**
+   * Remove members from room.
+   *
+   * @param id The room ID.
+   * @param memberIds The list of removed player ID.
+   * @param kickerIds The kicker player ID.
+   */
+  async removeMembers(
+    id: RoomId,
+    memberIds: PlayerId[],
+    kickerId?: PlayerId,
+  ): Promise<Room> {
+    const room = await this.get(id);
+    if (!room) {
+      throw new NotFoundException("Room doesn't exist!");
+    }
+
+    if (kickerId && room.ownerId !== kickerId) {
+      throw new BadRequestException('Only owner is able to kick members');
+    }
+
+    const redisPipe = this._redis.pipeline();
+    this._createRemoveMembersPipeline(redisPipe, room, memberIds);
+    if (redisPipe.length) {
+      await redisPipe
+        .set(`${RedisNamespace.Room}${room.id}`, JSON.stringify(room))
+        .exec();
+    }
+
+    return room;
+  }
+
+  /**
+   * Remove member from many rooms.
+   *
+   * @param ids The list of room ID.
+   * @param memberId The removed member ID.
+   */
+  async removeFromRooms(ids: RoomId[], memberId: PlayerId): Promise<Room[]> {
+    // Remove from all rooms if
+    if (ids.length === 0) {
+      ids = await this._redis.lrange(
+        `${RedisNamespace.Id2Rids}${memberId}`,
+        0,
+        -1,
+      );
+      if (ids.length === 0) {
+        return [];
+      }
+    }
+
+    const redisPipe = this._redis.pipeline();
+    const rooms = (await this.getMany(ids)).map((room) => {
+      this._createRemoveMembersPipeline(redisPipe, room, [memberId]);
+      return room;
+    });
+
+    if (redisPipe.length) {
+      await redisPipe.exec();
+    }
+
+    return rooms;
+  }
+
+  /**
+   * Create redis pipeline to remove members from room.
+   *
+   * @param pipe The redis pipeline instance.
+   * @param room The room.
+   * @param memberIds The list of removed member ID.
+   */
+  private _createRemoveMembersPipeline(
+    pipe: ChainableCommander,
+    room: Room,
+    memberIds: PlayerId[],
+  ): ChainableCommander {
+    memberIds.forEach((mid) => {
+      const removedMemberIndex = room.memberIds.indexOf(mid);
+      if (removedMemberIndex === -1) {
+        throw new BadRequestException("Player isn't in this room!");
+      }
+
+      room.memberIds.splice(removedMemberIndex, 1);
+      pipe.lrem(`${RedisNamespace.Id2Rids}${mid}`, 1, room.id);
+
+      // Set new owner if the owner is removed
+      if (mid === room.ownerId && room.memberIds.length) {
+        room.ownerId = room.memberIds[0];
+      }
+    });
+
+    // Delete room if it is empty
+    if (!room.memberIds.length) {
+      pipe.del(`${RedisNamespace.Room}${room.id}`);
+    }
+
+    return pipe;
+  }
+
+  /**
+   * Mute the room.
+   *
+   * @param id The room ID.
+   * @param isMuted Mute or unmute.
+   */
+  async mute(id: RoomId, isMuted = true): Promise<Room> {
+    const room = await this.get(id);
+    if (!room) {
+      throw new NotFoundException("Room doesn't exist!");
+    }
+
+    if (room.isMuted === isMuted) {
+      throw new BadRequestException('Nothing changes!');
+    }
+
+    return this._mergeAndStoreRoom(room, { isMuted });
   }
 
   /**
@@ -486,130 +320,52 @@ export class RoomService {
    * if room is empty, actor is not owner, or choosed member
    * does not exist in the room.
    *
-   * @param ownerId
-   * @param candidateId
-   * @param roomId
-   * @returns update room.
+   * @param id The room ID.
+   * @param newOwnerId The new owner player ID.
+   * @param ownerId The current owner player ID. Force set owner if ignore.
    */
   async transferOwnership(
-    ownerId: PlayerId,
-    candidateId: PlayerId,
-    roomId: string,
-  ) {
-    const room = await this.get(roomId);
+    id: RoomId,
+    newOwnerId: PlayerId,
+    ownerId?: PlayerId,
+  ): Promise<Room> {
+    const room = await this.get(id);
+    if (!room) {
+      throw new NotFoundException("Room doesn't exist!");
+    }
 
+    ownerId = ownerId ? ownerId : room.ownerId;
     if (room.ownerId !== ownerId) {
       throw new ForbiddenException('You are not owner of this room!');
     }
 
-    if (ownerId === candidateId || !room.memberIds.includes(candidateId)) {
+    if (ownerId === newOwnerId) {
+      throw new BadRequestException('Already own this room!');
+    }
+
+    if (!room.memberIds.includes(newOwnerId)) {
       throw new BadRequestException('New owner must be a member in this room!');
     }
 
-    room.ownerId = candidateId;
+    return this._mergeAndStoreRoom(room, { ownerId: newOwnerId });
+  }
 
+  /**
+   * Merge new data into the room.
+   *
+   * @param room The updated room.
+   * @param data The new data.
+   */
+  async _mergeAndStoreRoom(
+    room: Room,
+    data: Partial<Omit<Room, 'id'>>,
+  ): Promise<Room> {
+    _merge(room, data);
     await this._redis.set(
       `${RedisNamespace.Room}${room.id}`,
       JSON.stringify(room),
     );
 
     return room;
-  }
-
-  /**
-   * Invite a guest into room. Only invite online player and
-   * non-exist in room player.
-   *
-   * @param inviter
-   * @param guestId
-   * @param roomId
-   * @returns updated room and guest socket ids.
-   */
-  async invite(inviter: PlayerId, guestId: PlayerId, roomId: string) {
-    const [[, roomJSON], [, guestSId]] = (await this._redis
-      .pipeline()
-      .get(`${RedisNamespace.Room}${roomId}`)
-      .get(`${RedisNamespace.UID2SId}${guestId}`)
-      .exec()) as [error: any, result: string | string[]][];
-
-    if (roomJSON == null) {
-      throw new NotFoundException('Room does not exist!');
-    }
-
-    const room: Room = JSON.parse(roomJSON as string);
-
-    if (room.isPersistent) {
-      throw new ForbiddenException(
-        'You can not invite other player to this room!',
-      );
-    }
-
-    if (guestSId == null) {
-      throw new BadRequestException('Please only invite online player!');
-    }
-
-    if (!room.memberIds.includes(inviter)) {
-      throw new ForbiddenException('You are not in this room!');
-    }
-
-    if (room.memberIds.includes(guestId) || room.waitingIds.includes(guestId)) {
-      throw new BadRequestException('This player has been invited!');
-    }
-
-    room.waitingIds.push(guestId);
-    room.refusedIds.splice(room.waitingIds.indexOf(guestId), 1);
-
-    await this._redis.set(
-      `${RedisNamespace.Room}${room.id}`,
-      JSON.stringify(room),
-    );
-
-    return { room, guestSocketId: guestSId };
-  }
-
-  /**
-   * Respond to room invitation. There are 2 options:
-   * accept and refuse. Leave the current room after
-   * accepting if multi-room join is disabled.
-   *
-   * @param guestId
-   * @param isAccpeted
-   * @param roomId
-   * @returns updated room and left rooms.
-   */
-  async respondInvitation(
-    guestId: PlayerId,
-    isAccpeted: boolean,
-    roomId: string,
-  ) {
-    let leftRooms: Room[] = [];
-    const room = await this.get(roomId);
-    const deletedWaitingIndex = room.waitingIds.indexOf(guestId);
-
-    if (deletedWaitingIndex === -1) {
-      throw new BadRequestException('You are not invited to this room!');
-    }
-
-    const redisPipe = this._redis.pipeline();
-
-    room.waitingIds.splice(deletedWaitingIndex, 1);
-
-    if (isAccpeted) {
-      // Leave all current rooms if multi-room join is disabled
-      if (await this.isMemberOfAny(guestId)) {
-        leftRooms = await this.leaveMany(guestId);
-      }
-
-      room.memberIds.push(guestId);
-      redisPipe.lpush(`${RedisNamespace.UId2RIds}${guestId}`, room.id);
-    } else {
-      room.refusedIds.push(guestId);
-    }
-
-    await redisPipe
-      .set(`${RedisNamespace.Room}${room.id}`, JSON.stringify(room))
-      .exec();
-
-    return { room, leftRooms };
   }
 }

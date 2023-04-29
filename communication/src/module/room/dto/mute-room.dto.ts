@@ -1,10 +1,11 @@
 import { IsBoolean, IsNotEmpty, IsString } from 'class-validator';
+import { RoomId } from '../room.type';
 
 export class MuteRoomDto {
   @IsString()
   @IsNotEmpty()
-  roomId: string;
+  id!: RoomId;
 
   @IsBoolean()
-  mute: boolean;
+  isMuted!: boolean;
 }

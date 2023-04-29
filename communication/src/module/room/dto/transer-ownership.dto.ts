@@ -1,12 +1,13 @@
-import { IsInt, IsNotEmpty, IsPositive, IsString } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 import { PlayerId } from 'src/module/player';
+import { RoomId } from '../room.type';
 
 export class TransferOwnershipDto {
   @IsString()
   @IsNotEmpty()
-  roomId: string;
+  id!: RoomId;
 
-  @IsInt()
-  @IsPositive()
-  candidateId: PlayerId;
+  @IsString()
+  @IsNotEmpty()
+  newOwnerId!: PlayerId;
 }

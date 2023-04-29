@@ -5,8 +5,6 @@ export enum ListenEvent {
   BookRoom = 'book_room',
   JoinRoom = 'join_room',
   LeaveRoom = 'leave_room',
-  InviteToRoom = 'invite_to_room',
-  RespondRoomInvitation = 'respond_room_invitation',
   KickOutOfRoom = 'kick_out_of_room',
   TranserOwnership = 'transfer_ownership',
 }
@@ -22,12 +20,10 @@ export enum EmitEvent {
 }
 
 export enum RoomEvent {
-  Create = 0,
   Kick = 1,
   Leave = 2,
   Join = 3,
   Owner = 4,
-  Invite = 5,
   Remove = 6,
   Mute = 7,
 }

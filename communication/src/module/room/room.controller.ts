@@ -1,182 +1,360 @@
-import { Body, Controller, Delete, Post, Res, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  HttpStatus,
+  Post,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { FastifyReply } from 'fastify';
 import {
-  AddToRoomDto,
-  CreatePersistentRoomsDto,
-  CreateTemporaryRoomsDto,
+  AddRoomMembersDto,
+  CreateEmptyRoomDto,
+  ForceCreateRoomsDto,
+  JoinRoomDto,
+  KickOutOfRoomDto,
+  LeaveRoomDto,
   MuteRoomDto,
-  RemoveFromRoomDto,
+  RemoveMemberRoomsDto,
   RemoveRoomsDto,
+  TransferOwnershipDto,
 } from './dto';
-import { PlayerId } from '../player';
+import { OnlinePlayer, PlayerId, PlayerService, SocketId } from '../player';
 import { ChatGateway, EmitEvent, RoomEvent } from '../chat';
 import { RoomService } from './room.service';
-import { Room } from './room.type';
-import { HmacGuard } from 'src/common/guard';
+import { HttpPlayer } from 'src/common/decorator';
+import { Player } from '@prisma/client';
+import { HmacGuard, RequireActiveGuard, TokenGuard } from 'src/common/guard';
 
 @Controller('rooms')
-@UseGuards(HmacGuard)
 export class RoomController {
   constructor(
-    private roomService: RoomService,
-    private chatGateway: ChatGateway,
+    private readonly roomService: RoomService,
+    private readonly playerService: PlayerService,
+    private readonly chatGateway: ChatGateway,
   ) {}
 
   /**
-   * Notify room joins to all members.
+   * Force create the rooms.
    *
-   * @param socketIdsList
-   * @param rooms
-   * @param joinerIdsLst
+   * @param payload
+   * @param response
    */
-  private notifyRoomJoins(
-    socketIdsList: string[][],
-    rooms: Room[],
-    joinerIdsLst: PlayerId[][],
-  ) {
-    socketIdsList.forEach((sIds, i) => {
-      this.chatGateway.server.to(sIds).socketsJoin(rooms[i].id);
-      this.chatGateway.server.to(sIds).emit(EmitEvent.ReceiveRoomChanges, {
-        event: RoomEvent.Join,
-        actorIds: joinerIdsLst[i],
-        room: rooms[i],
+  @Post('/')
+  @UseGuards(HmacGuard)
+  async foreceCreateRooms(
+    @Body() payload: ForceCreateRoomsDto,
+    @Res() response: FastifyReply,
+  ): Promise<void> {
+    const rooms = await this.roomService.forceCreateMany(payload.rooms);
+    const playerIds: PlayerId[] = [];
+    rooms.forEach((room) => {
+      room.memberIds.forEach((mid) => {
+        if (!playerIds.includes(mid)) {
+          playerIds.push(mid);
+        }
       });
     });
-  }
+    const id2Sid = await this.playerService.getSocketIds(playerIds);
 
-  /**
-   * Notify room leaves to all members.
-   *
-   * @param socketIdsList
-   * @param rooms
-   * @param leaverIdsList
-   */
-  private notifyRoomLeaves(
-    socketIdsList: string[][],
-    rooms: Room[],
-    leaverIdsList: PlayerId[][],
-  ) {
-    socketIdsList.forEach((sIds, i) => {
-      this.chatGateway.server.to(sIds).socketsLeave(rooms[i].id);
-      this.chatGateway.server.to(sIds).emit(EmitEvent.ReceiveRoomChanges, {
+    rooms.forEach((room) => {
+      const sids = room.memberIds
+        .map((mid) => id2Sid[mid])
+        .filter((sid) => !!sid) as SocketId[];
+
+      // Clear old room if exist
+      this.chatGateway.server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
         event: RoomEvent.Leave,
-        actorIds: leaverIdsList[i],
-        room: rooms[i],
+        room: {
+          ...room,
+          memberIds: [],
+        },
+        actorIds: room.memberIds,
+      });
+      this.chatGateway.server.in(room.id).socketsLeave(room.id);
+
+      // Add players to the room
+      this.chatGateway.server.to(sids).socketsJoin(room.id);
+      this.chatGateway.server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
+        event: RoomEvent.Join,
+        room,
+        actorIds: [],
       });
     });
-  }
 
-  /**
-   * Create many temporary rooms at once.
-   *
-   * @param payload
-   * @param response
-   */
-  @Post('temporary')
-  async createTemporarily(
-    @Body() payload: CreateTemporaryRoomsDto,
-    @Res() response: FastifyReply,
-  ) {
-    const { rooms, socketIdsList, joinerIdsList } =
-      await this.roomService.createTemporarily(payload);
-
-    this.notifyRoomJoins(socketIdsList, rooms, joinerIdsList);
-    response.code(201).send({
+    response.code(HttpStatus.CREATED).send({
       data: rooms,
     });
   }
 
   /**
-   * Create many persistent rooms at once.
+   * Remove the rooms.
    *
    * @param payload
    * @param response
    */
-  @Post('persistent')
-  async createPersistently(
-    @Body() payload: CreatePersistentRoomsDto,
+  @Delete('/')
+  @UseGuards(HmacGuard)
+  async removeRooms(
+    @Body() payload: RemoveRoomsDto,
     @Res() response: FastifyReply,
-  ) {
-    const { rooms, socketIdsList, joinerIdsList } =
-      await this.roomService.createPersistently(payload);
+  ): Promise<void> {
+    const rooms = await this.roomService.removeMany(payload.ids);
+    rooms.forEach((room) => {
+      // Clear old room if exist
+      this.chatGateway.server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
+        event: RoomEvent.Leave,
+        room: room,
+        actorIds: [],
+      });
+      this.chatGateway.server.in(room.id).socketsLeave(room.id);
+    });
 
-    this.notifyRoomJoins(socketIdsList, rooms, joinerIdsList);
-    response.code(201).send({
+    response.code(HttpStatus.OK).send({
       data: rooms,
     });
   }
 
   /**
-   * Remove many room at once.
+   * Add the members to the room.
    *
    * @param payload
    * @param response
    */
-  @Delete()
-  async remove(@Body() payload: RemoveRoomsDto, @Res() response: FastifyReply) {
-    const { rooms, socketIdsList, leaverIdsList } =
-      await this.roomService.remove(payload.ids);
-
-    this.notifyRoomLeaves(socketIdsList, rooms, leaverIdsList);
-    response.code(200).send({
-      data: true,
-    });
-  }
-
-  /**
-   * Add many members to room.
-   *
-   * @param payload
-   * @param response
-   */
-  @Post('members')
-  async addMembers(
-    @Body() payload: AddToRoomDto,
+  @Post('/members')
+  @UseGuards(HmacGuard)
+  async addMembersToRoom(
+    @Body() payload: AddRoomMembersDto,
     @Res() response: FastifyReply,
-  ) {
-    const { room, socketIds } = await this.roomService.addMembers(
-      payload.roomId,
+  ): Promise<void> {
+    const room = await this.roomService.forceAddMembers(
+      payload.id,
       payload.memberIds,
     );
+    const id2Sid = this.playerService.getSocketIds(payload.memberIds);
+    const sids = payload.memberIds
+      .map((mid) => id2Sid[mid])
+      .filter((sid) => !!sid) as SocketId[];
 
-    this.notifyRoomJoins([socketIds], [room], [payload.memberIds]);
-    response.code(200).send({
+    this.chatGateway.server.to(sids).socketsJoin(room.id);
+    this.chatGateway.server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
+      event: RoomEvent.Join,
+      room,
+      actorIds: [],
+    });
+
+    response.code(HttpStatus.OK).send({
       data: room,
     });
   }
 
   /**
-   * Remove many members from room.
+   * Remove the member from the rooms.
    *
    * @param payload
    * @param response
    */
-  @Delete('members')
-  async removeMembers(
-    @Body() payload: RemoveFromRoomDto,
+  @Delete('/members')
+  @UseGuards(HmacGuard)
+  async removeMemberFromRooms(
+    @Body() payload: RemoveMemberRoomsDto,
     @Res() response: FastifyReply,
-  ) {
-    const { room, socketIds } = await this.roomService.removeMembers(
-      payload.roomId,
-      payload.memberIds,
+  ): Promise<void> {
+    const rooms = await this.roomService.removeFromRooms(
+      payload.ids ?? [],
+      payload.memberId,
     );
+    const sid = await this.playerService.getSocketId(payload.memberId);
 
-    this.notifyRoomLeaves([socketIds], [room], [payload.memberIds]);
-    response.code(200).send({
-      data: room,
+    rooms.forEach((room) => {
+      this.chatGateway.server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
+        event: RoomEvent.Leave,
+        room: room,
+        actorIds: [],
+      });
+
+      if (sid) {
+        this.chatGateway.server.to(sid).socketsLeave(room.id);
+      }
+    });
+
+    response.code(HttpStatus.OK).send({
+      data: rooms,
     });
   }
 
-  @Post('mute')
-  async mute(@Body() payload: MuteRoomDto, @Res() response: FastifyReply) {
-    const room = await this.roomService.allowChat(payload.roomId, payload.mute);
-
+  /**
+   * Mute or unmute the room.
+   *
+   * @param payload
+   * @param response
+   */
+  @Post('/mute')
+  @UseGuards(HmacGuard)
+  async muteRoom(
+    @Body() payload: MuteRoomDto,
+    @Res() response: FastifyReply,
+  ): Promise<void> {
+    const room = await this.roomService.mute(payload.id, payload.isMuted);
     this.chatGateway.server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
       event: RoomEvent.Mute,
+      room: room,
       actorIds: [],
-      room,
     });
-    response.code(201).send({
+
+    response.code(HttpStatus.OK).send({
+      data: room,
+    });
+  }
+
+  /**
+   * Create an empty room.
+   *
+   * @param payload
+   * @param player
+   * @param response
+   */
+  @Post('/book')
+  @UseGuards(TokenGuard, RequireActiveGuard)
+  async bookRoom(
+    @Body() payload: CreateEmptyRoomDto,
+    @HttpPlayer() player: OnlinePlayer,
+    @Res() response: FastifyReply,
+  ): Promise<void> {
+    const room = await this.roomService.create({
+      ownerId: player.id,
+      password: payload.password,
+      isMuted: false,
+      memberIds: [player.id],
+    });
+    this.chatGateway.server.to(player.sid).socketsJoin(room.id);
+
+    response.code(HttpStatus.CREATED).send({
+      data: room,
+    });
+  }
+
+  /**
+   * Join the room.
+   *
+   * @param payload
+   * @param player
+   * @param response
+   */
+  @Post('/join')
+  @UseGuards(TokenGuard, RequireActiveGuard)
+  async joinRoom(
+    @Body() payload: JoinRoomDto,
+    @HttpPlayer() player: OnlinePlayer,
+    @Res() response: FastifyReply,
+  ): Promise<void> {
+    const room = await this.roomService.join(
+      payload.id,
+      player.id,
+      payload.password,
+    );
+    this.chatGateway.server.to(player.sid).socketsJoin(room.id);
+    this.chatGateway.server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
+      event: RoomEvent.Join,
+      room: room,
+      actorIds: [player.id],
+    });
+
+    response.code(HttpStatus.OK).send({
+      data: room,
+    });
+  }
+
+  /**
+   * Leave the room.
+   *
+   * @param payload
+   * @param player
+   * @param response
+   */
+  @Post('/leave')
+  @UseGuards(TokenGuard, RequireActiveGuard)
+  async leaveRoom(
+    @Body() payload: LeaveRoomDto,
+    @HttpPlayer() player: OnlinePlayer,
+    @Res() response: FastifyReply,
+  ): Promise<void> {
+    const room = await this.roomService.removeMembers(payload.id, [player.id]);
+    this.chatGateway.server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
+      event: RoomEvent.Leave,
+      room: room,
+      actorIds: [player.id],
+    });
+    this.chatGateway.server.to(player.sid).socketsLeave(room.id);
+
+    response.code(HttpStatus.OK).send({
+      data: room,
+    });
+  }
+
+  /**
+   * Kick the member out of the room.
+   *
+   * @param payload
+   * @param player
+   * @param response
+   */
+  @Post('/kick')
+  @UseGuards(TokenGuard, RequireActiveGuard)
+  async kickRoom(
+    @Body() payload: KickOutOfRoomDto,
+    @HttpPlayer() player: OnlinePlayer,
+    @Res() response: FastifyReply,
+  ): Promise<void> {
+    const room = await this.roomService.removeMembers(
+      payload.id,
+      [payload.memberId],
+      player.id,
+    );
+    const sid = await this.playerService.getSocketId(payload.memberId);
+
+    this.chatGateway.server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
+      event: RoomEvent.Kick,
+      room: room,
+      actorIds: [player.id],
+    });
+
+    if (sid) {
+      this.chatGateway.server.to(player.sid).socketsLeave(room.id);
+    }
+
+    response.code(HttpStatus.OK).send({
+      data: room,
+    });
+  }
+
+  /**
+   * Transfer room ownership.
+   *
+   * @param payload
+   * @param player
+   * @param response
+   */
+  @Post('/owner')
+  @UseGuards(TokenGuard, RequireActiveGuard)
+  async transferOwnership(
+    @Body() payload: TransferOwnershipDto,
+    @HttpPlayer() player: Player,
+    @Res() response: FastifyReply,
+  ): Promise<void> {
+    const room = await this.roomService.transferOwnership(
+      payload.id,
+      payload.newOwnerId,
+      player.id,
+    );
+    this.chatGateway.server.to(room.id).emit(EmitEvent.ReceiveRoomChanges, {
+      event: RoomEvent.Owner,
+      room: room,
+      actorIds: [player.id],
+    });
+
+    response.code(HttpStatus.CREATED).send({
       data: room,
     });
   }

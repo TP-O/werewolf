@@ -9,6 +9,4 @@ import { RoomService } from './room.service';
   providers: [RoomService],
   exports: [RoomService],
 })
-export class RoomModule {
-  //
-}
+export class RoomModule {}
