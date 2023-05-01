@@ -1,7 +1,7 @@
 app:
   env: development
   debug: true
-  port: 8079
+  port: 80
   secret:
   cors:
     origins:
