@@ -11,7 +11,7 @@ export class FirebaseService {
       credential: cert({
         projectId: config.productId,
         privateKey: config.privateKey.replace(/\\n/gm, '\n'),
-        clientEmail: config.clientEmail,
+        clientEmail: config.email,
       }),
       databaseURL: `https://${config.productId}.firebaseio.com`,
     });

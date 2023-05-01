@@ -20,4 +20,12 @@ redis:
 firebase:
   productId:
   privateKey:
-  clientEmail:
+  email:
+  client:
+    apiKey:
+    authDomain:
+    projectId:
+    storageBucket:
+    messagingSenderId:
+    appId:
+    measurementId:
