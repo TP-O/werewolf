@@ -28,7 +28,7 @@ export class AppConfig {
   readonly debug!: boolean;
 
   @IsNumber()
-  @Min(1025)
+  @Min(10)
   @Max(65535)
   public readonly port!: number;
 

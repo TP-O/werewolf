@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { cert, getApps, initializeApp } from 'firebase-admin/app';
+import { cert, initializeApp } from 'firebase-admin/app';
 import { Auth, getAuth } from 'firebase-admin/auth';
 import { FirebaseConfig } from 'src/config';
 
@@ -7,16 +7,14 @@ import { FirebaseConfig } from 'src/config';
 export class FirebaseService {
   constructor(config: FirebaseConfig) {
     //Prevent duplicate app initialization
-    if (getApps().length === 0) {
-      initializeApp({
-        credential: cert({
-          projectId: config.productId,
-          privateKey: config.privateKey.replace(/\\n/gm, '\n'),
-          clientEmail: config.clientEmail,
-        }),
-        databaseURL: `https://${config.productId}.firebaseio.com`,
-      });
-    }
+    initializeApp({
+      credential: cert({
+        projectId: config.productId,
+        privateKey: config.privateKey.replace(/\\n/gm, '\n'),
+        clientEmail: config.email,
+      }),
+      databaseURL: `https://${config.productId}.firebaseio.com`,
+    });
   }
 
   auth(): Auth {
