@@ -95,6 +95,6 @@
     }
   },
   "prisma": {
-    "seed": "ts-node  -r tsconfig-paths/register prisma/seeders/database.seeder.ts"
+    "seed": "ts-node  -r tsconfig-paths/register prisma/seeders/main.ts"
   }
 }
