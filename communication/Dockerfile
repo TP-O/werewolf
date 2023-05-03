@@ -20,10 +20,11 @@ RUN mkdir dist
 RUN chown -R node:node /app
 
 COPY --chown=node:node ./package.json ./pnpm-lock.yaml ./
+COPY --chown=node:node ./index.js ./
 COPY --chown=node:node ./prisma/schema.prisma ./prisma/schema.prisma
 COPY --chown=node:node --from=build-stage /app/dist /app/dist
 
 USER node
 RUN npx pnpm install -P && npx prisma generate
 
-CMD [ "node", "/app/dist/main.js" ]
+CMD [ "node", "/app" ]

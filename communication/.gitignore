@@ -34,11 +34,7 @@ lerna-debug.log*
 !.vscode/launch.json
 !.vscode/extensions.json
 
-.env
 config.yaml
 
 /.docker/postgres/data/
 /.docker/redis/data/
-
-index.mjs
-index.js
