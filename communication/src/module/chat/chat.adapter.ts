@@ -12,7 +12,7 @@ export class ChatAdapter extends IoAdapter {
   }
 
   async connectToRedis(): Promise<void> {
-    this.adapterConstructor = createAdapter(this.redis, this.redis.duplicate());
+    this.adapterConstructor = createAdapter(this.redis, this.redis);
   }
 
   createIOServer(port: number, options?: ServerOptions) {
