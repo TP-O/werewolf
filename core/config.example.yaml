@@ -1,0 +1,28 @@
+app:
+  debug: true
+  env: development
+  port: 8080
+postgres:
+  host: postgres
+  port: 5432
+  username: ww_username
+  password: ww_password
+  database: ww_db
+  poll_size: 10
+redis:
+  sentinel_addresses:
+    - redis:5000
+    - redis:5001
+    - redis:5002
+  master_name: mymaster
+  username: default
+  password: redis_password
+  poll_size: 10
+game:
+  min_capacity: 4
+  max_capacity: 20
+  preparation_duration: 10s
+  min_turn_duration: 20s
+  max_turn_duration: 60s
+  min_discussion_duration: 40s
+  max_discussion_duration: 360s

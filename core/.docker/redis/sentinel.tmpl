@@ -1,0 +1,6 @@
+port ${SENTINEL_PORT}
+sentinel monitor ${SENTINEL_MASTER_NAME} redis ${PORT} 2
+sentinel down-after-milliseconds ${SENTINEL_MASTER_NAME} 5000
+sentinel failover-timeout ${SENTINEL_MASTER_NAME} 60000
+sentinel parallel-syncs ${SENTINEL_MASTER_NAME} 1
+sentinel auth-pass ${SENTINEL_MASTER_NAME} redis_password

@@ -1,0 +1,71 @@
+version: "3.8"
+
+services:
+    app:
+        image: werewolf-core:dev
+        build:
+            context: .
+            dockerfile: Dockerfile.dev
+        ports:
+            - 8080:8080
+        volumes:
+            - ./:/app
+            - .docker/go/pkg/mod:/go/pkg/mod
+        depends_on:
+            - postgres
+            - redis
+        networks:
+            - postgres-network
+            - redis-network
+        restart: unless-stopped
+
+    postgres:
+        image: postgres:15.2-alpine
+        environment:
+            - POSTGRES_USER=ww_username
+            - POSTGRES_PASSWORD=ww_password
+            - POSTGRES_DB=ww_db
+        volumes:
+            - .docker/postgres/data:/var/lib/postgresql/data
+        networks:
+            - postgres-network
+        restart: unless-stopped
+
+    adminer:
+        image: adminer
+        ports:
+            - 8081:8080
+        networks:
+            - postgres-network
+        restart: unless-stopped
+
+    redis:
+        image: grokzen/redis-cluster:7.0.7
+        environment:
+            - SENTINEL=true
+            - REDIS_USE_SENTINEL=true
+            - SENTINEL_MASTER_NAME=mymaster
+        volumes:
+            - .docker/redis/redis-cluster.tmpl:/redis-conf/redis-cluster.tmpl
+            - .docker/redis/sentinel.tmpl:/redis-conf/sentinel.tmpl
+            - .docker/redis/docker-entrypoint.sh:/docker-entrypoint.sh
+        networks:
+            - redis-network
+        restart: unless-stopped
+
+    redis-insight:
+        image: redislabs/redisinsight:latest
+        user: root
+        ports:
+            - 8082:8001
+        volumes:
+            - .docker/redis/data/redis-insight:/db
+        depends_on:
+            - redis
+        networks:
+            - redis-network
+        restart: unless-stopped
+
+networks:
+    postgres-network:
+    redis-network:

@@ -1,0 +1,6 @@
+.docker
+.vscode
+docs
+mock
+tmp
+config.yaml

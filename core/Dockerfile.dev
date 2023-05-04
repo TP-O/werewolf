@@ -1,0 +1,15 @@
+FROM cosmtrek/air:v1.40.4
+
+WORKDIR /app
+
+ENV air_wd /app
+ENV GOPATH /go
+
+RUN useradd ww && usermod -u 1000 ww && groupmod -g 1000 ww
+RUN chown -R ww:ww ${air_wd} ${GOPATH}
+RUN mkdir -p /home/ww && chown -R ww:ww /home/ww
+
+USER ww:ww
+
+# Install golang-migrate
+RUN go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest

@@ -1,0 +1,31 @@
+app:
+  env: development
+  debug: true
+  port: 80
+  secret:
+  cors:
+    origins:
+      - "*"
+db:
+  host: postgres
+  port: 5432
+  username: ww_username
+  password: ww_password
+  database: ww_db
+  pollSize: 10
+redis:
+  host: redis
+  port: 6379
+  password: redis_pass
+firebase:
+  productId:
+  privateKey:
+  email:
+  client:
+    apiKey:
+    authDomain:
+    projectId:
+    storageBucket:
+    messagingSenderId:
+    appId:
+    measurementId:

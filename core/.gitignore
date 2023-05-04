@@ -1,0 +1,5 @@
+config.yaml
+tmp/
+.docker/postgres/data
+.docker/redis/data
+.docker/go
