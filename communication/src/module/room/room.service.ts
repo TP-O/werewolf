@@ -9,7 +9,7 @@ import { Room, RoomId } from './room.type';
 import { RedisService } from '../common';
 import { PlayerId } from '../player';
 import { RedisNamespace } from '../common/enum/redis.enum';
-import randomstring from 'randomstring';
+import * as randomstring from 'randomstring';
 import _merge from 'just-merge';
 
 const ROOM_ID_LENGTH = 5;
