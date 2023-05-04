@@ -23,12 +23,11 @@ services:
         restart: unless-stopped
 
     postgres:
-        image: postgres:15.2-alpine
+        image: bitnami/postgresql:15.2.0
         environment:
-            - PGPORT=5432
-            - POSTGRES_DB=ww_db
-            - POSTGRES_USER=ww_username
-            - POSTGRES_PASSWORD=ww_password
+            - POSTGRESQL_DATABASE=ww_db
+            - POSTGRESQL_USERNAME=ww_username
+            - POSTGRESQL_PASSWORD=ww_password
         volumes:
             - ./.docker/postgres/data:/var/lib/postgresql/data
         networks:

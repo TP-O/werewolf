@@ -17,7 +17,7 @@ import { AuthModule } from './module/auth/auth.module';
     TypedConfigModule.forRoot({
       schema: RootConfig,
       load: fileLoader({
-        absolutePath: 'config.yaml',
+        absolutePath: process.env.CONFIG_FILE ?? 'config.yaml',
       }),
     }),
   ],
