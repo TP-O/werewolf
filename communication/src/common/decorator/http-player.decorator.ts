@@ -3,11 +3,10 @@ import {
   ExecutionContext,
   UnauthorizedException,
 } from '@nestjs/common';
-import { Player } from '@prisma/client';
 import { FastifyRequest } from 'fastify';
 
-export const HttpPlayer = createParamDecorator<ExecutionContext, Player>(
-  (ctx: ExecutionContext) => {
+export const HttpPlayer = createParamDecorator(
+  (_: unknown, ctx: ExecutionContext) => {
     const request = ctx.switchToHttp().getRequest<FastifyRequest>();
     if (!request.player) {
       throw new UnauthorizedException('Unable to detect player!');
