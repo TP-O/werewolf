@@ -11,7 +11,7 @@ const writer = createLogger({
   ),
   transports: [
     new transports.File({
-      filename: 'log/error.log',
+      filename: `${process.env.LOG_PATH || 'log'}/error.log`,
       level: 'error',
       maxsize: 10_000_000,
     }),
