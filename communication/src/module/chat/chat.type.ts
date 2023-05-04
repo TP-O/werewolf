@@ -1,7 +1,8 @@
 import { WsErrorResponse } from 'src/common/type';
-import { PlayerId, PlayerStatus } from '../player';
+import { PlayerId } from '../player/player.type';
 import { EmitEvent, RoomChangeType } from './chat.enum';
-import { Room } from '../room';
+import { Room } from '../room/room.type';
+import { PlayerStatus } from '../player/player.enum';
 
 type SuccessResponse = {
   message: string;

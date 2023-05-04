@@ -6,8 +6,8 @@ import {
 } from '@nestjs/common';
 import Redis, { ChainableCommander } from 'ioredis';
 import { Room, RoomId } from './room.type';
-import { RedisService } from '../common';
-import { PlayerId } from '../player';
+import { RedisService } from '../common/service';
+import { PlayerId } from '../player/player.type';
 import { RedisNamespace } from '../common/enum/redis.enum';
 import * as randomstring from 'randomstring';
 import _merge from 'just-merge';

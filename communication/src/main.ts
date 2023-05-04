@@ -8,7 +8,11 @@ import { AllExceptionFilter, HttpExceptionFilter } from './common/filter';
 import { ValidationPipe } from '@nestjs/common';
 import { AppConfig } from './config/app.config';
 import { ChatAdapter } from './module/chat/chat.adapter';
-import { LoggerService, PrismaService, RedisService } from './module/common';
+import {
+  LoggerService,
+  PrismaService,
+  RedisService,
+} from './module/common/service';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(

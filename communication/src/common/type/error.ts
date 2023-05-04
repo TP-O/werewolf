@@ -1,4 +1,4 @@
-import { ListenEvent } from 'src/module/chat';
+import { ListenEvent } from 'src/module/chat/chat.enum';
 
 export type ErrorMessage = string | string[];
 

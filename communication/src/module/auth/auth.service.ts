@@ -4,8 +4,8 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Auth, DecodedIdToken } from 'firebase-admin/auth';
-import { FirebaseService, PrismaService } from '../common';
-import { PlayerStatus } from '../player';
+import { FirebaseService, PrismaService } from '../common/service';
+import { PlayerStatus } from '../player/player.enum';
 
 @Injectable()
 export class AuthService {

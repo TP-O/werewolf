@@ -21,7 +21,7 @@ import { EventBindingInterceptor } from './interceptor';
 import { SendRoomMessageDto, SendPrivateMessageDto } from './dto';
 import { ChatService } from './chat.service';
 import { ListenEvent } from './chat.enum';
-import { EmitEventMap } from '.';
+import { EmitEventMap } from './chat.type';
 
 @Injectable()
 @UseFilters(AllExceptionFilter, WsExceptionFilter)

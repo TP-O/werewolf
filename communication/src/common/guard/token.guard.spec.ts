@@ -1,9 +1,9 @@
-import { AuthService } from 'src/module/auth';
+import { AuthService } from 'src/module/auth/auth.service';
 import { TokenGuard } from './token.guard';
 import { ExecutionContext, UnauthorizedException } from '@nestjs/common';
 import { createMock } from '@golevelup/ts-jest';
 import { Player } from '@prisma/client';
-import { PlayerStatus } from 'src/module/player';
+import { PlayerStatus } from 'src/module/player/player.enum';
 
 describe('TokenGuard', () => {
   const player: Player = {

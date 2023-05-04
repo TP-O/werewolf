@@ -1,4 +1,4 @@
-import { PlayerId } from '../player';
+import { PlayerId } from '../player/player.type';
 
 export type RoomId = string;
 

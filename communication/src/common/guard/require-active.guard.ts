@@ -8,7 +8,8 @@ import {
   forwardRef,
 } from '@nestjs/common';
 import { FastifyRequest } from 'fastify';
-import { OnlinePlayer, PlayerService } from 'src/module/player';
+import { PlayerService } from 'src/module/player/player.service';
+import { OnlinePlayer } from 'src/module/player/player.type';
 
 @Injectable()
 export class RequireActiveGuard implements CanActivate {

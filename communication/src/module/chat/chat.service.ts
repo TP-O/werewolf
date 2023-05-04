@@ -9,13 +9,15 @@ import {
 } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { SendPrivateMessageDto, SendRoomMessageDto } from './dto';
-import { AuthService } from '../auth';
-import { PlayerId, PlayerService, PlayerStatus, SocketId } from '../player';
-import { RoomService } from '../room';
+import { AuthService } from '../auth/auth.service';
+import { PlayerStatus } from '../player/player.enum';
+import { RoomService } from '../room/room.service';
 import { EmitEvent, ListenEvent, RoomChangeType } from './chat.enum';
 import { EmitEventMap } from './chat.type';
-import { LoggerService } from '../common';
+import { LoggerService } from '../common/service';
 import { Player } from '@prisma/client';
+import { PlayerService } from '../player/player.service';
+import { PlayerId, SocketId } from '../player/player.type';
 
 @Injectable()
 export class ChatService {

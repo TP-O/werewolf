@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { PlayerController } from './player.controller';
 import { PlayerService } from './player.service';
-import { RoomModule } from '../room';
-import { AuthModule } from '../auth';
+import { RoomModule } from '../room/room.module';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [RoomModule, AuthModule],

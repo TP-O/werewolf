@@ -2,8 +2,9 @@ import { ExceptionFilter, Catch, ArgumentsHost } from '@nestjs/common';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { Socket } from 'socket.io';
 import { LoggedError } from '../type';
-import { EmitEvent, EmitEventMap } from 'src/module/chat';
-import { LoggerService } from 'src/module/common';
+import { EmitEvent } from 'src/module/chat/chat.enum';
+import { LoggerService } from 'src/module/common/service';
+import { EmitEventMap } from 'src/module/chat/chat.type';
 
 /**
  * Filter all unexpected exceptions.

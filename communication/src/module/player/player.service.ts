@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import Redis from 'ioredis';
 import { Player } from '@prisma/client';
-import { PrismaService, RedisService } from '../common';
+import { PrismaService, RedisService } from '../common/service';
 import { PlayerId, SocketId } from './player.type';
 import { PlayerStatus } from './player.enum';
 import { RedisNamespace } from '../common/enum/redis.enum';

@@ -22,12 +22,14 @@ import {
   RemoveRoomsDto,
   TransferOwnershipDto,
 } from './dto';
-import { OnlinePlayer, PlayerId, PlayerService, SocketId } from '../player';
-import { ChatGateway, EmitEvent, RoomChangeType } from '../chat';
 import { RoomService } from './room.service';
 import { HttpPlayer } from 'src/common/decorator';
 import { Player } from '@prisma/client';
 import { HmacGuard, RequireActiveGuard, TokenGuard } from 'src/common/guard';
+import { PlayerService } from '../player/player.service';
+import { ChatGateway } from '../chat/chat.gateway';
+import { OnlinePlayer, PlayerId, SocketId } from '../player/player.type';
+import { EmitEvent, RoomChangeType } from '../chat/chat.enum';
 
 @Controller('rooms')
 export class RoomController {
