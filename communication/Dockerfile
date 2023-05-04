@@ -16,11 +16,10 @@ WORKDIR /app
 
 ENV NODE_ENV production
 
-RUN mkdir dist
 RUN chown -R node:node /app
 
 COPY --chown=node:node ./package.json ./pnpm-lock.yaml ./
-COPY --chown=node:node ./index.js ./
+COPY --chown=node:node ./.docker/app ./
 COPY --chown=node:node ./prisma/schema.prisma ./prisma/schema.prisma
 COPY --chown=node:node --from=build-stage /app/dist /app/dist
 

@@ -28,6 +28,7 @@ on:
 
 env:
   WORKDIR: communication
+  MACHINE_ID: ${{ vars.FLY_COMMUNICATION_SERVER_MACHINE_ID }}
 
 jobs:
   lint:
@@ -231,7 +232,7 @@ jobs:
         uses: docker/setup-buildx-action@v2
 
       - uses: superfly/flyctl-actions/setup-flyctl@master
-      - run: flyctl m update $FLY_COMMUNICATION_SERVER_MACHINE_ID --dockerfile Dockerfile -y
+      - run: flyctl m update $MACHINE_ID --dockerfile Dockerfile -y
         working-directory: ${{ env.WORKDIR }}
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
