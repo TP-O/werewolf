@@ -1,4 +1,5 @@
 import { ConsoleLogger, Injectable, Scope } from '@nestjs/common';
+import { resolve } from 'path';
 import { AppEnv } from 'src/common/enum';
 import { AppConfig } from 'src/config';
 import { createLogger, format, transports } from 'winston';
@@ -11,7 +12,7 @@ const writer = createLogger({
   ),
   transports: [
     new transports.File({
-      filename: `${process.env.LOG_PATH || 'log'}/error.log`,
+      filename: resolve(process.env.LOG_PATH || 'log', 'error.log'),
       level: 'error',
       maxsize: 10_000_000,
     }),

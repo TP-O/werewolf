@@ -7,5 +7,5 @@ const { existsSync } = require('fs');
     await new Promise((resolve) => setTimeout(resolve, 5000));
   }
 
-  require('../../dist/main');
+  require('./dist/main');
 })();
