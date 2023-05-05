@@ -12,7 +12,7 @@ require (
 	github.com/gorilla/websocket v1.5.0
 	github.com/huandu/go-clone v1.6.0
 	github.com/lib/pq v1.10.7
-	github.com/paulmach/orb v0.9.0
+	github.com/paulmach/orb v0.9.2
 	github.com/redis/go-redis/v9 v9.0.2
 	github.com/samber/lo v1.38.1
 	github.com/spf13/viper v1.12.0
