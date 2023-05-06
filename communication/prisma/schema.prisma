@@ -1,0 +1,38 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = "postgresql://ww_username:ww_password@postgres:5432/ww_db?schema=public"
+}
+
+model Player {
+  id               String               @id @db.VarChar(28)
+  username         String               @unique @db.VarChar(16)
+  statusId         Int                  @map("status_id") @db.SmallInt
+  requestedFriends FriendRelationship[] @relation("sender")
+  acceptedFriends  FriendRelationship[] @relation("acceptor")
+  status           PlayerStatus         @relation(fields: [statusId], references: [id])
+
+  @@map("players")
+}
+
+model FriendRelationship {
+  senderId   String @map("inviter_id")
+  acceptorId String @map("acceptor_id")
+  sender     Player @relation(name: "sender", fields: [senderId], references: [id])
+  acceptor   Player @relation(name: "acceptor", fields: [acceptorId], references: [id])
+
+  @@unique([senderId, acceptorId])
+  @@map("friend_relationships")
+}
+
+model PlayerStatus {
+  id     Int      @id @default(autoincrement()) @db.SmallInt
+  name   String   @unique @db.VarChar(16)
+  player Player[]
+
+  @@map("player_statuses")
+}
