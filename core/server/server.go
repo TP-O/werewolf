@@ -6,7 +6,7 @@ import (
 	"uwwolf/config"
 	"uwwolf/server/api"
 	"uwwolf/server/service"
-	ws "uwwolf/server/websocket"
+	"uwwolf/server/socketio"
 	"uwwolf/util/validation"
 
 	"github.com/gin-gonic/gin"
@@ -38,9 +38,9 @@ func NewServer(config config.App, gameCfg config.Game, roomService service.RoomS
 	apiHandler := api.NewHandler(config, roomService, gameService)
 	apiHandler.Use(apiRouter)
 
-	echoRouter := router.Group("/echo")
-	echoHandler := ws.NewHandler(config, gameCfg)
-	echoHandler.Use(echoRouter)
+	socketIoServer := socketio.NewServer(gameCfg)
+	router.GET("/socket.io/*any", gin.WrapH(socketIoServer))
+	router.POST("/socket.io/*any", gin.WrapH(socketIoServer))
 
 	svr := &Server{
 		config:      config,
