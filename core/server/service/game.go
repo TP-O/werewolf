@@ -40,6 +40,7 @@ type gameService struct {
 
 	// rdb is redis connection.
 	rdb *redis.ClusterClient
+
 	// pdb is postgreSQL connection.
 	pdb db.Store
 

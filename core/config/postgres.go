@@ -8,18 +8,18 @@ type Postgres struct {
 	Username string `mapstructure:"username"`
 	Password string `mapstructure:"password"`
 	Database string `mapstructure:"database"`
-	PollSize int    `mapstructure:"pool_size"`
+	PollSize int    `mapstructure:"poolSize"`
 }
 
 var _ configLoader = (*Postgres)(nil)
 
 func (Postgres) loadDefault() {
 	viper.SetDefault("postgres", map[string]interface{}{
-		"host":      "postgres",
-		"port":      5432,
-		"username":  "username",
-		"password":  "password",
-		"database":  "db",
-		"poll_size": 10,
+		"host":     "postgres",
+		"port":     5432,
+		"username": "username",
+		"password": "password",
+		"database": "db",
+		"pollSize": 10,
 	})
 }

@@ -1,16 +1,20 @@
 package socketio
 
 import (
-	"fmt"
 	"log"
 
 	socketio "github.com/googollee/go-socket.io"
 )
 
 func (s *Server) connect(client socketio.Conn) error {
-	fmt.Println("CCC")
+	playerId, err := s.authService.VerifyAuthorization(client.RemoteHeader().Get("Authorization"))
+	if err != nil {
+		client.Emit(errorEvent, err.Error())
+		client.Close()
+	}
+
 	client.SetContext(&clientContext{
-		playerID: "1",
+		playerId,
 	})
 	log.Println("connected:", client.ID())
 	return nil

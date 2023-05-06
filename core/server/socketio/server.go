@@ -6,6 +6,7 @@ import (
 	"uwwolf/config"
 	"uwwolf/game"
 	"uwwolf/game/types"
+	"uwwolf/server/service"
 
 	socketio "github.com/googollee/go-socket.io"
 )
@@ -16,12 +17,13 @@ type message[T any] struct {
 }
 
 type clientContext struct {
-	playerID types.PlayerID
+	playerId types.PlayerID
 }
 
 type Server struct {
 	*socketio.Server
-	gameManger game.Manager
+	authService service.AuthService
+	gameManger  game.Manager
 }
 
 const defaultNamespace = "/"
@@ -30,10 +32,11 @@ var allowOriginFunc = func(r *http.Request) bool {
 	return true
 }
 
-func NewServer(gameConfig config.Game) *Server {
+func NewServer(gameConfig config.Game, authService service.AuthService) *Server {
 	server := &Server{
-		Server:     socketio.NewServer(nil),
-		gameManger: game.NewManager(gameConfig),
+		Server:      socketio.NewServer(nil),
+		authService: authService,
+		gameManger:  game.NewManager(gameConfig),
 	}
 
 	server.OnConnect(defaultNamespace, server.connect)

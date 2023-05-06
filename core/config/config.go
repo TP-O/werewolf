@@ -15,6 +15,7 @@ type config struct {
 	Postgres `mapstructure:"postgres"`
 	Game     `mapstructure:"game"`
 	Redis    `mapstructure:"redis"`
+	Firebase `mapstructure:"firebase"`
 }
 
 var cfg *config
@@ -25,6 +26,7 @@ func loadDefaultConfig(cfg *config) {
 	cfg.Postgres.loadDefault()
 	cfg.Game.loadDefault()
 	cfg.Redis.loadDefault()
+	cfg.Firebase.loadDefault()
 }
 
 // Load loads config values from the given path and

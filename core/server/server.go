@@ -22,7 +22,7 @@ type Server struct {
 	gameService service.GameService
 }
 
-func NewServer(config config.App, gameCfg config.Game, roomService service.RoomService, gameService service.GameService) *Server {
+func NewServer(config config.App, gameCfg config.Game, authService service.AuthService, roomService service.RoomService, gameService service.GameService) *Server {
 	if config.Env == "production" {
 		gin.SetMode(gin.ReleaseMode)
 	}
@@ -38,7 +38,7 @@ func NewServer(config config.App, gameCfg config.Game, roomService service.RoomS
 	apiHandler := api.NewHandler(config, roomService, gameService)
 	apiHandler.Use(apiRouter)
 
-	socketIoServer := socketio.NewServer(gameCfg)
+	socketIoServer := socketio.NewServer(gameCfg, authService)
 	router.GET("/socket.io/*any", gin.WrapH(socketIoServer))
 	router.POST("/socket.io/*any", gin.WrapH(socketIoServer))
 
