@@ -40,6 +40,7 @@ type gameService struct {
 
 	// rdb is redis connection.
 	rdb *redis.ClusterClient
+
 	// pdb is postgreSQL connection.
 	pdb db.Store
 
@@ -68,7 +69,7 @@ func (gs gameService) GameConfig(roomID string) data.GameConfig {
 
 	encodedConfig := gs.rdb.Get(
 		context.Background(),
-		enum.RoomID2GameConfigRNs+roomID,
+		enum.RoomGameSettingNs+roomID,
 	).Val()
 	if err := json.Unmarshal([]byte(encodedConfig), &config); err != nil {
 		return data.GameConfig{
@@ -88,7 +89,7 @@ func (gs gameService) UpdateGameConfig(roomID string, config dto.ReplaceGameConf
 
 	return gs.rdb.Set(
 		context.Background(),
-		enum.RoomID2GameConfigRNs+roomID,
+		enum.RoomGameSettingNs+roomID,
 		string(encodedConfig),
 		-1,
 	).Err()

@@ -6,6 +6,7 @@ import (
 	"uwwolf/server/data"
 	"uwwolf/server/dto"
 	"uwwolf/server/enum"
+	"uwwolf/server/service"
 	"uwwolf/util/validation"
 
 	"github.com/gin-gonic/gin"
@@ -39,6 +40,11 @@ func (h Handler) ReplaceGameConfig(ctx *gin.Context) {
 		})
 		return
 	}
+
+	h.communicationService.BroadcastToRoom(room.ID, service.CommunicationEventMsg{
+		Event:   "room_setting",
+		Message: payload,
+	})
 
 	ctx.JSON(http.StatusOK, gin.H{
 		"message": "Ok",

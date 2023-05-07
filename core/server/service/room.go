@@ -36,7 +36,7 @@ var GetWaitingRoomScript = fmt.Sprintf(`
     end
 
     return redis.call("GET", %q + room_id)
-`, enum.PlayerID2WatingRoomIDRNs, enum.WaitingRoomRNs)
+`, enum.JoinedRoomIdNs, enum.RoomNs)
 
 // PlayerWaitingRoom returns the room containing the given player ID.
 func (rs roomService) PlayerWaitingRoom(playerID types.PlayerID) (data.WaitingRoom, bool) {

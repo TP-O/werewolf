@@ -38,9 +38,15 @@ func main() {
 
 	gameManager := game.NewManager(config.Game)
 
+	authService, err := service.NewAuthService(config.Firebase)
+	if err != nil {
+		panic(err)
+	}
+
 	roomService := service.NewRoomService(rdb)
 	gameService := service.NewGameService(config.Game, rdb, pdb, gameManager)
-	server := server.NewServer(config.App, config.Game, roomService, gameService)
+	communicationService := service.NewCommunicationService(config.App.SecretKey)
+	server := server.NewServer(config.App, config.Game, rdb, authService, roomService, gameService, communicationService)
 
 	go func() {
 		log.Printf("Server is listening on port %d", config.App.Port)

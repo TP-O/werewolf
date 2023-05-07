@@ -3,9 +3,10 @@ package config
 import "github.com/spf13/viper"
 
 type App struct {
-	Debug bool   `mapstructure:"debug"`
-	Env   string `mapstructure:"env"`
-	Port  uint16 `mapstructure:"port"`
+	Debug     bool   `mapstructure:"debug"`
+	Env       string `mapstructure:"env"`
+	SecretKey string `mapstructure:"secretKey"`
+	Port      uint16 `mapstructure:"port"`
 }
 
 var _ configLoader = (*App)(nil)

@@ -33,6 +33,7 @@ type moderator struct {
 	discussionDuration time.Duration
 	playedPlayerID     []types.PlayerID
 	winningFaction     types.FactionID
+	onPhaseChanged     func(mod Moderator)
 }
 
 // Moderator controlls a game.
@@ -49,6 +50,10 @@ type Moderator interface {
 	FinishGame() bool
 
 	Player(ID types.PlayerID) contract.Player
+
+	Scheduler() tool.Scheduler
+
+	OnPhaseChanged(fn func(mod Moderator))
 
 	// RequestPlay receives the play request from the player.
 	RequestPlay(playerID types.PlayerID, req *types.ActivateAbilityRequest) *types.ActionResponse
@@ -76,8 +81,16 @@ func NewModerator(config config.Game, reg *types.GameRegistration) Moderator {
 	return m
 }
 
+func (m *moderator) OnPhaseChanged(fn func(mod Moderator)) {
+	m.onPhaseChanged = fn
+}
+
 func (m moderator) GameID() types.GameID {
 	return m.gameID
+}
+
+func (m moderator) Scheduler() tool.Scheduler {
+	return m.scheduler
 }
 
 // StatusID retusn current world status ID.
@@ -160,6 +173,8 @@ func (m *moderator) runScheduler() {
 			case <-m.finishSignal:
 				m.FinishGame()
 			}
+
+			m.onPhaseChanged(m)
 		}()
 	}
 }
@@ -188,6 +203,7 @@ func (m *moderator) StartGame() int64 {
 	}
 
 	fmt.Println("Starting")
+	m.world.Load()
 
 	go func() {
 		m.gameStatus = declare.Waiting
@@ -197,7 +213,7 @@ func (m *moderator) StartGame() int64 {
 		go m.runScheduler()
 	}()
 
-	return m.world.Load()
+	return 1
 }
 
 // FinishGame ends the game.

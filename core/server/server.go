@@ -6,12 +6,13 @@ import (
 	"uwwolf/config"
 	"uwwolf/server/api"
 	"uwwolf/server/service"
-	ws "uwwolf/server/websocket"
+	"uwwolf/server/socketio"
 	"uwwolf/util/validation"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
+	"github.com/redis/go-redis/v9"
 )
 
 type Server struct {
@@ -22,7 +23,7 @@ type Server struct {
 	gameService service.GameService
 }
 
-func NewServer(config config.App, gameCfg config.Game, roomService service.RoomService, gameService service.GameService) *Server {
+func NewServer(config config.App, gameCfg config.Game, rdb *redis.ClusterClient, authService service.AuthService, roomService service.RoomService, gameService service.GameService, communicationService service.CommunicationService) *Server {
 	if config.Env == "production" {
 		gin.SetMode(gin.ReleaseMode)
 	}
@@ -34,13 +35,13 @@ func NewServer(config config.App, gameCfg config.Game, roomService service.RoomS
 	router := gin.Default()
 	router.Use(gin.Recovery())
 
-	apiRouter := router.Group("/api")
-	apiHandler := api.NewHandler(config, roomService, gameService)
-	apiHandler.Use(apiRouter)
+	socketIoServer := socketio.NewServer(gameCfg, authService)
+	router.GET("/socket.io/*any", gin.WrapH(socketIoServer))
+	router.POST("/socket.io/*any", gin.WrapH(socketIoServer))
 
-	echoRouter := router.Group("/echo")
-	echoHandler := ws.NewHandler(config, gameCfg)
-	echoHandler.Use(echoRouter)
+	apiRouter := router.Group("/api")
+	apiHandler := api.NewHandler(config, socketIoServer, rdb, roomService, gameService, communicationService)
+	apiHandler.Use(apiRouter)
 
 	svr := &Server{
 		config:      config,
