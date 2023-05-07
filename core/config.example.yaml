@@ -1,6 +1,7 @@
 app:
   debug: true
   env: development
+  secretKey:
   port: 8080
 postgres:
   host: postgres

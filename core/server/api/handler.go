@@ -11,12 +11,13 @@ import (
 )
 
 type Handler struct {
-	config      config.App
-	roomService service.RoomService
-	gameService service.GameService
+	config               config.App
+	roomService          service.RoomService
+	gameService          service.GameService
+	communicationService service.CommunicationService
 }
 
-func NewHandler(config config.App, roomService service.RoomService, gameService service.GameService) *Handler {
+func NewHandler(config config.App, roomService service.RoomService, gameService service.GameService, communicationService service.CommunicationService) *Handler {
 	if config.Env == "production" {
 		gin.SetMode(gin.ReleaseMode)
 	}

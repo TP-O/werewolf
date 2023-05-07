@@ -44,13 +44,13 @@ func NewAuthService(config config.Firebase) (AuthService, error) {
 	return &authService{auth}, nil
 }
 
-func (a authService) VerifyAuthorization(authorization string) (types.PlayerID, error) {
+func (as authService) VerifyAuthorization(authorization string) (types.PlayerID, error) {
 	if len(authorization) == 0 {
 		return "", errors.New("Empty authorization header!")
 	}
 
 	idToken := strings.TrimPrefix(authorization, "Bearer ")
-	token, err := a.auth.VerifyIDToken(context.Background(), idToken)
+	token, err := as.auth.VerifyIDToken(context.Background(), idToken)
 	if err != nil {
 		return "", err
 	}

@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"uwwolf/server/data"
 	"uwwolf/server/enum"
+	"uwwolf/server/service"
 
 	"github.com/gin-gonic/gin"
 )
@@ -35,6 +36,10 @@ func (h Handler) StartGame(ctx *gin.Context) {
 		return
 	}
 	mod.StartGame()
+	h.communicationService.BroadcastToRoom(room.ID, service.CommunicationEventMsg{
+		Event:   "start",
+		Message: mod.GameID(),
+	})
 
 	ctx.JSON(http.StatusOK, gin.H{
 		"message": "Ok",
