@@ -3,6 +3,8 @@ package socketio
 import (
 	"context"
 	"log"
+	"strconv"
+	"uwwolf/game/types"
 	"uwwolf/server/enum"
 
 	socketio "github.com/googollee/go-socket.io"
@@ -36,9 +38,13 @@ func (s *SocketServer) connect(client socketio.Conn) error {
 		client.Close()
 	}
 
+	game, _ := s.db.PlayingGame(context.Background(), string(playerId))
+
 	client.SetContext(&clientContext{
-		playerId,
+		playerId: playerId,
+		gameId:   types.GameID(game.ID),
 	})
+	client.Join(strconv.Itoa(int(game.ID)))
 	log.Println("connected:", client.ID())
 	return nil
 }

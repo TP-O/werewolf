@@ -37,3 +37,8 @@ INSERT INTO game_logs (
     unnest(@action_id::smallint[]),
     unnest(@target_id::varchar[])
 );
+
+-- name: PlayingGame :one
+SELECT games.* FROM role_assignments
+INNER JOIN games ON role_assignments.game_id == games.id
+WHERE role_assignments.player_id == $1 AND games.finished_at IS NULL;

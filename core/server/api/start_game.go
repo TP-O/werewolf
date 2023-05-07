@@ -49,6 +49,9 @@ func (h Handler) StartGame(ctx *gin.Context) {
 			})
 	})
 	mod.StartGame()
+
+	// Store role assignment
+
 	set := make([]any, len(room.PlayerIDs)*2, len(room.PlayerIDs)*2)
 	for _, id := range room.PlayerIDs {
 		set = append(set, id, "in_game")

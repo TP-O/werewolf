@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"uwwolf/config"
+	"uwwolf/db"
 	"uwwolf/game"
 	"uwwolf/game/types"
 	"uwwolf/server/service"
@@ -19,12 +20,14 @@ type message[T any] struct {
 
 type clientContext struct {
 	playerId types.PlayerID
+	gameId   types.GameID
 }
 
 type SocketServer struct {
 	*socketio.Server
 	authService service.AuthService
 	gameManger  game.Manager
+	db          db.Store
 	rdb         *redis.ClusterClient
 }
 

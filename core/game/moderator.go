@@ -203,6 +203,7 @@ func (m *moderator) StartGame() int64 {
 	}
 
 	fmt.Println("Starting")
+	m.world.Load()
 
 	go func() {
 		m.gameStatus = declare.Waiting
@@ -212,7 +213,7 @@ func (m *moderator) StartGame() int64 {
 		go m.runScheduler()
 	}()
 
-	return m.world.Load()
+	return 1
 }
 
 // FinishGame ends the game.
