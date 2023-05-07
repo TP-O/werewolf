@@ -18,11 +18,11 @@ func (s *Server) connect(client socketio.Conn) error {
 	pipe := s.rdb.Pipeline()
 	status := pipe.Get(
 		context.Background(),
-		enum.PlayerStatus+string(playerId),
+		enum.PlayerStatusNs+string(playerId),
 	)
 	sid := pipe.Get(
 		context.Background(),
-		enum.PlayerId2SocketId+string(playerId),
+		enum.SocketIdNs+string(playerId),
 	)
 	pipe.Exec(context.Background())
 

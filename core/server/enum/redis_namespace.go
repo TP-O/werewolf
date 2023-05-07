@@ -1,9 +1,9 @@
 package enum
 
 const (
-	PlayerID2WatingRoomIDRNs = "waiting-room-id:"
-	WaitingRoomRNs           = "waiting-room:"
-	RoomID2GameConfigRNs     = "room-game-config:"
-	PlayerId2SocketId        = "pid2sid:"
-	PlayerStatus             = "player_status:"
+	RoomNs            = "room:"
+	RoomGameSettingNs = "room_game_setting:"
+	JoinedRoomIdNs    = "joined_room_id:"
+	SocketIdNs        = "socket_id:"
+	PlayerStatusNs    = "player_status:"
 )
