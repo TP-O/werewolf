@@ -3,6 +3,7 @@ package api
 import (
 	"uwwolf/config"
 	"uwwolf/server/service"
+	"uwwolf/server/socketio"
 	"uwwolf/util/validation"
 
 	"github.com/gin-gonic/gin"
@@ -16,10 +17,11 @@ type Handler struct {
 	roomService          service.RoomService
 	gameService          service.GameService
 	communicationService service.CommunicationService
+	socketServer         *socketio.SocketServer
 	rdb                  *redis.ClusterClient
 }
 
-func NewHandler(config config.App, roomService service.RoomService, gameService service.GameService, communicationService service.CommunicationService) *Handler {
+func NewHandler(config config.App, socketio *socketio.SocketServer, rdb *redis.ClusterClient, roomService service.RoomService, gameService service.GameService, communicationService service.CommunicationService) *Handler {
 	if config.Env == "production" {
 		gin.SetMode(gin.ReleaseMode)
 	}
@@ -29,9 +31,12 @@ func NewHandler(config config.App, roomService service.RoomService, gameService 
 	}
 
 	return &Handler{
-		config:      config,
-		roomService: roomService,
-		gameService: gameService,
+		config:               config,
+		socketServer:         socketio,
+		roomService:          roomService,
+		gameService:          gameService,
+		communicationService: communicationService,
+		rdb:                  rdb,
 	}
 }
 

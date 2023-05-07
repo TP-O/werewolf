@@ -21,7 +21,7 @@ type clientContext struct {
 	playerId types.PlayerID
 }
 
-type Server struct {
+type SocketServer struct {
 	*socketio.Server
 	authService service.AuthService
 	gameManger  game.Manager
@@ -34,8 +34,8 @@ var allowOriginFunc = func(r *http.Request) bool {
 	return true
 }
 
-func NewServer(gameConfig config.Game, authService service.AuthService) *Server {
-	server := &Server{
+func NewServer(gameConfig config.Game, authService service.AuthService) *SocketServer {
+	server := &SocketServer{
 		Server:      socketio.NewServer(nil),
 		authService: authService,
 		gameManger:  game.NewManager(gameConfig),

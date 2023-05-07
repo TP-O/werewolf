@@ -3,6 +3,8 @@ package api
 import (
 	"context"
 	"net/http"
+	"strconv"
+	"uwwolf/game"
 	"uwwolf/server/data"
 	"uwwolf/server/enum"
 	"uwwolf/server/service"
@@ -36,15 +38,28 @@ func (h Handler) StartGame(ctx *gin.Context) {
 		})
 		return
 	}
+	mod.OnPhaseChanged(func(mod game.Moderator) {
+		h.socketServer.BroadcastToRoom(
+			"/",
+			strconv.Itoa(int(mod.GameID())),
+			"phase_changed",
+			map[string]any{
+				"round":    mod.Scheduler().RoundID(),
+				"phase_id": mod.Scheduler().PhaseID(),
+			})
+	})
 	mod.StartGame()
 	set := make([]any, len(room.PlayerIDs)*2, len(room.PlayerIDs)*2)
 	for _, id := range room.PlayerIDs {
 		set = append(set, id, "in_game")
 	}
 	h.rdb.MSet(context.Background(), set...)
+
 	h.communicationService.BroadcastToRoom(room.ID, service.CommunicationEventMsg{
-		Event:   "start",
-		Message: mod.GameID(),
+		Event: "start_game",
+		Message: map[string]any{
+			"game_id": mod.GameID(),
+		},
 	})
 
 	ctx.JSON(http.StatusOK, gin.H{

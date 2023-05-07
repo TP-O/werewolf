@@ -22,7 +22,7 @@ type SyncPositionEmitMessage struct {
 
 const syncPositionEvent = "sync_position"
 
-func (s *Server) syncPosition(client socketio.Conn, msg string) {
+func (s *SocketServer) syncPosition(client socketio.Conn, msg string) {
 	var data SyncPositionListenMessage
 	if err := helper.JsonUnmarshal(msg, &data); err != nil {
 		client.Emit(errorEvent, err.Error())

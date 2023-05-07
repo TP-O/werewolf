@@ -8,7 +8,7 @@ import (
 
 const errorEvent = "error"
 
-func (s *Server) handleError(client socketio.Conn, e error) {
+func (s *SocketServer) handleError(client socketio.Conn, e error) {
 	client.Emit(errorEvent, e.Error())
 	log.Println("meet error:", e)
 }

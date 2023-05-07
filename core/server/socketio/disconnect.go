@@ -6,6 +6,6 @@ import (
 	socketio "github.com/googollee/go-socket.io"
 )
 
-func (s *Server) disconnect(client socketio.Conn, reason string) {
+func (s *SocketServer) disconnect(client socketio.Conn, reason string) {
 	log.Println("closed", reason)
 }
