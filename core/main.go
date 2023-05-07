@@ -45,7 +45,8 @@ func main() {
 
 	roomService := service.NewRoomService(rdb)
 	gameService := service.NewGameService(config.Game, rdb, pdb, gameManager)
-	server := server.NewServer(config.App, config.Game, authService, roomService, gameService)
+	communicationService := service.NewCommunicationService(config.App.SecretKey)
+	server := server.NewServer(config.App, config.Game, authService, roomService, gameService, communicationService)
 
 	go func() {
 		log.Printf("Server is listening on port %d", config.App.Port)

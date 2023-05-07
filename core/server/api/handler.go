@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
+	"github.com/redis/go-redis/v9"
 )
 
 type Handler struct {
@@ -15,6 +16,7 @@ type Handler struct {
 	roomService          service.RoomService
 	gameService          service.GameService
 	communicationService service.CommunicationService
+	rdb                  *redis.ClusterClient
 }
 
 func NewHandler(config config.App, roomService service.RoomService, gameService service.GameService, communicationService service.CommunicationService) *Handler {

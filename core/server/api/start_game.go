@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"net/http"
 	"uwwolf/server/data"
 	"uwwolf/server/enum"
@@ -36,6 +37,11 @@ func (h Handler) StartGame(ctx *gin.Context) {
 		return
 	}
 	mod.StartGame()
+	set := make([]any, len(room.PlayerIDs)*2, len(room.PlayerIDs)*2)
+	for _, id := range room.PlayerIDs {
+		set = append(set, id, "in_game")
+	}
+	h.rdb.MSet(context.Background(), set...)
 	h.communicationService.BroadcastToRoom(room.ID, service.CommunicationEventMsg{
 		Event:   "start",
 		Message: mod.GameID(),

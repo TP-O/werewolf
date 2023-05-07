@@ -9,6 +9,7 @@ import (
 	"uwwolf/server/service"
 
 	socketio "github.com/googollee/go-socket.io"
+	"github.com/redis/go-redis/v9"
 )
 
 type message[T any] struct {
@@ -24,6 +25,7 @@ type Server struct {
 	*socketio.Server
 	authService service.AuthService
 	gameManger  game.Manager
+	rdb         *redis.ClusterClient
 }
 
 const defaultNamespace = "/"
