@@ -46,7 +46,7 @@
   "devDependencies": {
     "@asyncapi/generator": "^1.9.18",
     "@asyncapi/html-template": "0.28.3",
-    "@firebase/app-types": "^0.7.0",
+    "@firebase/app-types": "^0.9.0",
     "@golevelup/ts-jest": "^0.3.5",
     "@nestjs/cli": "^9.4.2",
     "@nestjs/schematics": "^9.1.0",
