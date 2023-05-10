@@ -1,4 +1,4 @@
-package game
+package logic
 
 // import (
 // 	"testing"
@@ -14,11 +14,11 @@ package game
 
 // type ModeratorSuite struct {
 // 	suite.Suite
-// 	playerID types.PlayerID
+// 	playerID types.PlayerId
 // }
 
 // func (ms *ModeratorSuite) SetupSuite() {
-// 	ms.playerID = types.PlayerID("1")
+// 	ms.playerID = types.PlayerId("1")
 // }
 
 // func TestModeratorSuite(t *testing.T) {
@@ -59,7 +59,7 @@ package game
 // 			expectedWinningFactionID: vars.VillagerFactionID,
 // 			setup: func(m *moderator, mg *mock_game.MockGame) {
 // 				mg.EXPECT().AlivePlayerIDsWithFactionID(vars.WerewolfFactionID).
-// 					Return([]types.PlayerID{})
+// 					Return([]types.PlayerId{})
 // 				mg.EXPECT().StatusID().Return(vars.Waiting)
 // 				mg.EXPECT().Finish()
 // 				go func() {
@@ -72,9 +72,9 @@ package game
 // 			expectedWinningFactionID: vars.WerewolfFactionID,
 // 			setup: func(m *moderator, mg *mock_game.MockGame) {
 // 				mg.EXPECT().AlivePlayerIDsWithFactionID(vars.WerewolfFactionID).
-// 					Return([]types.PlayerID{"1", "2"}).Times(2)
+// 					Return([]types.PlayerId{"1", "2"}).Times(2)
 // 				mg.EXPECT().AlivePlayerIDsWithoutFactionID(vars.WerewolfFactionID).
-// 					Return([]types.PlayerID{"3", "4"})
+// 					Return([]types.PlayerId{"3", "4"})
 // 				mg.EXPECT().StatusID().Return(vars.Waiting)
 // 				mg.EXPECT().Finish()
 // 				go func() {
@@ -87,9 +87,9 @@ package game
 // 			expectedWinningFactionID: types.FactionID(0),
 // 			setup: func(m *moderator, mg *mock_game.MockGame) {
 // 				mg.EXPECT().AlivePlayerIDsWithFactionID(vars.WerewolfFactionID).
-// 					Return([]types.PlayerID{"1", "2"}).Times(2)
+// 					Return([]types.PlayerId{"1", "2"}).Times(2)
 // 				mg.EXPECT().AlivePlayerIDsWithoutFactionID(vars.WerewolfFactionID).
-// 					Return([]types.PlayerID{"3", "4", "5"})
+// 					Return([]types.PlayerId{"3", "4", "5"})
 // 			},
 // 		},
 // 	}
@@ -191,9 +191,9 @@ package game
 // 				mp.EXPECT().Open()
 // 				mg.EXPECT().Poll(vars.VillagerFactionID).Return(nil)
 // 				mg.EXPECT().AlivePlayerIDsWithFactionID(vars.WerewolfFactionID).
-// 					Return([]types.PlayerID{"1"}).Times(2)
+// 					Return([]types.PlayerId{"1"}).Times(2)
 // 				mg.EXPECT().AlivePlayerIDsWithoutFactionID(vars.WerewolfFactionID).
-// 					Return([]types.PlayerID{"1", "2"})
+// 					Return([]types.PlayerId{"1", "2"})
 // 				mg.EXPECT().StatusID().Return(vars.Finished)
 // 			},
 // 		},
@@ -211,9 +211,9 @@ package game
 // 				mp.EXPECT().Open()
 // 				mg.EXPECT().Poll(vars.WerewolfFactionID).Return(nil)
 // 				mg.EXPECT().AlivePlayerIDsWithFactionID(vars.WerewolfFactionID).
-// 					Return([]types.PlayerID{"1"}).Times(2)
+// 					Return([]types.PlayerId{"1"}).Times(2)
 // 				mg.EXPECT().AlivePlayerIDsWithoutFactionID(vars.WerewolfFactionID).
-// 					Return([]types.PlayerID{"1", "2"})
+// 					Return([]types.PlayerId{"1", "2"})
 // 				mg.EXPECT().StatusID().Return(vars.Finished)
 // 			},
 // 		},
@@ -228,9 +228,9 @@ package game
 // 				ms.EXPECT().PhaseID().Return(vars.NightPhaseID).Times(2)
 // 				ms.EXPECT().TurnID().Return(vars.PreTurn)
 // 				mg.EXPECT().AlivePlayerIDsWithFactionID(vars.WerewolfFactionID).
-// 					Return([]types.PlayerID{"1"}).Times(2)
+// 					Return([]types.PlayerId{"1"}).Times(2)
 // 				mg.EXPECT().AlivePlayerIDsWithoutFactionID(vars.WerewolfFactionID).
-// 					Return([]types.PlayerID{"1", "2"})
+// 					Return([]types.PlayerId{"1", "2"})
 // 				mg.EXPECT().StatusID().Return(vars.Finished)
 // 			},
 // 		},
@@ -245,9 +245,9 @@ package game
 // 				ms.EXPECT().PhaseID().Return(vars.DayPhaseID).Times(2)
 // 				ms.EXPECT().TurnID().Return(vars.PreTurn)
 // 				mg.EXPECT().AlivePlayerIDsWithFactionID(vars.WerewolfFactionID).
-// 					Return([]types.PlayerID{"1"}).Times(2)
+// 					Return([]types.PlayerId{"1"}).Times(2)
 // 				mg.EXPECT().AlivePlayerIDsWithoutFactionID(vars.WerewolfFactionID).
-// 					Return([]types.PlayerID{"1", "2"})
+// 					Return([]types.PlayerId{"1", "2"})
 // 				mg.EXPECT().StatusID().Return(vars.Finished)
 
 // 				go func() {
@@ -266,9 +266,9 @@ package game
 // 				ms.EXPECT().PhaseID().Return(vars.DayPhaseID).Times(2)
 // 				ms.EXPECT().TurnID().Return(vars.PreTurn)
 // 				mg.EXPECT().AlivePlayerIDsWithFactionID(vars.WerewolfFactionID).
-// 					Return([]types.PlayerID{"1"}).Times(2)
+// 					Return([]types.PlayerId{"1"}).Times(2)
 // 				mg.EXPECT().AlivePlayerIDsWithoutFactionID(vars.WerewolfFactionID).
-// 					Return([]types.PlayerID{"1", "2"})
+// 					Return([]types.PlayerId{"1", "2"})
 // 				mg.EXPECT().StatusID().Return(vars.Finished)
 
 // 				go func() {

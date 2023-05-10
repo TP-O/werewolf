@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 	game "uwwolf/internal/app/game/logic"
-	"uwwolf/internal/app/game/logic/declare"
+	"uwwolf/internal/app/game/logic/constants"
 	"uwwolf/internal/app/game/logic/types"
 	"uwwolf/internal/config"
 	"uwwolf/internal/domain/game/model"
@@ -69,7 +69,7 @@ func (gs gameService) GameSettings(roomID string) model.GameSetting {
 	).Val()
 	if err := json.Unmarshal([]byte(encodedConfig), &config); err != nil {
 		return model.GameSetting{
-			RoleIDs:            []types.RoleID{declare.SeerRoleID},
+			RoleIDs:            []types.RoleID{constants.SeerRoleID},
 			NumberWerewolves:   1,
 			TurnDuration:       20,
 			DiscussionDuration: 90,

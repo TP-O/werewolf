@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"strconv"
-	"uwwolf/internal/app/game/logic/mechanism/contract"
+	"uwwolf/internal/app/game/logic/contract"
 	"uwwolf/internal/app/game/logic/types"
 )
 
