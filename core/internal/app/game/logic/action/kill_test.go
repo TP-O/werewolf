@@ -1,170 +1,219 @@
 package action
 
-// import (
-// 	"fmt"
-// 	"testing"
-// 	"uwwolf/internal/app/game/logic/types"
-// 	"uwwolf/game/vars"
-// 	mock_game "uwwolf/mock/game"
+import (
+	"fmt"
+	"testing"
+	"uwwolf/internal/app/game/logic/types"
+	mock_game_logic "uwwolf/test/mock/app/game/logic"
 
-// 	"github.com/golang/mock/gomock"
-// 	"github.com/stretchr/testify/suite"
-// )
+	"github.com/golang/mock/gomock"
+	"github.com/stretchr/testify/suite"
+)
 
-// type KillSuite struct {
-// 	suite.Suite
-// 	actorID  types.PlayerID
-// 	targetID types.PlayerID
-// }
+type KillSuite struct {
+	suite.Suite
+	actorId  types.PlayerId
+	targetId types.PlayerId
+}
 
-// func TestKillSuite(t *testing.T) {
-// 	suite.Run(t, new(KillSuite))
-// }
+func TestKillSuite(t *testing.T) {
+	suite.Run(t, new(KillSuite))
+}
 
-// func (ks *KillSuite) SetupSuite() {
-// 	ks.actorID = types.PlayerID("1")
-// 	ks.targetID = types.PlayerID("2")
-// }
+func (ks *KillSuite) SetupSuite() {
+	ks.actorId = "1"
+	ks.targetId = "2"
+}
 
-// func (ks KillSuite) TestNewKill() {
-// 	ctrl := gomock.NewController(ks.T())
-// 	game := mock_game.NewMockGame(ctrl)
+func (ks KillSuite) TestNewKill() {
+	ctrl := gomock.NewController(ks.T())
+	world := mock_game_logic.NewMockWorld(ctrl)
 
-// 	kill := NewKill(game).(*kill)
+	kill := NewKill(world).(*kill)
 
-// 	ks.Equal(vars.KillActionID, kill.ID())
-// 	ks.NotNil(kill.Kills)
-// 	ks.Empty(kill.Kills)
-// }
+	ks.Equal(KillActionId, kill.Id())
+	ks.NotNil(kill.Kills)
+	ks.Empty(kill.Kills)
+}
 
-// func (ks KillSuite) TestValidate() {
-// 	tests := []struct {
-// 		name        string
-// 		req         *types.ActionRequest
-// 		expectedErr error
-// 		setup       func(*mock_game.MockGame, *mock_game.MockPlayer)
-// 	}{
-// 		{
-// 			name: "Invalid (Cannot commit suicide)",
-// 			req: &types.ActionRequest{
-// 				ActorID:  ks.actorID,
-// 				TargetID: ks.actorID,
-// 			},
-// 			expectedErr: fmt.Errorf("Appreciate your own life (｡´ ‿｀♡)"),
-// 			setup:       func(mg *mock_game.MockGame, mp *mock_game.MockPlayer) {},
-// 		},
-// 		{
-// 			name: "Invalid (Cannot kill non-existent player)",
-// 			req: &types.ActionRequest{
-// 				ActorID:  ks.actorID,
-// 				TargetID: ks.targetID,
-// 			},
-// 			expectedErr: fmt.Errorf("Player does not exist (⊙＿⊙')"),
-// 			setup: func(mg *mock_game.MockGame, mp *mock_game.MockPlayer) {
-// 				mg.EXPECT().Player(ks.targetID).Return(nil)
-// 			},
-// 		},
-// 		{
-// 			name: "Invalid (Cannot kill dead player)",
-// 			req: &types.ActionRequest{
-// 				ActorID:  ks.actorID,
-// 				TargetID: ks.targetID,
-// 			},
-// 			expectedErr: fmt.Errorf("Player is dead [¬º-°]¬"),
-// 			setup: func(mg *mock_game.MockGame, mp *mock_game.MockPlayer) {
-// 				mg.EXPECT().Player(ks.targetID).Return(mp)
-// 				mp.EXPECT().IsDead().Return(true)
-// 			},
-// 		},
-// 		{
-// 			name: "Valid",
-// 			req: &types.ActionRequest{
-// 				ActorID:  ks.actorID,
-// 				TargetID: ks.targetID,
-// 			},
-// 			setup: func(mg *mock_game.MockGame, mp *mock_game.MockPlayer) {
-// 				mg.EXPECT().Player(ks.targetID).Return(mp)
-// 				mp.EXPECT().IsDead().Return(false)
-// 			},
-// 		},
-// 	}
+func (ks KillSuite) TestValidate() {
+	tests := []struct {
+		name        string
+		req         *types.ActionRequest
+		expectedErr error
+		setup       func(*mock_game_logic.MockWorld, *mock_game_logic.MockPlayer)
+	}{
+		{
+			name: "Invalid (Cannot commit suicide)",
+			req: &types.ActionRequest{
+				ActorId:  ks.actorId,
+				TargetId: ks.actorId,
+			},
+			expectedErr: fmt.Errorf("Appreciate your own life (｡´ ‿｀♡)"),
+			setup:       func(mw *mock_game_logic.MockWorld, mp *mock_game_logic.MockPlayer) {},
+		},
+		{
+			name: "Invalid (Cannot kill non-existent player)",
+			req: &types.ActionRequest{
+				ActorId:  ks.actorId,
+				TargetId: ks.targetId,
+			},
+			expectedErr: fmt.Errorf("Player does not exist (⊙＿⊙')"),
+			setup: func(mw *mock_game_logic.MockWorld, mp *mock_game_logic.MockPlayer) {
+				mw.EXPECT().Player(ks.targetId).Return(nil)
+			},
+		},
+		{
+			name: "Invalid (Cannot kill dead player)",
+			req: &types.ActionRequest{
+				ActorId:  ks.actorId,
+				TargetId: ks.targetId,
+			},
+			expectedErr: fmt.Errorf("Player is dead [¬º-°]¬"),
+			setup: func(mw *mock_game_logic.MockWorld, mp *mock_game_logic.MockPlayer) {
+				mw.EXPECT().Player(ks.targetId).Return(mp)
+				mp.EXPECT().IsDead().Return(true)
+			},
+		},
+		{
+			name: "Valid",
+			req: &types.ActionRequest{
+				ActorId:  ks.actorId,
+				TargetId: ks.targetId,
+			},
+			setup: func(mw *mock_game_logic.MockWorld, mp *mock_game_logic.MockPlayer) {
+				mw.EXPECT().Player(ks.targetId).Return(mp)
+				mp.EXPECT().IsDead().Return(false)
+			},
+		},
+	}
 
-// 	for _, test := range tests {
-// 		ks.Run(test.name, func() {
-// 			ctrl := gomock.NewController(ks.T())
-// 			defer ctrl.Finish()
-// 			game := mock_game.NewMockGame(ctrl)
-// 			targetPlayer := mock_game.NewMockPlayer(ctrl)
-// 			test.setup(game, targetPlayer)
+	for _, test := range tests {
+		ks.Run(test.name, func() {
+			ctrl := gomock.NewController(ks.T())
+			defer ctrl.Finish()
+			world := mock_game_logic.NewMockWorld(ctrl)
+			targetPlayer := mock_game_logic.NewMockPlayer(ctrl)
+			test.setup(world, targetPlayer)
 
-// 			kill := NewKill(game).(*kill)
-// 			err := kill.validate(test.req)
+			kill := NewKill(world).(*kill)
+			err := kill.validate(test.req)
 
-// 			if test.expectedErr == nil {
-// 				ks.Nil(err)
-// 			} else {
-// 				ks.Equal(test.expectedErr, err)
-// 			}
-// 		})
-// 	}
-// }
+			if test.expectedErr == nil {
+				ks.Nil(err)
+			} else {
+				ks.Equal(test.expectedErr, err)
+			}
+		})
+	}
+}
 
-// func (ks KillSuite) TestPerform() {
-// 	tests := []struct {
-// 		name              string
-// 		req               *types.ActionRequest
-// 		expectedRes       *types.ActionResponse
-// 		expectedKillTimes uint
-// 		setup             func(*kill, *mock_game.MockGame, *mock_game.MockPlayer)
-// 	}{
-// 		{
-// 			name: "Ok",
-// 			req: &types.ActionRequest{
-// 				ActorID:  ks.actorID,
-// 				TargetID: ks.targetID,
-// 			},
-// 			expectedRes: &types.ActionResponse{
-// 				Ok:   true,
-// 				Data: ks.targetID,
-// 			},
-// 			expectedKillTimes: 1,
-// 			setup: func(k *kill, mg *mock_game.MockGame, mp *mock_game.MockPlayer) {
-// 				mg.EXPECT().KillPlayer(ks.targetID, false).Return(mp)
-// 				mp.EXPECT().ID().Return(ks.targetID).Times(2)
-// 			},
-// 		},
-// 		{
-// 			name: "Ok (Second time)",
-// 			req: &types.ActionRequest{
-// 				ActorID:  ks.actorID,
-// 				TargetID: ks.targetID,
-// 			},
-// 			expectedRes: &types.ActionResponse{
-// 				Ok:   true,
-// 				Data: ks.targetID,
-// 			},
-// 			expectedKillTimes: 2,
-// 			setup: func(k *kill, mg *mock_game.MockGame, mp *mock_game.MockPlayer) {
-// 				k.Kills[ks.targetID] = 1
-// 				mg.EXPECT().KillPlayer(ks.targetID, false).Return(mp)
-// 				mp.EXPECT().ID().Return(ks.targetID).Times(2)
-// 			},
-// 		},
-// 	}
+func (ks KillSuite) TestPerform() {
+	tests := []struct {
+		name              string
+		req               *types.ActionRequest
+		expectedRes       types.ActionResponse
+		expectedKillTimes uint
+		setup             func(*kill, *mock_game_logic.MockWorld, *mock_game_logic.MockPlayer)
+	}{
+		{
+			name: "Failure (Target doesn't exist)",
+			req: &types.ActionRequest{
+				ActorId:  ks.actorId,
+				TargetId: ks.targetId,
+			},
+			expectedRes: types.ActionResponse{
+				Ok:      false,
+				Message: "The targeted player doesn't exist!",
+			},
+			expectedKillTimes: 0,
+			setup: func(k *kill, mw *mock_game_logic.MockWorld, mp *mock_game_logic.MockPlayer) {
+				mw.EXPECT().Player(ks.targetId).Return(nil)
+			},
+		},
+		{
+			name: "Ok (Kill covered player)",
+			req: &types.ActionRequest{
+				ActorId:  ks.actorId,
+				TargetId: ks.targetId,
+			},
+			expectedRes: types.ActionResponse{
+				Ok:      false,
+				Message: "Unable to kill the targeted player!",
+			},
+			expectedKillTimes: 0,
+			setup: func(k *kill, mw *mock_game_logic.MockWorld, mp *mock_game_logic.MockPlayer) {
+				mw.EXPECT().Player(ks.targetId).Return(mp)
+				mp.EXPECT().Die().Return(false)
+			},
+		},
+		{
+			name: "Ok",
+			req: &types.ActionRequest{
+				ActorId:  ks.actorId,
+				TargetId: ks.targetId,
+			},
+			expectedRes: types.ActionResponse{
+				Ok:   true,
+				Data: ks.targetId,
+			},
+			expectedKillTimes: 1,
+			setup: func(k *kill, mw *mock_game_logic.MockWorld, mp *mock_game_logic.MockPlayer) {
+				mw.EXPECT().Player(ks.targetId).Return(mp)
+				mp.EXPECT().Die().Return(true)
+				mp.EXPECT().Id().Return(ks.targetId).Times(2)
+			},
+		},
+		{
+			name: "Ok",
+			req: &types.ActionRequest{
+				ActorId:  ks.actorId,
+				TargetId: ks.targetId,
+			},
+			expectedRes: types.ActionResponse{
+				Ok:   true,
+				Data: ks.targetId,
+			},
+			expectedKillTimes: 1,
+			setup: func(k *kill, mw *mock_game_logic.MockWorld, mp *mock_game_logic.MockPlayer) {
+				mw.EXPECT().Player(ks.targetId).Return(mp)
+				mp.EXPECT().Die().Return(true)
+				mp.EXPECT().Id().Return(ks.targetId).Times(2)
+			},
+		},
+		{
+			name: "Ok (Second time)",
+			req: &types.ActionRequest{
+				ActorId:  ks.actorId,
+				TargetId: ks.targetId,
+			},
+			expectedRes: types.ActionResponse{
+				Ok:   true,
+				Data: ks.targetId,
+			},
+			expectedKillTimes: 2,
+			setup: func(k *kill, mw *mock_game_logic.MockWorld, mp *mock_game_logic.MockPlayer) {
+				k.Kills[ks.targetId] = 1
+				mw.EXPECT().Player(ks.targetId).Return(mp)
+				mp.EXPECT().Die().Return(true)
+				mp.EXPECT().Id().Return(ks.targetId).Times(2)
+			},
+		},
+	}
 
-// 	for _, test := range tests {
-// 		ks.Run(test.name, func() {
-// 			ctrl := gomock.NewController(ks.T())
-// 			defer ctrl.Finish()
-// 			game := mock_game.NewMockGame(ctrl)
-// 			targetPlayer := mock_game.NewMockPlayer(ctrl)
+	for _, test := range tests {
+		ks.Run(test.name, func() {
+			ctrl := gomock.NewController(ks.T())
+			defer ctrl.Finish()
+			world := mock_game_logic.NewMockWorld(ctrl)
+			targetPlayer := mock_game_logic.NewMockPlayer(ctrl)
 
-// 			kill := NewKill(game).(*kill)
-// 			test.setup(kill, game, targetPlayer)
-// 			res := kill.perform(test.req)
+			kill := NewKill(world).(*kill)
+			test.setup(kill, world, targetPlayer)
+			res := kill.perform(test.req)
 
-// 			ks.Equal(test.expectedRes, res)
-// 			ks.Equal(test.expectedKillTimes, kill.Kills[test.req.TargetID])
-// 		})
-// 	}
-// }
+			ks.Equal(test.expectedRes, res)
+			ks.Equal(test.expectedKillTimes, kill.Kills[test.req.TargetId])
+		})
+	}
+}

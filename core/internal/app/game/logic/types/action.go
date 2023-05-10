@@ -1,43 +1,34 @@
 package types
 
 // ActionID is ID type of action
-type ActionID uint8
+type ActionId = uint8
 
-// ActionRequest contains information for action execution.
+// ActionRequest contains the information for action execution.
 type ActionRequest struct {
-	// ActorID is player ID of request sender.
-	ActorID PlayerID
+	// ActorId is the sender player ID.
+	ActorId PlayerId
 
-	// TargetID is player ID of target player.
-	TargetID PlayerID
+	// TargetId is the target player ID.
+	TargetId PlayerId
 
-	// IsSkipped marks that the request is ignored.
+	// IsSkipped indicates whether the request is ignored or not.
 	IsSkipped bool
 }
 
 // ActionResponse contains action execution's result.
 type ActionResponse struct {
-	// Ok marks that is execution is successful.
+	// Ok indicates whether the execution is successful or not.
 	Ok bool
 
-	// RoundID is round ID which the action is executed.
-	RoundID
+	// ActionId is the executed action ID.
+	ActionId
 
-	// RoleID is ID of role executing the action.
-	RoleID
+	// ActionRequest is the request to execute action.
+	ActionRequest
 
-	// ActionID is executed action ID.
-	ActionID
-
-	// TargetID is player ID of affected player.
-	TargetID PlayerID
-
-	// IsSkipped marks that the request is ignored.
-	IsSkipped bool
-
-	// Message contains error or succesful message, if any
+	// Message contains the error or succesful message, if any
 	Message string
 
-	// Data is expected data when executing the action.
+	// Data is the output after executing the action.
 	Data any
 }

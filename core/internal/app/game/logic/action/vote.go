@@ -2,14 +2,13 @@ package action
 
 import (
 	"fmt"
-	"uwwolf/internal/app/game/logic/constants"
 	"uwwolf/internal/app/game/logic/contract"
 	"uwwolf/internal/app/game/logic/types"
 )
 
 type VoteActionSetting struct {
-	FactionID types.FactionID
-	PlayerID  types.PlayerID
+	FactionId types.FactionId
+	PlayerId  types.PlayerId
 	Weight    uint
 }
 
@@ -21,33 +20,33 @@ type vote struct {
 }
 
 func NewVote(world contract.World, setting *VoteActionSetting) (contract.Action, error) {
-	if poll := world.Poll(setting.FactionID); poll == nil {
+	if poll := world.Poll(setting.FactionId); poll == nil {
 		return nil, fmt.Errorf("Poll does not exist ¯\\_(ツ)_/¯")
 	} else {
-		poll.AddElectors(setting.PlayerID)
-		poll.SetWeight(setting.PlayerID, setting.Weight)
+		poll.AddElectors(setting.PlayerId)
+		poll.SetWeight(setting.PlayerId, setting.Weight)
 
 		return &vote{
 			action: action{
-				id:    constants.VoteActionID,
+				id:    VoteActionId,
 				world: world,
 			},
-			poll: world.Poll(setting.FactionID),
+			poll: world.Poll(setting.FactionId),
 		}, nil
 	}
 }
 
 // Execute checks if the request is skipped. If so, skips the execution;
 // otherwise, validates the request, and then performs the required action.
-func (v *vote) Execute(req *types.ActionRequest) *types.ActionResponse {
-	return v.action.execute(v, req)
+func (v *vote) Execute(req types.ActionRequest) types.ActionResponse {
+	return v.action.execute(v, v.Id(), &req)
 }
 
 // skip ingores the action request.
-func (v *vote) skip(req *types.ActionRequest) *types.ActionResponse {
+func (v *vote) skip(req *types.ActionRequest) types.ActionResponse {
 	// Abstain from voting
-	if _, err := v.poll.Vote(req.ActorID, types.PlayerID("")); err != nil {
-		return &types.ActionResponse{
+	if _, err := v.poll.Vote(req.ActorId, types.PlayerId("")); err != nil {
+		return types.ActionResponse{
 			Ok:      false,
 			Message: err.Error(),
 		}
@@ -56,16 +55,16 @@ func (v *vote) skip(req *types.ActionRequest) *types.ActionResponse {
 }
 
 // perform completes the action request.
-func (v *vote) perform(req *types.ActionRequest) *types.ActionResponse {
-	if ok, err := v.poll.Vote(req.ActorID, req.TargetID); !ok {
-		return &types.ActionResponse{
+func (v *vote) perform(req *types.ActionRequest) types.ActionResponse {
+	if ok, err := v.poll.Vote(req.ActorId, req.TargetId); !ok {
+		return types.ActionResponse{
 			Ok:      false,
 			Message: err.Error(),
 		}
 	}
 
-	return &types.ActionResponse{
+	return types.ActionResponse{
 		Ok:   true,
-		Data: req.TargetID,
+		Data: req.TargetId,
 	}
 }

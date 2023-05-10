@@ -11,21 +11,21 @@ type twoSister struct {
 	*role
 }
 
-func NewTwoSister(world contract.World, playerID types.PlayerID) (contract.Role, error) {
+func NewTwoSister(world contract.World, playerId types.PlayerId) (contract.Role, error) {
 	return &twoSister{
 		role: &role{
-			id:           constants.TwoSistersRoleID,
-			factionID:    constants.VillagerFactionID,
-			phaseID:      constants.NightPhaseID,
+			id:           constants.TwoSistersRoleId,
+			factionID:    constants.VillagerFactionId,
+			phaseID:      constants.NightPhaseId,
 			beginRoundID: constants.FirstRound,
 			turnID:       constants.TwoSistersTurnID,
 			world:        world,
-			playerID:     playerID,
+			playerId:     playerId,
 			abilities: []*ability{
 				{
 					action: action.NewRoleIdentify(
 						world,
-						constants.TwoSistersRoleID,
+						constants.TwoSistersRoleId,
 					),
 					activeLimit: constants.Once,
 				},

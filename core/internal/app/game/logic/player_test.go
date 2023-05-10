@@ -14,7 +14,7 @@ package logic
 
 // type PlayerSuite struct {
 // 	suite.Suite
-// 	playerID types.PlayerID
+// 	playerID types.PlayerId
 
 // 	// role1_1ID has smallest weight.
 // 	role1_1ID types.RoleID
@@ -31,7 +31,7 @@ package logic
 // }
 
 // func (ps *PlayerSuite) SetupSuite() {
-// 	ps.playerID = types.PlayerID("1")
+// 	ps.playerID = types.PlayerId("1")
 // 	ps.role1_1ID = vars.VillagerRoleID
 // 	ps.role1_2ID = vars.HunterRoleID
 // 	ps.role2ID = vars.WerewolfRoleID
@@ -51,7 +51,7 @@ package logic
 
 // 	p := NewPlayer(game, ps.playerID)
 
-// 	ps.Equal(ps.playerID, p.ID())
+// 	ps.Equal(ps.playerID, p.Id())
 // 	ps.Same(game, p.(*player).game)
 // 	ps.Equal(vars.VillagerFactionID, p.FactionID())
 // 	ps.NotNil(p.(*player).roles)
@@ -65,7 +65,7 @@ package logic
 
 // 	player := NewPlayer(game, ps.playerID)
 
-// 	ps.Equal(ps.playerID, player.ID())
+// 	ps.Equal(ps.playerID, player.Id())
 // }
 
 // func (ps PlayerSuite) TestMainRoleID() {
@@ -323,7 +323,7 @@ package logic
 
 // 			// Mock for role creation
 // 			game.EXPECT().Player(ps.playerID).Return(mplayer).AnyTimes()
-// 			mplayer.EXPECT().ID().Return(ps.playerID).AnyTimes()
+// 			mplayer.EXPECT().Id().Return(ps.playerID).AnyTimes()
 // 			game.EXPECT().Poll(gomock.Any()).Return(poll).AnyTimes()
 // 			poll.EXPECT().AddElectors(gomock.Any()).AnyTimes()
 // 			poll.EXPECT().SetWeight(gomock.Any(), gomock.Any()).AnyTimes()
@@ -434,7 +434,7 @@ package logic
 // 				}
 
 // 				mr1.EXPECT().OnRevoke()
-// 				mr1.EXPECT().ID().Return(ps.role1_1ID)
+// 				mr1.EXPECT().Id().Return(ps.role1_1ID)
 // 				mr1.EXPECT().FactionID().Return(ps.faction1_1ID)
 // 			},
 // 		},
@@ -454,9 +454,9 @@ package logic
 // 				}
 
 // 				mr1.EXPECT().OnRevoke()
-// 				mr1.EXPECT().ID().Return(ps.role1_1ID).MaxTimes(2)
+// 				mr1.EXPECT().Id().Return(ps.role1_1ID).MaxTimes(2)
 // 				mr1.EXPECT().FactionID().Return(ps.faction1_1ID).MaxTimes(1)
-// 				mr2.EXPECT().ID().Return(ps.role1_2ID).MaxTimes(2)
+// 				mr2.EXPECT().Id().Return(ps.role1_2ID).MaxTimes(2)
 // 				mr2.EXPECT().FactionID().Return(ps.faction1_2ID).MaxTimes(1)
 // 			},
 // 		},
@@ -524,7 +524,7 @@ package logic
 // 				Ok: true,
 // 			},
 // 			setup: func(p *player, ms *mock_game.MockScheduler, mr *mock_game.MockRole) {
-// 				turn := types.Turn(map[types.PlayerID]*types.TurnSlot{
+// 				turn := types.Turn(map[types.PlayerId]*types.TurnSlot{
 // 					ps.playerID: {
 // 						RoleID: ps.role1_1ID,
 // 					},

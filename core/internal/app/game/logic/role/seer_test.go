@@ -12,7 +12,7 @@ package role
 
 // type SeerSuite struct {
 // 	suite.Suite
-// 	playerID types.PlayerID
+// 	playerID types.PlayerId
 // }
 
 // func TestSeerSuite(t *testing.T) {
@@ -20,7 +20,7 @@ package role
 // }
 
 // func (ss *SeerSuite) SetupSuite() {
-// 	ss.playerID = types.PlayerID("1")
+// 	ss.playerID = types.PlayerId("1")
 // }
 
 // func (ss SeerSuite) TestNewSeer() {
@@ -33,12 +33,12 @@ package role
 
 // 	s, _ := NewSeer(game, ss.playerID)
 
-// 	ss.Equal(vars.SeerRoleID, s.ID())
+// 	ss.Equal(vars.SeerRoleID, s.Id())
 // 	ss.Equal(vars.NightPhaseID, s.(*seer).phaseID)
 // 	ss.Equal(vars.VillagerFactionID, s.FactionID())
 // 	ss.Equal(vars.SecondRound, s.(*seer).beginRoundID)
 // 	ss.Equal(player, s.(*seer).player)
 // 	ss.Equal(vars.UnlimitedTimes, s.ActiveTimes(0))
 // 	ss.Len(s.(*seer).abilities, 1)
-// 	ss.Equal(vars.PredictActionID, s.(*seer).abilities[0].action.ID())
+// 	ss.Equal(vars.PredictActionID, s.(*seer).abilities[0].action.Id())
 // }

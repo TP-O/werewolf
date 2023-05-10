@@ -7,21 +7,21 @@ import (
 	"uwwolf/internal/app/game/logic/types"
 )
 
-func NewRole(id types.RoleID, world contract.World, playerID types.PlayerID) (contract.Role, error) {
+func NewRole(id types.RoleId, world contract.World, playerID types.PlayerId) (contract.Role, error) {
 	switch id {
-	case constants.VillagerRoleID:
+	case constants.VillagerRoleId:
 		return NewVillager(world, playerID)
 
-	case constants.WerewolfRoleID:
+	case constants.WerewolfRoleId:
 		return NewWerewolf(world, playerID)
 
-	case constants.HunterRoleID:
+	case constants.HunterRoleId:
 		return NewHunter(world, playerID)
 
-	case constants.SeerRoleID:
+	case constants.SeerRoleId:
 		return NewSeer(world, playerID)
 
-	case constants.TwoSistersRoleID:
+	case constants.TwoSistersRoleId:
 		return NewTwoSister(world, playerID)
 
 	default:

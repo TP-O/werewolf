@@ -9,19 +9,19 @@ import (
 // Player represents the player in a game.
 type Player interface {
 	// ID returns player's ID.
-	ID() types.PlayerID
+	Id() types.PlayerId
 
 	// MainRoleID returns player's main role id.
-	MainRoleID() types.RoleID
+	MainRoleId() types.RoleId
 
 	// RoleIDs returns player's assigned role ids.
-	RoleIDs() []types.RoleID
+	RoleIds() []types.RoleId
 
 	// Roles returns player's assigned roles.
-	Roles() map[types.RoleID]Role
+	Roles() map[types.RoleId]Role
 
 	// FactionID returns player's faction ID.
-	FactionID() types.FactionID
+	FactionId() types.FactionId
 
 	// IsDead checks if player is dead.
 	IsDead() bool
@@ -29,20 +29,22 @@ type Player interface {
 	// Position returns curernt location of the player.
 	Location() (float64, float64)
 
-	// SetFactionID assigns this player to the new faction.
-	SetFactionID(factionID types.FactionID)
+	// SetFactionID assigns the player to the new faction.
+	SetFactionId(factionId types.FactionId)
 
-	// Die marks this player as dead and triggers roles events.
-	// If `isExited` is true, any trigger preventing death is ignored.
-	Die(isExited bool) bool
+	// Die kills the player and triggers roles events.
+	Die() bool
+
+	// Exit kills the player and ignores any trigger preventing death.
+	Exit() bool
 
 	// AssignRole assigns the role to the player, and the faction can
 	// be updated based on this role.
-	AssignRole(roleID types.RoleID) (bool, error)
+	AssignRole(roleId types.RoleId) (bool, error)
 
 	// RevokeRole removes the role from the player, and the faction can
 	// be updated based on removed role.
-	RevokeRole(roleID types.RoleID) (bool, error)
+	RevokeRole(roleId types.RoleId) (bool, error)
 
 	// ActivateAbility executes one of player's available ability.
 	// The executed ability is selected based on the requested

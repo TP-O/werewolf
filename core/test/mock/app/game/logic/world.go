@@ -35,46 +35,46 @@ func (m *MockWorld) EXPECT() *MockWorldMockRecorder {
 	return m.recorder
 }
 
-// AlivePlayerIDsWithFactionID mocks base method.
-func (m *MockWorld) AlivePlayerIDsWithFactionID(factionID types.FactionID) []types.PlayerId {
+// AlivePlayerIdsWithFactionId mocks base method.
+func (m *MockWorld) AlivePlayerIdsWithFactionId(factionId types.FactionId) []types.PlayerId {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AlivePlayerIDsWithFactionID", factionID)
+	ret := m.ctrl.Call(m, "AlivePlayerIdsWithFactionId", factionId)
 	ret0, _ := ret[0].([]types.PlayerId)
 	return ret0
 }
 
-// AlivePlayerIDsWithFactionID indicates an expected call of AlivePlayerIDsWithFactionID.
-func (mr *MockWorldMockRecorder) AlivePlayerIDsWithFactionID(factionID interface{}) *gomock.Call {
+// AlivePlayerIdsWithFactionId indicates an expected call of AlivePlayerIdsWithFactionId.
+func (mr *MockWorldMockRecorder) AlivePlayerIdsWithFactionId(factionId interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AlivePlayerIDsWithFactionID", reflect.TypeOf((*MockWorld)(nil).AlivePlayerIDsWithFactionID), factionID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AlivePlayerIdsWithFactionId", reflect.TypeOf((*MockWorld)(nil).AlivePlayerIdsWithFactionId), factionId)
 }
 
-// AlivePlayerIDsWithRoleID mocks base method.
-func (m *MockWorld) AlivePlayerIDsWithRoleID(roleID types.RoleID) []types.PlayerId {
+// AlivePlayerIdsWithRoleId mocks base method.
+func (m *MockWorld) AlivePlayerIdsWithRoleId(roleId types.RoleId) []types.PlayerId {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AlivePlayerIDsWithRoleID", roleID)
+	ret := m.ctrl.Call(m, "AlivePlayerIdsWithRoleId", roleId)
 	ret0, _ := ret[0].([]types.PlayerId)
 	return ret0
 }
 
-// AlivePlayerIDsWithRoleID indicates an expected call of AlivePlayerIDsWithRoleID.
-func (mr *MockWorldMockRecorder) AlivePlayerIDsWithRoleID(roleID interface{}) *gomock.Call {
+// AlivePlayerIdsWithRoleId indicates an expected call of AlivePlayerIdsWithRoleId.
+func (mr *MockWorldMockRecorder) AlivePlayerIdsWithRoleId(roleId interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AlivePlayerIDsWithRoleID", reflect.TypeOf((*MockWorld)(nil).AlivePlayerIDsWithRoleID), roleID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AlivePlayerIdsWithRoleId", reflect.TypeOf((*MockWorld)(nil).AlivePlayerIdsWithRoleId), roleId)
 }
 
-// AlivePlayerIDsWithoutFactionID mocks base method.
-func (m *MockWorld) AlivePlayerIDsWithoutFactionID(factionID types.FactionID) []types.PlayerId {
+// AlivePlayerIdsWithoutFactionId mocks base method.
+func (m *MockWorld) AlivePlayerIdsWithoutFactionId(factionId types.FactionId) []types.PlayerId {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AlivePlayerIDsWithoutFactionID", factionID)
+	ret := m.ctrl.Call(m, "AlivePlayerIdsWithoutFactionId", factionId)
 	ret0, _ := ret[0].([]types.PlayerId)
 	return ret0
 }
 
-// AlivePlayerIDsWithoutFactionID indicates an expected call of AlivePlayerIDsWithoutFactionID.
-func (mr *MockWorldMockRecorder) AlivePlayerIDsWithoutFactionID(factionID interface{}) *gomock.Call {
+// AlivePlayerIdsWithoutFactionId indicates an expected call of AlivePlayerIdsWithoutFactionId.
+func (mr *MockWorldMockRecorder) AlivePlayerIdsWithoutFactionId(factionId interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AlivePlayerIDsWithoutFactionID", reflect.TypeOf((*MockWorld)(nil).AlivePlayerIDsWithoutFactionID), factionID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AlivePlayerIdsWithoutFactionId", reflect.TypeOf((*MockWorld)(nil).AlivePlayerIdsWithoutFactionId), factionId)
 }
 
 // Load mocks base method.
@@ -134,17 +134,17 @@ func (mr *MockWorldMockRecorder) Players() *gomock.Call {
 }
 
 // Poll mocks base method.
-func (m *MockWorld) Poll(factionID types.FactionID) contract.Poll {
+func (m *MockWorld) Poll(factionId types.FactionId) contract.Poll {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Poll", factionID)
+	ret := m.ctrl.Call(m, "Poll", factionId)
 	ret0, _ := ret[0].(contract.Poll)
 	return ret0
 }
 
 // Poll indicates an expected call of Poll.
-func (mr *MockWorldMockRecorder) Poll(factionID interface{}) *gomock.Call {
+func (mr *MockWorldMockRecorder) Poll(factionId interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Poll", reflect.TypeOf((*MockWorld)(nil).Poll), factionID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Poll", reflect.TypeOf((*MockWorld)(nil).Poll), factionId)
 }
 
 // Scheduler mocks base method.

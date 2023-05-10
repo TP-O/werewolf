@@ -11,10 +11,10 @@ type villager struct {
 	*role
 }
 
-func NewVillager(world contract.World, playerID types.PlayerID) (contract.Role, error) {
+func NewVillager(world contract.World, playerId types.PlayerId) (contract.Role, error) {
 	voteAction, err := action.NewVote(world, &action.VoteActionSetting{
-		FactionID: constants.VillagerFactionID,
-		PlayerID:  playerID,
+		FactionId: constants.VillagerFactionId,
+		PlayerId:  playerId,
 		Weight:    1,
 	})
 	if err != nil {
@@ -23,13 +23,13 @@ func NewVillager(world contract.World, playerID types.PlayerID) (contract.Role, 
 
 	return &villager{
 		role: &role{
-			id:           constants.VillagerRoleID,
-			factionID:    constants.VillagerFactionID,
-			phaseID:      constants.DayPhaseID,
+			id:           constants.VillagerRoleId,
+			factionID:    constants.VillagerFactionId,
+			phaseID:      constants.DayPhaseId,
 			beginRoundID: constants.FirstRound,
 			turnID:       constants.VillagerTurnID,
 			world:        world,
-			playerID:     playerID,
+			playerId:     playerId,
 			abilities: []*ability{
 				{
 					action:      voteAction,
@@ -44,15 +44,15 @@ func NewVillager(world contract.World, playerID types.PlayerID) (contract.Role, 
 func (v *villager) OnAssign() {
 	v.role.OnAssign()
 
-	v.world.Poll(constants.VillagerFactionID).AddCandidates(v.playerID)
-	v.world.Poll(constants.WerewolfFactionID).AddCandidates(v.playerID)
+	v.world.Poll(constants.VillagerFactionId).AddCandidates(v.playerId)
+	v.world.Poll(constants.WerewolfFactionId).AddCandidates(v.playerId)
 }
 
 // OnRevoke is triggered when the role is removed from a player.
 func (v *villager) OnRevoke() {
 	v.role.OnRevoke()
 
-	v.world.Poll(constants.VillagerFactionID).RemoveElector(v.playerID)
-	v.world.Poll(constants.VillagerFactionID).RemoveCandidate(v.playerID)
-	v.world.Poll(constants.WerewolfFactionID).RemoveCandidate(v.playerID)
+	v.world.Poll(constants.VillagerFactionId).RemoveElector(v.playerId)
+	v.world.Poll(constants.VillagerFactionId).RemoveCandidate(v.playerId)
+	v.world.Poll(constants.WerewolfFactionId).RemoveCandidate(v.playerId)
 }

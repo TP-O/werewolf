@@ -15,18 +15,18 @@ package logic
 
 // type GameSuite struct {
 // 	suite.Suite
-// 	player1ID types.PlayerID
-// 	player2ID types.PlayerID
-// 	player3ID types.PlayerID
+// 	player1ID types.PlayerId
+// 	player2ID types.PlayerId
+// 	player3ID types.PlayerId
 // 	role1ID   types.RoleID
 // 	role2ID   types.RoleID
 // 	role3ID   types.RoleID
 // }
 
 // func (gs *GameSuite) SetupSuite() {
-// 	gs.player1ID = types.PlayerID("1")
-// 	gs.player2ID = types.PlayerID("2")
-// 	gs.player3ID = types.PlayerID("3")
+// 	gs.player1ID = types.PlayerId("1")
+// 	gs.player2ID = types.PlayerId("2")
+// 	gs.player3ID = types.PlayerId("3")
 // 	gs.role1ID = types.RoleID(1)
 // 	gs.role2ID = types.RoleID(2)
 // 	gs.role3ID = types.RoleID(3)
@@ -45,7 +45,7 @@ package logic
 // 		NumberWerewolves: 10,
 // 		RoleIDs:          []types.RoleID{gs.role1ID, gs.role2ID, gs.role3ID},
 // 		RequiredRoleIDs:  []types.RoleID{gs.role1ID, gs.role2ID},
-// 		PlayerIDs:        []types.PlayerID{gs.player1ID, gs.player2ID, gs.player3ID},
+// 		PlayerIDs:        []types.PlayerId{gs.player1ID, gs.player2ID, gs.player3ID},
 // 	}
 
 // 	g := NewGame(scheduler, setting).(*game)
@@ -150,7 +150,7 @@ package logic
 
 // 	pIDs := g.AlivePlayerIDsWithRoleID(gs.role2ID)
 
-// 	gs.ElementsMatch([]types.PlayerID{gs.player2ID}, pIDs)
+// 	gs.ElementsMatch([]types.PlayerId{gs.player2ID}, pIDs)
 // }
 
 // func (gs GameSuite) TestAlivePlayerIDsWithFactionID() {
@@ -174,7 +174,7 @@ package logic
 
 // 	pIDs := g.AlivePlayerIDsWithFactionID(vars.WerewolfFactionID)
 
-// 	gs.ElementsMatch([]types.PlayerID{gs.player2ID}, pIDs)
+// 	gs.ElementsMatch([]types.PlayerId{gs.player2ID}, pIDs)
 // }
 
 // func (gs GameSuite) TestAlivePlayerIDsWithoutFactionID() {
@@ -198,7 +198,7 @@ package logic
 
 // 	pIDs := g.AlivePlayerIDsWithoutFactionID(vars.WerewolfFactionID)
 
-// 	gs.ElementsMatch([]types.PlayerID{gs.player3ID}, pIDs)
+// 	gs.ElementsMatch([]types.PlayerId{gs.player3ID}, pIDs)
 // }
 
 // func (gs GameSuite) TestSelectRoleID() {
@@ -217,7 +217,7 @@ package logic
 // 			name: "False (Selected role id list is enough)",
 // 			setting: &types.GameInitialization{
 // 				NumberWerewolves: 1,
-// 				PlayerIDs: []types.PlayerID{
+// 				PlayerIDs: []types.PlayerId{
 // 					gs.player1ID,
 // 					gs.player2ID,
 // 					gs.player3ID,
@@ -234,7 +234,7 @@ package logic
 // 			name: "False (Selected role id list is enough while set isn't fully selected)",
 // 			setting: &types.GameInitialization{
 // 				NumberWerewolves: 1,
-// 				PlayerIDs: []types.PlayerID{
+// 				PlayerIDs: []types.PlayerId{
 // 					gs.player1ID,
 // 					gs.player2ID,
 // 					gs.player3ID,
@@ -252,7 +252,7 @@ package logic
 // 			name: "True (Non-Werewolf role)",
 // 			setting: &types.GameInitialization{
 // 				NumberWerewolves: 1,
-// 				PlayerIDs: []types.PlayerID{
+// 				PlayerIDs: []types.PlayerId{
 // 					gs.player1ID,
 // 					gs.player2ID,
 // 					gs.player3ID,
@@ -271,7 +271,7 @@ package logic
 // 			name: "True (Werewolf role)",
 // 			setting: &types.GameInitialization{
 // 				NumberWerewolves: 1,
-// 				PlayerIDs: []types.PlayerID{
+// 				PlayerIDs: []types.PlayerId{
 // 					gs.player1ID,
 // 					gs.player2ID,
 // 					gs.player3ID,
@@ -331,7 +331,7 @@ package logic
 // 			NumberWerewolves: 1,
 // 			RoleIDs:          roleIDs,
 // 			RequiredRoleIDs:  requiredRoleIDs,
-// 			PlayerIDs: []types.PlayerID{
+// 			PlayerIDs: []types.PlayerId{
 // 				gs.player1ID,
 // 				gs.player2ID,
 // 				gs.player3ID,
@@ -393,7 +393,7 @@ package logic
 // 			scheduler := mock_game.NewMockScheduler(ctrl)
 // 			player1 := mock_game.NewMockPlayer(ctrl)
 
-// 			player1.EXPECT().ID().Return(gs.player1ID)
+// 			player1.EXPECT().Id().Return(gs.player1ID)
 
 // 			g := NewGame(scheduler, &types.GameInitialization{})
 
@@ -414,9 +414,9 @@ package logic
 // 	player3 := mock_game.NewMockPlayer(ctrl)
 
 // 	// assignRoles() is called
-// 	player1.EXPECT().ID().Return(gs.player1ID)
-// 	player2.EXPECT().ID().Return(gs.player2ID)
-// 	player3.EXPECT().ID().Return(gs.player3ID)
+// 	player1.EXPECT().Id().Return(gs.player1ID)
+// 	player2.EXPECT().Id().Return(gs.player2ID)
+// 	player3.EXPECT().Id().Return(gs.player3ID)
 
 // 	player1.EXPECT().AssignRole(vars.VillagerRoleID)
 // 	player2.EXPECT().AssignRole(vars.VillagerRoleID)
@@ -443,7 +443,7 @@ package logic
 // 		NumberWerewolves: 1,
 // 		RoleIDs:          roleIDs,
 // 		RequiredRoleIDs:  requiredRoleIDs,
-// 		PlayerIDs: []types.PlayerID{
+// 		PlayerIDs: []types.PlayerId{
 // 			gs.player1ID,
 // 			gs.player2ID,
 // 			gs.player3ID,
@@ -618,7 +618,7 @@ package logic
 // func (gs GameSuite) TestKillPlayer() {
 // 	tests := []struct {
 // 		name                string
-// 		playerID            types.PlayerID
+// 		playerID            types.PlayerId
 // 		isExited            bool
 // 		expectedIsNilPlayer bool
 // 		setup               func(*game, *mock_game.MockPlayer)

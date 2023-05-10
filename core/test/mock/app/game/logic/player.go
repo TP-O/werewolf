@@ -51,60 +51,74 @@ func (mr *MockPlayerMockRecorder) ActivateAbility(req interface{}) *gomock.Call 
 }
 
 // AssignRole mocks base method.
-func (m *MockPlayer) AssignRole(roleID types.RoleID) (bool, error) {
+func (m *MockPlayer) AssignRole(roleId types.RoleId) (bool, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AssignRole", roleID)
+	ret := m.ctrl.Call(m, "AssignRole", roleId)
 	ret0, _ := ret[0].(bool)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // AssignRole indicates an expected call of AssignRole.
-func (mr *MockPlayerMockRecorder) AssignRole(roleID interface{}) *gomock.Call {
+func (mr *MockPlayerMockRecorder) AssignRole(roleId interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AssignRole", reflect.TypeOf((*MockPlayer)(nil).AssignRole), roleID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AssignRole", reflect.TypeOf((*MockPlayer)(nil).AssignRole), roleId)
 }
 
 // Die mocks base method.
-func (m *MockPlayer) Die(isExited bool) bool {
+func (m *MockPlayer) Die() bool {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Die", isExited)
+	ret := m.ctrl.Call(m, "Die")
 	ret0, _ := ret[0].(bool)
 	return ret0
 }
 
 // Die indicates an expected call of Die.
-func (mr *MockPlayerMockRecorder) Die(isExited interface{}) *gomock.Call {
+func (mr *MockPlayerMockRecorder) Die() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Die", reflect.TypeOf((*MockPlayer)(nil).Die), isExited)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Die", reflect.TypeOf((*MockPlayer)(nil).Die))
 }
 
-// FactionID mocks base method.
-func (m *MockPlayer) FactionID() types.FactionID {
+// Exit mocks base method.
+func (m *MockPlayer) Exit() bool {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FactionID")
-	ret0, _ := ret[0].(types.FactionID)
+	ret := m.ctrl.Call(m, "Exit")
+	ret0, _ := ret[0].(bool)
 	return ret0
 }
 
-// FactionID indicates an expected call of FactionID.
-func (mr *MockPlayerMockRecorder) FactionID() *gomock.Call {
+// Exit indicates an expected call of Exit.
+func (mr *MockPlayerMockRecorder) Exit() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FactionID", reflect.TypeOf((*MockPlayer)(nil).FactionID))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Exit", reflect.TypeOf((*MockPlayer)(nil).Exit))
 }
 
-// ID mocks base method.
-func (m *MockPlayer) ID() types.PlayerId {
+// FactionId mocks base method.
+func (m *MockPlayer) FactionId() types.FactionId {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ID")
+	ret := m.ctrl.Call(m, "FactionId")
+	ret0, _ := ret[0].(types.FactionId)
+	return ret0
+}
+
+// FactionId indicates an expected call of FactionId.
+func (mr *MockPlayerMockRecorder) FactionId() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FactionId", reflect.TypeOf((*MockPlayer)(nil).FactionId))
+}
+
+// Id mocks base method.
+func (m *MockPlayer) Id() types.PlayerId {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Id")
 	ret0, _ := ret[0].(types.PlayerId)
 	return ret0
 }
 
-// ID indicates an expected call of ID.
-func (mr *MockPlayerMockRecorder) ID() *gomock.Call {
+// Id indicates an expected call of Id.
+func (mr *MockPlayerMockRecorder) Id() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ID", reflect.TypeOf((*MockPlayer)(nil).ID))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Id", reflect.TypeOf((*MockPlayer)(nil).Id))
 }
 
 // IsDead mocks base method.
@@ -136,18 +150,18 @@ func (mr *MockPlayerMockRecorder) Location() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Location", reflect.TypeOf((*MockPlayer)(nil).Location))
 }
 
-// MainRoleID mocks base method.
-func (m *MockPlayer) MainRoleID() types.RoleID {
+// MainRoleId mocks base method.
+func (m *MockPlayer) MainRoleId() types.RoleId {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "MainRoleID")
-	ret0, _ := ret[0].(types.RoleID)
+	ret := m.ctrl.Call(m, "MainRoleId")
+	ret0, _ := ret[0].(types.RoleId)
 	return ret0
 }
 
-// MainRoleID indicates an expected call of MainRoleID.
-func (mr *MockPlayerMockRecorder) MainRoleID() *gomock.Call {
+// MainRoleId indicates an expected call of MainRoleId.
+func (mr *MockPlayerMockRecorder) MainRoleId() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MainRoleID", reflect.TypeOf((*MockPlayer)(nil).MainRoleID))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MainRoleId", reflect.TypeOf((*MockPlayer)(nil).MainRoleId))
 }
 
 // Move mocks base method.
@@ -166,39 +180,39 @@ func (mr *MockPlayerMockRecorder) Move(position interface{}) *gomock.Call {
 }
 
 // RevokeRole mocks base method.
-func (m *MockPlayer) RevokeRole(roleID types.RoleID) (bool, error) {
+func (m *MockPlayer) RevokeRole(roleId types.RoleId) (bool, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RevokeRole", roleID)
+	ret := m.ctrl.Call(m, "RevokeRole", roleId)
 	ret0, _ := ret[0].(bool)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // RevokeRole indicates an expected call of RevokeRole.
-func (mr *MockPlayerMockRecorder) RevokeRole(roleID interface{}) *gomock.Call {
+func (mr *MockPlayerMockRecorder) RevokeRole(roleId interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RevokeRole", reflect.TypeOf((*MockPlayer)(nil).RevokeRole), roleID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RevokeRole", reflect.TypeOf((*MockPlayer)(nil).RevokeRole), roleId)
 }
 
-// RoleIDs mocks base method.
-func (m *MockPlayer) RoleIDs() []types.RoleID {
+// RoleIds mocks base method.
+func (m *MockPlayer) RoleIds() []types.RoleId {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RoleIDs")
-	ret0, _ := ret[0].([]types.RoleID)
+	ret := m.ctrl.Call(m, "RoleIds")
+	ret0, _ := ret[0].([]types.RoleId)
 	return ret0
 }
 
-// RoleIDs indicates an expected call of RoleIDs.
-func (mr *MockPlayerMockRecorder) RoleIDs() *gomock.Call {
+// RoleIds indicates an expected call of RoleIds.
+func (mr *MockPlayerMockRecorder) RoleIds() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RoleIDs", reflect.TypeOf((*MockPlayer)(nil).RoleIDs))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RoleIds", reflect.TypeOf((*MockPlayer)(nil).RoleIds))
 }
 
 // Roles mocks base method.
-func (m *MockPlayer) Roles() map[types.RoleID]contract.Role {
+func (m *MockPlayer) Roles() map[types.RoleId]contract.Role {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Roles")
-	ret0, _ := ret[0].(map[types.RoleID]contract.Role)
+	ret0, _ := ret[0].(map[types.RoleId]contract.Role)
 	return ret0
 }
 
@@ -208,14 +222,14 @@ func (mr *MockPlayerMockRecorder) Roles() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Roles", reflect.TypeOf((*MockPlayer)(nil).Roles))
 }
 
-// SetFactionID mocks base method.
-func (m *MockPlayer) SetFactionID(factionID types.FactionID) {
+// SetFactionId mocks base method.
+func (m *MockPlayer) SetFactionId(factionId types.FactionId) {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "SetFactionID", factionID)
+	m.ctrl.Call(m, "SetFactionId", factionId)
 }
 
-// SetFactionID indicates an expected call of SetFactionID.
-func (mr *MockPlayerMockRecorder) SetFactionID(factionID interface{}) *gomock.Call {
+// SetFactionId indicates an expected call of SetFactionId.
+func (mr *MockPlayerMockRecorder) SetFactionId(factionId interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetFactionID", reflect.TypeOf((*MockPlayer)(nil).SetFactionID), factionID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetFactionId", reflect.TypeOf((*MockPlayer)(nil).SetFactionId), factionId)
 }

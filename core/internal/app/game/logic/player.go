@@ -15,46 +15,46 @@ import (
 
 // player represents the player in a game.
 type player struct {
-	id         types.PlayerID
-	factionID  types.FactionID
-	mainRoleID types.RoleID
+	id         types.PlayerId
+	factionId  types.FactionId
+	mainRoleId types.RoleId
 	isDead     bool
 	world      contract.World
-	roles      map[types.RoleID]contract.Role
+	roles      map[types.RoleId]contract.Role
 }
 
-func NewPlayer(world contract.World, id types.PlayerID) contract.Player {
+func NewPlayer(world contract.World, id types.PlayerId) contract.Player {
 	return &player{
 		id:        id,
 		world:     world,
-		factionID: constants.VillagerFactionID,
-		roles:     make(map[types.RoleID]contract.Role),
+		factionId: constants.VillagerFactionId,
+		roles:     make(map[types.RoleId]contract.Role),
 	}
 }
 
 // ID returns player's ID.
-func (p player) ID() types.PlayerID {
+func (p player) Id() types.PlayerId {
 	return p.id
 }
 
 // MainRoleID returns player's main role id.
-func (p player) MainRoleID() types.RoleID {
-	return p.mainRoleID
+func (p player) MainRoleId() types.RoleId {
+	return p.mainRoleId
 }
 
 // RoleIDs returns player's assigned role ids.
-func (p player) RoleIDs() []types.RoleID {
+func (p player) RoleIds() []types.RoleId {
 	return maps.Keys(p.roles)
 }
 
 // Roles returns player's assigned roles.
-func (p player) Roles() map[types.RoleID]contract.Role {
+func (p player) Roles() map[types.RoleId]contract.Role {
 	return p.roles
 }
 
 // FactionID returns player's faction ID.
-func (p player) FactionID() types.FactionID {
-	return p.factionID
+func (p player) FactionId() types.FactionId {
+	return p.factionId
 }
 
 // IsDead checks if player is dead.
@@ -63,19 +63,27 @@ func (p player) IsDead() bool {
 }
 
 func (p player) Location() (float64, float64) {
-	// entitiy := p.world.Player(p.ID())
+	// entitiy := p.world.Player(p.Id())
 	// return entitiy.X, entitiy.Y
 	return 1, 1
 }
 
 // SetFactionID assigns this player to the new faction.
-func (p *player) SetFactionID(factionID types.FactionID) {
-	p.factionID = factionID
+func (p *player) SetFactionId(factionID types.FactionId) {
+	p.factionId = factionID
 }
 
-// Die marks this player as dead and triggers roles events.
-// If `isExited` is true, any trigger preventing death is ignored.
-func (p *player) Die(isExited bool) bool {
+// Die kills the player and triggers roles events.
+func (p *player) Die() bool {
+	return p.die(false)
+}
+
+// Exit kills the player and ignores any trigger preventing death.
+func (p *player) Exit() bool {
+	return p.die(true)
+}
+
+func (p *player) die(isExited bool) bool {
 	if p.isDead {
 		return false
 	}
@@ -91,15 +99,15 @@ func (p *player) Die(isExited bool) bool {
 		role.OnAfterDeath()
 		role.OnRevoke()
 	}
-	p.world.Map().RemoveEntity(contract.EntityID(fmt.Sprintf("%v_%v", contract.PlayerEntity, p.ID())))
+	p.world.Map().RemoveEntity(contract.EntityID(fmt.Sprintf("%v_%v", contract.PlayerEntity, p.Id())))
 
 	return true
 }
 
 // AssignRole assigns the role to the player, and the faction can
 // be updated based on this role.
-func (p *player) AssignRole(roleID types.RoleID) (bool, error) {
-	if slices.Contains(p.RoleIDs(), roleID) {
+func (p *player) AssignRole(roleID types.RoleId) (bool, error) {
+	if slices.Contains(p.RoleIds(), roleID) {
 		return false, fmt.Errorf("This role is already assigned ¯\\_(ツ)_/¯")
 	}
 
@@ -107,9 +115,9 @@ func (p *player) AssignRole(roleID types.RoleID) (bool, error) {
 		return false, err
 	} else {
 		p.roles[roleID] = newRole
-		if constants.RoleWeights.BindGet(newRole.ID()) > constants.RoleWeights.BindGet(p.mainRoleID) {
-			p.mainRoleID = newRole.ID()
-			p.factionID = newRole.FactionID()
+		if constants.RoleWeights.BindGet(newRole.Id()) > constants.RoleWeights.BindGet(p.mainRoleId) {
+			p.mainRoleId = newRole.Id()
+			p.factionId = newRole.FactionId()
 		}
 		newRole.OnAssign()
 	}
@@ -119,7 +127,7 @@ func (p *player) AssignRole(roleID types.RoleID) (bool, error) {
 
 // RevokeRole removes the role from the player, and the faction can
 // be updated based on removed role.
-func (p *player) RevokeRole(roleID types.RoleID) (bool, error) {
+func (p *player) RevokeRole(roleID types.RoleId) (bool, error) {
 	if len(p.roles) == 1 {
 		return false, errors.New("Player must player at least one role ヾ(⌐■_■)ノ♪")
 	} else if p.roles[roleID] == nil {
@@ -129,18 +137,18 @@ func (p *player) RevokeRole(roleID types.RoleID) (bool, error) {
 	p.roles[roleID].OnRevoke()
 	delete(p.roles, roleID)
 
-	if roleID == p.mainRoleID {
+	if roleID == p.mainRoleId {
 		var newMainRole contract.Role
 
 		for _, role := range p.roles {
 			if newMainRole == nil ||
-				constants.RoleWeights.BindGet(role.ID()) > constants.RoleWeights.BindGet(newMainRole.ID()) {
+				constants.RoleWeights.BindGet(role.Id()) > constants.RoleWeights.BindGet(newMainRole.Id()) {
 				newMainRole = role
 			}
 		}
 
-		p.mainRoleID = newMainRole.ID()
-		p.factionID = newMainRole.FactionID()
+		p.mainRoleId = newMainRole.Id()
+		p.factionId = newMainRole.FactionId()
 	}
 
 	return true, nil
@@ -162,10 +170,10 @@ func (p *player) ActivateAbility(req *types.ActivateAbilityRequest) *types.Actio
 		}
 	} else {
 		turn := p.world.Scheduler().Turn()
-		return p.roles[turn[p.id].RoleID].ActivateAbility(req)
+		return p.roles[turn[p.id].RoleId].ActivateAbility(req)
 	}
 }
 
 func (p *player) Move(position orb.Point) (bool, error) {
-	return p.world.Map().MoveEntity(contract.EntityID(fmt.Sprintf("%v_%v", contract.PlayerEntity, p.ID())), position)
+	return p.world.Map().MoveEntity(contract.EntityID(fmt.Sprintf("%v_%v", contract.PlayerEntity, p.Id())), position)
 }

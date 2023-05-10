@@ -5,13 +5,13 @@ import "uwwolf/internal/app/game/logic/types"
 // Role represents a specific role in a game.
 type Role interface {
 	// ID returns role's ID.
-	ID() types.RoleID
+	Id() types.RoleId
 
 	// PhaseID returns role's active phase ID.
 	// PhaseID() types.PhaseID
 
 	// FactionID returns role's faction ID.
-	FactionID() types.FactionID
+	FactionId() types.FactionId
 
 	// TurnID returns role's turn order in active phase.
 	// TurnID() types.TurnID

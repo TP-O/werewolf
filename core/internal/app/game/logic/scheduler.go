@@ -4,6 +4,7 @@ import (
 	"uwwolf/internal/app/game/logic/constants"
 	"uwwolf/internal/app/game/logic/contract"
 	"uwwolf/internal/app/game/logic/types"
+	"uwwolf/pkg/util"
 )
 
 // scheduler manages game's turns.
@@ -18,10 +19,10 @@ type scheduler struct {
 	phaseID types.PhaseID
 
 	// turnID is the current turn ID.
-	turnID types.TurnID
+	turnID types.TurnId
 
 	// phases contains the phases in their turns.
-	phases map[types.PhaseID]map[types.TurnID]types.Turn
+	phases map[types.PhaseID]map[types.TurnId]types.Turn
 }
 
 func NewScheduler(beginPhaseID types.PhaseID) contract.Scheduler {
@@ -30,18 +31,18 @@ func NewScheduler(beginPhaseID types.PhaseID) contract.Scheduler {
 		beginPhaseID: beginPhaseID,
 		phaseID:      beginPhaseID,
 		turnID:       constants.PreTurn,
-		phases: map[types.PhaseID]map[types.TurnID]types.Turn{
-			constants.NightPhaseID: {
+		phases: map[types.PhaseID]map[types.TurnId]types.Turn{
+			constants.NightPhaseId: {
 				constants.PreTurn:  make(types.Turn),
 				constants.MidTurn:  make(types.Turn),
 				constants.PostTurn: make(types.Turn),
 			},
-			constants.DuskPhaseID: {
+			constants.DuskPhaseId: {
 				constants.PreTurn:  make(types.Turn),
 				constants.MidTurn:  make(types.Turn),
 				constants.PostTurn: make(types.Turn),
 			},
-			constants.DayPhaseID: {
+			constants.DayPhaseId: {
 				constants.PreTurn:  make(types.Turn),
 				constants.MidTurn:  make(types.Turn),
 				constants.PostTurn: make(types.Turn),
@@ -61,12 +62,12 @@ func (s scheduler) PhaseID() types.PhaseID {
 }
 
 // Phase returns the current phase.
-func (s scheduler) Phase() map[types.TurnID]types.Turn {
+func (s scheduler) Phase() map[types.TurnId]types.Turn {
 	return s.phases[s.phaseID]
 }
 
 // TurnID returns the current turn ID.
-func (s scheduler) TurnID() types.TurnID {
+func (s scheduler) TurnID() types.TurnId {
 	return s.turnID
 }
 
@@ -80,7 +81,7 @@ func (s scheduler) Turn() types.Turn {
 
 // CanPlay checks if the given playerID can play in the
 // current turn.
-func (s scheduler) CanPlay(playerID types.PlayerID) bool {
+func (s scheduler) CanPlay(playerID types.PlayerId) bool {
 	slot := s.Turn()[playerID]
 
 	return slot != nil &&
@@ -91,8 +92,8 @@ func (s scheduler) CanPlay(playerID types.PlayerID) bool {
 
 // PlayablePlayerIDs returns playable player ID list in
 // the current turn.
-func (s scheduler) PlayablePlayerIDs() []types.PlayerID {
-	playerIDs := []types.PlayerID{}
+func (s scheduler) PlayablePlayerIDs() []types.PlayerId {
+	playerIDs := []types.PlayerId{}
 	for playerID := range s.Turn() {
 		if s.CanPlay(playerID) {
 			playerIDs = append(playerIDs, playerID)
@@ -128,10 +129,10 @@ func (s *scheduler) AddSlot(newSlot *types.NewTurnSlot) bool {
 	if phase, ok := s.phases[newSlot.PhaseID]; !ok {
 		return false
 	} else {
-		phase[newSlot.TurnID][newSlot.PlayerID] = &types.TurnSlot{
+		phase[newSlot.TurnId][newSlot.PlayerId] = &types.TurnSlot{
 			BeginRoundID:  newSlot.BeginRoundID,
 			FrozenTimes:   newSlot.FrozenTimes,
-			RoleID:        newSlot.RoleID,
+			RoleId:        newSlot.RoleId,
 			PlayedRoundID: newSlot.PlayedRoundID,
 		}
 
@@ -150,19 +151,19 @@ func (s *scheduler) RemoveSlot(removedSlot *types.RemovedTurnSlot) bool {
 		// Remove all player turns
 		for _, phase := range s.phases {
 			for _, turn := range phase {
-				delete(turn, removedSlot.PlayerID)
+				delete(turn, removedSlot.PlayerId)
 			}
 		}
-	} else if !removedSlot.TurnID.IsZero() &&
-		int(removedSlot.TurnID) < len(s.phases[removedSlot.PhaseID]) {
+	} else if !util.IsZero(removedSlot.TurnId) &&
+		int(removedSlot.TurnId) < len(s.phases[removedSlot.PhaseID]) {
 		// Remove by turn ID
-		delete(s.phases[removedSlot.PhaseID][removedSlot.TurnID], removedSlot.PlayerID)
-	} else if !removedSlot.RoleID.IsUnknown() {
+		delete(s.phases[removedSlot.PhaseID][removedSlot.TurnId], removedSlot.PlayerId)
+	} else if !util.IsZero(removedSlot.RoleId) {
 		// Remove by role ID
 		for _, turn := range s.phases[removedSlot.PhaseID] {
-			if turn[removedSlot.PlayerID] != nil &&
-				turn[removedSlot.PlayerID].RoleID == removedSlot.RoleID {
-				delete(turn, removedSlot.PlayerID)
+			if turn[removedSlot.PlayerId] != nil &&
+				turn[removedSlot.PlayerId].RoleId == removedSlot.RoleId {
+				delete(turn, removedSlot.PlayerId)
 				break
 			}
 		}
@@ -175,17 +176,17 @@ func (s *scheduler) RemoveSlot(removedSlot *types.RemovedTurnSlot) bool {
 
 // FreezeSlot blocks slot N times.
 func (s *scheduler) FreezeSlot(frozenSlot *types.FreezeTurnSlot) bool {
-	if !frozenSlot.TurnID.IsZero() &&
-		int(frozenSlot.TurnID) < len(s.phases[frozenSlot.PhaseID]) {
+	if !util.IsZero(frozenSlot.TurnId) &&
+		int(frozenSlot.TurnId) < len(s.phases[frozenSlot.PhaseID]) {
 		// Freeze by turn ID
-		s.phases[frozenSlot.PhaseID][frozenSlot.TurnID][frozenSlot.PlayerID].
+		s.phases[frozenSlot.PhaseID][frozenSlot.TurnId][frozenSlot.PlayerId].
 			FrozenTimes = frozenSlot.FrozenTimes
-	} else if !frozenSlot.RoleID.IsUnknown() {
+	} else if !util.IsZero(frozenSlot.RoleId) {
 		// Freeze by role ID
 		for _, turn := range s.phases[frozenSlot.PhaseID] {
-			if turn[frozenSlot.PlayerID] != nil &&
-				turn[frozenSlot.PlayerID].RoleID == frozenSlot.RoleID {
-				turn[frozenSlot.PlayerID].FrozenTimes = frozenSlot.FrozenTimes
+			if turn[frozenSlot.PlayerId] != nil &&
+				turn[frozenSlot.PlayerId].RoleId == frozenSlot.RoleId {
+				turn[frozenSlot.PlayerId].FrozenTimes = frozenSlot.FrozenTimes
 				break
 			}
 		}
@@ -223,7 +224,7 @@ func (s *scheduler) NextTurn() bool {
 			s.turnID++
 		} else {
 			s.turnID = constants.PreTurn
-			s.phaseID = s.phaseID.NextPhasePhaseID(constants.DuskPhaseID)
+			s.phaseID = s.phaseID.NextPhasePhaseID(constants.DuskPhaseId)
 			if s.phaseID == s.beginPhaseID {
 				s.roundID++
 			}

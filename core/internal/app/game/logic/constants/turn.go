@@ -4,7 +4,7 @@ import "uwwolf/internal/app/game/logic/types"
 
 // One phase has 3 turn indexes by default
 const (
-	ZeroTurn types.TurnID = iota
+	ZeroTurn types.TurnId = iota
 	PreTurn
 	MidTurn // Main turn
 	PostTurn

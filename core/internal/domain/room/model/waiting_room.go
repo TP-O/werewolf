@@ -6,6 +6,6 @@ import (
 
 type WaitingRoom struct {
 	ID        string           `json:"id"`
-	OwnerID   types.PlayerID   `json:"owner_id"`
-	PlayerIDs []types.PlayerID `json:"player_ids"`
+	OwnerID   types.PlayerId   `json:"owner_id"`
+	PlayerIDs []types.PlayerId `json:"player_ids"`
 }

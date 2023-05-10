@@ -43,7 +43,7 @@ func (s *store) execTx(ctx context.Context, fn func(q *Queries) error) error {
 
 type StoreGameParams struct {
 	GameID           types.GameID
-	WinningFactionID types.FactionID
+	WinningFactionID types.FactionId
 	Players          []contract.Player
 	Records          []string
 }
@@ -66,9 +66,9 @@ func (s *store) StoreGame(ctx context.Context, params *StoreGameParams) error {
 		assignments := AssignGameRolesParams{}
 		for _, player := range params.Players {
 			assignments.GameID = append(assignments.GameID, int64(params.GameID))
-			assignments.FactionID = append(assignments.FactionID, int16(player.FactionID()))
-			assignments.PlayerID = append(assignments.PlayerID, string(player.ID()))
-			assignments.RoleID = append(assignments.RoleID, int16(player.MainRoleID()))
+			assignments.FactionID = append(assignments.FactionID, int16(player.FactionId()))
+			assignments.PlayerID = append(assignments.PlayerID, string(player.Id()))
+			assignments.RoleID = append(assignments.RoleID, int16(player.MainRoleId()))
 		}
 		if err = q.AssignGameRoles(context.Background(), assignments); err != nil {
 			return err

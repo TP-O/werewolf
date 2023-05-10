@@ -1,12 +1,7 @@
 package types
 
 // TurnID is type of turn index.
-type TurnID uint8
-
-// IsZero checks if turn ID is 0.
-func (t TurnID) IsZero() bool {
-	return t == 0
-}
+type TurnId = uint8
 
 // RoundID is type of round ID.
 type RoundID uint8
@@ -29,11 +24,11 @@ type TurnSlot struct {
 	FrozenTimes Times
 
 	// RoleID is ID of role playing in the slot.
-	RoleID
+	RoleId
 }
 
 // Turn contains many slots.
-type Turn map[PlayerID]*TurnSlot
+type Turn map[PlayerId]*TurnSlot
 
 // NewTurnSlot is added slot.
 type NewTurnSlot struct {
@@ -41,7 +36,7 @@ type NewTurnSlot struct {
 	PhaseID
 
 	// TurnID is index of turn that the slot can be used.
-	TurnID
+	TurnId
 
 	// BeginRoundID is the smallest round that the slot can be used.
 	BeginRoundID RoundID
@@ -54,10 +49,10 @@ type NewTurnSlot struct {
 	FrozenTimes Times
 
 	// PlayerID is ID of player playing the slot.
-	PlayerID
+	PlayerId
 
 	// RoleID is ID of role playing in the slot.
-	RoleID
+	RoleId
 }
 
 // RemovedTurnSlot is removed slot.
@@ -67,14 +62,14 @@ type RemovedTurnSlot struct {
 	PhaseID
 
 	// TurnID is index of turn that the slot can be used.
-	TurnID
+	TurnId
 
 	// PlayerID is ID of player playing the slot.
-	PlayerID
+	PlayerId
 
 	// RoleID is ID of role playing in the slot.
 	// Ignored if `TurnID` is provided.
-	RoleID
+	RoleId
 }
 
 // FreezeTurnSlot is frozen slot.
@@ -83,14 +78,14 @@ type FreezeTurnSlot struct {
 	PhaseID
 
 	// TurnID is index of turn that the slot can be used.
-	TurnID
+	TurnId
 
 	// PlayerID is ID of player playing the slot.
-	PlayerID
+	PlayerId
 
 	// RoleID is ID of role playing in the slot.
 	// Ignored if `TurnID` is provided.
-	RoleID
+	RoleId
 
 	// FrozenTimes is number of remaining times the slot is blocked.
 	FrozenTimes Times

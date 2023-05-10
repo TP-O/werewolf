@@ -14,7 +14,7 @@ import (
 )
 
 type AuthService interface {
-	VerifyAuthorization(authorization string) (types.PlayerID, error)
+	VerifyAuthorization(authorization string) (types.PlayerId, error)
 }
 
 type authService struct {
@@ -44,7 +44,7 @@ func NewAuthService(config config.Firebase) (AuthService, error) {
 	return &authService{auth}, nil
 }
 
-func (as authService) VerifyAuthorization(authorization string) (types.PlayerID, error) {
+func (as authService) VerifyAuthorization(authorization string) (types.PlayerId, error) {
 	if len(authorization) == 0 {
 		return "", errors.New("Empty authorization header!")
 	}
@@ -55,5 +55,5 @@ func (as authService) VerifyAuthorization(authorization string) (types.PlayerID,
 		return "", err
 	}
 
-	return types.PlayerID(token.UID), nil
+	return types.PlayerId(token.UID), nil
 }

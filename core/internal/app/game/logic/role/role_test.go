@@ -12,9 +12,9 @@ package role
 
 // type RoleSuite struct {
 // 	suite.Suite
-// 	playerID  types.PlayerID
-// 	actionID1 types.ActionID
-// 	actionID2 types.ActionID
+// 	playerID  types.PlayerId
+// 	actionID1 types.ActionId
+// 	actionID2 types.ActionId
 // }
 
 // func TestRoleSuite(t *testing.T) {
@@ -22,9 +22,9 @@ package role
 // }
 
 // func (rs *RoleSuite) SetupSuite() {
-// 	rs.playerID = types.PlayerID("1")
-// 	rs.actionID1 = types.ActionID(1)
-// 	rs.actionID2 = types.ActionID(2)
+// 	rs.playerID = types.PlayerId("1")
+// 	rs.actionID1 = types.ActionId(1)
+// 	rs.actionID2 = types.ActionId(2)
 // }
 
 // func (rs RoleSuite) TestID() {
@@ -33,7 +33,7 @@ package role
 // 		id: id,
 // 	}
 
-// 	rs.Equal(id, role.ID())
+// 	rs.Equal(id, role.Id())
 // }
 
 // // func (rs RoleSuite) TestPhaseID() {
@@ -91,7 +91,7 @@ package role
 // 	scheduler := mock_game.NewMockScheduler(ctrl)
 
 // 	game.EXPECT().Scheduler().Return(scheduler)
-// 	player.EXPECT().ID().Return(rs.playerID)
+// 	player.EXPECT().Id().Return(rs.playerID)
 
 // 	r := role{
 // 		id:           vars.HunterRoleID,
@@ -106,7 +106,7 @@ package role
 // 		TurnID:       r.turnID,
 // 		BeginRoundID: r.beginRoundID,
 // 		PlayerID:     rs.playerID,
-// 		RoleID:       r.ID(),
+// 		RoleID:       r.Id(),
 // 	})
 
 // 	r.OnAssign()
@@ -120,7 +120,7 @@ package role
 // 	scheduler := mock_game.NewMockScheduler(ctrl)
 
 // 	game.EXPECT().Scheduler().Return(scheduler)
-// 	player.EXPECT().ID().Return(rs.playerID)
+// 	player.EXPECT().Id().Return(rs.playerID)
 
 // 	r := role{
 // 		id:      vars.HunterRoleID,
@@ -293,7 +293,7 @@ package role
 // 				ms.EXPECT().RemoveSlot(&types.RemovedTurnSlot{
 // 					PhaseID:  role.phaseID,
 // 					RoleID:   role.id,
-// 					PlayerID: role.player.ID(),
+// 					PlayerID: role.player.Id(),
 // 				})
 // 			},
 // 		},
@@ -308,8 +308,8 @@ package role
 // 			game := mock_game.NewMockGame(ctrl)
 // 			action := mock_game.NewMockAction(ctrl)
 
-// 			action.EXPECT().ID().Return(rs.actionID1).AnyTimes()
-// 			player.EXPECT().ID().Return(rs.playerID).AnyTimes()
+// 			action.EXPECT().Id().Return(rs.actionID1).AnyTimes()
+// 			player.EXPECT().Id().Return(rs.playerID).AnyTimes()
 // 			game.EXPECT().Scheduler().Return(scheduler).AnyTimes()
 
 // 			role := role{

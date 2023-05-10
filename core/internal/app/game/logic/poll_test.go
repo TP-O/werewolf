@@ -73,10 +73,10 @@ package logic
 // }
 
 // func (ps PollSuite) TestCanVote() {
-// 	electorID := types.PlayerID("1")
+// 	electorID := types.PlayerId("1")
 // 	tests := []struct {
 // 		name           string
-// 		electorID      types.PlayerID
+// 		electorID      types.PlayerId
 // 		expectedStatus bool
 // 		expectedErr    error
 // 		setup          func(*poll)
@@ -172,12 +172,12 @@ package logic
 // 			name:         "Ok",
 // 			givenRoundID: vars.FirstRound,
 // 			expectedRecord: &types.PollRecord{
-// 				WinnerID: types.PlayerID("98"),
+// 				WinnerID: types.PlayerId("98"),
 // 			},
 // 			setup: func(p *poll) {
 // 				p.RoundID = vars.FirstRound
 // 				p.Records[p.RoundID] = &types.PollRecord{
-// 					WinnerID: types.PlayerID("98"),
+// 					WinnerID: types.PlayerId("98"),
 // 				}
 // 			},
 // 		},
@@ -185,12 +185,12 @@ package logic
 // 			name:         "Ok (Latest round)",
 // 			givenRoundID: vars.ZeroRound,
 // 			expectedRecord: &types.PollRecord{
-// 				WinnerID: types.PlayerID("98"),
+// 				WinnerID: types.PlayerId("98"),
 // 			},
 // 			setup: func(p *poll) {
 // 				p.RoundID = vars.SecondRound
 // 				p.Records[p.RoundID] = &types.PollRecord{
-// 					WinnerID: types.PlayerID("98"),
+// 					WinnerID: types.PlayerId("98"),
 // 				}
 // 			},
 // 		},
@@ -238,7 +238,7 @@ package logic
 // 				p.Records[p.RoundID] = &types.PollRecord{
 // 					IsClosed: true,
 // 				}
-// 				p.RemainingCandidateIDs = []types.PlayerID{"1"}
+// 				p.RemainingCandidateIDs = []types.PlayerId{"1"}
 // 			},
 // 		},
 // 		{
@@ -250,7 +250,7 @@ package logic
 // 				p.Records[p.RoundID] = &types.PollRecord{
 // 					IsClosed: true,
 // 				}
-// 				p.RemainingCandidateIDs = []types.PlayerID{"1", "2"}
+// 				p.RemainingCandidateIDs = []types.PlayerId{"1", "2"}
 // 			},
 // 		},
 // 	}
@@ -276,19 +276,19 @@ package logic
 // func (ps PollSuite) TestCurrentWinnerID() {
 // 	tests := []struct {
 // 		name            string
-// 		expectedWinerID types.PlayerID
+// 		expectedWinerID types.PlayerId
 // 		setup           func(*poll)
 // 	}{
 // 		{
 // 			name:            "No major vote",
-// 			expectedWinerID: types.PlayerID(""),
+// 			expectedWinerID: types.PlayerId(""),
 // 			setup: func(p *poll) {
 // 				p.RoundID = vars.FirstRound
-// 				p.RemainingElectorIDs = []types.PlayerID{
+// 				p.RemainingElectorIDs = []types.PlayerId{
 // 					"1", "2", "3", "4", "5",
 // 				}
 // 				p.Records[p.RoundID] = &types.PollRecord{
-// 					VoteRecords: map[types.PlayerID]*types.VoteRecord{
+// 					VoteRecords: map[types.PlayerId]*types.VoteRecord{
 // 						"1": {
 // 							Weights: 2,
 // 						},
@@ -304,14 +304,14 @@ package logic
 // 		},
 // 		{
 // 			name:            "Draw vote",
-// 			expectedWinerID: types.PlayerID(""),
+// 			expectedWinerID: types.PlayerId(""),
 // 			setup: func(p *poll) {
 // 				p.RoundID = vars.FirstRound
-// 				p.RemainingElectorIDs = []types.PlayerID{
+// 				p.RemainingElectorIDs = []types.PlayerId{
 // 					"1", "2", "3", "4",
 // 				}
 // 				p.Records[p.RoundID] = &types.PollRecord{
-// 					VoteRecords: map[types.PlayerID]*types.VoteRecord{
+// 					VoteRecords: map[types.PlayerId]*types.VoteRecord{
 // 						"1": {
 // 							Weights: 2,
 // 						},
@@ -324,14 +324,14 @@ package logic
 // 		},
 // 		{
 // 			name:            "Major vote",
-// 			expectedWinerID: types.PlayerID("1"),
+// 			expectedWinerID: types.PlayerId("1"),
 // 			setup: func(p *poll) {
 // 				p.RoundID = vars.FirstRound
-// 				p.RemainingElectorIDs = []types.PlayerID{
+// 				p.RemainingElectorIDs = []types.PlayerId{
 // 					"1", "2", "3", "4",
 // 				}
 // 				p.Records[p.RoundID] = &types.PollRecord{
-// 					VoteRecords: map[types.PlayerID]*types.VoteRecord{
+// 					VoteRecords: map[types.PlayerId]*types.VoteRecord{
 // 						"1": {
 // 							Weights: 3,
 // 						},
@@ -381,20 +381,20 @@ package logic
 // 			expectedStatus: true,
 // 			expectedRecord: &types.PollRecord{
 // 				IsClosed: true,
-// 				WinnerID: types.PlayerID("1"),
-// 				VoteRecords: map[types.PlayerID]*types.VoteRecord{
+// 				WinnerID: types.PlayerId("1"),
+// 				VoteRecords: map[types.PlayerId]*types.VoteRecord{
 // 					"1": {
-// 						ElectorIDs: []types.PlayerID{"2", "3", "4"},
+// 						ElectorIDs: []types.PlayerId{"2", "3", "4"},
 // 						Weights:    3,
 // 						Votes:      3,
 // 					},
 // 					"2": {
-// 						ElectorIDs: []types.PlayerID{"1"},
+// 						ElectorIDs: []types.PlayerId{"1"},
 // 						Weights:    1,
 // 						Votes:      1,
 // 					},
 // 					"": {
-// 						ElectorIDs: []types.PlayerID{"5"},
+// 						ElectorIDs: []types.PlayerId{"5"},
 // 						Votes:      1,
 // 						Weights:    1,
 // 					},
@@ -402,14 +402,14 @@ package logic
 // 			},
 // 			setup: func(p *poll) {
 // 				p.RoundID = vars.FirstRound
-// 				p.RemainingElectorIDs = []types.PlayerID{
+// 				p.RemainingElectorIDs = []types.PlayerId{
 // 					"1",
 // 					"2",
 // 					"3",
 // 					"4",
 // 					"5",
 // 				}
-// 				p.VotedElectorIDs = []types.PlayerID{
+// 				p.VotedElectorIDs = []types.PlayerId{
 // 					"1",
 // 					"2",
 // 					"3",
@@ -417,21 +417,21 @@ package logic
 // 				}
 // 				p.Records[p.RoundID] = &types.PollRecord{
 // 					IsClosed: false,
-// 					VoteRecords: map[types.PlayerID]*types.VoteRecord{
+// 					VoteRecords: map[types.PlayerId]*types.VoteRecord{
 // 						"1": {
-// 							ElectorIDs: []types.PlayerID{"2", "3", "4"},
+// 							ElectorIDs: []types.PlayerId{"2", "3", "4"},
 // 							Weights:    3,
 // 							Votes:      3,
 // 						},
 // 						"2": {
-// 							ElectorIDs: []types.PlayerID{"1"},
+// 							ElectorIDs: []types.PlayerId{"1"},
 // 							Weights:    1,
 // 							Votes:      1,
 // 						},
 // 					},
 // 				}
 // 				p.Records[p.RoundID].VoteRecords[""] = &types.VoteRecord{
-// 					ElectorIDs: []types.PlayerID{},
+// 					ElectorIDs: []types.PlayerId{},
 // 				}
 // 			},
 // 		},
@@ -458,34 +458,34 @@ package logic
 // func (ps PollSuite) TestAddCandidates() {
 // 	tests := []struct {
 // 		name                     string
-// 		candidateIDs             []types.PlayerID
-// 		newCandidateIDs          []types.PlayerID
-// 		newRemainingCandidateIDs []types.PlayerID
+// 		candidateIDs             []types.PlayerId
+// 		newCandidateIDs          []types.PlayerId
+// 		newRemainingCandidateIDs []types.PlayerId
 // 		setup                    func(*poll)
 // 	}{
 // 		{
 // 			name: "Failure (Already existed in remaining)",
-// 			candidateIDs: []types.PlayerID{
+// 			candidateIDs: []types.PlayerId{
 // 				"1",
 // 				"2",
 // 			},
-// 			newCandidateIDs: []types.PlayerID{
+// 			newCandidateIDs: []types.PlayerId{
 // 				"1",
 // 				"2",
 // 				"3",
 // 			},
-// 			newRemainingCandidateIDs: []types.PlayerID{
+// 			newRemainingCandidateIDs: []types.PlayerId{
 // 				"1",
 // 				"2",
 // 				"3",
 // 			},
 // 			setup: func(p *poll) {
-// 				p.CandidateIDs = []types.PlayerID{
+// 				p.CandidateIDs = []types.PlayerId{
 // 					"1",
 // 					"2",
 // 					"3",
 // 				}
-// 				p.RemainingCandidateIDs = []types.PlayerID{
+// 				p.RemainingCandidateIDs = []types.PlayerId{
 // 					"1",
 // 					"2",
 // 					"3",
@@ -494,27 +494,27 @@ package logic
 // 		},
 // 		{
 // 			name: "Ok (Doesn't exist in remaining but in all)",
-// 			candidateIDs: []types.PlayerID{
+// 			candidateIDs: []types.PlayerId{
 // 				"1",
 // 				"2",
 // 			},
-// 			newCandidateIDs: []types.PlayerID{
+// 			newCandidateIDs: []types.PlayerId{
 // 				"1",
 // 				"2",
 // 				"3",
 // 			},
-// 			newRemainingCandidateIDs: []types.PlayerID{
+// 			newRemainingCandidateIDs: []types.PlayerId{
 // 				"2",
 // 				"3",
 // 				"1",
 // 			},
 // 			setup: func(p *poll) {
-// 				p.CandidateIDs = []types.PlayerID{
+// 				p.CandidateIDs = []types.PlayerId{
 // 					"1",
 // 					"2",
 // 					"3",
 // 				}
-// 				p.RemainingCandidateIDs = []types.PlayerID{
+// 				p.RemainingCandidateIDs = []types.PlayerId{
 // 					"2",
 // 					"3",
 // 				}
@@ -522,26 +522,26 @@ package logic
 // 		},
 // 		{
 // 			name: "Ok (Doesn't exist in remaining and all)",
-// 			candidateIDs: []types.PlayerID{
+// 			candidateIDs: []types.PlayerId{
 // 				"1",
 // 				"2",
 // 			},
-// 			newCandidateIDs: []types.PlayerID{
+// 			newCandidateIDs: []types.PlayerId{
 // 				"2",
 // 				"3",
 // 				"1",
 // 			},
-// 			newRemainingCandidateIDs: []types.PlayerID{
+// 			newRemainingCandidateIDs: []types.PlayerId{
 // 				"2",
 // 				"3",
 // 				"1",
 // 			},
 // 			setup: func(p *poll) {
-// 				p.CandidateIDs = []types.PlayerID{
+// 				p.CandidateIDs = []types.PlayerId{
 // 					"2",
 // 					"3",
 // 				}
-// 				p.RemainingCandidateIDs = []types.PlayerID{
+// 				p.RemainingCandidateIDs = []types.PlayerId{
 // 					"2",
 // 					"3",
 // 				}
@@ -565,33 +565,33 @@ package logic
 // func (ps PollSuite) TestRemoveCandidate() {
 // 	tests := []struct {
 // 		name                     string
-// 		candidateID              types.PlayerID
+// 		candidateID              types.PlayerId
 // 		expectedStatus           bool
-// 		newCandidateIDs          []types.PlayerID
-// 		newRemainingCandidateIDs []types.PlayerID
+// 		newCandidateIDs          []types.PlayerId
+// 		newRemainingCandidateIDs []types.PlayerId
 // 		setup                    func(*poll)
 // 	}{
 // 		{
 // 			name:           "Failure (Non-existent candidate)",
-// 			candidateID:    types.PlayerID("99"),
+// 			candidateID:    types.PlayerId("99"),
 // 			expectedStatus: false,
-// 			newCandidateIDs: []types.PlayerID{
+// 			newCandidateIDs: []types.PlayerId{
 // 				"1",
 // 				"2",
 // 				"3",
 // 			},
-// 			newRemainingCandidateIDs: []types.PlayerID{
+// 			newRemainingCandidateIDs: []types.PlayerId{
 // 				"1",
 // 				"2",
 // 				"3",
 // 			},
 // 			setup: func(p *poll) {
-// 				p.CandidateIDs = []types.PlayerID{
+// 				p.CandidateIDs = []types.PlayerId{
 // 					"1",
 // 					"2",
 // 					"3",
 // 				}
-// 				p.RemainingCandidateIDs = []types.PlayerID{
+// 				p.RemainingCandidateIDs = []types.PlayerId{
 // 					"1",
 // 					"2",
 // 					"3",
@@ -600,24 +600,24 @@ package logic
 // 		},
 // 		{
 // 			name:           "Ok",
-// 			candidateID:    types.PlayerID("1"),
+// 			candidateID:    types.PlayerId("1"),
 // 			expectedStatus: true,
-// 			newCandidateIDs: []types.PlayerID{
+// 			newCandidateIDs: []types.PlayerId{
 // 				"1",
 // 				"2",
 // 				"3",
 // 			},
-// 			newRemainingCandidateIDs: []types.PlayerID{
+// 			newRemainingCandidateIDs: []types.PlayerId{
 // 				"2",
 // 				"3",
 // 			},
 // 			setup: func(p *poll) {
-// 				p.CandidateIDs = []types.PlayerID{
+// 				p.CandidateIDs = []types.PlayerId{
 // 					"1",
 // 					"2",
 // 					"3",
 // 				}
-// 				p.RemainingCandidateIDs = []types.PlayerID{
+// 				p.RemainingCandidateIDs = []types.PlayerId{
 // 					"1",
 // 					"2",
 // 					"3",
@@ -643,34 +643,34 @@ package logic
 // func (ps PollSuite) TestAddElectors() {
 // 	tests := []struct {
 // 		name                   string
-// 		electorIDs             []types.PlayerID
-// 		newElectorIDs          []types.PlayerID
-// 		newRemainingElectorIDs []types.PlayerID
+// 		electorIDs             []types.PlayerId
+// 		newElectorIDs          []types.PlayerId
+// 		newRemainingElectorIDs []types.PlayerId
 // 		setup                  func(*poll)
 // 	}{
 // 		{
 // 			name: "Already existed in remaining",
-// 			electorIDs: []types.PlayerID{
+// 			electorIDs: []types.PlayerId{
 // 				"1",
 // 				"2",
 // 			},
-// 			newElectorIDs: []types.PlayerID{
+// 			newElectorIDs: []types.PlayerId{
 // 				"1",
 // 				"2",
 // 				"3",
 // 			},
-// 			newRemainingElectorIDs: []types.PlayerID{
+// 			newRemainingElectorIDs: []types.PlayerId{
 // 				"1",
 // 				"2",
 // 				"3",
 // 			},
 // 			setup: func(p *poll) {
-// 				p.ElectorIDs = []types.PlayerID{
+// 				p.ElectorIDs = []types.PlayerId{
 // 					"1",
 // 					"2",
 // 					"3",
 // 				}
-// 				p.RemainingElectorIDs = []types.PlayerID{
+// 				p.RemainingElectorIDs = []types.PlayerId{
 // 					"1",
 // 					"2",
 // 					"3",
@@ -679,27 +679,27 @@ package logic
 // 		},
 // 		{
 // 			name: "Doesn't exist in remaining but in all",
-// 			electorIDs: []types.PlayerID{
+// 			electorIDs: []types.PlayerId{
 // 				"1",
 // 				"2",
 // 			},
-// 			newElectorIDs: []types.PlayerID{
+// 			newElectorIDs: []types.PlayerId{
 // 				"1",
 // 				"2",
 // 				"3",
 // 			},
-// 			newRemainingElectorIDs: []types.PlayerID{
+// 			newRemainingElectorIDs: []types.PlayerId{
 // 				"2",
 // 				"3",
 // 				"1",
 // 			},
 // 			setup: func(p *poll) {
-// 				p.ElectorIDs = []types.PlayerID{
+// 				p.ElectorIDs = []types.PlayerId{
 // 					"1",
 // 					"2",
 // 					"3",
 // 				}
-// 				p.RemainingElectorIDs = []types.PlayerID{
+// 				p.RemainingElectorIDs = []types.PlayerId{
 // 					"2",
 // 					"3",
 // 				}
@@ -707,26 +707,26 @@ package logic
 // 		},
 // 		{
 // 			name: "Doesn't exist in remaining and all",
-// 			electorIDs: []types.PlayerID{
+// 			electorIDs: []types.PlayerId{
 // 				"1",
 // 				"2",
 // 			},
-// 			newElectorIDs: []types.PlayerID{
+// 			newElectorIDs: []types.PlayerId{
 // 				"2",
 // 				"3",
 // 				"1",
 // 			},
-// 			newRemainingElectorIDs: []types.PlayerID{
+// 			newRemainingElectorIDs: []types.PlayerId{
 // 				"2",
 // 				"3",
 // 				"1",
 // 			},
 // 			setup: func(p *poll) {
-// 				p.ElectorIDs = []types.PlayerID{
+// 				p.ElectorIDs = []types.PlayerId{
 // 					"2",
 // 					"3",
 // 				}
-// 				p.RemainingElectorIDs = []types.PlayerID{
+// 				p.RemainingElectorIDs = []types.PlayerId{
 // 					"2",
 // 					"3",
 // 				}
@@ -750,33 +750,33 @@ package logic
 // func (ps PollSuite) TestRemoveElector() {
 // 	tests := []struct {
 // 		name                   string
-// 		electorID              types.PlayerID
+// 		electorID              types.PlayerId
 // 		expectedStatus         bool
-// 		newElectorIDs          []types.PlayerID
-// 		newRemainingElectorIDs []types.PlayerID
+// 		newElectorIDs          []types.PlayerId
+// 		newRemainingElectorIDs []types.PlayerId
 // 		setup                  func(*poll)
 // 	}{
 // 		{
 // 			name:           "Failure (Non-existent elector)",
-// 			electorID:      types.PlayerID("99"),
+// 			electorID:      types.PlayerId("99"),
 // 			expectedStatus: false,
-// 			newElectorIDs: []types.PlayerID{
+// 			newElectorIDs: []types.PlayerId{
 // 				"1",
 // 				"2",
 // 				"3",
 // 			},
-// 			newRemainingElectorIDs: []types.PlayerID{
+// 			newRemainingElectorIDs: []types.PlayerId{
 // 				"1",
 // 				"2",
 // 				"3",
 // 			},
 // 			setup: func(p *poll) {
-// 				p.ElectorIDs = []types.PlayerID{
+// 				p.ElectorIDs = []types.PlayerId{
 // 					"1",
 // 					"2",
 // 					"3",
 // 				}
-// 				p.RemainingElectorIDs = []types.PlayerID{
+// 				p.RemainingElectorIDs = []types.PlayerId{
 // 					"1",
 // 					"2",
 // 					"3",
@@ -785,24 +785,24 @@ package logic
 // 		},
 // 		{
 // 			name:           "Ok",
-// 			electorID:      types.PlayerID("1"),
+// 			electorID:      types.PlayerId("1"),
 // 			expectedStatus: true,
-// 			newElectorIDs: []types.PlayerID{
+// 			newElectorIDs: []types.PlayerId{
 // 				"1",
 // 				"2",
 // 				"3",
 // 			},
-// 			newRemainingElectorIDs: []types.PlayerID{
+// 			newRemainingElectorIDs: []types.PlayerId{
 // 				"2",
 // 				"3",
 // 			},
 // 			setup: func(p *poll) {
-// 				p.ElectorIDs = []types.PlayerID{
+// 				p.ElectorIDs = []types.PlayerId{
 // 					"1",
 // 					"2",
 // 					"3",
 // 				}
-// 				p.RemainingElectorIDs = []types.PlayerID{
+// 				p.RemainingElectorIDs = []types.PlayerId{
 // 					"1",
 // 					"2",
 // 					"3",
@@ -828,18 +828,18 @@ package logic
 // func (ps PollSuite) TestSetWeight() {
 // 	tests := []struct {
 // 		name           string
-// 		electorID      types.PlayerID
+// 		electorID      types.PlayerId
 // 		weight         uint
 // 		expectedStatus bool
 // 		setup          func(*poll)
 // 	}{
 // 		{
 // 			name:           "Failure (Non-existent elector)",
-// 			electorID:      types.PlayerID("99"),
+// 			electorID:      types.PlayerId("99"),
 // 			weight:         1,
 // 			expectedStatus: false,
 // 			setup: func(p *poll) {
-// 				p.RemainingElectorIDs = []types.PlayerID{
+// 				p.RemainingElectorIDs = []types.PlayerId{
 // 					"1",
 // 					"2",
 // 				}
@@ -847,11 +847,11 @@ package logic
 // 		},
 // 		{
 // 			name:           "Ok",
-// 			electorID:      types.PlayerID("1"),
+// 			electorID:      types.PlayerId("1"),
 // 			weight:         5,
 // 			expectedStatus: true,
 // 			setup: func(p *poll) {
-// 				p.RemainingElectorIDs = []types.PlayerID{
+// 				p.RemainingElectorIDs = []types.PlayerId{
 // 					"1",
 // 					"2",
 // 				}
@@ -877,8 +877,8 @@ package logic
 // func (ps PollSuite) TestVote() {
 // 	tests := []struct {
 // 		name           string
-// 		electorID      types.PlayerID
-// 		candidateID    types.PlayerID
+// 		electorID      types.PlayerId
+// 		candidateID    types.PlayerId
 // 		expectedStatus bool
 // 		expectedErr    error
 // 		newWeight      uint
@@ -887,8 +887,8 @@ package logic
 // 	}{
 // 		{
 // 			name:           "Failure (Cannot vote)",
-// 			electorID:      types.PlayerID("99"),
-// 			candidateID:    types.PlayerID("2"),
+// 			electorID:      types.PlayerId("99"),
+// 			candidateID:    types.PlayerId("2"),
 // 			expectedStatus: false,
 // 			expectedErr:    fmt.Errorf("You're not allowed to vote ノ(ジ)ー'"),
 // 			setup: func(p *poll) {
@@ -897,14 +897,14 @@ package logic
 // 					IsClosed: false,
 // 				}
 
-// 				p.RemainingElectorIDs = []types.PlayerID{"1"}
-// 				p.RemainingCandidateIDs = []types.PlayerID{"2"}
+// 				p.RemainingElectorIDs = []types.PlayerId{"1"}
+// 				p.RemainingCandidateIDs = []types.PlayerId{"2"}
 // 			},
 // 		},
 // 		{
 // 			name:           "Failure (Non-existent candidate)",
-// 			electorID:      types.PlayerID("1"),
-// 			candidateID:    types.PlayerID("99"),
+// 			electorID:      types.PlayerId("1"),
+// 			candidateID:    types.PlayerId("99"),
 // 			expectedStatus: false,
 // 			expectedErr:    fmt.Errorf("Your vote is not valid ¬_¬"),
 // 			setup: func(p *poll) {
@@ -913,14 +913,14 @@ package logic
 // 					IsClosed: false,
 // 				}
 
-// 				p.RemainingElectorIDs = []types.PlayerID{"1"}
-// 				p.RemainingCandidateIDs = []types.PlayerID{"2"}
+// 				p.RemainingElectorIDs = []types.PlayerId{"1"}
+// 				p.RemainingCandidateIDs = []types.PlayerId{"2"}
 // 			},
 // 		},
 // 		{
 // 			name:           "Ok (Skip)",
-// 			electorID:      types.PlayerID("1"),
-// 			candidateID:    types.PlayerID(""),
+// 			electorID:      types.PlayerId("1"),
+// 			candidateID:    types.PlayerId(""),
 // 			expectedStatus: true,
 // 			newVotes:       1,
 // 			newWeight:      1,
@@ -928,18 +928,18 @@ package logic
 // 				p.RoundID = vars.FirstRound
 // 				p.Records[p.RoundID] = &types.PollRecord{
 // 					IsClosed:    false,
-// 					VoteRecords: make(map[types.PlayerID]*types.VoteRecord),
+// 					VoteRecords: make(map[types.PlayerId]*types.VoteRecord),
 // 				}
 
-// 				p.RemainingElectorIDs = []types.PlayerID{"1"}
-// 				p.RemainingCandidateIDs = []types.PlayerID{"2"}
+// 				p.RemainingElectorIDs = []types.PlayerId{"1"}
+// 				p.RemainingCandidateIDs = []types.PlayerId{"2"}
 // 				p.SetWeight("1", 8)
 // 			},
 // 		},
 // 		{
 // 			name:           "Ok (Voted)",
-// 			electorID:      types.PlayerID("1"),
-// 			candidateID:    types.PlayerID("2"),
+// 			electorID:      types.PlayerId("1"),
+// 			candidateID:    types.PlayerId("2"),
 // 			expectedStatus: true,
 // 			newVotes:       1,
 // 			newWeight:      8,
@@ -947,11 +947,11 @@ package logic
 // 				p.RoundID = vars.FirstRound
 // 				p.Records[p.RoundID] = &types.PollRecord{
 // 					IsClosed:    false,
-// 					VoteRecords: make(map[types.PlayerID]*types.VoteRecord),
+// 					VoteRecords: make(map[types.PlayerId]*types.VoteRecord),
 // 				}
 
-// 				p.RemainingElectorIDs = []types.PlayerID{"1"}
-// 				p.RemainingCandidateIDs = []types.PlayerID{"2"}
+// 				p.RemainingElectorIDs = []types.PlayerId{"1"}
+// 				p.RemainingCandidateIDs = []types.PlayerId{"2"}
 // 				p.SetWeight("1", 8)
 // 			},
 // 		},

@@ -12,7 +12,7 @@ package role
 // )
 
 // func TestNewRole(t *testing.T) {
-// 	playerID := types.PlayerID("1")
+// 	playerID := types.PlayerId("1")
 
 // 	tests := []struct {
 // 		name           string
@@ -74,7 +74,7 @@ package role
 // 			role, err := NewRole(test.expectedRoleID, game, playerID)
 
 // 			if test.expectedErr == nil {
-// 				assert.Equal(t, test.expectedRoleID, role.ID())
+// 				assert.Equal(t, test.expectedRoleID, role.Id())
 // 			} else {
 // 				assert.Equal(t, test.expectedErr, err)
 // 			}

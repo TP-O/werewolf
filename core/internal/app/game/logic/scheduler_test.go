@@ -11,9 +11,9 @@ package logic
 // type SchudulerSuite struct {
 // 	suite.Suite
 // 	beginPhaseID types.PhaseID
-// 	player1ID    types.PlayerID
-// 	player2ID    types.PlayerID
-// 	player3ID    types.PlayerID
+// 	player1ID    types.PlayerId
+// 	player2ID    types.PlayerId
+// 	player3ID    types.PlayerId
 // }
 
 // func TestSchudulerSuite(t *testing.T) {
@@ -22,9 +22,9 @@ package logic
 
 // func (ss *SchudulerSuite) SetupSuite() {
 // 	ss.beginPhaseID = vars.NightPhaseID
-// 	ss.player1ID = types.PlayerID("1")
-// 	ss.player2ID = types.PlayerID("2")
-// 	ss.player3ID = types.PlayerID("3")
+// 	ss.player1ID = types.PlayerId("1")
+// 	ss.player2ID = types.PlayerId("2")
+// 	ss.player3ID = types.PlayerId("3")
 // }
 
 // func (ss SchudulerSuite) TestNewScheduler() {
@@ -61,7 +61,7 @@ package logic
 // 	s := NewScheduler(ss.beginPhaseID)
 
 // 	expectedTurn := types.Turn(
-// 		map[types.PlayerID]*types.TurnSlot{
+// 		map[types.PlayerId]*types.TurnSlot{
 // 			ss.player1ID: {
 // 				RoleID: types.RoleID(99),
 // 			},
@@ -94,14 +94,14 @@ package logic
 // 		{
 // 			name: "Ok",
 // 			expectedTurn: types.Turn(
-// 				map[types.PlayerID]*types.TurnSlot{
+// 				map[types.PlayerId]*types.TurnSlot{
 // 					ss.player1ID: {
 // 						RoleID: types.RoleID(99),
 // 					},
 // 				}),
 // 			setup: func(s *scheduler) {
 // 				s.phases[ss.beginPhaseID][vars.PreTurn] = types.Turn(
-// 					map[types.PlayerID]*types.TurnSlot{
+// 					map[types.PlayerId]*types.TurnSlot{
 // 						ss.player1ID: {
 // 							RoleID: types.RoleID(99),
 // 						},
@@ -132,7 +132,7 @@ package logic
 // 		{
 // 			name: "False (Late begin round slot)",
 // 			turn: types.Turn(
-// 				map[types.PlayerID]*types.TurnSlot{
+// 				map[types.PlayerId]*types.TurnSlot{
 // 					ss.player1ID: {
 // 						BeginRoundID: vars.SecondRound,
 // 					},
@@ -144,7 +144,7 @@ package logic
 // 		}, {
 // 			name: "False (zero begin round slot)",
 // 			turn: types.Turn(
-// 				map[types.PlayerID]*types.TurnSlot{
+// 				map[types.PlayerId]*types.TurnSlot{
 // 					ss.player1ID: {
 // 						BeginRoundID: vars.ZeroRound,
 // 					},
@@ -157,7 +157,7 @@ package logic
 // 		{
 // 			name: "True (One-round slot)",
 // 			turn: types.Turn(
-// 				map[types.PlayerID]*types.TurnSlot{
+// 				map[types.PlayerId]*types.TurnSlot{
 // 					ss.player1ID: {
 // 						PlayedRoundID: vars.SecondRound,
 // 					},
@@ -170,7 +170,7 @@ package logic
 // 		{
 // 			name: "False (frozen slot)",
 // 			turn: types.Turn(
-// 				map[types.PlayerID]*types.TurnSlot{
+// 				map[types.PlayerId]*types.TurnSlot{
 // 					ss.player1ID: {
 // 						BeginRoundID: vars.SecondRound,
 // 						FrozenTimes:  vars.Once,
@@ -199,13 +199,13 @@ package logic
 // 	tests := []struct {
 // 		name              string
 // 		turn              types.Turn
-// 		expectedPlayerIDs []types.PlayerID
+// 		expectedPlayerIDs []types.PlayerId
 // 		setup             func(*scheduler)
 // 	}{
 // 		{
 // 			name: "Ignore late begin round slot",
 // 			turn: types.Turn(
-// 				map[types.PlayerID]*types.TurnSlot{
+// 				map[types.PlayerId]*types.TurnSlot{
 // 					ss.player1ID: {
 // 						BeginRoundID: vars.FirstRound,
 // 					},
@@ -216,7 +216,7 @@ package logic
 // 						BeginRoundID: types.RoundID(3),
 // 					},
 // 				}),
-// 			expectedPlayerIDs: []types.PlayerID{
+// 			expectedPlayerIDs: []types.PlayerId{
 // 				ss.player1ID,
 // 				ss.player2ID,
 // 			},
@@ -226,7 +226,7 @@ package logic
 // 		}, {
 // 			name: "Ignore zero begin round slot",
 // 			turn: types.Turn(
-// 				map[types.PlayerID]*types.TurnSlot{
+// 				map[types.PlayerId]*types.TurnSlot{
 // 					ss.player1ID: {
 // 						BeginRoundID: vars.FirstRound,
 // 					},
@@ -237,7 +237,7 @@ package logic
 // 						BeginRoundID: vars.ZeroRound,
 // 					},
 // 				}),
-// 			expectedPlayerIDs: []types.PlayerID{
+// 			expectedPlayerIDs: []types.PlayerId{
 // 				ss.player1ID,
 // 				ss.player2ID,
 // 			},
@@ -248,7 +248,7 @@ package logic
 // 		{
 // 			name: "Include one-round slot",
 // 			turn: types.Turn(
-// 				map[types.PlayerID]*types.TurnSlot{
+// 				map[types.PlayerId]*types.TurnSlot{
 // 					ss.player1ID: {
 // 						BeginRoundID: vars.FirstRound,
 // 					},
@@ -259,7 +259,7 @@ package logic
 // 						PlayedRoundID: types.RoundID(3),
 // 					},
 // 				}),
-// 			expectedPlayerIDs: []types.PlayerID{
+// 			expectedPlayerIDs: []types.PlayerId{
 // 				ss.player1ID,
 // 				ss.player2ID,
 // 			},
@@ -270,7 +270,7 @@ package logic
 // 		{
 // 			name: "Ignore frozen slot",
 // 			turn: types.Turn(
-// 				map[types.PlayerID]*types.TurnSlot{
+// 				map[types.PlayerId]*types.TurnSlot{
 // 					ss.player1ID: {
 // 						BeginRoundID: vars.FirstRound,
 // 					},
@@ -282,7 +282,7 @@ package logic
 // 						FrozenTimes:  vars.Once,
 // 					},
 // 				}),
-// 			expectedPlayerIDs: []types.PlayerID{
+// 			expectedPlayerIDs: []types.PlayerId{
 // 				ss.player1ID,
 // 				ss.player2ID,
 // 			},
@@ -319,7 +319,7 @@ package logic
 // 			expectedStatus: false,
 // 			setup: func(s *scheduler) {
 // 				s.phases[ss.beginPhaseID][vars.PreTurn] = types.Turn(
-// 					map[types.PlayerID]*types.TurnSlot{
+// 					map[types.PlayerId]*types.TurnSlot{
 // 						ss.player1ID: {},
 // 					},
 // 				)
@@ -340,7 +340,7 @@ package logic
 // 			setup: func(s *scheduler) {
 // 				s.phases[vars.NightPhaseID] = make(map[types.TurnID]types.Turn)
 // 				s.phases[vars.DayPhaseID][vars.PreTurn] = types.Turn(
-// 					map[types.PlayerID]*types.TurnSlot{
+// 					map[types.PlayerId]*types.TurnSlot{
 // 						ss.player1ID: {},
 // 					},
 // 				)

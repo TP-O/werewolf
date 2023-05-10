@@ -13,7 +13,7 @@ package role
 
 // type VillagerSuite struct {
 // 	suite.Suite
-// 	playerID types.PlayerID
+// 	playerID types.PlayerId
 // }
 
 // func TestVillagerSuite(t *testing.T) {
@@ -21,7 +21,7 @@ package role
 // }
 
 // func (vs *VillagerSuite) SetupSuite() {
-// 	vs.playerID = types.PlayerID("1")
+// 	vs.playerID = types.PlayerId("1")
 // }
 
 // func (vs VillagerSuite) TestNewVillager() {
@@ -66,14 +66,14 @@ package role
 // 				vs.Equal(test.expectedErr, err)
 // 			} else {
 // 				vs.Nil(err)
-// 				vs.Equal(vars.VillagerRoleID, v.ID())
+// 				vs.Equal(vars.VillagerRoleID, v.Id())
 // 				vs.Equal(vars.DayPhaseID, v.(*villager).phaseID)
 // 				vs.Equal(vars.VillagerFactionID, v.FactionID())
 // 				vs.Equal(vars.FirstRound, v.(*villager).beginRoundID)
 // 				vs.Equal(player, v.(*villager).player)
 // 				vs.Equal(vars.UnlimitedTimes, v.ActiveTimes(0))
 // 				vs.Len(v.(*villager).abilities, 1)
-// 				vs.Equal(vars.VoteActionID, v.(*villager).abilities[0].action.ID())
+// 				vs.Equal(vars.VoteActionID, v.(*villager).abilities[0].action.Id())
 // 			}
 // 		})
 // 	}
@@ -98,14 +98,14 @@ package role
 // 	game.EXPECT().Poll(vars.WerewolfFactionID).Return(poll)
 // 	poll.EXPECT().RemoveElector(vs.playerID)
 // 	poll.EXPECT().RemoveCandidate(vs.playerID).Times(2)
-// 	player.EXPECT().ID().Return(vs.playerID).Times(4)
+// 	player.EXPECT().Id().Return(vs.playerID).Times(4)
 
 // 	v, _ := NewVillager(game, vs.playerID)
 
 // 	scheduler.EXPECT().RemoveSlot(&types.RemovedTurnSlot{
 // 		PhaseID:  v.(*villager).phaseID,
 // 		PlayerID: vs.playerID,
-// 		RoleID:   v.ID(),
+// 		RoleID:   v.Id(),
 // 	})
 
 // 	v.OnRevoke()
@@ -129,7 +129,7 @@ package role
 // 	game.EXPECT().Poll(vars.VillagerFactionID).Return(poll)
 // 	game.EXPECT().Poll(vars.WerewolfFactionID).Return(poll)
 // 	poll.EXPECT().AddCandidates(vs.playerID).Times(2)
-// 	player.EXPECT().ID().Return(vs.playerID).Times(3)
+// 	player.EXPECT().Id().Return(vs.playerID).Times(3)
 
 // 	v, _ := NewVillager(game, vs.playerID)
 
@@ -138,7 +138,7 @@ package role
 // 		TurnID:       v.(*villager).turnID,
 // 		BeginRoundID: v.(*villager).beginRoundID,
 // 		PlayerID:     vs.playerID,
-// 		RoleID:       v.ID(),
+// 		RoleID:       v.Id(),
 // 	})
 
 // 	v.OnAssign()

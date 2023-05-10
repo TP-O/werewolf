@@ -40,16 +40,16 @@ type GameStatusID = uint8
 // GameInitialization is the required options to start a game.
 type GameInitialization struct {
 	// RoleIDs is role ID list that can be played in the game.
-	RoleIDs []RoleID
+	RoleIds []RoleId
 
 	// RequiredRoleIDs is role ID list that must be played in the game.
-	RequiredRoleIDs []RoleID
+	RequiredRoleIds []RoleId
 
 	// NumberWerewolves is number of werewolves required to exist in the game.
 	NumberWerewolves uint8
 
 	// PlayerIDs is player ID list playing the game.
-	PlayerIDs []PlayerID
+	PlayerIDs []PlayerId
 }
 
 // GameRegistration contains the game configuration and joined players.

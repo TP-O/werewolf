@@ -11,16 +11,16 @@ type hunter struct {
 	*role
 }
 
-func NewHunter(world contract.World, playerID types.PlayerID) (contract.Role, error) {
+func NewHunter(world contract.World, playerId types.PlayerId) (contract.Role, error) {
 	return &hunter{
 			role: &role{
-				id:           constants.HunterRoleID,
-				phaseID:      constants.DayPhaseID,
-				factionID:    constants.VillagerFactionID,
+				id:           constants.HunterRoleId,
+				phaseID:      constants.DayPhaseId,
+				factionID:    constants.VillagerFactionId,
 				beginRoundID: constants.FirstRound,
 				turnID:       constants.HunterTurnID,
 				world:        world,
-				playerID:     playerID,
+				playerId:     playerId,
 				abilities: []*ability{
 					{
 						action:      action.NewKill(world),
@@ -49,18 +49,18 @@ func (h *hunter) OnAfterDeath() {
 	// This turn can be only played in the current round
 	slot := &types.NewTurnSlot{
 		PhaseID:       h.phaseID,
-		PlayerID:      h.playerID,
-		RoleID:        h.id,
+		PlayerId:      h.playerId,
+		RoleId:        h.id,
 		PlayedRoundID: h.world.Scheduler().RoundID(),
 	}
 
 	if diedAtPhaseID == h.phaseID {
 		// Play in next turn if he dies at his phase
-		slot.TurnID = h.world.Scheduler().TurnID() + 1
+		slot.TurnId = h.world.Scheduler().TurnID() + 1
 	} else {
 		// Play in his turn of the next day if he dies at
 		// a time is not his phase
-		slot.TurnID = h.turnID
+		slot.TurnId = h.turnID
 	}
 
 	h.abilities[0].activeLimit = constants.Once

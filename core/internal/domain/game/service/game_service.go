@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"time"
-	game "uwwolf/internal/app/game/logic"
 	"uwwolf/internal/app/game/logic/constants"
+	"uwwolf/internal/app/game/logic/contract"
 	"uwwolf/internal/app/game/logic/types"
 	"uwwolf/internal/config"
 	"uwwolf/internal/domain/game/model"
@@ -27,7 +27,7 @@ type GameService interface {
 	UpdateGameSettings(roomID string, config dto.UpdateGameSetting) error
 
 	// RegisterGame create a game with the given config and player ID list.
-	RegisterGame(config model.GameSetting, playerIDs []types.PlayerID) (game.Moderator, error)
+	RegisterGame(config model.GameSetting, playerIDs []types.PlayerId) (contract.Moderator, error)
 }
 
 type gameService struct {
@@ -41,14 +41,14 @@ type gameService struct {
 	pdb db.Store
 
 	// gameManger is game management instance.
-	gameManager game.Manager
+	gameManager contract.Manager
 }
 
 func NewGameService(
 	config config.Game,
 	rdb *goredis.ClusterClient,
 	pdb db.Store,
-	gameManager game.Manager,
+	gameManager contract.Manager,
 ) GameService {
 	return &gameService{
 		config,
@@ -69,7 +69,7 @@ func (gs gameService) GameSettings(roomID string) model.GameSetting {
 	).Val()
 	if err := json.Unmarshal([]byte(encodedConfig), &config); err != nil {
 		return model.GameSetting{
-			RoleIDs:            []types.RoleID{constants.SeerRoleID},
+			RoleIDs:            []types.RoleId{constants.SeerRoleId},
 			NumberWerewolves:   1,
 			TurnDuration:       20,
 			DiscussionDuration: 90,
@@ -92,7 +92,7 @@ func (gs gameService) UpdateGameSettings(roomID string, config dto.UpdateGameSet
 }
 
 // RegisterGame create a game with the given config and player ID list.
-func (gs gameService) RegisterGame(config model.GameSetting, playerIDs []types.PlayerID) (game.Moderator, error) {
+func (gs gameService) RegisterGame(config model.GameSetting, playerIDs []types.PlayerId) (contract.Moderator, error) {
 	gameRecord, err := gs.pdb.CreateGame(context.Background())
 	if err != nil {
 		return nil, fmt.Errorf("Something went wrong!")
@@ -103,8 +103,8 @@ func (gs gameService) RegisterGame(config model.GameSetting, playerIDs []types.P
 		TurnDuration:       time.Duration(config.TurnDuration) * time.Second,
 		DiscussionDuration: time.Duration(config.DiscussionDuration) * time.Second,
 		GameInitialization: types.GameInitialization{
-			RoleIDs:          config.RoleIDs,
-			RequiredRoleIDs:  config.RequiredRoleIDs,
+			RoleIds:          config.RoleIDs,
+			RequiredRoleIds:  config.RequiredRoleIDs,
 			NumberWerewolves: config.NumberWerewolves,
 			PlayerIDs:        playerIDs,
 		},

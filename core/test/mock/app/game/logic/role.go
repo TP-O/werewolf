@@ -62,25 +62,25 @@ func (mr *MockRoleMockRecorder) ActiveTimes(index interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ActiveTimes", reflect.TypeOf((*MockRole)(nil).ActiveTimes), index)
 }
 
-// FactionID mocks base method.
-func (m *MockRole) FactionID() types.FactionID {
+// FactionId mocks base method.
+func (m *MockRole) FactionId() types.FactionId {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FactionID")
-	ret0, _ := ret[0].(types.FactionID)
+	ret := m.ctrl.Call(m, "FactionId")
+	ret0, _ := ret[0].(types.FactionId)
 	return ret0
 }
 
-// FactionID indicates an expected call of FactionID.
-func (mr *MockRoleMockRecorder) FactionID() *gomock.Call {
+// FactionId indicates an expected call of FactionId.
+func (mr *MockRoleMockRecorder) FactionId() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FactionID", reflect.TypeOf((*MockRole)(nil).FactionID))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FactionId", reflect.TypeOf((*MockRole)(nil).FactionId))
 }
 
 // ID mocks base method.
-func (m *MockRole) ID() types.RoleID {
+func (m *MockRole) ID() types.RoleId {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ID")
-	ret0, _ := ret[0].(types.RoleID)
+	ret0, _ := ret[0].(types.RoleId)
 	return ret0
 }
 

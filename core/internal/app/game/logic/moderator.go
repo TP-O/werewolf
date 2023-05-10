@@ -10,6 +10,7 @@ import (
 	"uwwolf/internal/app/game/logic/contract"
 	"uwwolf/internal/app/game/logic/types"
 	"uwwolf/internal/config"
+	"uwwolf/pkg/util"
 
 	"golang.org/x/exp/slices"
 )
@@ -30,7 +31,7 @@ type moderator struct {
 	turnDuration       time.Duration
 	discussionDuration time.Duration
 	playedPlayerID     []types.PlayerId
-	winningFaction     types.FactionID
+	winningFaction     types.FactionId
 	onPhaseChanged     func(mod contract.Moderator)
 }
 
@@ -44,11 +45,11 @@ func NewModerator(config config.Game, reg *types.GameRegistration) contract.Mode
 		mutex:              new(sync.Mutex),
 		turnDuration:       reg.TurnDuration,
 		discussionDuration: reg.DiscussionDuration,
-		scheduler:          NewScheduler(constants.NightPhaseID),
+		scheduler:          NewScheduler(constants.NightPhaseId),
 	}
 	m.world = NewWorld(m.scheduler, &types.GameInitialization{
-		RoleIDs:          reg.RoleIDs,
-		RequiredRoleIDs:  reg.RequiredRoleIDs,
+		RoleIds:          reg.RoleIds,
+		RequiredRoleIds:  reg.RequiredRoleIds,
 		NumberWerewolves: reg.NumberWerewolves,
 		PlayerIDs:        reg.PlayerIDs,
 	})
@@ -81,27 +82,27 @@ func (m moderator) Player(ID types.PlayerId) contract.Player {
 // if any, finish the game.
 func (m *moderator) checkWinConditions() {
 	m.mutex.Lock()
-	if len(m.world.AlivePlayerIDsWithFactionID(constants.WerewolfFactionID)) == 0 {
+	if len(m.world.AlivePlayerIdsWithFactionId(constants.WerewolfFactionId)) == 0 {
 		// Villager wins if all werewolves are dead
-		m.winningFaction = constants.VillagerFactionID
-	} else if len(m.world.AlivePlayerIDsWithFactionID(constants.WerewolfFactionID)) >=
-		len(m.world.AlivePlayerIDsWithoutFactionID(constants.WerewolfFactionID)) {
+		m.winningFaction = constants.VillagerFactionId
+	} else if len(m.world.AlivePlayerIdsWithFactionId(constants.WerewolfFactionId)) >=
+		len(m.world.AlivePlayerIdsWithoutFactionId(constants.WerewolfFactionId)) {
 		// Werewolf wins if the number is overwhelming or equal to villager
-		m.winningFaction = constants.WerewolfFactionID
+		m.winningFaction = constants.WerewolfFactionId
 	}
 	m.mutex.Unlock()
 
-	if !m.winningFaction.IsUnknown() {
+	if !util.IsZero(m.winningFaction) {
 		m.FinishGame()
 	}
 }
 
 // handlePoll handles poll result of each faction.
-func (m moderator) handlePoll(factionID types.FactionID) {
+func (m moderator) handlePoll(factionID types.FactionId) {
 	if poll := m.world.Poll(factionID); poll != nil && poll.Close() {
-		if record := poll.Record(constants.ZeroRound); !record.WinnerID.IsUnknown() {
+		if record := poll.Record(constants.ZeroRound); !util.IsZero(record.WinnerID) {
 			if player := m.world.Player(record.WinnerID); player != nil {
-				player.Die(false)
+				player.Die()
 			}
 		}
 	}
@@ -117,19 +118,19 @@ func (m *moderator) runScheduler() {
 		func() {
 			var duration time.Duration
 
-			if m.scheduler.PhaseID() == constants.DayPhaseID &&
+			if m.scheduler.PhaseID() == constants.DayPhaseId &&
 				m.scheduler.TurnID() == constants.MidTurn {
 				duration = m.discussionDuration
 
-				m.world.Poll(constants.VillagerFactionID).Open() // nolint: errcheck
-				defer m.handlePoll(constants.VillagerFactionID)
+				m.world.Poll(constants.VillagerFactionId).Open() // nolint: errcheck
+				defer m.handlePoll(constants.VillagerFactionId)
 			} else {
 				duration = m.turnDuration
 
-				if m.scheduler.PhaseID() == constants.NightPhaseID &&
+				if m.scheduler.PhaseID() == constants.NightPhaseId &&
 					m.scheduler.TurnID() == constants.MidTurn {
-					m.world.Poll(constants.WerewolfFactionID).Open() // nolint: errcheck
-					defer m.handlePoll(constants.WerewolfFactionID)
+					m.world.Poll(constants.WerewolfFactionId).Open() // nolint: errcheck
+					defer m.handlePoll(constants.WerewolfFactionId)
 				}
 			}
 

@@ -12,7 +12,7 @@ package role
 
 // type TwoSisterSuite struct {
 // 	suite.Suite
-// 	playerID types.PlayerID
+// 	playerID types.PlayerId
 // }
 
 // func TestTwoSisterSuite(t *testing.T) {
@@ -20,7 +20,7 @@ package role
 // }
 
 // func (tss *TwoSisterSuite) SetupSuite() {
-// 	tss.playerID = types.PlayerID("1")
+// 	tss.playerID = types.PlayerId("1")
 // }
 
 // func (tss TwoSisterSuite) TestNewTwoSister() {
@@ -33,12 +33,12 @@ package role
 
 // 	ts, _ := NewTwoSister(game, tss.playerID)
 
-// 	tss.Equal(vars.TwoSistersRoleID, ts.ID())
+// 	tss.Equal(vars.TwoSistersRoleID, ts.Id())
 // 	tss.Equal(vars.NightPhaseID, ts.(*twoSister).phaseID)
 // 	tss.Equal(vars.VillagerFactionID, ts.FactionID())
 // 	tss.Equal(vars.FirstRound, ts.(*twoSister).beginRoundID)
 // 	tss.Equal(player, ts.(*twoSister).player)
 // 	tss.Equal(vars.UnlimitedTimes, ts.ActiveTimes(0))
 // 	tss.Len(ts.(*twoSister).abilities, 1)
-// 	tss.Equal(vars.PredictActionID, ts.(*twoSister).abilities[0].action.ID())
+// 	tss.Equal(vars.PredictActionID, ts.(*twoSister).abilities[0].action.Id())
 // }

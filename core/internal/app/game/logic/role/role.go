@@ -19,21 +19,21 @@ type ability struct {
 // must embed this struct and modify its methods as required.
 type role struct {
 	// id is the role ID.
-	id types.RoleID
+	id types.RoleId
 
 	// phaseID is the active phase ID of this role.
 	phaseID types.PhaseID
 
 	// factionID is the faction ID to which this role belongs.
-	factionID types.FactionID
+	factionID types.FactionId
 
 	// beginRoundID is the round where this role begins to playing.
 	beginRoundID types.RoundID
 
-	playerID types.PlayerID
+	playerId types.PlayerId
 
 	// turnID is play order of this role in the active phase.
-	turnID types.TurnID
+	turnID types.TurnId
 
 	// isBeforeDeathTriggered marks that `BeforeDeath` function
 	// is called or not.
@@ -47,7 +47,7 @@ type role struct {
 }
 
 // ID returns role's ID.
-func (r role) ID() types.RoleID {
+func (r role) Id() types.RoleId {
 	return r.id
 }
 
@@ -56,7 +56,7 @@ func (r role) ID() types.RoleID {
 // 	return r.phaseID
 // }
 
-func (r role) FactionID() types.FactionID {
+func (r role) FactionId() types.FactionId {
 	return r.factionID
 }
 
@@ -90,10 +90,10 @@ func (r role) ActiveTimes(index int) types.Times {
 func (r *role) OnAssign() {
 	r.world.Scheduler().AddSlot(&types.NewTurnSlot{
 		PhaseID:      r.phaseID,
-		TurnID:       r.turnID,
+		TurnId:       r.turnID,
 		BeginRoundID: r.beginRoundID,
-		PlayerID:     r.playerID,
-		RoleID:       r.id,
+		PlayerId:     r.playerId,
+		RoleId:       r.id,
 	})
 }
 
@@ -101,8 +101,8 @@ func (r *role) OnAssign() {
 func (r *role) OnRevoke() {
 	r.world.Scheduler().RemoveSlot(&types.RemovedTurnSlot{
 		PhaseID:  r.phaseID,
-		RoleID:   r.id,
-		PlayerID: r.playerID,
+		RoleId:   r.id,
+		PlayerId: r.playerId,
 	})
 }
 
@@ -141,9 +141,9 @@ func (r *role) ActivateAbility(req *types.ActivateAbilityRequest) *types.ActionR
 		}
 	}
 
-	res := ability.action.Execute(&types.ActionRequest{
-		ActorID:   r.playerID,
-		TargetID:  req.TargetID,
+	res := ability.action.Execute(types.ActionRequest{
+		ActorId:   r.playerId,
+		TargetId:  req.TargetID,
 		IsSkipped: req.IsSkipped,
 	})
 	if res.Ok &&
@@ -155,11 +155,11 @@ func (r *role) ActivateAbility(req *types.ActivateAbilityRequest) *types.ActionR
 		if r.ActiveTimes(-1) == constants.OutOfTimes {
 			r.world.Scheduler().RemoveSlot(&types.RemovedTurnSlot{
 				PhaseID:  r.phaseID,
-				RoleID:   r.id,
-				PlayerID: r.playerID,
+				RoleId:   r.id,
+				PlayerId: r.playerId,
 			})
 		}
 	}
 
-	return res
+	return &res
 }

@@ -2,7 +2,7 @@ package api
 
 // WaitingRoomOwner gets the waiting room owned by the authenticated player.
 // func (s Server) WaitingRoomOwner(ctx *gin.Context) {
-// 	playerID := types.PlayerID(ctx.GetString(enum.PlayerIDCtxKey))
+// 	playerID := types.PlayerId(ctx.GetString(enum.PlayerIDCtxKey))
 
 // 	room, ok := s.roomService.PlayerWaitingRoom(playerID)
 // 	if !ok {

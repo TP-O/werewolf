@@ -105,10 +105,10 @@ func (mr *MockSchedulerMockRecorder) NextTurn() *gomock.Call {
 }
 
 // Phase mocks base method.
-func (m *MockScheduler) Phase() map[types.TurnID]types.Turn {
+func (m *MockScheduler) Phase() map[types.TurnId]types.Turn {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Phase")
-	ret0, _ := ret[0].(map[types.TurnID]types.Turn)
+	ret0, _ := ret[0].(map[types.TurnId]types.Turn)
 	return ret0
 }
 
@@ -189,10 +189,10 @@ func (mr *MockSchedulerMockRecorder) Turn() *gomock.Call {
 }
 
 // TurnID mocks base method.
-func (m *MockScheduler) TurnID() types.TurnID {
+func (m *MockScheduler) TurnID() types.TurnId {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "TurnID")
-	ret0, _ := ret[0].(types.TurnID)
+	ret0, _ := ret[0].(types.TurnId)
 	return ret0
 }
 

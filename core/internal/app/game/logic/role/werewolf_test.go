@@ -13,7 +13,7 @@ package role
 
 // type WerewolfSuite struct {
 // 	suite.Suite
-// 	playerID types.PlayerID
+// 	playerID types.PlayerId
 // }
 
 // func TestWerewolfSuite(t *testing.T) {
@@ -21,7 +21,7 @@ package role
 // }
 
 // func (ws *WerewolfSuite) SetupSuite() {
-// 	ws.playerID = types.PlayerID("1")
+// 	ws.playerID = types.PlayerId("1")
 // }
 
 // func (ws WerewolfSuite) TestNewWerewolf() {
@@ -66,14 +66,14 @@ package role
 // 				ws.Equal(test.expectedErr, err)
 // 			} else {
 // 				ws.Nil(err)
-// 				ws.Equal(vars.WerewolfRoleID, w.ID())
+// 				ws.Equal(vars.WerewolfRoleID, w.Id())
 // 				ws.Equal(vars.NightPhaseID, w.(*werewolf).phaseID)
 // 				ws.Equal(vars.WerewolfFactionID, w.FactionID())
 // 				ws.Equal(vars.FirstRound, w.(*werewolf).beginRoundID)
 // 				ws.Equal(player, w.(*werewolf).player)
 // 				ws.Equal(vars.UnlimitedTimes, w.ActiveTimes(0))
 // 				ws.Len(w.(*werewolf).abilities, 1)
-// 				ws.Equal(vars.VoteActionID, w.(*werewolf).abilities[0].action.ID())
+// 				ws.Equal(vars.VoteActionID, w.(*werewolf).abilities[0].action.Id())
 // 			}
 // 		})
 // 	}
@@ -98,14 +98,14 @@ package role
 // 	game.EXPECT().Poll(vars.WerewolfFactionID).Return(poll)
 // 	poll.EXPECT().RemoveElector(ws.playerID).Times(2)
 // 	poll.EXPECT().RemoveCandidate(ws.playerID)
-// 	player.EXPECT().ID().Return(ws.playerID).Times(4)
+// 	player.EXPECT().Id().Return(ws.playerID).Times(4)
 
 // 	w, _ := NewWerewolf(game, ws.playerID)
 
 // 	scheduler.EXPECT().RemoveSlot(&types.RemovedTurnSlot{
 // 		PhaseID:  w.(*werewolf).phaseID,
 // 		PlayerID: ws.playerID,
-// 		RoleID:   w.ID(),
+// 		RoleID:   w.Id(),
 // 	})
 
 // 	w.OnRevoke()
@@ -128,7 +128,7 @@ package role
 
 // 	game.EXPECT().Poll(vars.VillagerFactionID).Return(poll)
 // 	poll.EXPECT().AddCandidates(ws.playerID)
-// 	player.EXPECT().ID().Return(ws.playerID).Times(2)
+// 	player.EXPECT().Id().Return(ws.playerID).Times(2)
 
 // 	w, _ := NewWerewolf(game, ws.playerID)
 
@@ -137,7 +137,7 @@ package role
 // 		TurnID:       w.(*werewolf).turnID,
 // 		BeginRoundID: w.(*werewolf).beginRoundID,
 // 		PlayerID:     ws.playerID,
-// 		RoleID:       w.ID(),
+// 		RoleID:       w.Id(),
 // 	})
 
 // 	w.OnAssign()

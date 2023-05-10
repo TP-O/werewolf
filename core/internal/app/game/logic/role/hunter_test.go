@@ -12,7 +12,7 @@ package role
 
 // type HunterSuite struct {
 // 	suite.Suite
-// 	playerID types.PlayerID
+// 	playerID types.PlayerId
 // }
 
 // func TestHunterSuite(t *testing.T) {
@@ -20,7 +20,7 @@ package role
 // }
 
 // func (hs *HunterSuite) SetupSuite() {
-// 	hs.playerID = types.PlayerID("1")
+// 	hs.playerID = types.PlayerId("1")
 // }
 
 // func (hs HunterSuite) TestNewHunter() {
@@ -33,14 +33,14 @@ package role
 
 // 	h, _ := NewHunter(game, hs.playerID)
 
-// 	hs.Equal(vars.HunterRoleID, h.ID())
+// 	hs.Equal(vars.HunterRoleID, h.Id())
 // 	hs.Equal(vars.DayPhaseID, h.(*hunter).phaseID)
 // 	hs.Equal(vars.VillagerFactionID, h.FactionID())
 // 	hs.Equal(vars.FirstRound, h.(*hunter).beginRoundID)
 // 	hs.Equal(player, h.(*hunter).player)
 // 	hs.Equal(vars.OutOfTimes, h.ActiveTimes(0))
 // 	hs.Len(h.(*hunter).abilities, 1)
-// 	hs.Equal(vars.KillActionID, h.(*hunter).abilities[0].action.ID())
+// 	hs.Equal(vars.KillActionID, h.(*hunter).abilities[0].action.Id())
 // }
 
 // func (hs HunterSuite) TestOnAssign() {
@@ -105,7 +105,7 @@ package role
 // 			scheduler := mock_game.NewMockScheduler(ctrl)
 
 // 			game.EXPECT().Player(hs.playerID).Return(player)
-// 			player.EXPECT().ID().Return(hs.playerID).AnyTimes()
+// 			player.EXPECT().Id().Return(hs.playerID).AnyTimes()
 
 // 			h, _ := NewHunter(game, hs.playerID)
 // 			test.setup(h.(*hunter), game, scheduler)

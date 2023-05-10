@@ -23,19 +23,19 @@ type world struct {
 	scheduler contract.Scheduler
 
 	// roleIDs is the possible role IDs in the game.
-	roleIDs []types.RoleID
+	roleIDs []types.RoleId
 
 	// requiredRoleIDs is the required role IDs in the game.
-	requiredRoleIDs []types.RoleID
+	requiredRoleIDs []types.RoleId
 
 	// selectRoleIDs is the selected role IDs from `roleIDs` and `requiredRoleIDs`.
-	selectedRoleIDs []types.RoleID
+	selectedRoleIDs []types.RoleId
 
 	// players contains all players playing the game.
-	players map[types.PlayerID]contract.Player
+	players map[types.PlayerId]contract.Player
 
 	// polls contains the polls of villager and werewolf factions.
-	polls map[types.FactionID]contract.Poll
+	polls map[types.FactionId]contract.Poll
 
 	gameMap contract.Map
 }
@@ -43,11 +43,11 @@ type world struct {
 func NewWorld(scheduler contract.Scheduler, init *types.GameInitialization) contract.World {
 	world := world{
 		numberWerewolves: init.NumberWerewolves,
-		roleIDs:          init.RoleIDs,
-		requiredRoleIDs:  init.RequiredRoleIDs,
+		roleIDs:          init.RoleIds,
+		requiredRoleIDs:  init.RequiredRoleIds,
 		scheduler:        scheduler,
-		players:          make(map[types.PlayerID]contract.Player),
-		polls:            make(map[types.FactionID]contract.Poll),
+		players:          make(map[types.PlayerId]contract.Player),
+		polls:            make(map[types.FactionId]contract.Poll),
 		gameMap:          NewMap(),
 	}
 
@@ -65,8 +65,8 @@ func NewWorld(scheduler contract.Scheduler, init *types.GameInitialization) cont
 	}
 
 	// Create polls for villagers and werewolves
-	world.polls[constants.VillagerFactionID] = NewPoll()
-	world.polls[constants.WerewolfFactionID] = NewPoll()
+	world.polls[constants.VillagerFactionId] = NewPoll()
+	world.polls[constants.WerewolfFactionId] = NewPoll()
 
 	return &world
 }
@@ -82,26 +82,26 @@ func (w world) Scheduler() contract.Scheduler {
 
 // Poll returns the in-game poll management state.
 // Each specific faction has different poll to interact with.
-func (w world) Poll(facitonID types.FactionID) contract.Poll {
-	return w.polls[facitonID]
+func (w world) Poll(facitonId types.FactionId) contract.Poll {
+	return w.polls[facitonId]
 }
 
 // Player returns the player by given player ID.
-func (w world) Player(playerId types.PlayerID) contract.Player {
+func (w world) Player(playerId types.PlayerId) contract.Player {
 	return w.players[playerId]
 }
 
 // Players returns the player list.
-func (w world) Players() map[types.PlayerID]contract.Player {
+func (w world) Players() map[types.PlayerId]contract.Player {
 	return w.players
 }
 
 // AlivePlayerIDsWithRoleID returns the alive player ID list having the
 // givent role ID.
-func (w world) AlivePlayerIDsWithRoleID(roleID types.RoleID) []types.PlayerID {
-	playerIDs := make([]types.PlayerID, 0)
+func (w world) AlivePlayerIdsWithRoleId(roleId types.RoleId) []types.PlayerId {
+	playerIDs := make([]types.PlayerId, 0)
 	for playerID, player := range w.players {
-		if !player.IsDead() && slices.Contains(player.RoleIDs(), roleID) {
+		if !player.IsDead() && slices.Contains(player.RoleIds(), roleId) {
 			playerIDs = append(playerIDs, playerID)
 		}
 	}
@@ -111,10 +111,10 @@ func (w world) AlivePlayerIDsWithRoleID(roleID types.RoleID) []types.PlayerID {
 
 // AlivePlayerIDsWithFactionID returns the alive player ID list having the
 // given faction ID.
-func (w world) AlivePlayerIDsWithFactionID(factionID types.FactionID) []types.PlayerID {
-	playerIDs := make([]types.PlayerID, 0)
+func (w world) AlivePlayerIdsWithFactionId(factionId types.FactionId) []types.PlayerId {
+	playerIDs := make([]types.PlayerId, 0)
 	for playerID, player := range w.players {
-		if !player.IsDead() && player.FactionID() == factionID {
+		if !player.IsDead() && player.FactionId() == factionId {
 			playerIDs = append(playerIDs, playerID)
 		}
 	}
@@ -124,10 +124,10 @@ func (w world) AlivePlayerIDsWithFactionID(factionID types.FactionID) []types.Pl
 
 // AlivePlayerIDsWithoutFactionID returns the alive player ID list not having
 // the given faction ID.
-func (w world) AlivePlayerIDsWithoutFactionID(factionID types.FactionID) []types.PlayerID {
-	playerIDs := make([]types.PlayerID, 0)
+func (w world) AlivePlayerIdsWithoutFactionId(factionId types.FactionId) []types.PlayerId {
+	playerIDs := make([]types.PlayerId, 0)
 	for playerID, player := range w.players {
-		if !player.IsDead() && player.FactionID() != factionID {
+		if !player.IsDead() && player.FactionId() != factionId {
 			playerIDs = append(playerIDs, playerID)
 		}
 	}
@@ -139,9 +139,9 @@ func (w world) AlivePlayerIDsWithoutFactionID(factionID types.FactionID) []types
 // can't be selected.
 //
 // Note: Don't work with unlimited set.
-func (w *world) selectRoleID(werewolfCounter *int, nonWerewolfCounter *int, roleID types.RoleID) bool {
+func (w *world) selectRoleID(werewolfCounter *int, nonWerewolfCounter *int, roleID types.RoleId) bool {
 	isWerewolf := slices.Contains(
-		constants.FactionID2RoleIDs.BindGet(constants.WerewolfFactionID),
+		constants.FactionId2RoleIds.BindGet(constants.WerewolfFactionId),
 		roleID,
 	)
 
@@ -183,7 +183,7 @@ func (w *world) selectRoleIDs() {
 	}
 
 	// Select random roles
-	roleIDs := lo.Filter(w.roleIDs, func(roleID types.RoleID, _ int) bool {
+	roleIDs := lo.Filter(w.roleIDs, func(roleID types.RoleId, _ int) bool {
 		return !slices.Contains(w.requiredRoleIDs, roleID)
 	})
 	for {
@@ -200,7 +200,7 @@ func (w *world) selectRoleIDs() {
 
 	// Add missing werewolf roles
 	for werewolfCounter < int(w.numberWerewolves) {
-		w.selectedRoleIDs = append(w.selectedRoleIDs, constants.WerewolfRoleID)
+		w.selectedRoleIDs = append(w.selectedRoleIDs, constants.WerewolfRoleId)
 		werewolfCounter++
 	}
 }
@@ -217,21 +217,21 @@ func (w *world) assignRoles() {
 		}
 
 		// Assign default role
-		player.AssignRole(constants.VillagerRoleID) // nolint: errcheck
+		player.AssignRole(constants.VillagerRoleId) // nolint: errcheck
 
-		selectedRole, _ := role.NewRole(selectedRoleID, w, player.ID())
+		selectedRole, _ := role.NewRole(selectedRoleID, w, player.Id())
 		if selectedRole == nil {
 			continue
 		}
 
 		// Assign default werewolf faction's role
-		if selectedRole.FactionID() == constants.WerewolfFactionID &&
-			selectedRole.ID() != constants.WerewolfRoleID {
-			player.AssignRole(constants.WerewolfRoleID) // nolint: errcheck
+		if selectedRole.FactionId() == constants.WerewolfFactionId &&
+			selectedRole.Id() != constants.WerewolfRoleId {
+			player.AssignRole(constants.WerewolfRoleId) // nolint: errcheck
 		}
 
 		// Assign main role
-		player.AssignRole(selectedRole.ID()) // nolint: errcheck
+		player.AssignRole(selectedRole.Id()) // nolint: errcheck
 	}
 }
 

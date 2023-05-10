@@ -2,9 +2,9 @@ package action
 
 import (
 	"fmt"
-	"uwwolf/internal/app/game/logic/constants"
 	"uwwolf/internal/app/game/logic/contract"
 	"uwwolf/internal/app/game/logic/types"
+	"uwwolf/pkg/util"
 )
 
 // identify gets a player list with a specific role or faction.
@@ -14,45 +14,45 @@ type identify struct {
 	// isIdentified marks as identified or not.
 	isIdentified bool
 
-	// roleID is expected role ID.
-	RoleID types.RoleID `json:"expected_role_id"`
+	// roleId is expected role ID.
+	RoleId types.RoleId `json:"expected_role_id"`
 
-	// factionID is expected faction ID.
-	FactionID types.FactionID `json:"expected_faction_id"`
+	// factionId is expected faction ID.
+	FactionId types.FactionId `json:"expected_faction_id"`
 
 	// Role stores an array of player IDs having expected role ID.
-	Role []types.PlayerID `json:"role_identification"`
+	Role []types.PlayerId `json:"role_identification"`
 
 	// Faction stores an array of player IDs having expected faction ID.
-	Faction []types.PlayerID `json:"faction_identification"`
+	Faction []types.PlayerId `json:"faction_identification"`
 }
 
-func NewRoleIdentify(world contract.World, roleID types.RoleID) contract.Action {
+func NewRoleIdentify(world contract.World, roleId types.RoleId) contract.Action {
 	return &identify{
 		action: action{
-			id:    constants.IdentifyActionID,
+			id:    IdentifyActionId,
 			world: world,
 		},
-		RoleID: roleID,
-		Role:   make([]types.PlayerID, 0),
+		RoleId: roleId,
+		Role:   make([]types.PlayerId, 0),
 	}
 }
 
-func NewFactionIdentify(world contract.World, factionID types.FactionID) contract.Action {
+func NewFactionIdentify(world contract.World, factionId types.FactionId) contract.Action {
 	return &identify{
 		action: action{
-			id:    constants.IdentifyActionID,
+			id:    IdentifyActionId,
 			world: world,
 		},
-		FactionID: factionID,
-		Faction:   make([]types.PlayerID, 0),
+		FactionId: factionId,
+		Faction:   make([]types.PlayerId, 0),
 	}
 }
 
 // Execute checks if the request is skipped. If so, skips the execution;
 // otherwise, validates the request, and then performs the required action.
-func (i *identify) Execute(req *types.ActionRequest) *types.ActionResponse {
-	return i.action.execute(i, req)
+func (i *identify) Execute(req types.ActionRequest) types.ActionResponse {
+	return i.action.execute(i, i.Id(), &req)
 }
 
 // validate checks if the action request is valid.
@@ -65,23 +65,23 @@ func (i identify) validate(req *types.ActionRequest) error {
 }
 
 // perform completes the action request.
-func (i *identify) perform(req *types.ActionRequest) *types.ActionResponse {
+func (i *identify) perform(req *types.ActionRequest) types.ActionResponse {
 	i.isIdentified = true
 
-	if !i.FactionID.IsUnknown() {
-		i.Faction = i.world.AlivePlayerIDsWithFactionID(i.FactionID)
-		return &types.ActionResponse{
+	if !util.IsZero(i.FactionId) {
+		i.Faction = i.world.AlivePlayerIdsWithFactionId(i.FactionId)
+		return types.ActionResponse{
 			Ok:   true,
 			Data: i.Faction,
 		}
-	} else if !i.RoleID.IsUnknown() {
-		i.Role = i.world.AlivePlayerIDsWithRoleID(i.RoleID)
-		return &types.ActionResponse{
+	} else if !util.IsZero(i.RoleId) {
+		i.Role = i.world.AlivePlayerIdsWithRoleId(i.RoleId)
+		return types.ActionResponse{
 			Ok:   true,
 			Data: i.Role,
 		}
 	} else {
-		return &types.ActionResponse{
+		return types.ActionResponse{
 			Ok:      false,
 			Message: "Unable to recognize!",
 		}

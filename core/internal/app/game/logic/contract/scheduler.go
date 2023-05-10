@@ -11,21 +11,21 @@ type Scheduler interface {
 	PhaseID() types.PhaseID
 
 	// Phase returns the current phase.
-	Phase() map[types.TurnID]types.Turn
+	Phase() map[types.TurnId]types.Turn
 
 	// TurnID returns the current turn ID.
-	TurnID() types.TurnID
+	TurnID() types.TurnId
 
 	// Turn returns the current turn.
 	Turn() types.Turn
 
 	// CanPlay checks if the given playerID can play in the
 	// current turn.
-	CanPlay(playerID types.PlayerID) bool
+	CanPlay(playerID types.PlayerId) bool
 
 	// PlayablePlayerIDs returns playable player ID list in
 	// the current turn.
-	PlayablePlayerIDs() []types.PlayerID
+	PlayablePlayerIDs() []types.PlayerId
 
 	// IsEmptyPhase check if specific phase is empty.
 	// Check if scheduler is empty if `phaseID` is 0.
