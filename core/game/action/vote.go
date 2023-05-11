@@ -46,7 +46,12 @@ func (v *vote) Execute(req *types.ActionRequest) *types.ActionResponse {
 // skip ingores the action request.
 func (v *vote) skip(req *types.ActionRequest) *types.ActionResponse {
 	// Abstain from voting
-	v.poll.Vote(req.ActorID, types.PlayerID(""))
+	if _, err := v.poll.Vote(req.ActorID, types.PlayerID("")); err != nil {
+		return &types.ActionResponse{
+			Ok:      false,
+			Message: err.Error(),
+		}
+	}
 	return v.action.skip(req)
 }
 

@@ -1,0 +1,156 @@
+name: core
+
+on:
+  push:
+    branches:
+      - main
+      - development
+      - production
+    paths:
+      - .github/workflows/core.yml
+      - core/**
+      - '!core/.vscode/**'
+      - '!core/docs/**'
+      - '!core/.docker/**'
+      - '!core/.editorconfig'
+      - '!core/.gitignore'
+      - '!core/**.md'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/core.yml
+      - core/**
+      - '!core/.vscode/**'
+      - '!core/docs/**'
+      - '!core/.docker/**'
+      - '!core/.editorconfig'
+      - '!core/.gitignore'
+      - '!core/**.md'
+
+env:
+  WORKDIR: core
+
+jobs:
+  lint:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      
+      - uses: actions/setup-go@v4
+        with:
+          go-version: '^1.18.0'
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: latest
+          working-directory: ${{ env.WORKDIR }}
+          args: --tests=false
+          skip-pkg-cache: false
+
+  lint-dockerfile:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        
+      - uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: ${{ env.WORKDIR }}/Dockerfile
+
+  test:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      
+      - uses: actions/setup-go@v4
+        with:
+          go-version: '^1.18.0'
+
+      - name: Get golang store directory
+        id: go-pkg-cache
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(go env GOPATH)" >> $GITHUB_OUTPUT
+
+      - name: Setup pkg cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.go-pkg-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-go-pkg-${{ hashFiles('${{ env.WORKDIR }}/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-pkg-
+
+      - name: Install packages
+        working-directory: ${{ env.WORKDIR }}
+        run: go mod download
+
+      - name: Create cofig
+        working-directory: ${{ env.WORKDIR }}
+        run: cp config.example.yaml config.yaml
+
+      - name: Run test
+        working-directory: ${{ env.WORKDIR }}
+        run: go test ./... -cover
+
+  build:
+    if: |
+      github.event_name == 'push' &&
+      contains(fromJson('["refs/heads/development", "refs/heads/production"]'), github.ref)
+
+    needs:
+      - lint
+      - lint-dockerfile
+      - test
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ secrets.GHCR_USERNAME }}
+          password: ${{ secrets.GHCR_PERSONAL_ACCESS_TOKEN }}
+
+      - name: Create image tags
+        id: tags
+        run: |
+          case ${{ github.ref }} in
+
+            refs/heads/development)
+              echo "TAGS=\
+              ghcr.io/${{ github.repository }}-$WORKDIR:staging-latest, \
+              ghcr.io/${{ github.repository }}-$WORKDIR:staging-${{ github.sha }}" >> $GITHUB_OUTPUT
+              ;;
+
+            refs/heads/production)
+              echo "TAGS=\
+              ghcr.io/${{ github.repository }}-$WORKDIR:latest, \
+              ghcr.io/${{ github.repository }}-$WORKDIR:${{ github.sha }}" >> $GITHUB_OUTPUT
+              ;;
+
+            *)
+              echo "This branch can't be built";
+              exit 1;
+              ;;
+          esac
+
+      - name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          push: true
+          context: ./${{ env.WORKDIR }}
+          tags: ${{ steps.tags.outputs.TAGS }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

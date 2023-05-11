@@ -3,21 +3,27 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
+using System;
 
 public class ChangeInput : MonoBehaviour
 {
+    public TMP_Text clockText;
+
     EventSystem system;
-    public Selectable firstInput;
+    //public Selectable firstInput;
     public Button submitButton;
 
     void Start()
     {
         system = EventSystem.current;
-        firstInput.Select();
+        //firstInput.Select();
     }
 
     void Update()
     {
+        //clockText.text = DateTime.Now.ToString();
+
         if (Input.GetKeyDown(KeyCode.Tab) && Input.GetKey(KeyCode.LeftShift))
         {
             Selectable previous = system.currentSelectedGameObject.GetComponent<Selectable>().FindSelectableOnUp();

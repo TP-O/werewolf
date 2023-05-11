@@ -1081,9 +1081,9 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 455963359}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -1414,7 +1414,7 @@ GameObject:
   - component: {fileID: 594617492}
   - component: {fileID: 594617491}
   m_Layer: 5
-  m_Name: PasswordAgain
+  m_Name: ConfirmPassword
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1860,7 +1860,7 @@ GameObject:
   - component: {fileID: 697586238}
   - component: {fileID: 697586239}
   m_Layer: 5
-  m_Name: RoundedBox
+  m_Name: LoginBox
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1942,7 +1942,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 087c4452bbaef6c469f5d827245e45c3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  firstInput: {fileID: 1983649527}
+  clockText: {fileID: 0}
   submitButton: {fileID: 1895547350}
 --- !u!114 &697586239
 MonoBehaviour:
@@ -3618,7 +3618,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 087c4452bbaef6c469f5d827245e45c3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  firstInput: {fileID: 546466957}
+  clockText: {fileID: 0}
   submitButton: {fileID: 1663471929}
 --- !u!114 &1188187051
 MonoBehaviour:
@@ -3910,7 +3910,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Password Again
+  m_text: Confirm Password
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -5056,7 +5056,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 087c4452bbaef6c469f5d827245e45c3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  firstInput: {fileID: 0}
+  clockText: {fileID: 0}
   submitButton: {fileID: 1148055130}
 --- !u!114 &1726715812
 MonoBehaviour:

@@ -2,33 +2,60 @@ package main
 
 import (
 	"context"
-	"fmt"
-	"uwwolf/redis"
-	"uwwolf/util"
+	"log"
+	"net/http"
+	"os/signal"
+	"syscall"
+	"time"
+	"uwwolf/app/server"
+	"uwwolf/app/service"
+	"uwwolf/config"
+	"uwwolf/db/postgres"
+	"uwwolf/db/redis"
+	"uwwolf/game"
+
+	_ "github.com/lib/pq"
 )
 
 func main() {
-	// grpc.Start()
+	// runtime.GOMAXPROCS(1)
 
-	// fmt.Println(validator.ValidateStruct(types.GameSetting{
-	// 	TurnDuration:       50,
-	// 	DiscussionDuration: 90,
-	// 	RoleIDs:            []enum.RoleID{1, 2},
-	// 	NumberWerewolves:   1,
-	// 	PlayerIDs: []enum.PlayerID{
-	// 		"11111111111111111111",
-	// 		"22222222222222222222",
-	// 		"33333333333333333333",
-	// 		"44444444444444444444",
-	// 		"55555555555555555555",
-	// 	},
-	// }))
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer stop()
 
-	util.LoadConfig(".")
-	// db.ConnectDB()
-	c := redis.ConnectRedis()
+	config := config.Load(".")
 
-	fmt.Println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
-	c.Set(context.Background(), "aaaa", 2, -1)
-	fmt.Println(c.Get(context.Background(), "aaaa").Val())
+	log.Println("Connecting to Redis...")
+	rdb := redis.Connect(config.Redis)
+	defer rdb.Close()
+	log.Println("Connected to Redis...")
+
+	log.Println("Connecting to PostgreSQL...")
+	pdb := postgres.Connect(config.Postgres)
+	defer pdb.Close()
+	log.Println("Connected to PostgreSQL...")
+
+	gameManager := game.Manager(config.Game)
+
+	roomService := service.NewRoomService(rdb)
+	gameService := service.NewGameService(config.Game, rdb, pdb, gameManager)
+	server := server.NewServer(config.App, roomService, gameService)
+
+	go func() {
+		log.Printf("Server is listening on port %d", config.App.Port)
+		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Panic(err)
+		}
+	}()
+
+	<-ctx.Done()
+	log.Println("Shutting down...")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := server.Shutdown(ctx); err != nil {
+		log.Println(err.Error())
+	}
+
+	log.Println("Exited")
 }
