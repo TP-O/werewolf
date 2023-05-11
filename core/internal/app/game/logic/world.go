@@ -20,7 +20,7 @@ type world struct {
 	numberWerewolves uint8
 
 	// scheduler is turn manager.
-	scheduler contract.Scheduler
+	moderator contract.Moderator
 
 	// roleIDs is the possible role IDs in the game.
 	roleIDs []types.RoleId
@@ -40,19 +40,19 @@ type world struct {
 	gameMap contract.Map
 }
 
-func NewWorld(scheduler contract.Scheduler, init *types.GameInitialization) contract.World {
+func NewWorld(moderator contract.Moderator, init *types.GameInitialization) contract.World {
 	world := world{
 		numberWerewolves: init.NumberWerewolves,
 		roleIDs:          init.RoleIds,
 		requiredRoleIDs:  init.RequiredRoleIds,
-		scheduler:        scheduler,
+		moderator:        moderator,
 		players:          make(map[types.PlayerId]contract.Player),
 		polls:            make(map[types.FactionId]contract.Poll),
 		gameMap:          NewMap(),
 	}
 
 	for i, id := range init.PlayerIDs {
-		world.players[id] = NewPlayer(&world, id)
+		world.players[id] = NewPlayer(moderator, id)
 		world.gameMap.AddEntity(string(id), contract.EntitySettings{
 			Type:    contract.PlayerEntity,
 			X:       float64(64*i) + 200,
@@ -77,7 +77,7 @@ func (w world) Map() contract.Map {
 
 // Scheduler returns turn manager.
 func (w world) Scheduler() contract.Scheduler {
-	return w.scheduler
+	return w.moderator.Scheduler()
 }
 
 // Poll returns the in-game poll management state.

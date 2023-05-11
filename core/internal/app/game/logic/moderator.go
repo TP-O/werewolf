@@ -47,7 +47,7 @@ func NewModerator(config config.Game, reg *types.GameRegistration) contract.Mode
 		discussionDuration: reg.DiscussionDuration,
 		scheduler:          NewScheduler(constants.NightPhaseId),
 	}
-	m.world = NewWorld(m.scheduler, &types.GameInitialization{
+	m.world = NewWorld(m, &types.GameInitialization{
 		RoleIds:          reg.RoleIds,
 		RequiredRoleIds:  reg.RequiredRoleIds,
 		NumberWerewolves: reg.NumberWerewolves,
@@ -67,6 +67,10 @@ func (m moderator) GameID() types.GameID {
 
 func (m moderator) Scheduler() contract.Scheduler {
 	return m.scheduler
+}
+
+func (m moderator) World() contract.World {
+	return m.world
 }
 
 // StatusID retusn current world status ID.

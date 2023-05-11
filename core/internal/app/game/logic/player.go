@@ -13,22 +13,31 @@ import (
 	"golang.org/x/exp/slices"
 )
 
+// type playerRecord struct {
+// 	RoundId  types.RoundID
+// 	TurnId   types.TurnId
+// 	RoleId   types.RoleId
+// 	TargetId types.PlayerId
+// }
+
 // player represents the player in a game.
 type player struct {
 	id         types.PlayerId
 	factionId  types.FactionId
 	mainRoleId types.RoleId
 	isDead     bool
-	world      contract.World
+	moderator  contract.Moderator
 	roles      map[types.RoleId]contract.Role
+	// records    []playerRecord
 }
 
-func NewPlayer(world contract.World, id types.PlayerId) contract.Player {
+func NewPlayer(moderator contract.Moderator, id types.PlayerId) contract.Player {
 	return &player{
 		id:        id,
-		world:     world,
+		moderator: moderator,
 		factionId: constants.VillagerFactionId,
 		roles:     make(map[types.RoleId]contract.Role),
+		// records:   make([]playerRecord, 0),
 	}
 }
 
@@ -99,7 +108,7 @@ func (p *player) die(isExited bool) bool {
 		role.OnAfterDeath()
 		role.OnRevoke()
 	}
-	p.world.Map().RemoveEntity(contract.EntityID(fmt.Sprintf("%v_%v", contract.PlayerEntity, p.Id())))
+	p.moderator.World().Map().RemoveEntity(contract.EntityID(fmt.Sprintf("%v_%v", contract.PlayerEntity, p.Id())))
 
 	return true
 }
@@ -111,7 +120,7 @@ func (p *player) AssignRole(roleID types.RoleId) (bool, error) {
 		return false, fmt.Errorf("This role is already assigned ¯\\_(ツ)_/¯")
 	}
 
-	if newRole, err := role.NewRole(roleID, p.world, p.id); err != nil {
+	if newRole, err := role.NewRole(roleID, p.moderator.World(), p.id); err != nil {
 		return false, err
 	} else {
 		p.roles[roleID] = newRole
@@ -163,17 +172,25 @@ func (p *player) ActivateAbility(req *types.ActivateAbilityRequest) *types.Actio
 			Ok:      false,
 			Message: "You're died (╥﹏╥)",
 		}
-	} else if !p.world.Scheduler().CanPlay(p.id) {
+	} else if !p.moderator.World().Scheduler().CanPlay(p.id) {
 		return &types.ActionResponse{
 			Ok:      false,
 			Message: "Wait for your turn, OK??",
 		}
 	} else {
-		turn := p.world.Scheduler().Turn()
-		return p.roles[turn[p.id].RoleId].ActivateAbility(req)
+		turn := p.moderator.World().Scheduler().Turn()
+		res := p.roles[turn[p.id].RoleId].ActivateAbility(req)
+		// p.records = append(p.records, playerRecord{
+		// 	RoundId:  p.moderator.Scheduler().RoundID(),
+		// 	TurnId:   p.moderator.World().Scheduler().TurnID(),
+		// 	RoleId:   1,
+		// 	TargetId: res.TargetId,
+		// })
+
+		return res
 	}
 }
 
 func (p *player) Move(position orb.Point) (bool, error) {
-	return p.world.Map().MoveEntity(contract.EntityID(fmt.Sprintf("%v_%v", contract.PlayerEntity, p.Id())), position)
+	return p.moderator.World().Map().MoveEntity(contract.EntityID(fmt.Sprintf("%v_%v", contract.PlayerEntity, p.Id())), position)
 }

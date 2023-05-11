@@ -9,6 +9,8 @@ type Moderator interface {
 	// StatusID retusn current game status ID.
 	GameStatus() types.GameStatusID
 
+	World() World
+
 	// StartGame starts the game.
 	StartGame() int64
 
