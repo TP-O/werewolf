@@ -166,20 +166,22 @@ func (p *player) RevokeRole(roleID types.RoleId) (bool, error) {
 // ActivateAbility executes one of player's available ability.
 // The executed ability is selected based on the requested
 // action.
-func (p *player) ActivateAbility(req *types.ActivateAbilityRequest) *types.ActionResponse {
+func (p *player) ActivateAbility(req *types.RoleRequest) *types.RoleResponse {
 	if p.isDead {
-		return &types.ActionResponse{
-			Ok:      false,
-			Message: "You're died (╥﹏╥)",
+		return &types.RoleResponse{
+			ActionResponse: types.ActionResponse{
+				Message: "You're died (╥﹏╥)",
+			},
 		}
 	} else if !p.moderator.World().Scheduler().CanPlay(p.id) {
-		return &types.ActionResponse{
-			Ok:      false,
-			Message: "Wait for your turn, OK??",
+		return &types.RoleResponse{
+			ActionResponse: types.ActionResponse{
+				Message: "Wait for your turn, OK??",
+			},
 		}
 	} else {
-		turn := p.moderator.World().Scheduler().Turn()
-		res := p.roles[turn[p.id].RoleId].ActivateAbility(req)
+		turn := p.moderator.World().Scheduler().TurnRecords()
+		res := p.roles[turn[p.id].RoleId].Use(*req)
 		// p.records = append(p.records, playerRecord{
 		// 	RoundId:  p.moderator.Scheduler().RoundID(),
 		// 	TurnId:   p.moderator.World().Scheduler().TurnID(),
@@ -187,7 +189,7 @@ func (p *player) ActivateAbility(req *types.ActivateAbilityRequest) *types.Actio
 		// 	TargetId: res.TargetId,
 		// })
 
-		return res
+		return &res
 	}
 }
 

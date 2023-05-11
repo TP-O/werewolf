@@ -23,13 +23,13 @@ func NewWerewolf(moderator contract.Moderator, playerId types.PlayerId) (contrac
 
 	return &werewolf{
 		role: &role{
-			id:           constants.WerewolfRoleId,
-			factionID:    constants.WerewolfFactionId,
-			phaseID:      constants.NightPhaseId,
-			beginRoundID: constants.FirstRound,
-			turnID:       constants.WerewolfTurnID,
-			moderator:    moderator,
-			playerId:     playerId,
+			id:         constants.WerewolfRoleId,
+			factionId:  constants.WerewolfFactionId,
+			phaseId:    constants.NightPhaseId,
+			beginRound: constants.FirstRound,
+			turn:       constants.WerewolfTurn,
+			moderator:  moderator,
+			playerId:   playerId,
 			abilities: []*ability{
 				{
 					action:      voteAction,

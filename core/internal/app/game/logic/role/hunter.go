@@ -14,13 +14,13 @@ type hunter struct {
 func NewHunter(moderator contract.Moderator, playerId types.PlayerId) (contract.Role, error) {
 	return &hunter{
 			role: &role{
-				id:           constants.HunterRoleId,
-				phaseID:      constants.DayPhaseId,
-				factionID:    constants.VillagerFactionId,
-				beginRoundID: constants.FirstRound,
-				turnID:       constants.HunterTurnID,
-				moderator:    moderator,
-				playerId:     playerId,
+				id:         constants.HunterRoleId,
+				phaseId:    constants.DayPhaseId,
+				factionId:  constants.VillagerFactionId,
+				beginRound: constants.FirstRound,
+				turn:       constants.HunterTurn,
+				moderator:  moderator,
+				playerId:   playerId,
 				abilities: []*ability{
 					{
 						action:      action.NewKill(moderator.World()),
@@ -39,28 +39,28 @@ func (h *hunter) OnAssign() {
 
 // OnAfterDeath is triggered after killing this role.
 func (h *hunter) OnAfterDeath() {
-	diedAtPhaseID := h.moderator.World().Scheduler().PhaseID()
+	diedAtPhaseId := h.moderator.World().Scheduler().PhaseId()
 
 	// Ability is disabled if current round is too early
-	if h.moderator.World().Scheduler().RoundID() < h.beginRoundID {
+	if h.moderator.World().Scheduler().Round() < h.beginRound {
 		return
 	}
 
 	// This turn can be only played in the current round
 	slot := &types.NewTurnSlot{
-		PhaseID:       h.phaseID,
-		PlayerId:      h.playerId,
-		RoleId:        h.id,
-		PlayedRoundID: h.moderator.World().Scheduler().RoundID(),
+		PhaseId:     h.phaseId,
+		PlayerId:    h.playerId,
+		RoleId:      h.id,
+		PlayedRound: h.moderator.World().Scheduler().Round(),
 	}
 
-	if diedAtPhaseID == h.phaseID {
+	if diedAtPhaseId == h.phaseId {
 		// Play in next turn if he dies at his phase
-		slot.TurnId = h.moderator.World().Scheduler().TurnID() + 1
+		slot.Turn = h.moderator.World().Scheduler().Turn() + 1
 	} else {
 		// Play in his turn of the next day if he dies at
 		// a time is not his phase
-		slot.TurnId = h.turnID
+		slot.Turn = h.turn
 	}
 
 	h.abilities[0].activeLimit = constants.Once

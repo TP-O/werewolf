@@ -23,8 +23,8 @@ type Moderator interface {
 
 	OnPhaseChanged(fn func(mod Moderator))
 
-	RegisterActionExecution(r types.RoundID, p types.PhaseID, t types.TurnId, fn func())
+	RegisterActionExecution(regis types.ActionExecutionRegisteration)
 
 	// RequestPlay receives the play request from the player.
-	RequestPlay(playerID types.PlayerId, req *types.ActivateAbilityRequest) *types.ActionResponse
+	RequestPlay(playerID types.PlayerId, req *types.RoleRequest) *types.RoleResponse
 }

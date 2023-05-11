@@ -14,13 +14,13 @@ type twoSister struct {
 func NewTwoSister(moderator contract.Moderator, playerId types.PlayerId) (contract.Role, error) {
 	return &twoSister{
 		role: &role{
-			id:           constants.TwoSistersRoleId,
-			factionID:    constants.VillagerFactionId,
-			phaseID:      constants.NightPhaseId,
-			beginRoundID: constants.FirstRound,
-			turnID:       constants.TwoSistersTurnID,
-			moderator:    moderator,
-			playerId:     playerId,
+			id:         constants.TwoSistersRoleId,
+			factionId:  constants.VillagerFactionId,
+			phaseId:    constants.NightPhaseId,
+			beginRound: constants.FirstRound,
+			turn:       constants.TwoSistersTurn,
+			moderator:  moderator,
+			playerId:   playerId,
 			abilities: []*ability{
 				{
 					action: action.NewRoleIdentify(

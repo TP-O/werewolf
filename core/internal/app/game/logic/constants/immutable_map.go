@@ -1,4 +1,4 @@
-package util
+package constants
 
 import "github.com/huandu/go-clone"
 

@@ -49,7 +49,7 @@ type Player interface {
 	// ActivateAbility executes one of player's available ability.
 	// The executed ability is selected based on the requested
 	// action.
-	ActivateAbility(req *types.ActivateAbilityRequest) *types.ActionResponse
+	ActivateAbility(req *types.RoleRequest) *types.RoleResponse
 
 	// Move moves the player to the specified location.
 	Move(position orb.Point) (bool, error)

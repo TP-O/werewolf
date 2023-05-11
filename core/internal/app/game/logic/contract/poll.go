@@ -5,7 +5,7 @@ import "uwwolf/internal/app/game/logic/types"
 // VoteRecord contains voting information of a candidate.
 type VoteRecord struct {
 	// ElectorIDs is player ID list voting for the candidate.
-	ElectorIDs []types.PlayerId
+	ElectorIds []types.PlayerId
 
 	// Votes is number of votes.
 	Votes uint
@@ -17,7 +17,7 @@ type VoteRecord struct {
 // PollRecord contains poll information of a round.
 type PollRecord struct {
 	// WinnerID is player ID of the winner.
-	WinnerID types.PlayerId
+	WinnerId types.PlayerId
 
 	// IsClosed marks that is poll is closed.
 	IsClosed bool
@@ -37,7 +37,7 @@ type Poll interface {
 
 	// Record returns the record of given round ID.
 	// Retun latest round record if `roundID` is 0.
-	Record(roundID types.RoundID) PollRecord
+	Record(round types.Round) PollRecord
 
 	// Open starts a new poll round if the current one was closed.
 	Open() (bool, error)

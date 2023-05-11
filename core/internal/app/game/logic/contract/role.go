@@ -38,5 +38,5 @@ type Role interface {
 	OnAfterDeath()
 
 	// ActivateAbility executes the action corresponding to the required ability.
-	ActivateAbility(req *types.ActivateAbilityRequest) *types.ActionResponse
+	Use(req types.RoleRequest) types.RoleResponse
 }

@@ -2,7 +2,6 @@ package constants
 
 import (
 	"uwwolf/internal/app/game/logic/types"
-	"uwwolf/pkg/util"
 )
 
 const (
@@ -14,7 +13,7 @@ const (
 )
 
 // Faction Id to its role Ids
-var FactionId2RoleIds = util.NewImmutableMap(map[types.FactionId][]types.RoleId{
+var FactionId2RoleIds = NewImmutableMap(map[types.FactionId][]types.RoleId{
 	WerewolfFactionId: {
 		WerewolfRoleId,
 	},
@@ -27,7 +26,7 @@ var FactionId2RoleIds = util.NewImmutableMap(map[types.FactionId][]types.RoleId{
 })
 
 // Number of maximum role's instances played in one game
-var RoleSets = util.NewImmutableMap(map[types.RoleId]types.Times{
+var RoleSets = NewImmutableMap(map[types.RoleId]types.Times{
 	VillagerRoleId:   UnlimitedTimes,
 	WerewolfRoleId:   UnlimitedTimes,
 	HunterRoleId:     Once,
@@ -36,7 +35,7 @@ var RoleSets = util.NewImmutableMap(map[types.RoleId]types.Times{
 })
 
 // Role weights to decIde main role. The highest weight is picked as the main role
-var RoleWeights = util.NewImmutableMap(map[types.RoleId]uint8{
+var RoleWeights = NewImmutableMap(map[types.RoleId]uint8{
 	VillagerRoleId:   0,
 	TwoSistersRoleId: 1,
 	SeerRoleId:       1,

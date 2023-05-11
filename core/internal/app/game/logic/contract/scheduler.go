@@ -5,19 +5,19 @@ import "uwwolf/internal/app/game/logic/types"
 // Scheduler manages game's turns.
 type Scheduler interface {
 	// RoundID returns the latest round ID.
-	RoundID() types.RoundID
+	Round() types.Round
 
 	// PhaseID returns the current phase ID.
-	PhaseID() types.PhaseID
+	PhaseId() types.PhaseId
 
 	// Phase returns the current phase.
-	Phase() map[types.TurnId]types.Turn
+	Phase() map[types.Turn]types.TurnRecords
 
 	// TurnID returns the current turn ID.
-	TurnID() types.TurnId
+	Turn() types.Turn
 
 	// Turn returns the current turn.
-	Turn() types.Turn
+	TurnRecords() types.TurnRecords
 
 	// CanPlay checks if the given playerID can play in the
 	// current turn.
@@ -29,7 +29,7 @@ type Scheduler interface {
 
 	// IsEmptyPhase check if specific phase is empty.
 	// Check if scheduler is empty if `phaseID` is 0.
-	IsEmptyPhase(phaseID types.PhaseID) bool
+	IsEmptyPhase(phaseId types.PhaseId) bool
 
 	// AddSlot adds new player turn to the scheduler.
 	AddSlot(newSlot *types.NewTurnSlot) bool

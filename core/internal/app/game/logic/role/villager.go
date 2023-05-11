@@ -23,13 +23,13 @@ func NewVillager(moderator contract.Moderator, playerId types.PlayerId) (contrac
 
 	return &villager{
 		role: &role{
-			id:           constants.VillagerRoleId,
-			factionID:    constants.VillagerFactionId,
-			phaseID:      constants.DayPhaseId,
-			beginRoundID: constants.FirstRound,
-			turnID:       constants.VillagerTurnID,
-			moderator:    moderator,
-			playerId:     playerId,
+			id:         constants.VillagerRoleId,
+			factionId:  constants.VillagerFactionId,
+			phaseId:    constants.DayPhaseId,
+			beginRound: constants.FirstRound,
+			turn:       constants.VillagerTurn,
+			moderator:  moderator,
+			playerId:   playerId,
 			abilities: []*ability{
 				{
 					action:      voteAction,

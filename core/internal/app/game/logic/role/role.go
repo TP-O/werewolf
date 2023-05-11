@@ -4,8 +4,15 @@ import (
 	"uwwolf/internal/app/game/logic/constants"
 	"uwwolf/internal/app/game/logic/contract"
 	"uwwolf/internal/app/game/logic/types"
-	"uwwolf/pkg/util"
 )
+
+type executedAt struct {
+	Round func() types.Round
+
+	PhaseId func() types.PhaseId
+
+	Turn func() types.Turn
+}
 
 // ability contains one action and its limit.
 type ability struct {
@@ -15,11 +22,7 @@ type ability struct {
 	// activeLimit is number of times the action can be used.
 	activeLimit types.Times
 
-	round types.RoundID
-
-	phaseID types.PhaseID
-
-	turnId types.TurnId
+	executedAt
 }
 
 // role is the basis for all concreate roles. The concrete role
@@ -29,18 +32,18 @@ type role struct {
 	id types.RoleId
 
 	// phaseID is the active phase ID of this role.
-	phaseID types.PhaseID
+	phaseId types.PhaseId
 
 	// factionID is the faction ID to which this role belongs.
-	factionID types.FactionId
+	factionId types.FactionId
 
 	// beginRoundID is the round where this role begins to playing.
-	beginRoundID types.RoundID
+	beginRound types.Round
 
 	playerId types.PlayerId
 
 	// turnID is play order of this role in the active phase.
-	turnID types.TurnId
+	turn types.Turn
 
 	// isBeforeDeathTriggered marks that `BeforeDeath` function
 	// is called or not.
@@ -64,7 +67,7 @@ func (r role) Id() types.RoleId {
 // }
 
 func (r role) FactionId() types.FactionId {
-	return r.factionID
+	return r.factionId
 }
 
 // TurnID returns role's turn order in active phase.
@@ -96,18 +99,18 @@ func (r role) ActiveTimes(index int) types.Times {
 // OnAssign is triggered when the role is assigned to a player.
 func (r *role) OnAssign() {
 	r.moderator.World().Scheduler().AddSlot(&types.NewTurnSlot{
-		PhaseID:      r.phaseID,
-		TurnId:       r.turnID,
-		BeginRoundID: r.beginRoundID,
-		PlayerId:     r.playerId,
-		RoleId:       r.id,
+		PhaseId:    r.phaseId,
+		Turn:       r.turn,
+		BeginRound: r.beginRound,
+		PlayerId:   r.playerId,
+		RoleId:     r.id,
 	})
 }
 
 // OnRevoke is triggered when the role is removed from a player.
 func (r *role) OnRevoke() {
 	r.moderator.World().Scheduler().RemoveSlot(&types.RemovedTurnSlot{
-		PhaseID:  r.phaseID,
+		PhaseId:  r.phaseId,
 		RoleId:   r.id,
 		PlayerId: r.playerId,
 	})
@@ -132,49 +135,62 @@ func (r role) OnAfterDeath() {
 }
 
 // ActivateAbility executes the action corresponding to the required ability.
-func (r *role) ActivateAbility(req *types.ActivateAbilityRequest) *types.ActionResponse {
+func (r *role) Use(req types.RoleRequest) types.RoleResponse {
 	if int(req.AbilityIndex) >= len(r.abilities) {
-		return &types.ActionResponse{
-			Ok:      false,
-			Message: "This is beyond your ability (╥﹏╥)",
+		return types.RoleResponse{
+			ActionResponse: types.ActionResponse{
+				Message: "This is beyond your ability (╥﹏╥)",
+			},
 		}
 	}
 
 	ability := r.abilities[req.AbilityIndex]
 	if ability.activeLimit == constants.OutOfTimes {
-		return &types.ActionResponse{
-			Ok:      false,
-			Message: "Unable to use this ability anymore ¯\\(º_o)/¯",
+		return types.RoleResponse{
+			ActionResponse: types.ActionResponse{
+				Message: "Unable to use this ability anymore ¯\\(º_o)/¯",
+			},
 		}
 	}
 
-	res := func() types.ActionResponse {
-		if util.IsZero(ability.round) || util.IsZero(ability.phaseID) || util.IsZero(ability.turnId) || req.IsSkipped {
+	actionRes := func() types.ActionResponse {
+		if ability.executedAt.Turn == nil ||
+			ability.executedAt.PhaseId == nil ||
+			ability.executedAt.Round == nil ||
+			req.IsSkipped {
 			return ability.action.Execute(types.ActionRequest{
 				ActorId:   r.playerId,
-				TargetId:  req.TargetID,
+				TargetId:  req.TargetId,
 				IsSkipped: req.IsSkipped,
 			})
 		}
 
-		r.moderator.RegisterActionExecution(ability.round, ability.phaseID, ability.turnId, func() {
-			ability.action.Execute(types.ActionRequest{
-				ActorId:   r.playerId,
-				TargetId:  req.TargetID,
-				IsSkipped: req.IsSkipped,
-			})
+		r.moderator.RegisterActionExecution(types.ActionExecutionRegisteration{
+			RoleId:   r.Id(),
+			ActionId: ability.action.Id(),
+			Round:    ability.Round,
+			PhaseId:  ability.PhaseId,
+			Turn:     ability.Turn,
+			Exec: func() {
+				ability.action.Execute(types.ActionRequest{
+					ActorId:   r.playerId,
+					TargetId:  req.TargetId,
+					IsSkipped: req.IsSkipped,
+				})
+			},
 		})
 		return types.ActionResponse{
 			Ok:       true,
 			ActionId: ability.action.Id(),
 			ActionRequest: types.ActionRequest{
 				ActorId:  r.playerId,
-				TargetId: req.TargetID,
+				TargetId: req.TargetId,
 			},
+			Message: "Action is registered!",
 		}
 	}()
 
-	if res.Ok &&
+	if actionRes.Ok &&
 		!req.IsSkipped &&
 		ability.activeLimit != constants.UnlimitedTimes {
 		ability.activeLimit--
@@ -182,12 +198,18 @@ func (r *role) ActivateAbility(req *types.ActivateAbilityRequest) *types.ActionR
 		// Remove the player turn if the limit is reached
 		if r.ActiveTimes(-1) == constants.OutOfTimes {
 			r.moderator.World().Scheduler().RemoveSlot(&types.RemovedTurnSlot{
-				PhaseID:  r.phaseID,
+				PhaseId:  r.phaseId,
 				RoleId:   r.id,
 				PlayerId: r.playerId,
 			})
 		}
 	}
 
-	return &res
+	return types.RoleResponse{
+		Round:          r.moderator.Scheduler().Round(),
+		PhaseId:        r.moderator.Scheduler().PhaseId(),
+		Turn:           r.moderator.Scheduler().Turn(),
+		RoleId:         r.Id(),
+		ActionResponse: actionRes,
+	}
 }

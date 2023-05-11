@@ -14,13 +14,13 @@ type seer struct {
 func NewSeer(moderator contract.Moderator, playerId types.PlayerId) (contract.Role, error) {
 	return &seer{
 		role: &role{
-			id:           constants.SeerRoleId,
-			factionID:    constants.VillagerFactionId,
-			phaseID:      constants.NightPhaseId,
-			beginRoundID: constants.SecondRound,
-			turnID:       constants.SeerTurnID,
-			moderator:    moderator,
-			playerId:     playerId,
+			id:         constants.SeerRoleId,
+			factionId:  constants.VillagerFactionId,
+			phaseId:    constants.NightPhaseId,
+			beginRound: constants.SecondRound,
+			turn:       constants.SeerTurn,
+			moderator:  moderator,
+			playerId:   playerId,
 			abilities: []*ability{
 				{
 					action: action.NewFactionPredict(
