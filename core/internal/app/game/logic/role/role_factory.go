@@ -7,22 +7,22 @@ import (
 	"uwwolf/internal/app/game/logic/types"
 )
 
-func NewRole(id types.RoleId, world contract.World, playerID types.PlayerId) (contract.Role, error) {
+func NewRole(id types.RoleId, moderator contract.Moderator, playerID types.PlayerId) (contract.Role, error) {
 	switch id {
 	case constants.VillagerRoleId:
-		return NewVillager(world, playerID)
+		return NewVillager(moderator, playerID)
 
 	case constants.WerewolfRoleId:
-		return NewWerewolf(world, playerID)
+		return NewWerewolf(moderator, playerID)
 
 	case constants.HunterRoleId:
-		return NewHunter(world, playerID)
+		return NewHunter(moderator, playerID)
 
 	case constants.SeerRoleId:
-		return NewSeer(world, playerID)
+		return NewSeer(moderator, playerID)
 
 	case constants.TwoSistersRoleId:
-		return NewTwoSister(world, playerID)
+		return NewTwoSister(moderator, playerID)
 
 	default:
 		return nil, fmt.Errorf("Non-existent role ¯\\_ಠ_ಠ_/¯")

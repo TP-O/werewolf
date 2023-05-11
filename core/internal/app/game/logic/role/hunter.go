@@ -11,7 +11,7 @@ type hunter struct {
 	*role
 }
 
-func NewHunter(world contract.World, playerId types.PlayerId) (contract.Role, error) {
+func NewHunter(moderator contract.Moderator, playerId types.PlayerId) (contract.Role, error) {
 	return &hunter{
 			role: &role{
 				id:           constants.HunterRoleId,
@@ -19,11 +19,11 @@ func NewHunter(world contract.World, playerId types.PlayerId) (contract.Role, er
 				factionID:    constants.VillagerFactionId,
 				beginRoundID: constants.FirstRound,
 				turnID:       constants.HunterTurnID,
-				world:        world,
+				moderator:    moderator,
 				playerId:     playerId,
 				abilities: []*ability{
 					{
-						action:      action.NewKill(world),
+						action:      action.NewKill(moderator.World()),
 						activeLimit: constants.OutOfTimes,
 					},
 				},
@@ -39,10 +39,10 @@ func (h *hunter) OnAssign() {
 
 // OnAfterDeath is triggered after killing this role.
 func (h *hunter) OnAfterDeath() {
-	diedAtPhaseID := h.world.Scheduler().PhaseID()
+	diedAtPhaseID := h.moderator.World().Scheduler().PhaseID()
 
 	// Ability is disabled if current round is too early
-	if h.world.Scheduler().RoundID() < h.beginRoundID {
+	if h.moderator.World().Scheduler().RoundID() < h.beginRoundID {
 		return
 	}
 
@@ -51,12 +51,12 @@ func (h *hunter) OnAfterDeath() {
 		PhaseID:       h.phaseID,
 		PlayerId:      h.playerId,
 		RoleId:        h.id,
-		PlayedRoundID: h.world.Scheduler().RoundID(),
+		PlayedRoundID: h.moderator.World().Scheduler().RoundID(),
 	}
 
 	if diedAtPhaseID == h.phaseID {
 		// Play in next turn if he dies at his phase
-		slot.TurnId = h.world.Scheduler().TurnID() + 1
+		slot.TurnId = h.moderator.World().Scheduler().TurnID() + 1
 	} else {
 		// Play in his turn of the next day if he dies at
 		// a time is not his phase
@@ -64,5 +64,5 @@ func (h *hunter) OnAfterDeath() {
 	}
 
 	h.abilities[0].activeLimit = constants.Once
-	h.world.Scheduler().AddSlot(slot)
+	h.moderator.World().Scheduler().AddSlot(slot)
 }

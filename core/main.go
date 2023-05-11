@@ -55,9 +55,9 @@ func main() {
 
 	// log.Println("Exited")
 
-	var a map[string]any
-	a["a"] = 1
-	fmt.Println(util.IsZero(a))
+	var a map[string]map[string]any
+	// a["a"] = make(map[string]any)
+	fmt.Println(util.IsZero(a[""][""]))
 }
 
 // type Server struct {

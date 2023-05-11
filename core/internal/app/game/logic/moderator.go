@@ -22,30 +22,32 @@ type moderator struct {
 	// gameStatus is the current game status ID.
 	gameStatus types.GameStatusID
 
-	world              contract.World
-	config             config.Game
-	scheduler          contract.Scheduler
-	mutex              *sync.Mutex
-	nextTurnSignal     chan bool
-	finishSignal       chan bool
-	turnDuration       time.Duration
-	discussionDuration time.Duration
-	playedPlayerID     []types.PlayerId
-	winningFaction     types.FactionId
-	onPhaseChanged     func(mod contract.Moderator)
+	world                contract.World
+	config               config.Game
+	scheduler            contract.Scheduler
+	mutex                *sync.Mutex
+	nextTurnSignal       chan bool
+	finishSignal         chan bool
+	turnDuration         time.Duration
+	discussionDuration   time.Duration
+	playedPlayerID       []types.PlayerId
+	winningFaction       types.FactionId
+	onPhaseChanged       func(mod contract.Moderator)
+	actionRegisterations map[types.RoundID]map[types.PhaseID]map[types.TurnId][]func()
 }
 
 func NewModerator(config config.Game, reg *types.GameRegistration) contract.Moderator {
 	m := &moderator{
-		gameID:             reg.ID,
-		gameStatus:         constants.Idle,
-		config:             config,
-		nextTurnSignal:     make(chan bool),
-		finishSignal:       make(chan bool),
-		mutex:              new(sync.Mutex),
-		turnDuration:       reg.TurnDuration,
-		discussionDuration: reg.DiscussionDuration,
-		scheduler:          NewScheduler(constants.NightPhaseId),
+		gameID:               reg.ID,
+		gameStatus:           constants.Idle,
+		config:               config,
+		nextTurnSignal:       make(chan bool),
+		finishSignal:         make(chan bool),
+		mutex:                new(sync.Mutex),
+		turnDuration:         reg.TurnDuration,
+		discussionDuration:   reg.DiscussionDuration,
+		scheduler:            NewScheduler(constants.NightPhaseId),
+		actionRegisterations: make(map[types.RoundID]map[types.PhaseID]map[uint8][]func()),
 	}
 	m.world = NewWorld(m, &types.GameInitialization{
 		RoleIds:          reg.RoleIds,
@@ -55,6 +57,17 @@ func NewModerator(config config.Game, reg *types.GameRegistration) contract.Mode
 	})
 
 	return m
+}
+
+func (m *moderator) RegisterActionExecution(r types.RoundID, p types.PhaseID, t types.TurnId, fn func()) {
+	if util.IsZero(m.actionRegisterations[r]) {
+		m.actionRegisterations[r] = make(map[types.PhaseID]map[uint8][]func())
+	}
+	if util.IsZero(m.actionRegisterations[r][p]) {
+		m.actionRegisterations[r][p] = make(map[uint8][]func())
+	}
+
+	m.actionRegisterations[r][p][t] = append(m.actionRegisterations[r][p][t], fn)
 }
 
 func (m *moderator) OnPhaseChanged(fn func(mod contract.Moderator)) {
@@ -152,6 +165,13 @@ func (m *moderator) runScheduler() {
 				m.checkWinConditions()
 			case <-m.finishSignal:
 				m.FinishGame()
+			}
+
+			if len(m.actionRegisterations[m.scheduler.RoundID()][m.scheduler.PhaseID()]) > 0 &&
+				len(m.actionRegisterations[m.scheduler.RoundID()][m.scheduler.PhaseID()][m.scheduler.TurnID()]) > 0 {
+				for _, f := range m.actionRegisterations[m.scheduler.RoundID()][m.scheduler.PhaseID()][m.scheduler.TurnID()] {
+					f()
+				}
 			}
 
 			m.onPhaseChanged(m)

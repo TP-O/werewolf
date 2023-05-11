@@ -4,6 +4,7 @@ import (
 	"uwwolf/internal/app/game/logic/constants"
 	"uwwolf/internal/app/game/logic/contract"
 	"uwwolf/internal/app/game/logic/types"
+	"uwwolf/pkg/util"
 )
 
 // ability contains one action and its limit.
@@ -13,6 +14,12 @@ type ability struct {
 
 	// activeLimit is number of times the action can be used.
 	activeLimit types.Times
+
+	round types.RoundID
+
+	phaseID types.PhaseID
+
+	turnId types.TurnId
 }
 
 // role is the basis for all concreate roles. The concrete role
@@ -40,7 +47,7 @@ type role struct {
 	isBeforeDeathTriggered bool
 
 	// game is the game instance this role affects.
-	world contract.World
+	moderator contract.Moderator
 
 	// abilities is the abilities of this role.
 	abilities []*ability
@@ -88,7 +95,7 @@ func (r role) ActiveTimes(index int) types.Times {
 
 // OnAssign is triggered when the role is assigned to a player.
 func (r *role) OnAssign() {
-	r.world.Scheduler().AddSlot(&types.NewTurnSlot{
+	r.moderator.World().Scheduler().AddSlot(&types.NewTurnSlot{
 		PhaseID:      r.phaseID,
 		TurnId:       r.turnID,
 		BeginRoundID: r.beginRoundID,
@@ -99,7 +106,7 @@ func (r *role) OnAssign() {
 
 // OnRevoke is triggered when the role is removed from a player.
 func (r *role) OnRevoke() {
-	r.world.Scheduler().RemoveSlot(&types.RemovedTurnSlot{
+	r.moderator.World().Scheduler().RemoveSlot(&types.RemovedTurnSlot{
 		PhaseID:  r.phaseID,
 		RoleId:   r.id,
 		PlayerId: r.playerId,
@@ -141,11 +148,32 @@ func (r *role) ActivateAbility(req *types.ActivateAbilityRequest) *types.ActionR
 		}
 	}
 
-	res := ability.action.Execute(types.ActionRequest{
-		ActorId:   r.playerId,
-		TargetId:  req.TargetID,
-		IsSkipped: req.IsSkipped,
-	})
+	res := func() types.ActionResponse {
+		if util.IsZero(ability.round) || util.IsZero(ability.phaseID) || util.IsZero(ability.turnId) || req.IsSkipped {
+			return ability.action.Execute(types.ActionRequest{
+				ActorId:   r.playerId,
+				TargetId:  req.TargetID,
+				IsSkipped: req.IsSkipped,
+			})
+		}
+
+		r.moderator.RegisterActionExecution(ability.round, ability.phaseID, ability.turnId, func() {
+			ability.action.Execute(types.ActionRequest{
+				ActorId:   r.playerId,
+				TargetId:  req.TargetID,
+				IsSkipped: req.IsSkipped,
+			})
+		})
+		return types.ActionResponse{
+			Ok:       true,
+			ActionId: ability.action.Id(),
+			ActionRequest: types.ActionRequest{
+				ActorId:  r.playerId,
+				TargetId: req.TargetID,
+			},
+		}
+	}()
+
 	if res.Ok &&
 		!req.IsSkipped &&
 		ability.activeLimit != constants.UnlimitedTimes {
@@ -153,7 +181,7 @@ func (r *role) ActivateAbility(req *types.ActivateAbilityRequest) *types.ActionR
 
 		// Remove the player turn if the limit is reached
 		if r.ActiveTimes(-1) == constants.OutOfTimes {
-			r.world.Scheduler().RemoveSlot(&types.RemovedTurnSlot{
+			r.moderator.World().Scheduler().RemoveSlot(&types.RemovedTurnSlot{
 				PhaseID:  r.phaseID,
 				RoleId:   r.id,
 				PlayerId: r.playerId,

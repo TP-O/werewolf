@@ -219,7 +219,7 @@ func (w *world) assignRoles() {
 		// Assign default role
 		player.AssignRole(constants.VillagerRoleId) // nolint: errcheck
 
-		selectedRole, _ := role.NewRole(selectedRoleID, w, player.Id())
+		selectedRole, _ := role.NewRole(selectedRoleID, w.moderator, player.Id())
 		if selectedRole == nil {
 			continue
 		}

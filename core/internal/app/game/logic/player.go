@@ -120,7 +120,7 @@ func (p *player) AssignRole(roleID types.RoleId) (bool, error) {
 		return false, fmt.Errorf("This role is already assigned ¯\\_(ツ)_/¯")
 	}
 
-	if newRole, err := role.NewRole(roleID, p.moderator.World(), p.id); err != nil {
+	if newRole, err := role.NewRole(roleID, p.moderator, p.id); err != nil {
 		return false, err
 	} else {
 		p.roles[roleID] = newRole

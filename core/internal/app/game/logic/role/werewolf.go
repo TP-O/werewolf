@@ -11,8 +11,8 @@ type werewolf struct {
 	*role
 }
 
-func NewWerewolf(world contract.World, playerId types.PlayerId) (contract.Role, error) {
-	voteAction, err := action.NewVote(world, &action.VoteActionSetting{
+func NewWerewolf(moderator contract.Moderator, playerId types.PlayerId) (contract.Role, error) {
+	voteAction, err := action.NewVote(moderator.World(), &action.VoteActionSetting{
 		FactionId: constants.WerewolfFactionId,
 		PlayerId:  playerId,
 		Weight:    1,
@@ -28,7 +28,7 @@ func NewWerewolf(world contract.World, playerId types.PlayerId) (contract.Role, 
 			phaseID:      constants.NightPhaseId,
 			beginRoundID: constants.FirstRound,
 			turnID:       constants.WerewolfTurnID,
-			world:        world,
+			moderator:    moderator,
 			playerId:     playerId,
 			abilities: []*ability{
 				{
@@ -44,14 +44,14 @@ func NewWerewolf(world contract.World, playerId types.PlayerId) (contract.Role, 
 func (w *werewolf) OnAssign() {
 	w.role.OnAssign()
 
-	w.world.Poll(constants.VillagerFactionId).AddCandidates(w.playerId)
+	w.moderator.World().Poll(constants.VillagerFactionId).AddCandidates(w.playerId)
 }
 
 // OnRevoke is triggered when the role is removed from a player.
 func (w *werewolf) OnRevoke() {
 	w.role.OnRevoke()
 
-	w.world.Poll(constants.VillagerFactionId).RemoveElector(w.playerId)
-	w.world.Poll(constants.VillagerFactionId).RemoveCandidate(w.playerId)
-	w.world.Poll(constants.WerewolfFactionId).RemoveElector(w.playerId)
+	w.moderator.World().Poll(constants.VillagerFactionId).RemoveElector(w.playerId)
+	w.moderator.World().Poll(constants.VillagerFactionId).RemoveCandidate(w.playerId)
+	w.moderator.World().Poll(constants.WerewolfFactionId).RemoveElector(w.playerId)
 }

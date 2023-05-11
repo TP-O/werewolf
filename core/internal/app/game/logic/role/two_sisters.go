@@ -11,7 +11,7 @@ type twoSister struct {
 	*role
 }
 
-func NewTwoSister(world contract.World, playerId types.PlayerId) (contract.Role, error) {
+func NewTwoSister(moderator contract.Moderator, playerId types.PlayerId) (contract.Role, error) {
 	return &twoSister{
 		role: &role{
 			id:           constants.TwoSistersRoleId,
@@ -19,12 +19,12 @@ func NewTwoSister(world contract.World, playerId types.PlayerId) (contract.Role,
 			phaseID:      constants.NightPhaseId,
 			beginRoundID: constants.FirstRound,
 			turnID:       constants.TwoSistersTurnID,
-			world:        world,
+			moderator:    moderator,
 			playerId:     playerId,
 			abilities: []*ability{
 				{
 					action: action.NewRoleIdentify(
-						world,
+						moderator.World(),
 						constants.TwoSistersRoleId,
 					),
 					activeLimit: constants.Once,

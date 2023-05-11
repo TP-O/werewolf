@@ -11,7 +11,7 @@ type seer struct {
 	*role
 }
 
-func NewSeer(world contract.World, playerId types.PlayerId) (contract.Role, error) {
+func NewSeer(moderator contract.Moderator, playerId types.PlayerId) (contract.Role, error) {
 	return &seer{
 		role: &role{
 			id:           constants.SeerRoleId,
@@ -19,12 +19,12 @@ func NewSeer(world contract.World, playerId types.PlayerId) (contract.Role, erro
 			phaseID:      constants.NightPhaseId,
 			beginRoundID: constants.SecondRound,
 			turnID:       constants.SeerTurnID,
-			world:        world,
+			moderator:    moderator,
 			playerId:     playerId,
 			abilities: []*ability{
 				{
 					action: action.NewFactionPredict(
-						world,
+						moderator.World(),
 						constants.WerewolfFactionId,
 					),
 					activeLimit: constants.UnlimitedTimes,
