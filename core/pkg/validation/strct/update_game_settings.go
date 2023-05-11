@@ -2,7 +2,7 @@ package strct
 
 import (
 	"strconv"
-	"uwwolf/internal/app/game/logic/declare"
+	"uwwolf/internal/app/game/logic/constants"
 	"uwwolf/internal/config"
 	"uwwolf/internal/infra/server/api/dto"
 
@@ -88,7 +88,7 @@ func RegisterRoleIDsMessage(ut ut.Translator, fe validator.FieldError) string {
 
 func validateRoleIDs(sl validator.StructLevel, gameCfg *dto.UpdateGameSetting) {
 	for _, roleID := range gameCfg.RoleIDs {
-		if !slices.Contains(maps.Keys(declare.RoleSets.GetMap()), roleID) {
+		if !slices.Contains(maps.Keys(constants.RoleSets.GetMap()), roleID) {
 			sl.ReportError(
 				gameCfg.RoleIDs,
 				RoleIDTag,

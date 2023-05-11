@@ -15,12 +15,12 @@ package service_test
 // type RoomServiceSuite struct {
 // 	suite.Suite
 // 	roomID   string
-// 	playerID types.PlayerID
+// 	playerID types.PlayerId
 // }
 
 // func (rss *RoomServiceSuite) SetupSuite() {
 // 	rss.roomID = "room_id"
-// 	rss.playerID = types.PlayerID("1")
+// 	rss.playerID = types.PlayerId("1")
 // }
 
 // func TestRoomServiceSuite(t *testing.T) {
@@ -57,14 +57,14 @@ package service_test
 // 			expectedResult: data.WaitingRoom{
 // 				ID:        rss.roomID,
 // 				OwnerID:   rss.playerID,
-// 				PlayerIDs: []types.PlayerID{rss.playerID},
+// 				PlayerIDs: []types.PlayerId{rss.playerID},
 // 			},
 // 			expectedStatus: true,
 // 			setup: func(rdb redismock.ClusterClientMock) {
 // 				encodedExpectedResult, _ := json.Marshal(data.WaitingRoom{
 // 					ID:        rss.roomID,
 // 					OwnerID:   rss.playerID,
-// 					PlayerIDs: []types.PlayerID{rss.playerID},
+// 					PlayerIDs: []types.PlayerId{rss.playerID},
 // 				})
 
 // 				rdb.ExpectEval(service.GetWaitingRoomScript, []string{}, rss.playerID).

@@ -4,14 +4,14 @@ dev:
 	docker-compose up
 
 mockgen:
-	mockgen -source game/mechanism/contract/world.go -destination util/mock/game/world.go -package mock_game
-	mockgen -source game/mechanism/contract/player.go -destination util/mock/game/player.go -package mock_game
-	mockgen -source game/mechanism/contract/action.go -destination util/mock/game/action.go -package mock_game
-	mockgen -source game/mechanism/contract/role.go -destination util/mock/game/role.go -package mock_game
-	mockgen -source game/tool/poll.go -destination util/mock/game/poll.go -package mock_game
-	mockgen -source game/tool/scheduler.go -destination util/mock/game/scheduler.go -package mock_game
-	mockgen -source game/moderator.go -destination util/mock/game/moderator.go -package mock_game
-	mockgen -source game/manager.go -destination util/mock/game/manager.go -package mock_game
+	mockgen -source internal/app/game/logic/contract/world.go -destination test/mock/app/game/logic/world.go -package mock_game_logic
+	mockgen -source internal/app/game/logic/contract/player.go -destination test/mock/app/game/logic/player.go -package mock_game_logic
+	mockgen -source internal/app/game/logic/contract/action.go -destination test/mock/app/game/logic/action.go -package mock_game_logic
+	mockgen -source internal/app/game/logic/contract/role.go -destination test/mock/app/game/logic/role.go -package mock_game_logic
+	mockgen -source internal/app/game/logic/contract/poll.go -destination test/mock/app/game/logic/poll.go -package mock_game_logic
+	mockgen -source internal/app/game/logic/contract/scheduler.go -destination test/mock/app/game/logic/scheduler.go -package mock_game_logic
+	mockgen -source internal/app/game/logic/contract/moderator.go -destination test/mock/app/game/logic/moderator.go -package mock_game_logic
+	mockgen -source internal/app/game/logic/contract/provider.go -destination test/mock/app/game/logic/provider.go -package mock_game_logic
 	mockgen -source db/store.go -destination util/mock/db/postgres.go -package mock_storage \
         -aux_files=uwwolf/db=db/querier.go
 	mockgen -source server/service/room.go -destination util/mock/server/service/room.go -package mock_service

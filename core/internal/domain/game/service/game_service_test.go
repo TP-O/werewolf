@@ -26,18 +26,18 @@ package service_test
 // 	suite.Suite
 // 	roomID          string
 // 	gameID          int64
-// 	playerID        types.PlayerID
-// 	joinedPlayerIDs []types.PlayerID
+// 	playerID        types.PlayerId
+// 	joinedPlayerIDs []types.PlayerId
 // }
 
 // func (gss *GameServiceSuite) SetupSuite() {
 // 	gss.roomID = "room_id"
 // 	gss.gameID = 1
-// 	gss.playerID = types.PlayerID("1")
-// 	gss.joinedPlayerIDs = []types.PlayerID{
-// 		types.PlayerID("1"),
-// 		types.PlayerID("2"),
-// 		types.PlayerID("3"),
+// 	gss.playerID = types.PlayerId("1")
+// 	gss.joinedPlayerIDs = []types.PlayerId{
+// 		types.PlayerId("1"),
+// 		types.PlayerId("2"),
+// 		types.PlayerId("3"),
 // 	}
 // }
 
@@ -188,7 +188,7 @@ package service_test
 // 		{
 // 			name: "Not enough players",
 // 			room: data.WaitingRoom{
-// 				PlayerIDs: []types.PlayerID{"1"},
+// 				PlayerIDs: []types.PlayerId{"1"},
 // 			},
 // 			cfg:         data.GameConfig{},
 // 			expectedErr: fmt.Errorf("Invite more players to play!"),
@@ -196,7 +196,7 @@ package service_test
 // 		{
 // 			name: "Too many players",
 // 			room: data.WaitingRoom{
-// 				PlayerIDs: []types.PlayerID{
+// 				PlayerIDs: []types.PlayerId{
 // 					"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11",
 // 				},
 // 			},
@@ -206,7 +206,7 @@ package service_test
 // 		{
 // 			name: "Unbalanced number of werewolves",
 // 			room: data.WaitingRoom{
-// 				PlayerIDs: []types.PlayerID{
+// 				PlayerIDs: []types.PlayerId{
 // 					"1", "2", "3", "4",
 // 				},
 // 			},
@@ -218,7 +218,7 @@ package service_test
 // 		{
 // 			name: "Unbalanced number of werewolves",
 // 			room: data.WaitingRoom{
-// 				PlayerIDs: []types.PlayerID{
+// 				PlayerIDs: []types.PlayerId{
 // 					"1", "2", "3", "4", "5",
 // 				},
 // 			},
@@ -230,7 +230,7 @@ package service_test
 // 		{
 // 			name: "Ok",
 // 			room: data.WaitingRoom{
-// 				PlayerIDs: []types.PlayerID{
+// 				PlayerIDs: []types.PlayerId{
 // 					"1", "2", "3", "4",
 // 				},
 // 			},
@@ -241,7 +241,7 @@ package service_test
 // 		{
 // 			name: "Ok",
 // 			room: data.WaitingRoom{
-// 				PlayerIDs: []types.PlayerID{
+// 				PlayerIDs: []types.PlayerId{
 // 					"1", "2", "3", "4", "5",
 // 				},
 // 			},

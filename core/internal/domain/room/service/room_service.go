@@ -14,7 +14,7 @@ import (
 // RommService handles room-related business logic.
 type RoomService interface {
 	// PlayerWaitingRoom returns the room containing the given player ID.
-	PlayerWaitingRoom(playerID types.PlayerID) (model.WaitingRoom, bool)
+	PlayerWaitingRoom(playerID types.PlayerId) (model.WaitingRoom, bool)
 }
 
 type roomService struct {
@@ -39,7 +39,7 @@ var GetWaitingRoomScript = fmt.Sprintf(`
 `, redis.GameSetting, redis.WaitingRoom)
 
 // PlayerWaitingRoom returns the room containing the given player ID.
-func (rs roomService) PlayerWaitingRoom(playerID types.PlayerID) (model.WaitingRoom, bool) {
+func (rs roomService) PlayerWaitingRoom(playerID types.PlayerId) (model.WaitingRoom, bool) {
 	var room model.WaitingRoom
 
 	encodedRoom := rs.rdb.Eval(

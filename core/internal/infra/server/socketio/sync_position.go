@@ -17,7 +17,7 @@ type SyncPositionListenMessage struct {
 type SyncPositionEmitMessage struct {
 	X        float64        `json:"x"`
 	Y        float64        `json:"y"`
-	PlayerID types.PlayerID `json:"player_id"`
+	PlayerID types.PlayerId `json:"player_id"`
 }
 
 const syncPositionEvent = "sync_position"

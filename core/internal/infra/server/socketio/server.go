@@ -3,6 +3,7 @@ package socketio
 import (
 	"log"
 	game "uwwolf/internal/app/game/logic"
+	"uwwolf/internal/app/game/logic/contract"
 	"uwwolf/internal/app/game/logic/types"
 	"uwwolf/internal/config"
 	db "uwwolf/internal/infra/db/postgres"
@@ -19,14 +20,14 @@ type message[T any] struct {
 }
 
 type clientContext struct {
-	playerId types.PlayerID
+	playerId types.PlayerId
 	gameId   types.GameID
 }
 
 type Server struct {
 	*socketio.Server
 	authService firebase.AuthService
-	gameManger  game.Manager
+	gameManger  contract.Manager
 	db          db.Store
 	rdb         *redis.ClusterClient
 }
