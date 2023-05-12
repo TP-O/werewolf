@@ -13,13 +13,6 @@ type Role interface {
 	// FactionID returns role's faction ID.
 	FactionId() types.FactionId
 
-	// TurnID returns role's turn order in active phase.
-	// TurnID() types.TurnID
-
-	// BeginRoundID returns round in which this role be able to
-	// use its abilities.
-	// BeginRoundID() types.RoundID
-
 	// ActiveTimes returns remaining times this role can use the specific ability.
 	// Returns total limit if the `index` is -1.
 	ActiveTimes(index int) types.Times

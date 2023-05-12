@@ -28,6 +28,9 @@ func NewSeer(moderator contract.Moderator, playerId types.PlayerId) (contract.Ro
 						constants.WerewolfFactionId,
 					),
 					activeLimit: constants.UnlimitedTimes,
+					effectiveAt: effectiveAt{
+						IsImmediate: true,
+					},
 				},
 			},
 		},

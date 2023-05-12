@@ -6,6 +6,6 @@ import "uwwolf/internal/app/game/logic/types"
 const (
 	UnlimitedTimes types.Times = iota - 1
 	OutOfTimes
-	Once
-	Twice
+	OnceTime
+	TwiceTimes
 )

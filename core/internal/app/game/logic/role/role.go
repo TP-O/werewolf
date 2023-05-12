@@ -6,25 +6,6 @@ import (
 	"uwwolf/internal/app/game/logic/types"
 )
 
-type executedAt struct {
-	Round func() types.Round
-
-	PhaseId func() types.PhaseId
-
-	Turn func() types.Turn
-}
-
-// ability contains one action and its limit.
-type ability struct {
-	// action is a specific action.
-	action contract.Action
-
-	// activeLimit is number of times the action can be used.
-	activeLimit types.Times
-
-	executedAt
-}
-
 // role is the basis for all concreate roles. The concrete role
 // must embed this struct and modify its methods as required.
 type role struct {
@@ -69,17 +50,6 @@ func (r role) Id() types.RoleId {
 func (r role) FactionId() types.FactionId {
 	return r.factionId
 }
-
-// TurnID returns role's turn order in active phase.
-// func (r role) TurnID() types.TurnID {
-// 	return r.turnID
-// }
-
-// BeginRoundID returns round in which this role be able to
-// use its abilities.
-// func (r role) BeginRoundID() types.RoundID {
-// 	return r.beginRoundID
-// }
 
 // ActiveTimes returns remaining times this role can use the specific ability.
 // Returns total limit if the `index` is -1.
@@ -154,9 +124,7 @@ func (r *role) Use(req types.RoleRequest) types.RoleResponse {
 	}
 
 	actionRes := func() types.ActionResponse {
-		if ability.executedAt.Turn == nil ||
-			ability.executedAt.PhaseId == nil ||
-			ability.executedAt.Round == nil ||
+		if ability.IsImmediate ||
 			req.IsSkipped {
 			return ability.action.Execute(types.ActionRequest{
 				ActorId:   r.playerId,
@@ -165,14 +133,14 @@ func (r *role) Use(req types.RoleRequest) types.RoleResponse {
 			})
 		}
 
-		r.moderator.RegisterActionExecution(types.ActionExecutionRegisteration{
-			RoleId:   r.Id(),
-			ActionId: ability.action.Id(),
-			Round:    ability.Round,
-			PhaseId:  ability.PhaseId,
-			Turn:     ability.Turn,
-			Exec: func() {
-				ability.action.Execute(types.ActionRequest{
+		r.moderator.RegisterActionExecution(types.ExecuteActionRegistration{
+			RoleId:           r.Id(),
+			ActionId:         ability.action.Id(),
+			IsRoundMatched:   ability.IsRoundMatched,
+			IsPhaseIdMatched: ability.IsPhaseIdMatched,
+			IsTurnMatched:    ability.IsTurnMatched,
+			Exec: func() types.ActionResponse {
+				return ability.action.Execute(types.ActionRequest{
 					ActorId:   r.playerId,
 					TargetId:  req.TargetId,
 					IsSkipped: req.IsSkipped,

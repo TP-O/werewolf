@@ -22,32 +22,32 @@ type moderator struct {
 	// gameStatus is the current game status ID.
 	gameStatus types.GameStatusID
 
-	world                contract.World
-	config               config.Game
-	scheduler            contract.Scheduler
-	mutex                *sync.Mutex
-	nextTurnSignal       chan bool
-	finishSignal         chan bool
-	turnDuration         time.Duration
-	discussionDuration   time.Duration
-	playedPlayerID       []types.PlayerId
-	winningFaction       types.FactionId
-	onPhaseChanged       func(mod contract.Moderator)
-	actionRegisterations []types.ActionExecutionRegisteration
+	world               contract.World
+	config              config.Game
+	scheduler           contract.Scheduler
+	mutex               *sync.Mutex
+	nextTurnSignal      chan bool
+	finishSignal        chan bool
+	turnDuration        time.Duration
+	discussionDuration  time.Duration
+	playedPlayerID      []types.PlayerId
+	winningFaction      types.FactionId
+	onPhaseChanged      func(mod contract.Moderator)
+	actionRegistrations []types.ExecuteActionRegistration
 }
 
 func NewModerator(config config.Game, reg *types.GameRegistration) contract.Moderator {
 	m := &moderator{
-		gameID:               reg.ID,
-		gameStatus:           constants.Idle,
-		config:               config,
-		nextTurnSignal:       make(chan bool),
-		finishSignal:         make(chan bool),
-		mutex:                new(sync.Mutex),
-		turnDuration:         reg.TurnDuration,
-		discussionDuration:   reg.DiscussionDuration,
-		scheduler:            NewScheduler(constants.NightPhaseId),
-		actionRegisterations: make([]types.ActionExecutionRegisteration, 0),
+		gameID:              reg.ID,
+		gameStatus:          constants.Idle,
+		config:              config,
+		nextTurnSignal:      make(chan bool),
+		finishSignal:        make(chan bool),
+		mutex:               new(sync.Mutex),
+		turnDuration:        reg.TurnDuration,
+		discussionDuration:  reg.DiscussionDuration,
+		scheduler:           NewScheduler(constants.NightPhaseId),
+		actionRegistrations: make([]types.ExecuteActionRegistration, 0),
 	}
 	m.world = NewWorld(m, &types.GameInitialization{
 		RoleIds:          reg.RoleIds,
@@ -59,8 +59,8 @@ func NewModerator(config config.Game, reg *types.GameRegistration) contract.Mode
 	return m
 }
 
-func (m *moderator) RegisterActionExecution(regis types.ActionExecutionRegisteration) {
-	m.actionRegisterations = append(m.actionRegisterations, regis)
+func (m *moderator) RegisterActionExecution(regis types.ExecuteActionRegistration) {
+	m.actionRegistrations = append(m.actionRegistrations, regis)
 }
 
 func (m *moderator) OnPhaseChanged(fn func(mod contract.Moderator)) {
@@ -125,6 +125,16 @@ func (m *moderator) runScheduler() {
 		m.playedPlayerID = make([]types.PlayerId, 0)
 		m.scheduler.NextTurn()
 
+		for i, regis := range m.actionRegistrations {
+			if regis.IsRoundMatched() &&
+				regis.IsPhaseIdMatched() &&
+				regis.IsTurnMatched() {
+				regis.Exec()
+				// Check this carefully whether for loop skip the next element or not
+				m.actionRegistrations = slices.Delete(m.actionRegistrations, i, 1)
+			}
+		}
+
 		func() {
 			var duration time.Duration
 
@@ -158,16 +168,6 @@ func (m *moderator) runScheduler() {
 				m.checkWinConditions()
 			case <-m.finishSignal:
 				m.FinishGame()
-			}
-
-			for i, regis := range m.actionRegisterations {
-				if regis.Round() == m.scheduler.Round() &&
-					regis.PhaseId() == m.scheduler.PhaseId() &&
-					regis.Turn() == m.scheduler.Turn() {
-					regis.Exec()
-					// Check this carefully
-					m.actionRegisterations = slices.Delete(m.actionRegisterations, i, 1)
-				}
 			}
 
 			m.onPhaseChanged(m)

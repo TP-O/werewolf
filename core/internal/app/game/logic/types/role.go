@@ -34,16 +34,16 @@ type RoleResponse struct {
 	ActionResponse
 }
 
-type ActionExecutionRegisteration struct {
+type ExecuteActionRegistration struct {
 	RoleId
 
 	ActionId
 
-	Round func() Round
+	IsRoundMatched func() bool
 
-	PhaseId func() PhaseId
+	IsPhaseIdMatched func() bool
 
-	Turn func() Turn
+	IsTurnMatched func() bool
 
-	Exec func()
+	Exec func() ActionResponse
 }

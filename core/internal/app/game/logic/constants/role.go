@@ -29,12 +29,12 @@ var FactionId2RoleIds = NewImmutableMap(map[types.FactionId][]types.RoleId{
 var RoleSets = NewImmutableMap(map[types.RoleId]types.Times{
 	VillagerRoleId:   UnlimitedTimes,
 	WerewolfRoleId:   UnlimitedTimes,
-	HunterRoleId:     Once,
-	SeerRoleId:       Once,
-	TwoSistersRoleId: types.Times(2),
+	HunterRoleId:     OnceTime,
+	SeerRoleId:       OnceTime,
+	TwoSistersRoleId: TwiceTimes,
 })
 
-// Role weights to decIde main role. The highest weight is picked as the main role
+// Role weights to decide main role. The highest weight is picked as the main role
 var RoleWeights = NewImmutableMap(map[types.RoleId]uint8{
 	VillagerRoleId:   0,
 	TwoSistersRoleId: 1,

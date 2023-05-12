@@ -25,6 +25,9 @@ func NewHunter(moderator contract.Moderator, playerId types.PlayerId) (contract.
 					{
 						action:      action.NewKill(moderator.World()),
 						activeLimit: constants.OutOfTimes,
+						effectiveAt: effectiveAt{
+							IsImmediate: true,
+						},
 					},
 				},
 			},
@@ -63,6 +66,6 @@ func (h *hunter) OnAfterDeath() {
 		slot.Turn = h.turn
 	}
 
-	h.abilities[0].activeLimit = constants.Once
+	h.abilities[0].activeLimit = constants.OnceTime
 	h.moderator.World().Scheduler().AddSlot(slot)
 }
