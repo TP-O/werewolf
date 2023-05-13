@@ -23,17 +23,20 @@ func NewVillager(moderator contract.Moderator, playerId types.PlayerId) (contrac
 
 	return &villager{
 		role: &role{
-			id:           constants.VillagerRoleId,
-			factionID:    constants.VillagerFactionId,
-			phaseID:      constants.DayPhaseId,
-			beginRoundID: constants.FirstRound,
-			turnID:       constants.VillagerTurnID,
-			moderator:    moderator,
-			playerId:     playerId,
+			id:         constants.VillagerRoleId,
+			factionId:  constants.VillagerFactionId,
+			phaseId:    constants.DayPhaseId,
+			beginRound: constants.FirstRound,
+			turn:       constants.VillagerTurn,
+			moderator:  moderator,
+			playerId:   playerId,
 			abilities: []*ability{
 				{
 					action:      voteAction,
 					activeLimit: constants.UnlimitedTimes,
+					effectiveAt: effectiveAt{
+						isImmediate: true,
+					},
 				},
 			},
 		},
@@ -41,16 +44,17 @@ func NewVillager(moderator contract.Moderator, playerId types.PlayerId) (contrac
 }
 
 // OnAssign is triggered when the role is assigned to a player.
-func (v *villager) OnAssign() {
-	v.role.OnAssign()
+func (v *villager) OnAfterAssign() {
+	v.role.OnAfterAssign()
 
+	v.moderator.World().Poll(constants.VillagerFactionId).AddElectors(v.playerId)
 	v.moderator.World().Poll(constants.VillagerFactionId).AddCandidates(v.playerId)
 	v.moderator.World().Poll(constants.WerewolfFactionId).AddCandidates(v.playerId)
 }
 
 // OnRevoke is triggered when the role is removed from a player.
-func (v *villager) OnRevoke() {
-	v.role.OnRevoke()
+func (v *villager) OnAfterRevoke() {
+	v.role.OnAfterRevoke()
 
 	v.moderator.World().Poll(constants.VillagerFactionId).RemoveElector(v.playerId)
 	v.moderator.World().Poll(constants.VillagerFactionId).RemoveCandidate(v.playerId)

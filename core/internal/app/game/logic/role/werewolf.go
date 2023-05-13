@@ -23,17 +23,20 @@ func NewWerewolf(moderator contract.Moderator, playerId types.PlayerId) (contrac
 
 	return &werewolf{
 		role: &role{
-			id:           constants.WerewolfRoleId,
-			factionID:    constants.WerewolfFactionId,
-			phaseID:      constants.NightPhaseId,
-			beginRoundID: constants.FirstRound,
-			turnID:       constants.WerewolfTurnID,
-			moderator:    moderator,
-			playerId:     playerId,
+			id:         constants.WerewolfRoleId,
+			factionId:  constants.WerewolfFactionId,
+			phaseId:    constants.NightPhaseId,
+			beginRound: constants.FirstRound,
+			turn:       constants.WerewolfTurn,
+			moderator:  moderator,
+			playerId:   playerId,
 			abilities: []*ability{
 				{
 					action:      voteAction,
 					activeLimit: constants.UnlimitedTimes,
+					effectiveAt: effectiveAt{
+						isImmediate: true,
+					},
 				},
 			},
 		},
@@ -41,17 +44,15 @@ func NewWerewolf(moderator contract.Moderator, playerId types.PlayerId) (contrac
 }
 
 // OnAssign is triggered when the role is assigned to a player.
-func (w *werewolf) OnAssign() {
-	w.role.OnAssign()
+func (w *werewolf) OnAfterAssign() {
+	w.role.OnAfterAssign()
 
-	w.moderator.World().Poll(constants.VillagerFactionId).AddCandidates(w.playerId)
+	w.moderator.World().Poll(constants.WerewolfFactionId).AddElectors(w.playerId)
 }
 
 // OnRevoke is triggered when the role is removed from a player.
-func (w *werewolf) OnRevoke() {
-	w.role.OnRevoke()
+func (w *werewolf) OnAfterRevoke() {
+	w.role.OnAfterRevoke()
 
-	w.moderator.World().Poll(constants.VillagerFactionId).RemoveElector(w.playerId)
-	w.moderator.World().Poll(constants.VillagerFactionId).RemoveCandidate(w.playerId)
 	w.moderator.World().Poll(constants.WerewolfFactionId).RemoveElector(w.playerId)
 }

@@ -1,7 +1,7 @@
 package action
 
 import (
-	"fmt"
+	"errors"
 	"testing"
 	"uwwolf/internal/app/game/logic/constants"
 	"uwwolf/internal/app/game/logic/types"
@@ -42,7 +42,7 @@ func (vs VoteSuite) TestNewVote() {
 			setting: &VoteActionSetting{
 				FactionId: vs.factionId,
 			},
-			expectedErr: fmt.Errorf("Poll does not exist ¯\\_(ツ)_/¯"),
+			expectedErr: errors.New("Poll does not exist ¯\\_(ツ)_/¯"),
 			setup: func(mw *mock_game_logic.MockWorld, mp *mock_game_logic.MockPoll) {
 				mw.EXPECT().Poll(vs.factionId).Return(nil)
 			},
@@ -76,7 +76,7 @@ func (vs VoteSuite) TestNewVote() {
 				vs.Nil(v)
 				vs.Equal(test.expectedErr, err)
 			} else {
-				vs.Equal(VoteActionId, v.Id())
+				vs.Equal(constants.VoteActionId, v.Id())
 				vs.NotNil(v.(*vote).poll)
 				vs.Equal(poll, v.(*vote).poll)
 			}
@@ -99,7 +99,7 @@ func (vs VoteSuite) TestSkip() {
 			},
 			setup: func(mp *mock_game_logic.MockPoll) {
 				mp.EXPECT().Vote(vs.actorId, types.PlayerId("")).
-					Return(false, fmt.Errorf("CANT_VOTE error"))
+					Return(false, errors.New("CANT_VOTE error"))
 			},
 		},
 		{
@@ -166,7 +166,7 @@ func (vs VoteSuite) TestPerform() {
 			},
 			setup: func(mp *mock_game_logic.MockPoll) {
 				mp.EXPECT().Vote(vs.actorId, vs.targetId).
-					Return(false, fmt.Errorf("CANT_VOTE error"))
+					Return(false, errors.New("CANT_VOTE error"))
 			},
 		},
 		{

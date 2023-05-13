@@ -37,10 +37,10 @@ func (m *MockPlayer) EXPECT() *MockPlayerMockRecorder {
 }
 
 // ActivateAbility mocks base method.
-func (m *MockPlayer) ActivateAbility(req *types.ActivateAbilityRequest) *types.ActionResponse {
+func (m *MockPlayer) ActivateAbility(req *types.RoleRequest) *types.RoleResponse {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ActivateAbility", req)
-	ret0, _ := ret[0].(*types.ActionResponse)
+	ret0, _ := ret[0].(*types.RoleResponse)
 	return ret0
 }
 

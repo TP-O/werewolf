@@ -7,12 +7,12 @@ type FactionId = uint8
 type RoleId = uint8
 
 // ActivateAbilityRequest contains information for ability activating.
-type ActivateAbilityRequest struct {
+type RoleRequest struct {
 	// AbilityIndex is activated ability index.
 	AbilityIndex uint8
 
 	// TargetID  is player ID of target player.
-	TargetID PlayerId
+	TargetId PlayerId
 
 	// IsSkipped marks that the request is ignored.
 	IsSkipped bool
@@ -21,11 +21,25 @@ type ActivateAbilityRequest struct {
 // ActionResponse contains action execution's result.
 type RoleResponse struct {
 	// RoundID is round ID which the action is executed.
-	RoundID
+	Round
+
+	PhaseId
+
+	Turn
 
 	// RoleID is ID of role executing the action.
 	RoleId
 
 	// ActionResponse is result of action execution.
 	ActionResponse
+}
+
+type ExecuteActionRegistration struct {
+	RoleId
+
+	ActionId
+
+	CanExecute func() bool
+
+	Exec func() ActionResponse
 }

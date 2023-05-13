@@ -1,7 +1,7 @@
 package action
 
 import (
-	"fmt"
+	"errors"
 	"testing"
 	"uwwolf/internal/app/game/logic/constants"
 	"uwwolf/internal/app/game/logic/types"
@@ -37,7 +37,7 @@ func (ps *PredictSuite) TestNewFactionPredict() {
 
 	pred := NewFactionPredict(world, ps.predictedFactionId).(*predict)
 
-	ps.Equal(PredictActionId, pred.Id())
+	ps.Equal(constants.PredictActionId, pred.Id())
 	ps.Equal(ps.predictedFactionId, pred.FactionId)
 	ps.Empty(pred.Faction)
 	ps.Equal(types.RoleId(0), pred.RoleId)
@@ -51,7 +51,7 @@ func (ps *PredictSuite) TestNewRolePredict() {
 
 	pred := NewRolePredict(world, ps.predictedRoleId).(*predict)
 
-	ps.Equal(PredictActionId, pred.Id())
+	ps.Equal(constants.PredictActionId, pred.Id())
 	ps.Equal(ps.predictedRoleId, pred.RoleId)
 	ps.Empty(pred.Role)
 	ps.Equal(types.FactionId(0), pred.FactionId)
@@ -71,7 +71,7 @@ func (ps *PredictSuite) TestValIdateFactionPredict() {
 				ActorId:  ps.actorId,
 				TargetId: ps.actorId,
 			},
-			expectedErr: fmt.Errorf("WTF! You don't know who you are? (╯°□°)╯︵ ┻━┻"),
+			expectedErr: errors.New("WTF! You don't know who you are? (╯°□°)╯︵ ┻━┻"),
 			setup:       func(p *predict, mw *mock_game_logic.MockWorld) {},
 		},
 		{
@@ -80,7 +80,7 @@ func (ps *PredictSuite) TestValIdateFactionPredict() {
 				ActorId:  ps.actorId,
 				TargetId: ps.targetId,
 			},
-			expectedErr: fmt.Errorf("You already knew this player ¯\\(º_o)/¯"),
+			expectedErr: errors.New("You already knew this player ¯\\(º_o)/¯"),
 			setup: func(p *predict, gm *mock_game_logic.MockWorld) {
 				p.Faction[ps.targetId] = true
 			},
@@ -91,7 +91,7 @@ func (ps *PredictSuite) TestValIdateFactionPredict() {
 				ActorId:  ps.actorId,
 				TargetId: types.PlayerId("-99"),
 			},
-			expectedErr: fmt.Errorf("Non-existent player ¯\\_(ツ)_/¯"),
+			expectedErr: errors.New("Non-existent player ¯\\_(ツ)_/¯"),
 			setup: func(p *predict, gm *mock_game_logic.MockWorld) {
 				gm.EXPECT().Player(types.PlayerId("-99")).Return(nil)
 			},
@@ -141,7 +141,7 @@ func (ps *PredictSuite) TestValIdateRolePredict() {
 				ActorId:  ps.actorId,
 				TargetId: ps.actorId,
 			},
-			expectedErr: fmt.Errorf("WTF! You don't know who you are? (╯°□°)╯︵ ┻━┻"),
+			expectedErr: errors.New("WTF! You don't know who you are? (╯°□°)╯︵ ┻━┻"),
 			setup:       func(p *predict, mw *mock_game_logic.MockWorld) {},
 		},
 		{
@@ -150,7 +150,7 @@ func (ps *PredictSuite) TestValIdateRolePredict() {
 				ActorId:  ps.actorId,
 				TargetId: ps.targetId,
 			},
-			expectedErr: fmt.Errorf("You already knew this player ¯\\(º_o)/¯"),
+			expectedErr: errors.New("You already knew this player ¯\\(º_o)/¯"),
 			setup: func(p *predict, gm *mock_game_logic.MockWorld) {
 				p.Role[ps.targetId] = true
 			},
@@ -161,7 +161,7 @@ func (ps *PredictSuite) TestValIdateRolePredict() {
 				ActorId:  ps.actorId,
 				TargetId: types.PlayerId("-99"),
 			},
-			expectedErr: fmt.Errorf("Non-existent player ¯\\_(ツ)_/¯"),
+			expectedErr: errors.New("Non-existent player ¯\\_(ツ)_/¯"),
 			setup: func(p *predict, gm *mock_game_logic.MockWorld) {
 				gm.EXPECT().Player(types.PlayerId("-99")).Return(nil)
 			},

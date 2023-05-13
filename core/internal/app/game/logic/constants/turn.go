@@ -4,7 +4,7 @@ import "uwwolf/internal/app/game/logic/types"
 
 // One phase has 3 turn indexes by default
 const (
-	ZeroTurn types.TurnId = iota
+	ZeroTurn types.Turn = iota
 	PreTurn
 	MidTurn // Main turn
 	PostTurn
@@ -12,13 +12,13 @@ const (
 
 // Specific ID of role turn in day phase
 const (
-	HunterTurnID   = PreTurn
-	VillagerTurnID = MidTurn
+	HunterTurn   = PreTurn
+	VillagerTurn = MidTurn
 )
 
 // Specific ID of role turn in night phase
 const (
-	SeerTurnID       = PreTurn
-	TwoSistersTurnID = PreTurn
-	WerewolfTurnID   = MidTurn
+	SeerTurn       = PreTurn
+	TwoSistersTurn = PreTurn
+	WerewolfTurn   = MidTurn
 )

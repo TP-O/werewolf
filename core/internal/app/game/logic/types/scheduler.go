@@ -1,24 +1,19 @@
 package types
 
 // TurnID is type of turn index.
-type TurnId = uint8
+type Turn = uint8
 
 // RoundID is type of round ID.
-type RoundID uint8
-
-// IsZero checks if round ID is 0.
-func (r RoundID) IsZero() bool {
-	return r == 0
-}
+type Round = uint8
 
 // TurnSlot is slot in a turn.
 type TurnSlot struct {
 	// BeginRoundID is the smallest round that the slot can be used.
-	BeginRoundID RoundID
+	BeginRound Round
 
 	// PlayedRoundID is the round that slot is used and then removed.
 	// Ignored if `BeginRoundID` is provided.
-	PlayedRoundID RoundID
+	PlayedRound Round
 
 	// FrozenTimes is number of remaining times the slot is blocked.
 	FrozenTimes Times
@@ -28,22 +23,22 @@ type TurnSlot struct {
 }
 
 // Turn contains many slots.
-type Turn map[PlayerId]*TurnSlot
+type TurnRecords map[PlayerId]*TurnSlot
 
 // NewTurnSlot is added slot.
 type NewTurnSlot struct {
 	// PhaseID is ID of phase that the slot can be used.
-	PhaseID
+	PhaseId
 
 	// TurnID is index of turn that the slot can be used.
-	TurnId
+	Turn
 
 	// BeginRoundID is the smallest round that the slot can be used.
-	BeginRoundID RoundID
+	BeginRound Round
 
 	// PlayedRoundID is the round that slot is used and then removed.
 	// Ignored if `BeginRoundID` is provided.
-	PlayedRoundID RoundID
+	PlayedRound Round
 
 	// FrozenTimes is number of remaining times the slot is blocked.
 	FrozenTimes Times
@@ -59,10 +54,10 @@ type NewTurnSlot struct {
 type RemovedTurnSlot struct {
 	// PhaseID is ID of phase that the slot can be used.
 	// Remove all player slots if set 0.
-	PhaseID
+	PhaseId
 
 	// TurnID is index of turn that the slot can be used.
-	TurnId
+	Turn
 
 	// PlayerID is ID of player playing the slot.
 	PlayerId
@@ -75,10 +70,10 @@ type RemovedTurnSlot struct {
 // FreezeTurnSlot is frozen slot.
 type FreezeTurnSlot struct {
 	// PhaseID is ID of phase that the slot can be used.
-	PhaseID
+	PhaseId
 
 	// TurnID is index of turn that the slot can be used.
-	TurnId
+	Turn
 
 	// PlayerID is ID of player playing the slot.
 	PlayerId

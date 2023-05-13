@@ -36,7 +36,7 @@ func (rs RecognizeSuite) TestNewFactionIdentify() {
 
 	fIdent := NewFactionIdentify(world, rs.IdentifiedFactionId).(*identify)
 
-	rs.Equal(IdentifyActionId, fIdent.Id())
+	rs.Equal(constants.IdentifyActionId, fIdent.Id())
 	rs.Equal(rs.IdentifiedFactionId, fIdent.FactionId)
 	rs.Empty(fIdent.Faction)
 	rs.Equal(types.RoleId(0), fIdent.RoleId)
@@ -51,7 +51,7 @@ func (rs RecognizeSuite) TestNewRoleIdentify() {
 
 	Ident := NewRoleIdentify(world, rs.IdentifiedRoleId).(*identify)
 
-	rs.Equal(IdentifyActionId, Ident.Id())
+	rs.Equal(constants.IdentifyActionId, Ident.Id())
 	rs.Equal(types.FactionId(0), Ident.FactionId)
 	rs.Empty(Ident.Faction)
 	rs.Equal(rs.IdentifiedRoleId, Ident.RoleId)

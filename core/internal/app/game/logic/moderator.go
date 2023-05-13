@@ -22,32 +22,32 @@ type moderator struct {
 	// gameStatus is the current game status ID.
 	gameStatus types.GameStatusID
 
-	world                contract.World
-	config               config.Game
-	scheduler            contract.Scheduler
-	mutex                *sync.Mutex
-	nextTurnSignal       chan bool
-	finishSignal         chan bool
-	turnDuration         time.Duration
-	discussionDuration   time.Duration
-	playedPlayerID       []types.PlayerId
-	winningFaction       types.FactionId
-	onPhaseChanged       func(mod contract.Moderator)
-	actionRegisterations map[types.RoundID]map[types.PhaseID]map[types.TurnId][]func()
+	world               contract.World
+	config              config.Game
+	scheduler           contract.Scheduler
+	mutex               *sync.Mutex
+	nextTurnSignal      chan bool
+	finishSignal        chan bool
+	turnDuration        time.Duration
+	discussionDuration  time.Duration
+	playedPlayerID      []types.PlayerId
+	winningFaction      types.FactionId
+	onPhaseChanged      func(mod contract.Moderator)
+	actionRegistrations []types.ExecuteActionRegistration
 }
 
 func NewModerator(config config.Game, reg *types.GameRegistration) contract.Moderator {
 	m := &moderator{
-		gameID:               reg.ID,
-		gameStatus:           constants.Idle,
-		config:               config,
-		nextTurnSignal:       make(chan bool),
-		finishSignal:         make(chan bool),
-		mutex:                new(sync.Mutex),
-		turnDuration:         reg.TurnDuration,
-		discussionDuration:   reg.DiscussionDuration,
-		scheduler:            NewScheduler(constants.NightPhaseId),
-		actionRegisterations: make(map[types.RoundID]map[types.PhaseID]map[uint8][]func()),
+		gameID:              reg.ID,
+		gameStatus:          constants.Idle,
+		config:              config,
+		nextTurnSignal:      make(chan bool),
+		finishSignal:        make(chan bool),
+		mutex:               new(sync.Mutex),
+		turnDuration:        reg.TurnDuration,
+		discussionDuration:  reg.DiscussionDuration,
+		scheduler:           NewScheduler(constants.NightPhaseId),
+		actionRegistrations: make([]types.ExecuteActionRegistration, 0),
 	}
 	m.world = NewWorld(m, &types.GameInitialization{
 		RoleIds:          reg.RoleIds,
@@ -59,15 +59,8 @@ func NewModerator(config config.Game, reg *types.GameRegistration) contract.Mode
 	return m
 }
 
-func (m *moderator) RegisterActionExecution(r types.RoundID, p types.PhaseID, t types.TurnId, fn func()) {
-	if util.IsZero(m.actionRegisterations[r]) {
-		m.actionRegisterations[r] = make(map[types.PhaseID]map[uint8][]func())
-	}
-	if util.IsZero(m.actionRegisterations[r][p]) {
-		m.actionRegisterations[r][p] = make(map[uint8][]func())
-	}
-
-	m.actionRegisterations[r][p][t] = append(m.actionRegisterations[r][p][t], fn)
+func (m *moderator) RegisterActionExecution(regis types.ExecuteActionRegistration) {
+	m.actionRegistrations = append(m.actionRegistrations, regis)
 }
 
 func (m *moderator) OnPhaseChanged(fn func(mod contract.Moderator)) {
@@ -117,8 +110,8 @@ func (m *moderator) checkWinConditions() {
 // handlePoll handles poll result of each faction.
 func (m moderator) handlePoll(factionID types.FactionId) {
 	if poll := m.world.Poll(factionID); poll != nil && poll.Close() {
-		if record := poll.Record(constants.ZeroRound); !util.IsZero(record.WinnerID) {
-			if player := m.world.Player(record.WinnerID); player != nil {
+		if record := poll.Record(constants.ZeroRound); !util.IsZero(record.WinnerId) {
+			if player := m.world.Player(record.WinnerId); player != nil {
 				player.Die()
 			}
 		}
@@ -132,11 +125,19 @@ func (m *moderator) runScheduler() {
 		m.playedPlayerID = make([]types.PlayerId, 0)
 		m.scheduler.NextTurn()
 
+		for i, regis := range m.actionRegistrations {
+			if regis.CanExecute() {
+				regis.Exec()
+				// Check this carefully whether for loop skip the next element or not
+				m.actionRegistrations = slices.Delete(m.actionRegistrations, i, 1)
+			}
+		}
+
 		func() {
 			var duration time.Duration
 
-			if m.scheduler.PhaseID() == constants.DayPhaseId &&
-				m.scheduler.TurnID() == constants.MidTurn {
+			if m.scheduler.PhaseId() == constants.DayPhaseId &&
+				m.scheduler.Turn() == constants.MidTurn {
 				duration = m.discussionDuration
 
 				m.world.Poll(constants.VillagerFactionId).Open() // nolint: errcheck
@@ -144,8 +145,8 @@ func (m *moderator) runScheduler() {
 			} else {
 				duration = m.turnDuration
 
-				if m.scheduler.PhaseID() == constants.NightPhaseId &&
-					m.scheduler.TurnID() == constants.MidTurn {
+				if m.scheduler.PhaseId() == constants.NightPhaseId &&
+					m.scheduler.Turn() == constants.MidTurn {
 					m.world.Poll(constants.WerewolfFactionId).Open() // nolint: errcheck
 					defer m.handlePoll(constants.WerewolfFactionId)
 				}
@@ -165,13 +166,6 @@ func (m *moderator) runScheduler() {
 				m.checkWinConditions()
 			case <-m.finishSignal:
 				m.FinishGame()
-			}
-
-			if len(m.actionRegisterations[m.scheduler.RoundID()][m.scheduler.PhaseID()]) > 0 &&
-				len(m.actionRegisterations[m.scheduler.RoundID()][m.scheduler.PhaseID()][m.scheduler.TurnID()]) > 0 {
-				for _, f := range m.actionRegisterations[m.scheduler.RoundID()][m.scheduler.PhaseID()][m.scheduler.TurnID()] {
-					f()
-				}
 			}
 
 			m.onPhaseChanged(m)
@@ -239,28 +233,31 @@ func (m *moderator) FinishGame() bool {
 // RequestPlay receives the play request from the player.
 func (m *moderator) RequestPlay(
 	playerID types.PlayerId,
-	req *types.ActivateAbilityRequest,
-) *types.ActionResponse {
+	req *types.RoleRequest,
+) *types.RoleResponse {
 	if !m.mutex.TryLock() {
-		return &types.ActionResponse{
-			Ok:      false,
-			Message: "Turn is over!",
+		return &types.RoleResponse{
+			ActionResponse: types.ActionResponse{
+				Message: "Turn is over!",
+			},
 		}
 	}
 	defer m.mutex.Unlock()
 
 	if slices.Contains(m.playedPlayerID, playerID) {
-		return &types.ActionResponse{
-			Ok:      false,
-			Message: "You played this turn!",
+		return &types.RoleResponse{
+			ActionResponse: types.ActionResponse{
+				Message: "You played this turn!",
+			},
 		}
 	}
 
 	player := m.world.Player(playerID)
 	if player == nil {
-		return &types.ActionResponse{
-			Ok:      false,
-			Message: "Non-existent player!",
+		return &types.RoleResponse{
+			ActionResponse: types.ActionResponse{
+				Message: "Non-existent player!",
+			},
 		}
 	}
 
@@ -281,7 +278,7 @@ func (m *moderator) RequestPlay(
 		// 	fmt.Sprint(res.ActionID),
 		// 	fmt.Sprint(res.RoleID),
 		// 	fmt.Sprint(playerID),
-		// 	fmt.Sprint(res.RoundID),
+		// 	fmt.Sprint(res.Round),
 		// )
 	}
 
