@@ -1,7 +1,7 @@
 package action
 
 import (
-	"fmt"
+	"errors"
 	"uwwolf/internal/app/game/logic/contract"
 	"uwwolf/internal/app/game/logic/types"
 )
@@ -34,11 +34,11 @@ func (k *kill) Execute(req types.ActionRequest) types.ActionResponse {
 // validate checks if the action request is valid.
 func (k kill) validate(req *types.ActionRequest) error {
 	if req.ActorId == req.TargetId {
-		return fmt.Errorf("Appreciate your own life (｡´ ‿｀♡)")
+		return errors.New("Appreciate your own life (｡´ ‿｀♡)")
 	} else if player := k.world.Player(req.TargetId); player == nil {
-		return fmt.Errorf("Player does not exist (⊙＿⊙')")
+		return errors.New("Player does not exist (⊙＿⊙')")
 	} else if player.IsDead() {
-		return fmt.Errorf("Player is dead [¬º-°]¬")
+		return errors.New("Player is dead [¬º-°]¬")
 	}
 
 	return nil

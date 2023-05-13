@@ -44,17 +44,15 @@ func NewWerewolf(moderator contract.Moderator, playerId types.PlayerId) (contrac
 }
 
 // OnAssign is triggered when the role is assigned to a player.
-func (w *werewolf) OnAssign() {
+func (w *werewolf) OnAfterAssign() {
 	w.role.OnAfterAssign()
 
-	w.moderator.World().Poll(constants.VillagerFactionId).AddCandidates(w.playerId)
+	w.moderator.World().Poll(constants.WerewolfFactionId).AddElectors(w.playerId)
 }
 
 // OnRevoke is triggered when the role is removed from a player.
-func (w *werewolf) OnRevoke() {
+func (w *werewolf) OnAfterRevoke() {
 	w.role.OnAfterRevoke()
 
-	w.moderator.World().Poll(constants.VillagerFactionId).RemoveElector(w.playerId)
-	w.moderator.World().Poll(constants.VillagerFactionId).RemoveCandidate(w.playerId)
 	w.moderator.World().Poll(constants.WerewolfFactionId).RemoveElector(w.playerId)
 }

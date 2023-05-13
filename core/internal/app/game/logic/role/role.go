@@ -68,7 +68,7 @@ func (r role) ActiveTimes(index int) types.Times {
 
 // OnAssign is triggered when the role is assigned to a player.
 func (r *role) OnAfterAssign() {
-	r.moderator.World().Scheduler().AddSlot(&types.NewTurnSlot{
+	r.moderator.Scheduler().AddSlot(types.NewTurnSlot{
 		PhaseId:    r.phaseId,
 		Turn:       r.turn,
 		BeginRound: r.beginRound,
@@ -79,7 +79,7 @@ func (r *role) OnAfterAssign() {
 
 // OnRevoke is triggered when the role is removed from a player.
 func (r *role) OnAfterRevoke() {
-	r.moderator.World().Scheduler().RemoveSlot(&types.RemovedTurnSlot{
+	r.moderator.Scheduler().RemoveSlot(types.RemovedTurnSlot{
 		PhaseId:  r.phaseId,
 		RoleId:   r.id,
 		PlayerId: r.playerId,
@@ -109,16 +109,17 @@ func (r *role) Use(req types.RoleRequest) types.RoleResponse {
 	if int(req.AbilityIndex) >= len(r.abilities) {
 		return types.RoleResponse{
 			ActionResponse: types.ActionResponse{
-				Message: "This is beyond your ability (╥﹏╥)",
+				Message: "This action is beyond your ability (╥﹏╥)",
 			},
 		}
 	}
 
 	ability := r.abilities[req.AbilityIndex]
+
 	if ability.activeLimit == constants.OutOfTimes {
 		return types.RoleResponse{
 			ActionResponse: types.ActionResponse{
-				Message: "Unable to use this ability anymore ¯\\(º_o)/¯",
+				Message: "Unable to use this action anymore ¯\\(º_o)/¯",
 			},
 		}
 	}
@@ -163,7 +164,7 @@ func (r *role) Use(req types.RoleRequest) types.RoleResponse {
 
 		// Remove the player turn if the limit is reached
 		if r.ActiveTimes(-1) == constants.OutOfTimes {
-			r.moderator.World().Scheduler().RemoveSlot(&types.RemovedTurnSlot{
+			r.moderator.Scheduler().RemoveSlot(types.RemovedTurnSlot{
 				PhaseId:  r.phaseId,
 				RoleId:   r.id,
 				PlayerId: r.playerId,

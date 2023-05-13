@@ -44,15 +44,16 @@ func NewVillager(moderator contract.Moderator, playerId types.PlayerId) (contrac
 }
 
 // OnAssign is triggered when the role is assigned to a player.
-func (v *villager) OnAssign() {
+func (v *villager) OnAfterAssign() {
 	v.role.OnAfterAssign()
 
+	v.moderator.World().Poll(constants.VillagerFactionId).AddElectors(v.playerId)
 	v.moderator.World().Poll(constants.VillagerFactionId).AddCandidates(v.playerId)
 	v.moderator.World().Poll(constants.WerewolfFactionId).AddCandidates(v.playerId)
 }
 
 // OnRevoke is triggered when the role is removed from a player.
-func (v *villager) OnRevoke() {
+func (v *villager) OnAfterRevoke() {
 	v.role.OnAfterRevoke()
 
 	v.moderator.World().Poll(constants.VillagerFactionId).RemoveElector(v.playerId)

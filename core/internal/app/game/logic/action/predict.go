@@ -1,7 +1,7 @@
 package action
 
 import (
-	"fmt"
+	"errors"
 	"uwwolf/internal/app/game/logic/contract"
 	"uwwolf/internal/app/game/logic/types"
 	"uwwolf/pkg/util"
@@ -64,11 +64,11 @@ func (p predict) validate(req *types.ActionRequest) error {
 		slices.Contains(maps.Keys(p.Faction), req.TargetId)
 
 	if req.ActorId == req.TargetId {
-		return fmt.Errorf("WTF! You don't know who you are? (╯°□°)╯︵ ┻━┻")
+		return errors.New("WTF! You don't know who you are? (╯°□°)╯︵ ┻━┻")
 	} else if isKnown {
-		return fmt.Errorf("You already knew this player ¯\\(º_o)/¯")
+		return errors.New("You already knew this player ¯\\(º_o)/¯")
 	} else if player := p.world.Player(req.TargetId); player == nil {
-		return fmt.Errorf("Non-existent player ¯\\_(ツ)_/¯")
+		return errors.New("Non-existent player ¯\\_(ツ)_/¯")
 	}
 
 	return nil

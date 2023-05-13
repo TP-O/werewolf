@@ -1,331 +1,443 @@
 package role
 
-// import (
-// 	"testing"
-// 	"uwwolf/internal/app/game/logic/types"
-// 	"uwwolf/game/vars"
-// 	mock_game "uwwolf/mock/game"
+import (
+	"testing"
+	"uwwolf/internal/app/game/logic/constants"
+	"uwwolf/internal/app/game/logic/types"
+	mock_game_logic "uwwolf/test/mock/app/game/logic"
 
-// 	"github.com/golang/mock/gomock"
-// 	"github.com/stretchr/testify/suite"
-// )
+	"github.com/golang/mock/gomock"
+	"github.com/stretchr/testify/suite"
+)
 
-// type RoleSuite struct {
-// 	suite.Suite
-// 	playerID  types.PlayerId
-// 	actionID1 types.ActionId
-// 	actionID2 types.ActionId
-// }
+type RoleSuite struct {
+	suite.Suite
+	playerId types.PlayerId
+	actionId types.ActionId
+}
 
-// func TestRoleSuite(t *testing.T) {
-// 	suite.Run(t, new(RoleSuite))
-// }
+func TestRoleSuite(t *testing.T) {
+	suite.Run(t, new(RoleSuite))
+}
 
-// func (rs *RoleSuite) SetupSuite() {
-// 	rs.playerID = types.PlayerId("1")
-// 	rs.actionID1 = types.ActionId(1)
-// 	rs.actionID2 = types.ActionId(2)
-// }
+func (rs *RoleSuite) SetupSuite() {
+	rs.playerId = types.PlayerId("1")
+	rs.actionId = types.ActionId(1)
+}
 
-// func (rs RoleSuite) TestID() {
-// 	id := vars.HunterRoleID
-// 	role := role{
-// 		id: id,
-// 	}
+func (rs RoleSuite) TestId() {
+	Id := constants.HunterRoleId
+	role := role{
+		id: Id,
+	}
 
-// 	rs.Equal(id, role.Id())
-// }
+	rs.Equal(Id, role.Id())
+}
 
-// // func (rs RoleSuite) TestPhaseID() {
-// // 	phaseID := vars.DuskPhaseID
-// // 	role := role{
-// // 		phaseID: phaseID,
-// // 	}
+func (rs RoleSuite) TestFactionId() {
+	factionId := constants.WerewolfFactionId
+	role := role{
+		factionId: factionId,
+	}
 
-// // 	rs.Equal(phaseID, role.PhaseID())
-// // }
+	rs.Equal(factionId, role.FactionId())
+}
 
-// func (rs RoleSuite) TestFactionID() {
-// 	factionID := vars.WerewolfFactionID
-// 	role := role{
-// 		factionID: factionID,
-// 	}
+func (rs RoleSuite) TestActiveTimes() {
+	action1Limit := types.Times(1)
+	action2Limit := types.Times(2)
+	role := role{
+		abilities: []*ability{
+			{
+				activeLimit: action1Limit,
+			},
+			{
+				activeLimit: action2Limit,
+			},
+		},
+	}
 
-// 	rs.Equal(factionID, role.FactionID())
-// }
+	rs.Equal(action1Limit, role.ActiveTimes(0))
+	rs.Equal(action2Limit, role.ActiveTimes(1))
+	rs.Equal(action1Limit+action2Limit, role.ActiveTimes(-1))
+	rs.Equal(constants.OutOfTimes, role.ActiveTimes(99))
+}
 
-// // func (rs RoleSuite) TestBeginRoundID() {
-// // 	round := types.Round(9)
-// // 	role := role{
-// // 		beginRound: round,
-// // 	}
+func (rs RoleSuite) TestOnAfterAssign() {
+	ctrl := gomock.NewController(rs.T())
+	defer ctrl.Finish()
+	moderator := mock_game_logic.NewMockModerator(ctrl)
+	scheduler := mock_game_logic.NewMockScheduler(ctrl)
 
-// // 	rs.Equal(round, role.BeginRoundID())
-// // }
+	moderator.EXPECT().Scheduler().Return(scheduler)
 
-// func (rs RoleSuite) TestActiveTimes() {
-// 	action1Limit := types.Times(1)
-// 	action2Limit := types.Times(2)
-// 	role := role{
-// 		abilities: []*ability{
-// 			{
-// 				activeLimit: action1Limit,
-// 			},
-// 			{
-// 				activeLimit: action2Limit,
-// 			},
-// 		},
-// 	}
+	r := role{
+		id:         constants.HunterRoleId,
+		moderator:  moderator,
+		playerId:   rs.playerId,
+		beginRound: constants.SecondRound,
+		phaseId:    constants.DayPhaseId,
+		turn:       constants.PostTurn,
+	}
 
-// 	rs.Equal(action1Limit, role.ActiveTimes(0))
-// 	rs.Equal(action2Limit, role.ActiveTimes(1))
-// 	rs.Equal(action1Limit+action2Limit, role.ActiveTimes(-1))
-// 	rs.Equal(vars.OutOfTimes, role.ActiveTimes(99))
-// }
+	scheduler.EXPECT().AddSlot(types.NewTurnSlot{
+		PhaseId:    r.phaseId,
+		Turn:       r.turn,
+		BeginRound: r.beginRound,
+		PlayerId:   rs.playerId,
+		RoleId:     r.Id(),
+	})
 
-// func (rs RoleSuite) TestOnAssign() {
-// 	ctrl := gomock.NewController(rs.T())
-// 	defer ctrl.Finish()
-// 	game := mock_game.NewMockGame(ctrl)
-// 	player := mock_game.NewMockPlayer(ctrl)
-// 	scheduler := mock_game.NewMockScheduler(ctrl)
+	r.OnAfterAssign()
+}
 
-// 	game.EXPECT().Scheduler().Return(scheduler)
-// 	player.EXPECT().Id().Return(rs.playerID)
+func (rs RoleSuite) TestOnAfterRevoke() {
+	ctrl := gomock.NewController(rs.T())
+	defer ctrl.Finish()
+	moderator := mock_game_logic.NewMockModerator(ctrl)
+	scheduler := mock_game_logic.NewMockScheduler(ctrl)
 
-// 	r := role{
-// 		id:           vars.HunterRoleID,
-// 		game:         game,
-// 		player:       player,
-// 		beginRoundID: vars.SecondRound,
-// 		turnID:       vars.PostTurn,
-// 	}
+	moderator.EXPECT().Scheduler().Return(scheduler)
 
-// 	scheduler.EXPECT().AddSlot(&types.NewTurnSlot{
-// 		PhaseID:      r.phaseID,
-// 		TurnID:       r.turnID,
-// 		BeginRoundID: r.beginRoundID,
-// 		PlayerID:     rs.playerID,
-// 		RoleID:       r.Id(),
-// 	})
+	r := role{
+		id:        constants.HunterRoleId,
+		phaseId:   constants.DayPhaseId,
+		moderator: moderator,
+		playerId:  rs.playerId,
+	}
 
-// 	r.OnAssign()
-// }
+	scheduler.EXPECT().RemoveSlot(types.RemovedTurnSlot{
+		PhaseId:  r.phaseId,
+		PlayerId: rs.playerId,
+		RoleId:   r.Id(),
+	})
 
-// func (rs RoleSuite) TestOnRevoke() {
-// 	ctrl := gomock.NewController(rs.T())
-// 	defer ctrl.Finish()
-// 	game := mock_game.NewMockGame(ctrl)
-// 	player := mock_game.NewMockPlayer(ctrl)
-// 	scheduler := mock_game.NewMockScheduler(ctrl)
+	r.OnAfterRevoke()
+}
 
-// 	game.EXPECT().Scheduler().Return(scheduler)
-// 	player.EXPECT().Id().Return(rs.playerID)
+func (rs RoleSuite) TestOnBeforeDeath() {
+	role := new(role)
+	isDead := role.OnBeforeDeath()
 
-// 	r := role{
-// 		id:      vars.HunterRoleID,
-// 		phaseID: vars.DayPhaseID,
-// 		game:    game,
-// 		player:  player,
-// 	}
+	rs.True(isDead)
+	rs.True(role.isBeforeDeathTriggered)
+}
 
-// 	scheduler.EXPECT().RemoveSlot(&types.RemovedTurnSlot{
-// 		PhaseID:  r.phaseID,
-// 		PlayerID: rs.playerID,
-// 		RoleID:   r.id,
-// 	})
+func (rs RoleSuite) TestAfterDeath() {
+	//
+}
 
-// 	r.OnRevoke()
-// }
+func (rs RoleSuite) TestUse() {
+	id := types.RoleId(1)
+	round := constants.FirstRound
+	phaseId := constants.DayPhaseId
+	turn := constants.PostTurn
 
-// func (rs RoleSuite) TestOnBeforeDeath() {
-// 	role := new(role)
-// 	isDead := role.OnBeforeDeath()
+	tests := []struct {
+		name          string
+		req           types.RoleRequest
+		expectedRes   types.RoleResponse
+		expectedLimit types.Times
+		setup         func(
+			role,
+			*mock_game_logic.MockAction,
+			*mock_game_logic.MockScheduler,
+			*mock_game_logic.MockModerator,
+		)
+	}{
+		{
+			name: "Failure (InvalId ability index)",
+			req: types.RoleRequest{
+				AbilityIndex: 99,
+			},
+			expectedRes: types.RoleResponse{
+				ActionResponse: types.ActionResponse{
+					Message: "This action is beyond your ability (╥﹏╥)",
+				},
+			},
+			setup: func(
+				role role,
+				ma *mock_game_logic.MockAction,
+				ms *mock_game_logic.MockScheduler,
+				mm *mock_game_logic.MockModerator,
+			) {
+			},
+		},
+		{
+			name: "Failure (Ability is out of use)",
+			req: types.RoleRequest{
+				AbilityIndex: 0,
+			},
+			expectedRes: types.RoleResponse{
+				ActionResponse: types.ActionResponse{
+					Message: "Unable to use this action anymore ¯\\(º_o)/¯",
+				},
+			},
+			expectedLimit: constants.OutOfTimes,
+			setup: func(
+				role role,
+				ma *mock_game_logic.MockAction,
+				ms *mock_game_logic.MockScheduler,
+				mm *mock_game_logic.MockModerator,
+			) {
+				role.abilities[0].activeLimit = constants.OutOfTimes
+			},
+		},
+		{
+			name: "Ok (Skip action -> Doesn't change active limit)",
+			req: types.RoleRequest{
+				AbilityIndex: 0,
+				IsSkipped:    true,
+			},
+			expectedRes: types.RoleResponse{
+				Round:   round,
+				PhaseId: phaseId,
+				Turn:    turn,
+				RoleId:  id,
+				ActionResponse: types.ActionResponse{
+					Ok: true,
+					ActionRequest: types.ActionRequest{
+						IsSkipped: true,
+					},
+				},
+			},
+			expectedLimit: constants.Twice,
+			setup: func(
+				role role,
+				ma *mock_game_logic.MockAction,
+				ms *mock_game_logic.MockScheduler,
+				mm *mock_game_logic.MockModerator,
+			) {
+				role.abilities[0].activeLimit = constants.Twice
 
-// 	rs.True(isDead)
-// 	rs.True(role.isBeforeDeathTriggered)
-// }
+				ms.EXPECT().Round().Return(round).Times(1)
+				ms.EXPECT().PhaseId().Return(phaseId).Times(1)
+				ms.EXPECT().Turn().Return(turn).Times(1)
+				ma.EXPECT().Execute(types.ActionRequest{
+					ActorId:   role.playerId,
+					IsSkipped: true,
+				}).
+					Return(types.ActionResponse{
+						Ok: true,
+						ActionRequest: types.ActionRequest{
+							IsSkipped: true,
+						},
+					}).
+					Times(1)
+			},
+		},
+		{
+			name: "Ok (Action execution is failed -> Doesn't change active limit)",
+			req: types.RoleRequest{
+				AbilityIndex: 0,
+			},
+			expectedRes: types.RoleResponse{
+				Round:   round,
+				PhaseId: phaseId,
+				Turn:    turn,
+				RoleId:  id,
+				ActionResponse: types.ActionResponse{
+					Ok: false,
+				},
+			},
+			expectedLimit: constants.Twice,
+			setup: func(
+				role role,
+				ma *mock_game_logic.MockAction,
+				ms *mock_game_logic.MockScheduler,
+				mm *mock_game_logic.MockModerator,
+			) {
+				role.abilities[0].activeLimit = constants.Twice
+				role.abilities[0].isImmediate = true
 
-// func (rs RoleSuite) TestAfterDeath() {
-// 	//
-// }
+				ms.EXPECT().Round().Return(round).Times(1)
+				ms.EXPECT().PhaseId().Return(phaseId).Times(1)
+				ms.EXPECT().Turn().Return(turn).Times(1)
+				ma.EXPECT().Execute(types.ActionRequest{
+					ActorId: role.playerId,
+				}).
+					Return(types.ActionResponse{
+						Ok: false,
+					}).
+					Times(1)
+			},
+		},
+		{
+			name: "Ok (Use unlimited ability -> Doesn't change active limit)",
+			req: types.RoleRequest{
+				AbilityIndex: 0,
+			},
+			expectedRes: types.RoleResponse{
+				Round:   round,
+				PhaseId: phaseId,
+				Turn:    turn,
+				RoleId:  id,
+				ActionResponse: types.ActionResponse{
+					Ok: true,
+				},
+			},
+			expectedLimit: constants.UnlimitedTimes,
+			setup: func(
+				role role,
+				ma *mock_game_logic.MockAction,
+				ms *mock_game_logic.MockScheduler,
+				mm *mock_game_logic.MockModerator,
+			) {
+				role.abilities[0].activeLimit = constants.UnlimitedTimes
+				role.abilities[0].isImmediate = true
 
-// func (rs RoleSuite) TestActivateAbility() {
-// 	tests := []struct {
-// 		name          string
-// 		req           *types.ActivateAbilityRequest
-// 		expectedRes   *types.ActionResponse
-// 		expectedLimit types.Times
-// 		setup         func(role, *mock_game.MockAction, *mock_game.MockScheduler)
-// 	}{
-// 		{
-// 			name: "Failure (Invalid ability index)",
-// 			req: &types.ActivateAbilityRequest{
-// 				AbilityIndex: 99,
-// 			},
-// 			expectedRes: &types.ActionResponse{
-// 				Ok:      false,
-// 				Message: "This is beyond your ability (╥﹏╥)",
-// 			},
-// 			setup: func(role role, ma *mock_game.MockAction, ms *mock_game.MockScheduler) {},
-// 		},
-// 		{
-// 			name: "Failure (Ability is out of use)",
-// 			req: &types.ActivateAbilityRequest{
-// 				AbilityIndex: 0,
-// 			},
-// 			expectedRes: &types.ActionResponse{
-// 				Ok:      false,
-// 				Message: "Unable to use this ability anymore ¯\\(º_o)/¯",
-// 			},
-// 			expectedLimit: 0,
-// 			setup: func(role role, ma *mock_game.MockAction, ms *mock_game.MockScheduler) {
-// 				role.abilities[0].activeLimit = 0
-// 			},
-// 		},
-// 		{
-// 			name: "Ok (Skip action -> Doesn't change active limit)",
-// 			req: &types.ActivateAbilityRequest{
-// 				AbilityIndex: 0,
-// 				IsSkipped:    true,
-// 			},
-// 			expectedRes: &types.ActionResponse{
-// 				Ok:        true,
-// 				IsSkipped: true,
-// 			},
-// 			expectedLimit: 2,
-// 			setup: func(role role, ma *mock_game.MockAction, ms *mock_game.MockScheduler) {
-// 				role.abilities[0].activeLimit = 2
-// 				ma.EXPECT().Execute(&types.ActionRequest{
-// 					ActorID:   rs.playerID,
-// 					IsSkipped: true,
-// 				}).
-// 					Return(&types.ActionResponse{
-// 						Ok:        true,
-// 						IsSkipped: true,
-// 					}).
-// 					Times(1)
-// 			},
-// 		},
-// 		{
-// 			name: "Ok (Action execution is failed -> Doesn't change active limit)",
-// 			req: &types.ActivateAbilityRequest{
-// 				AbilityIndex: 0,
-// 			},
-// 			expectedRes: &types.ActionResponse{
-// 				Ok: false,
-// 			},
-// 			expectedLimit: 2,
-// 			setup: func(role role, ma *mock_game.MockAction, ms *mock_game.MockScheduler) {
-// 				role.abilities[0].activeLimit = 2
-// 				ma.EXPECT().Execute(&types.ActionRequest{
-// 					ActorID: rs.playerID,
-// 				}).
-// 					Return(&types.ActionResponse{
-// 						Ok: false,
-// 					}).
-// 					Times(1)
-// 			},
-// 		},
-// 		{
-// 			name: "Ok (Use unlimited ability -> Doesn't change active limit)",
-// 			req: &types.ActivateAbilityRequest{
-// 				AbilityIndex: 0,
-// 			},
-// 			expectedRes: &types.ActionResponse{
-// 				Ok:        true,
-// 				IsSkipped: false,
-// 			},
-// 			expectedLimit: vars.UnlimitedTimes,
-// 			setup: func(role role, ma *mock_game.MockAction, ms *mock_game.MockScheduler) {
-// 				role.abilities[0].activeLimit = vars.UnlimitedTimes
-// 				ma.EXPECT().Execute(&types.ActionRequest{
-// 					ActorID: rs.playerID,
-// 				}).
-// 					Return(&types.ActionResponse{
-// 						Ok:        true,
-// 						IsSkipped: false,
-// 					}).
-// 					Times(1)
-// 			},
-// 		},
-// 		{
-// 			name: "Ok (Action execution is successful -> Reduce active limit by 1)",
-// 			req: &types.ActivateAbilityRequest{
-// 				AbilityIndex: 0,
-// 			},
-// 			expectedRes: &types.ActionResponse{
-// 				Ok: true,
-// 			},
-// 			expectedLimit: 1,
-// 			setup: func(role role, ma *mock_game.MockAction, ms *mock_game.MockScheduler) {
-// 				role.abilities[0].activeLimit = 2
-// 				ma.EXPECT().Execute(&types.ActionRequest{
-// 					ActorID: rs.playerID,
-// 				}).
-// 					Return(&types.ActionResponse{
-// 						Ok:        true,
-// 						IsSkipped: false,
-// 					}).
-// 					Times(1)
+				ms.EXPECT().Round().Return(round).Times(1)
+				ms.EXPECT().PhaseId().Return(phaseId).Times(1)
+				ms.EXPECT().Turn().Return(turn).Times(1)
+				ma.EXPECT().Execute(types.ActionRequest{
+					ActorId: role.playerId,
+				}).
+					Return(types.ActionResponse{
+						Ok: true,
+					}).
+					Times(1)
+			},
+		},
+		{
+			name: "Ok (Action execution is successful -> Reduce active limit by 1)",
+			req: types.RoleRequest{
+				AbilityIndex: 0,
+			},
+			expectedRes: types.RoleResponse{
+				Round:   round,
+				PhaseId: phaseId,
+				Turn:    turn,
+				RoleId:  id,
+				ActionResponse: types.ActionResponse{
+					Ok: true,
+				},
+			},
+			expectedLimit: constants.Once,
+			setup: func(
+				role role,
+				ma *mock_game_logic.MockAction,
+				ms *mock_game_logic.MockScheduler,
+				mm *mock_game_logic.MockModerator,
+			) {
+				role.abilities[0].activeLimit = constants.Twice
+				role.abilities[0].isImmediate = true
 
-// 			},
-// 		},
-// 		{
-// 			name: "Ok (Action execution is successful -> Reach limit)",
-// 			req: &types.ActivateAbilityRequest{
-// 				AbilityIndex: 0,
-// 			},
-// 			expectedRes: &types.ActionResponse{
-// 				Ok: true,
-// 			},
-// 			expectedLimit: vars.OutOfTimes,
-// 			setup: func(role role, ma *mock_game.MockAction, ms *mock_game.MockScheduler) {
-// 				role.abilities[0].activeLimit = 1
-// 				ma.EXPECT().Execute(&types.ActionRequest{
-// 					ActorID: rs.playerID,
-// 				}).
-// 					Return(&types.ActionResponse{
-// 						Ok:        true,
-// 						IsSkipped: false,
-// 					}).
-// 					Times(1)
-// 				ms.EXPECT().RemoveSlot(&types.RemovedTurnSlot{
-// 					PhaseID:  role.phaseID,
-// 					RoleID:   role.id,
-// 					PlayerID: role.player.Id(),
-// 				})
-// 			},
-// 		},
-// 	}
+				ms.EXPECT().Round().Return(round).Times(1)
+				ms.EXPECT().PhaseId().Return(phaseId).Times(1)
+				ms.EXPECT().Turn().Return(turn).Times(1)
+				ma.EXPECT().Execute(types.ActionRequest{
+					ActorId: role.playerId,
+				}).
+					Return(types.ActionResponse{
+						Ok: true,
+					}).
+					Times(1)
+			},
+		},
+		{
+			name: "Ok (Action execution is successful -> Reach limit)",
+			req: types.RoleRequest{
+				AbilityIndex: 0,
+			},
+			expectedRes: types.RoleResponse{
+				Round:   round,
+				PhaseId: phaseId,
+				Turn:    turn,
+				RoleId:  id,
+				ActionResponse: types.ActionResponse{
+					Ok: true,
+				},
+			},
+			expectedLimit: constants.OutOfTimes,
+			setup: func(
+				role role,
+				ma *mock_game_logic.MockAction,
+				ms *mock_game_logic.MockScheduler,
+				mm *mock_game_logic.MockModerator,
+			) {
+				role.abilities[0].activeLimit = constants.Once
+				role.abilities[0].isImmediate = true
 
-// 	for _, test := range tests {
-// 		rs.Run(test.name, func() {
-// 			ctrl := gomock.NewController(rs.T())
-// 			defer ctrl.Finish()
-// 			player := mock_game.NewMockPlayer(ctrl)
-// 			scheduler := mock_game.NewMockScheduler(ctrl)
-// 			game := mock_game.NewMockGame(ctrl)
-// 			action := mock_game.NewMockAction(ctrl)
+				ms.EXPECT().Round().Return(round).Times(1)
+				ms.EXPECT().PhaseId().Return(phaseId).Times(1)
+				ms.EXPECT().Turn().Return(turn).Times(1)
+				ma.EXPECT().Execute(types.ActionRequest{
+					ActorId: role.playerId,
+				}).
+					Return(types.ActionResponse{
+						Ok: true,
+					}).
+					Times(1)
+				ms.EXPECT().RemoveSlot(types.RemovedTurnSlot{
+					PhaseId:  role.phaseId,
+					RoleId:   role.id,
+					PlayerId: role.playerId,
+				})
+			},
+		},
+		{
+			name: "Ok (Action will be executed later)",
+			req: types.RoleRequest{
+				AbilityIndex: 0,
+			},
+			expectedRes: types.RoleResponse{
+				Round:   round,
+				PhaseId: phaseId,
+				Turn:    turn,
+				RoleId:  id,
+				ActionResponse: types.ActionResponse{
+					Ok:       true,
+					ActionId: rs.actionId,
+					ActionRequest: types.ActionRequest{
+						ActorId: rs.playerId,
+					},
+					Message: "Action is registered!",
+				},
+			},
+			expectedLimit: constants.Once,
+			setup: func(
+				role role,
+				ma *mock_game_logic.MockAction,
+				ms *mock_game_logic.MockScheduler,
+				mm *mock_game_logic.MockModerator,
+			) {
+				role.abilities[0].activeLimit = constants.Twice
+				role.abilities[0].isImmediate = false
 
-// 			action.EXPECT().Id().Return(rs.actionID1).AnyTimes()
-// 			player.EXPECT().Id().Return(rs.playerID).AnyTimes()
-// 			game.EXPECT().Scheduler().Return(scheduler).AnyTimes()
+				ms.EXPECT().Round().Return(round).Times(1)
+				ms.EXPECT().PhaseId().Return(phaseId).Times(1)
+				ms.EXPECT().Turn().Return(turn).Times(1)
+				mm.EXPECT().RegisterActionExecution(gomock.Any())
+			},
+		},
+	}
 
-// 			role := role{
-// 				game:   game,
-// 				player: player,
-// 				abilities: []*ability{
-// 					{
-// 						action: action,
-// 					},
-// 				},
-// 			}
-// 			test.setup(role, action, scheduler)
-// 			res := role.ActivateAbility(test.req)
+	for _, test := range tests {
+		rs.Run(test.name, func() {
+			ctrl := gomock.NewController(rs.T())
+			defer ctrl.Finish()
+			scheduler := mock_game_logic.NewMockScheduler(ctrl)
+			moderator := mock_game_logic.NewMockModerator(ctrl)
+			action := mock_game_logic.NewMockAction(ctrl)
 
-// 			rs.Equal(test.expectedRes, res)
-// 			rs.Equal(test.expectedLimit, role.ActiveTimes(0))
-// 		})
-// 	}
-// }
+			action.EXPECT().Id().Return(rs.actionId).AnyTimes()
+			moderator.EXPECT().Scheduler().Return(scheduler).AnyTimes()
+
+			role := role{
+				id:        id,
+				moderator: moderator,
+				playerId:  rs.playerId,
+				abilities: []*ability{
+					{
+						action: action,
+					},
+				},
+			}
+			test.setup(role, action, scheduler, moderator)
+			res := role.Use(test.req)
+
+			rs.Equal(test.expectedRes, res)
+			rs.Equal(test.expectedLimit, role.ActiveTimes(0))
+		})
+	}
+}

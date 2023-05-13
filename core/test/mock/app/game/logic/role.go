@@ -34,20 +34,6 @@ func (m *MockRole) EXPECT() *MockRoleMockRecorder {
 	return m.recorder
 }
 
-// ActivateAbility mocks base method.
-func (m *MockRole) ActivateAbility(req *types.ActivateAbilityRequest) *types.ActionResponse {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ActivateAbility", req)
-	ret0, _ := ret[0].(*types.ActionResponse)
-	return ret0
-}
-
-// ActivateAbility indicates an expected call of ActivateAbility.
-func (mr *MockRoleMockRecorder) ActivateAbility(req interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ActivateAbility", reflect.TypeOf((*MockRole)(nil).ActivateAbility), req)
-}
-
 // ActiveTimes mocks base method.
 func (m *MockRole) ActiveTimes(index int) types.Times {
 	m.ctrl.T.Helper()
@@ -76,18 +62,30 @@ func (mr *MockRoleMockRecorder) FactionId() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FactionId", reflect.TypeOf((*MockRole)(nil).FactionId))
 }
 
-// ID mocks base method.
-func (m *MockRole) ID() types.RoleId {
+// Id mocks base method.
+func (m *MockRole) Id() types.RoleId {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ID")
+	ret := m.ctrl.Call(m, "Id")
 	ret0, _ := ret[0].(types.RoleId)
 	return ret0
 }
 
-// ID indicates an expected call of ID.
-func (mr *MockRoleMockRecorder) ID() *gomock.Call {
+// Id indicates an expected call of Id.
+func (mr *MockRoleMockRecorder) Id() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ID", reflect.TypeOf((*MockRole)(nil).ID))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Id", reflect.TypeOf((*MockRole)(nil).Id))
+}
+
+// OnAfterAssign mocks base method.
+func (m *MockRole) OnAfterAssign() {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "OnAfterAssign")
+}
+
+// OnAfterAssign indicates an expected call of OnAfterAssign.
+func (mr *MockRoleMockRecorder) OnAfterAssign() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OnAfterAssign", reflect.TypeOf((*MockRole)(nil).OnAfterAssign))
 }
 
 // OnAfterDeath mocks base method.
@@ -102,16 +100,16 @@ func (mr *MockRoleMockRecorder) OnAfterDeath() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OnAfterDeath", reflect.TypeOf((*MockRole)(nil).OnAfterDeath))
 }
 
-// OnAssign mocks base method.
-func (m *MockRole) OnAssign() {
+// OnAfterRevoke mocks base method.
+func (m *MockRole) OnAfterRevoke() {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "OnAssign")
+	m.ctrl.Call(m, "OnAfterRevoke")
 }
 
-// OnAssign indicates an expected call of OnAssign.
-func (mr *MockRoleMockRecorder) OnAssign() *gomock.Call {
+// OnAfterRevoke indicates an expected call of OnAfterRevoke.
+func (mr *MockRoleMockRecorder) OnAfterRevoke() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OnAssign", reflect.TypeOf((*MockRole)(nil).OnAssign))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OnAfterRevoke", reflect.TypeOf((*MockRole)(nil).OnAfterRevoke))
 }
 
 // OnBeforeDeath mocks base method.
@@ -128,14 +126,16 @@ func (mr *MockRoleMockRecorder) OnBeforeDeath() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OnBeforeDeath", reflect.TypeOf((*MockRole)(nil).OnBeforeDeath))
 }
 
-// OnRevoke mocks base method.
-func (m *MockRole) OnRevoke() {
+// Use mocks base method.
+func (m *MockRole) Use(req types.RoleRequest) types.RoleResponse {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "OnRevoke")
+	ret := m.ctrl.Call(m, "Use", req)
+	ret0, _ := ret[0].(types.RoleResponse)
+	return ret0
 }
 
-// OnRevoke indicates an expected call of OnRevoke.
-func (mr *MockRoleMockRecorder) OnRevoke() *gomock.Call {
+// Use indicates an expected call of Use.
+func (mr *MockRoleMockRecorder) Use(req interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OnRevoke", reflect.TypeOf((*MockRole)(nil).OnRevoke))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Use", reflect.TypeOf((*MockRole)(nil).Use), req)
 }

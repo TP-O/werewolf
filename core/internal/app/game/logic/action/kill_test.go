@@ -1,7 +1,7 @@
 package action
 
 import (
-	"fmt"
+	"errors"
 	"testing"
 	"uwwolf/internal/app/game/logic/types"
 	mock_game_logic "uwwolf/test/mock/app/game/logic"
@@ -49,7 +49,7 @@ func (ks KillSuite) TestValidate() {
 				ActorId:  ks.actorId,
 				TargetId: ks.actorId,
 			},
-			expectedErr: fmt.Errorf("Appreciate your own life (｡´ ‿｀♡)"),
+			expectedErr: errors.New("Appreciate your own life (｡´ ‿｀♡)"),
 			setup:       func(mw *mock_game_logic.MockWorld, mp *mock_game_logic.MockPlayer) {},
 		},
 		{
@@ -58,7 +58,7 @@ func (ks KillSuite) TestValidate() {
 				ActorId:  ks.actorId,
 				TargetId: ks.targetId,
 			},
-			expectedErr: fmt.Errorf("Player does not exist (⊙＿⊙')"),
+			expectedErr: errors.New("Player does not exist (⊙＿⊙')"),
 			setup: func(mw *mock_game_logic.MockWorld, mp *mock_game_logic.MockPlayer) {
 				mw.EXPECT().Player(ks.targetId).Return(nil)
 			},
@@ -69,7 +69,7 @@ func (ks KillSuite) TestValidate() {
 				ActorId:  ks.actorId,
 				TargetId: ks.targetId,
 			},
-			expectedErr: fmt.Errorf("Player is dead [¬º-°]¬"),
+			expectedErr: errors.New("Player is dead [¬º-°]¬"),
 			setup: func(mw *mock_game_logic.MockWorld, mp *mock_game_logic.MockPlayer) {
 				mw.EXPECT().Player(ks.targetId).Return(mp)
 				mp.EXPECT().IsDead().Return(true)

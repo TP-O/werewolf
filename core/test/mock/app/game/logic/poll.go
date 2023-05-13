@@ -126,17 +126,17 @@ func (mr *MockPollMockRecorder) Open() *gomock.Call {
 }
 
 // Record mocks base method.
-func (m *MockPoll) Record(roundID types.RoundID) contract.PollRecord {
+func (m *MockPoll) Record(round types.Round) contract.PollRecord {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Record", roundID)
+	ret := m.ctrl.Call(m, "Record", round)
 	ret0, _ := ret[0].(contract.PollRecord)
 	return ret0
 }
 
 // Record indicates an expected call of Record.
-func (mr *MockPollMockRecorder) Record(roundID interface{}) *gomock.Call {
+func (mr *MockPollMockRecorder) Record(round interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Record", reflect.TypeOf((*MockPoll)(nil).Record), roundID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Record", reflect.TypeOf((*MockPoll)(nil).Record), round)
 }
 
 // RemoveCandidate mocks base method.

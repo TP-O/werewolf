@@ -42,30 +42,30 @@ func (h *hunter) OnAfterAssign() {
 
 // OnAfterDeath is triggered after killing this role.
 func (h *hunter) OnAfterDeath() {
-	diedAtPhaseId := h.moderator.World().Scheduler().PhaseId()
+	diedAtPhaseId := h.moderator.Scheduler().PhaseId()
 
 	// Ability is disabled if current round is too early
-	if h.moderator.World().Scheduler().Round() < h.beginRound {
+	if h.moderator.Scheduler().Round() < h.beginRound {
 		return
 	}
 
 	// This turn can be only played in the current round
-	slot := &types.NewTurnSlot{
+	slot := types.NewTurnSlot{
 		PhaseId:     h.phaseId,
 		PlayerId:    h.playerId,
 		RoleId:      h.id,
-		PlayedRound: h.moderator.World().Scheduler().Round(),
+		PlayedRound: h.moderator.Scheduler().Round(),
 	}
 
 	if diedAtPhaseId == h.phaseId {
 		// Play in next turn if he dies at his phase
-		slot.Turn = h.moderator.World().Scheduler().Turn() + 1
+		slot.Turn = h.moderator.Scheduler().Turn() + 1
 	} else {
 		// Play in his turn of the next day if he dies at
 		// a time is not his phase
 		slot.Turn = h.turn
 	}
 
-	h.abilities[0].activeLimit = constants.OnceTime
-	h.moderator.World().Scheduler().AddSlot(slot)
+	h.abilities[0].activeLimit = constants.Once
+	h.moderator.Scheduler().AddSlot(slot)
 }

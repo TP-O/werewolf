@@ -32,7 +32,7 @@ type Scheduler interface {
 	IsEmptyPhase(phaseId types.PhaseId) bool
 
 	// AddSlot adds new player turn to the scheduler.
-	AddSlot(newSlot *types.NewTurnSlot) bool
+	AddSlot(newSlot types.NewTurnSlot) bool
 
 	// RemoveSlot removes a player turn from the scheduler
 	// by `TurnID` or `RoleID`.
@@ -40,10 +40,10 @@ type Scheduler interface {
 	// If `TurnID` is filled, ignore `RoleID`.
 	//
 	// If `PhaseID` is 0, removes all of turns of that player.
-	RemoveSlot(removedSlot *types.RemovedTurnSlot) bool
+	RemoveSlot(removedSlot types.RemovedTurnSlot) bool
 
 	// FreezeSlot blocks slot N times.
-	FreezeSlot(frozenSlot *types.FreezeTurnSlot) bool
+	FreezeSlot(frozenSlot types.FreezeTurnSlot) bool
 
 	// NextTurn moves to the next turn.
 	// Returns false if the scheduler is empty.

@@ -125,7 +125,7 @@ func (s scheduler) IsEmptyPhase(phaseId types.PhaseId) bool {
 }
 
 // AddSlot adds new player turn to the scheduler.
-func (s *scheduler) AddSlot(newSlot *types.NewTurnSlot) bool {
+func (s *scheduler) AddSlot(newSlot types.NewTurnSlot) bool {
 	if phase, ok := s.phases[newSlot.PhaseId]; !ok {
 		return false
 	} else {
@@ -146,7 +146,7 @@ func (s *scheduler) AddSlot(newSlot *types.NewTurnSlot) bool {
 // If `TurnID` is provided, ignore `RoleID`.
 //
 // If `PhaseId` is 0, removes all of turns of that player.
-func (s *scheduler) RemoveSlot(removedSlot *types.RemovedTurnSlot) bool {
+func (s *scheduler) RemoveSlot(removedSlot types.RemovedTurnSlot) bool {
 	if util.IsZero(removedSlot.PhaseId) {
 		// Remove all player turns
 		for _, phase := range s.phases {
@@ -175,7 +175,7 @@ func (s *scheduler) RemoveSlot(removedSlot *types.RemovedTurnSlot) bool {
 }
 
 // FreezeSlot blocks slot N times.
-func (s *scheduler) FreezeSlot(frozenSlot *types.FreezeTurnSlot) bool {
+func (s *scheduler) FreezeSlot(frozenSlot types.FreezeTurnSlot) bool {
 	if !util.IsZero(frozenSlot.Turn) &&
 		int(frozenSlot.Turn) < len(s.phases[frozenSlot.PhaseId]) {
 		// Freeze by turn ID

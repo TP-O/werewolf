@@ -103,11 +103,23 @@ func (mr *MockModeratorMockRecorder) Player(ID interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Player", reflect.TypeOf((*MockModerator)(nil).Player), ID)
 }
 
+// RegisterActionExecution mocks base method.
+func (m *MockModerator) RegisterActionExecution(regis types.ExecuteActionRegistration) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "RegisterActionExecution", regis)
+}
+
+// RegisterActionExecution indicates an expected call of RegisterActionExecution.
+func (mr *MockModeratorMockRecorder) RegisterActionExecution(regis interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RegisterActionExecution", reflect.TypeOf((*MockModerator)(nil).RegisterActionExecution), regis)
+}
+
 // RequestPlay mocks base method.
-func (m *MockModerator) RequestPlay(playerID types.PlayerId, req *types.ActivateAbilityRequest) *types.ActionResponse {
+func (m *MockModerator) RequestPlay(playerID types.PlayerId, req *types.RoleRequest) *types.RoleResponse {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "RequestPlay", playerID, req)
-	ret0, _ := ret[0].(*types.ActionResponse)
+	ret0, _ := ret[0].(*types.RoleResponse)
 	return ret0
 }
 
@@ -143,4 +155,18 @@ func (m *MockModerator) StartGame() int64 {
 func (mr *MockModeratorMockRecorder) StartGame() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StartGame", reflect.TypeOf((*MockModerator)(nil).StartGame))
+}
+
+// World mocks base method.
+func (m *MockModerator) World() contract.World {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "World")
+	ret0, _ := ret[0].(contract.World)
+	return ret0
+}
+
+// World indicates an expected call of World.
+func (mr *MockModeratorMockRecorder) World() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "World", reflect.TypeOf((*MockModerator)(nil).World))
 }

@@ -1,44 +1,44 @@
 package role
 
-// import (
-// 	"testing"
-// 	"uwwolf/internal/app/game/logic/types"
-// 	"uwwolf/game/vars"
-// 	mock_game "uwwolf/mock/game"
+import (
+	"testing"
+	"uwwolf/internal/app/game/logic/action"
+	"uwwolf/internal/app/game/logic/constants"
+	"uwwolf/internal/app/game/logic/types"
+	mock_game_logic "uwwolf/test/mock/app/game/logic"
 
-// 	"github.com/golang/mock/gomock"
-// 	"github.com/stretchr/testify/suite"
-// )
+	"github.com/golang/mock/gomock"
+	"github.com/stretchr/testify/suite"
+)
 
-// type SeerSuite struct {
-// 	suite.Suite
-// 	playerID types.PlayerId
-// }
+type SeerSuite struct {
+	suite.Suite
+	playerId types.PlayerId
+}
 
-// func TestSeerSuite(t *testing.T) {
-// 	suite.Run(t, new(SeerSuite))
-// }
+func TestSeerSuite(t *testing.T) {
+	suite.Run(t, new(SeerSuite))
+}
 
-// func (ss *SeerSuite) SetupSuite() {
-// 	ss.playerID = types.PlayerId("1")
-// }
+func (ss *SeerSuite) SetupSuite() {
+	ss.playerId = types.PlayerId("1")
+}
 
-// func (ss SeerSuite) TestNewSeer() {
-// 	ctrl := gomock.NewController(ss.T())
-// 	defer ctrl.Finish()
-// 	game := mock_game.NewMockGame(ctrl)
-// 	player := mock_game.NewMockPlayer(ctrl)
+func (ss SeerSuite) TestNewSeer() {
+	ctrl := gomock.NewController(ss.T())
+	defer ctrl.Finish()
+	moderator := mock_game_logic.NewMockModerator(ctrl)
+	moderator.EXPECT().World().Return(nil)
 
-// 	game.EXPECT().Player(ss.playerID).Return(player)
+	s, _ := NewSeer(moderator, ss.playerId)
 
-// 	s, _ := NewSeer(game, ss.playerID)
-
-// 	ss.Equal(vars.SeerRoleID, s.Id())
-// 	ss.Equal(vars.NightPhaseID, s.(*seer).phaseID)
-// 	ss.Equal(vars.VillagerFactionID, s.FactionID())
-// 	ss.Equal(vars.SecondRound, s.(*seer).beginRoundID)
-// 	ss.Equal(player, s.(*seer).player)
-// 	ss.Equal(vars.UnlimitedTimes, s.ActiveTimes(0))
-// 	ss.Len(s.(*seer).abilities, 1)
-// 	ss.Equal(vars.PredictActionID, s.(*seer).abilities[0].action.Id())
-// }
+	ss.Equal(constants.SeerRoleId, s.Id())
+	ss.Equal(constants.NightPhaseId, s.(*seer).phaseId)
+	ss.Equal(constants.VillagerFactionId, s.FactionId())
+	ss.Equal(constants.SecondRound, s.(*seer).beginRound)
+	ss.Equal(ss.playerId, s.(*seer).playerId)
+	ss.Equal(constants.UnlimitedTimes, s.ActiveTimes(0))
+	ss.Len(s.(*seer).abilities, 1)
+	ss.Equal(action.PredictActionId, s.(*seer).abilities[0].action.Id())
+	ss.True(s.(*seer).abilities[0].isImmediate)
+}
