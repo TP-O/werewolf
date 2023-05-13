@@ -126,9 +126,7 @@ func (m *moderator) runScheduler() {
 		m.scheduler.NextTurn()
 
 		for i, regis := range m.actionRegistrations {
-			if regis.IsRoundMatched() &&
-				regis.IsPhaseIdMatched() &&
-				regis.IsTurnMatched() {
+			if regis.CanExecute() {
 				regis.Exec()
 				// Check this carefully whether for loop skip the next element or not
 				m.actionRegistrations = slices.Delete(m.actionRegistrations, i, 1)

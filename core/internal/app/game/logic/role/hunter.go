@@ -26,7 +26,7 @@ func NewHunter(moderator contract.Moderator, playerId types.PlayerId) (contract.
 						action:      action.NewKill(moderator.World()),
 						activeLimit: constants.OutOfTimes,
 						effectiveAt: effectiveAt{
-							IsImmediate: true,
+							isImmediate: true,
 						},
 					},
 				},

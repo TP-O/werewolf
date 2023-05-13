@@ -124,7 +124,7 @@ func (r *role) Use(req types.RoleRequest) types.RoleResponse {
 	}
 
 	actionRes := func() types.ActionResponse {
-		if ability.IsImmediate ||
+		if ability.isImmediate ||
 			req.IsSkipped {
 			return ability.action.Execute(types.ActionRequest{
 				ActorId:   r.playerId,
@@ -134,11 +134,9 @@ func (r *role) Use(req types.RoleRequest) types.RoleResponse {
 		}
 
 		r.moderator.RegisterActionExecution(types.ExecuteActionRegistration{
-			RoleId:           r.Id(),
-			ActionId:         ability.action.Id(),
-			IsRoundMatched:   ability.IsRoundMatched,
-			IsPhaseIdMatched: ability.IsPhaseIdMatched,
-			IsTurnMatched:    ability.IsTurnMatched,
+			RoleId:     r.Id(),
+			ActionId:   ability.action.Id(),
+			CanExecute: ability.CanExecute,
 			Exec: func() types.ActionResponse {
 				return ability.action.Execute(types.ActionRequest{
 					ActorId:   r.playerId,

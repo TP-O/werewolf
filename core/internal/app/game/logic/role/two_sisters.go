@@ -25,25 +25,29 @@ func NewTwoSister(moderator contract.Moderator, playerId types.PlayerId) (contra
 	}
 
 	// TwoSister ability will be executed automatically
-	action :=
-		action.NewRoleIdentify(
+	ability := ability{
+		action: action.NewRoleIdentify(
 			moderator.World(),
 			constants.TwoSistersRoleId,
-		)
+		),
+		effectiveAt: effectiveAt{
+			isRoundMatched: func() bool {
+				return moderator.Scheduler().Round() == role.phaseId
+			},
+			isPhaseIdMatched: func() bool {
+				return moderator.Scheduler().PhaseId() == role.phaseId
+			},
+			isTurnMatched: func() bool {
+				return moderator.Scheduler().Turn() == role.turn
+			},
+		},
+	}
 	moderator.RegisterActionExecution(types.ExecuteActionRegistration{
-		RoleId:   role.Id(),
-		ActionId: action.Id(),
-		IsRoundMatched: func() bool {
-			return moderator.Scheduler().Round() == role.phaseId
-		},
-		IsPhaseIdMatched: func() bool {
-			return moderator.Scheduler().PhaseId() == role.phaseId
-		},
-		IsTurnMatched: func() bool {
-			return moderator.Scheduler().Turn() == role.turn
-		},
+		RoleId:     role.Id(),
+		ActionId:   ability.action.Id(),
+		CanExecute: ability.CanExecute,
 		Exec: func() types.ActionResponse {
-			return action.Execute(types.ActionRequest{
+			return ability.action.Execute(types.ActionRequest{
 				ActorId: playerId,
 			})
 		},

@@ -29,7 +29,7 @@ func NewSeer(moderator contract.Moderator, playerId types.PlayerId) (contract.Ro
 					),
 					activeLimit: constants.UnlimitedTimes,
 					effectiveAt: effectiveAt{
-						IsImmediate: true,
+						isImmediate: true,
 					},
 				},
 			},

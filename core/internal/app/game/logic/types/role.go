@@ -39,11 +39,7 @@ type ExecuteActionRegistration struct {
 
 	ActionId
 
-	IsRoundMatched func() bool
-
-	IsPhaseIdMatched func() bool
-
-	IsTurnMatched func() bool
+	CanExecute func() bool
 
 	Exec func() ActionResponse
 }

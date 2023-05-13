@@ -35,7 +35,7 @@ func NewWerewolf(moderator contract.Moderator, playerId types.PlayerId) (contrac
 					action:      voteAction,
 					activeLimit: constants.UnlimitedTimes,
 					effectiveAt: effectiveAt{
-						IsImmediate: true,
+						isImmediate: true,
 					},
 				},
 			},

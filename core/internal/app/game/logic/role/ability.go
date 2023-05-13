@@ -6,13 +6,17 @@ import (
 )
 
 type effectiveAt struct {
-	IsImmediate bool
+	isImmediate bool
 
-	IsRoundMatched func() bool
+	isRoundMatched func() bool
 
-	IsPhaseIdMatched func() bool
+	isPhaseIdMatched func() bool
 
-	IsTurnMatched func() bool
+	isTurnMatched func() bool
+}
+
+func (e effectiveAt) CanExecute() bool {
+	return e.isRoundMatched() && e.isPhaseIdMatched() && e.isTurnMatched()
 }
 
 // ability contains one action and its limit.
