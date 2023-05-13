@@ -3,6 +3,7 @@ package action
 import (
 	"errors"
 	"testing"
+	"uwwolf/internal/app/game/logic/constants"
 	"uwwolf/internal/app/game/logic/types"
 	mock_game_logic "uwwolf/test/mock/app/game/logic"
 
@@ -31,7 +32,7 @@ func (ks KillSuite) TestNewKill() {
 
 	kill := NewKill(world).(*kill)
 
-	ks.Equal(KillActionId, kill.Id())
+	ks.Equal(constants.KillActionId, kill.Id())
 	ks.NotNil(kill.Kills)
 	ks.Empty(kill.Kills)
 }

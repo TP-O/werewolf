@@ -3,7 +3,6 @@ package role
 import (
 	"errors"
 	"testing"
-	"uwwolf/internal/app/game/logic/action"
 	"uwwolf/internal/app/game/logic/constants"
 	"uwwolf/internal/app/game/logic/types"
 	mock_game_logic "uwwolf/test/mock/app/game/logic"
@@ -81,7 +80,7 @@ func (vs VillagerSuite) TestNewVillager() {
 				vs.Equal(vs.playerId, v.(*villager).playerId)
 				vs.Equal(constants.UnlimitedTimes, v.ActiveTimes(0))
 				vs.Len(v.(*villager).abilities, 1)
-				vs.Equal(action.VoteActionId, v.(*villager).abilities[0].action.Id())
+				vs.Equal(constants.VoteActionId, v.(*villager).abilities[0].action.Id())
 				vs.True(v.(*villager).abilities[0].isImmediate)
 			}
 		})

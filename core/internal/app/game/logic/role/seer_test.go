@@ -2,7 +2,6 @@ package role
 
 import (
 	"testing"
-	"uwwolf/internal/app/game/logic/action"
 	"uwwolf/internal/app/game/logic/constants"
 	"uwwolf/internal/app/game/logic/types"
 	mock_game_logic "uwwolf/test/mock/app/game/logic"
@@ -39,6 +38,6 @@ func (ss SeerSuite) TestNewSeer() {
 	ss.Equal(ss.playerId, s.(*seer).playerId)
 	ss.Equal(constants.UnlimitedTimes, s.ActiveTimes(0))
 	ss.Len(s.(*seer).abilities, 1)
-	ss.Equal(action.PredictActionId, s.(*seer).abilities[0].action.Id())
+	ss.Equal(constants.PredictActionId, s.(*seer).abilities[0].action.Id())
 	ss.True(s.(*seer).abilities[0].isImmediate)
 }

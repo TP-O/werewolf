@@ -2,7 +2,6 @@ package role
 
 import (
 	"testing"
-	"uwwolf/internal/app/game/logic/action"
 	"uwwolf/internal/app/game/logic/constants"
 	"uwwolf/internal/app/game/logic/types"
 	mock_game_logic "uwwolf/test/mock/app/game/logic"
@@ -39,7 +38,7 @@ func (hs HunterSuite) TestNewHunter() {
 	hs.Equal(hs.playerId, h.(*hunter).playerId)
 	hs.Equal(constants.OutOfTimes, h.ActiveTimes(0))
 	hs.Len(h.(*hunter).abilities, 1)
-	hs.Equal(action.KillActionId, h.(*hunter).abilities[0].action.Id())
+	hs.Equal(constants.KillActionId, h.(*hunter).abilities[0].action.Id())
 	hs.True(h.(*hunter).abilities[0].isImmediate)
 }
 

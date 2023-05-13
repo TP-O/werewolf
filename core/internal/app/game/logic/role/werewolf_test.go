@@ -3,7 +3,6 @@ package role
 import (
 	"errors"
 	"testing"
-	"uwwolf/internal/app/game/logic/action"
 	"uwwolf/internal/app/game/logic/constants"
 	"uwwolf/internal/app/game/logic/types"
 	mock_game_logic "uwwolf/test/mock/app/game/logic"
@@ -81,7 +80,7 @@ func (ws WerewolfSuite) TestNewWerewolf() {
 				ws.Equal(ws.playerId, w.(*werewolf).playerId)
 				ws.Equal(constants.UnlimitedTimes, w.ActiveTimes(0))
 				ws.Len(w.(*werewolf).abilities, 1)
-				ws.Equal(action.VoteActionId, w.(*werewolf).abilities[0].action.Id())
+				ws.Equal(constants.VoteActionId, w.(*werewolf).abilities[0].action.Id())
 				ws.True(w.(*werewolf).abilities[0].isImmediate)
 			}
 		})

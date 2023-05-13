@@ -2,6 +2,7 @@ package action
 
 import (
 	"errors"
+	"uwwolf/internal/app/game/logic/constants"
 	"uwwolf/internal/app/game/logic/contract"
 	"uwwolf/internal/app/game/logic/types"
 	"uwwolf/pkg/util"
@@ -30,7 +31,7 @@ type identify struct {
 func NewRoleIdentify(world contract.World, roleId types.RoleId) contract.Action {
 	return &identify{
 		action: action{
-			id:    IdentifyActionId,
+			id:    constants.IdentifyActionId,
 			world: world,
 		},
 		RoleId: roleId,
@@ -41,7 +42,7 @@ func NewRoleIdentify(world contract.World, roleId types.RoleId) contract.Action 
 func NewFactionIdentify(world contract.World, factionId types.FactionId) contract.Action {
 	return &identify{
 		action: action{
-			id:    IdentifyActionId,
+			id:    constants.IdentifyActionId,
 			world: world,
 		},
 		FactionId: factionId,

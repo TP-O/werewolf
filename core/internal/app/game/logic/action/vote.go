@@ -2,6 +2,7 @@ package action
 
 import (
 	"fmt"
+	"uwwolf/internal/app/game/logic/constants"
 	"uwwolf/internal/app/game/logic/contract"
 	"uwwolf/internal/app/game/logic/types"
 )
@@ -28,7 +29,7 @@ func NewVote(world contract.World, setting *VoteActionSetting) (contract.Action,
 
 		return &vote{
 			action: action{
-				id:    VoteActionId,
+				id:    constants.VoteActionId,
 				world: world,
 			},
 			poll: world.Poll(setting.FactionId),

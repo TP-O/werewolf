@@ -1,4 +1,4 @@
-package action
+package constants
 
 import "uwwolf/internal/app/game/logic/types"
 

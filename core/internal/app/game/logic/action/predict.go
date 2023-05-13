@@ -2,6 +2,7 @@ package action
 
 import (
 	"errors"
+	"uwwolf/internal/app/game/logic/constants"
 	"uwwolf/internal/app/game/logic/contract"
 	"uwwolf/internal/app/game/logic/types"
 	"uwwolf/pkg/util"
@@ -33,7 +34,7 @@ type predict struct {
 func NewRolePredict(world contract.World, roleId types.RoleId) contract.Action {
 	return &predict{
 		action: action{
-			id:    PredictActionId,
+			id:    constants.PredictActionId,
 			world: world,
 		},
 		RoleId: roleId,
@@ -44,7 +45,7 @@ func NewRolePredict(world contract.World, roleId types.RoleId) contract.Action {
 func NewFactionPredict(world contract.World, factionId types.FactionId) contract.Action {
 	return &predict{
 		action: action{
-			id:    PredictActionId,
+			id:    constants.PredictActionId,
 			world: world,
 		},
 		FactionId: factionId,

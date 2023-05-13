@@ -76,7 +76,7 @@ func (vs VoteSuite) TestNewVote() {
 				vs.Nil(v)
 				vs.Equal(test.expectedErr, err)
 			} else {
-				vs.Equal(VoteActionId, v.Id())
+				vs.Equal(constants.VoteActionId, v.Id())
 				vs.NotNil(v.(*vote).poll)
 				vs.Equal(poll, v.(*vote).poll)
 			}

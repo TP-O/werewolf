@@ -2,6 +2,7 @@ package action
 
 import (
 	"errors"
+	"uwwolf/internal/app/game/logic/constants"
 	"uwwolf/internal/app/game/logic/contract"
 	"uwwolf/internal/app/game/logic/types"
 )
@@ -18,7 +19,7 @@ type kill struct {
 func NewKill(world contract.World) contract.Action {
 	return &kill{
 		action: action{
-			id:    KillActionId,
+			id:    constants.KillActionId,
 			world: world,
 		},
 		Kills: make(map[types.PlayerId]uint),

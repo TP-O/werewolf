@@ -37,7 +37,7 @@ func (ps *PredictSuite) TestNewFactionPredict() {
 
 	pred := NewFactionPredict(world, ps.predictedFactionId).(*predict)
 
-	ps.Equal(PredictActionId, pred.Id())
+	ps.Equal(constants.PredictActionId, pred.Id())
 	ps.Equal(ps.predictedFactionId, pred.FactionId)
 	ps.Empty(pred.Faction)
 	ps.Equal(types.RoleId(0), pred.RoleId)
@@ -51,7 +51,7 @@ func (ps *PredictSuite) TestNewRolePredict() {
 
 	pred := NewRolePredict(world, ps.predictedRoleId).(*predict)
 
-	ps.Equal(PredictActionId, pred.Id())
+	ps.Equal(constants.PredictActionId, pred.Id())
 	ps.Equal(ps.predictedRoleId, pred.RoleId)
 	ps.Empty(pred.Role)
 	ps.Equal(types.FactionId(0), pred.FactionId)
