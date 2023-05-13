@@ -36,7 +36,7 @@ func NewHunter(moderator contract.Moderator, playerId types.PlayerId) (contract.
 }
 
 // OnAssign is triggered when the role is assigned to a player.
-func (h *hunter) OnAssign() {
+func (h *hunter) OnAfterAssign() {
 	//
 }
 

@@ -18,10 +18,10 @@ type Role interface {
 	ActiveTimes(index int) types.Times
 
 	// OnAssign is triggered when the role is assigned to a player.
-	OnAssign()
+	OnAfterAssign()
 
 	// OnRevoke is triggered when the role is removed from a player.
-	OnRevoke()
+	OnAfterRevoke()
 
 	// OnBeforeDeath is triggered before killing this role.
 	// If returns false, the player assigned it is saved.

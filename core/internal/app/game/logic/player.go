@@ -106,7 +106,7 @@ func (p *player) die(isExited bool) bool {
 	p.isDead = true
 	for _, role := range p.roles {
 		role.OnAfterDeath()
-		role.OnRevoke()
+		role.OnAfterRevoke()
 	}
 	p.moderator.World().Map().RemoveEntity(contract.EntityID(fmt.Sprintf("%v_%v", contract.PlayerEntity, p.Id())))
 
@@ -128,7 +128,7 @@ func (p *player) AssignRole(roleID types.RoleId) (bool, error) {
 			p.mainRoleId = newRole.Id()
 			p.factionId = newRole.FactionId()
 		}
-		newRole.OnAssign()
+		newRole.OnAfterAssign()
 	}
 
 	return true, nil
@@ -143,7 +143,7 @@ func (p *player) RevokeRole(roleID types.RoleId) (bool, error) {
 		return false, errors.New("Non-existent role ID  ¯\\_(ツ)_/¯")
 	}
 
-	p.roles[roleID].OnRevoke()
+	p.roles[roleID].OnAfterRevoke()
 	delete(p.roles, roleID)
 
 	if roleID == p.mainRoleId {

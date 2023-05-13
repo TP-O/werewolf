@@ -67,7 +67,7 @@ func (r role) ActiveTimes(index int) types.Times {
 }
 
 // OnAssign is triggered when the role is assigned to a player.
-func (r *role) OnAssign() {
+func (r *role) OnAfterAssign() {
 	r.moderator.World().Scheduler().AddSlot(&types.NewTurnSlot{
 		PhaseId:    r.phaseId,
 		Turn:       r.turn,
@@ -78,7 +78,7 @@ func (r *role) OnAssign() {
 }
 
 // OnRevoke is triggered when the role is removed from a player.
-func (r *role) OnRevoke() {
+func (r *role) OnAfterRevoke() {
 	r.moderator.World().Scheduler().RemoveSlot(&types.RemovedTurnSlot{
 		PhaseId:  r.phaseId,
 		RoleId:   r.id,
