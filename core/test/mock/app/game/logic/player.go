@@ -165,6 +165,20 @@ func (mr *MockPlayerMockRecorder) Move(position interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Move", reflect.TypeOf((*MockPlayer)(nil).Move), position)
 }
 
+// PlayRecords mocks base method.
+func (m *MockPlayer) PlayRecords() []types.PlayerRecord {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "PlayRecords")
+	ret0, _ := ret[0].([]types.PlayerRecord)
+	return ret0
+}
+
+// PlayRecords indicates an expected call of PlayRecords.
+func (mr *MockPlayerMockRecorder) PlayRecords() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PlayRecords", reflect.TypeOf((*MockPlayer)(nil).PlayRecords))
+}
+
 // RevokeRole mocks base method.
 func (m *MockPlayer) RevokeRole(roleId types.RoleId) (bool, error) {
 	m.ctrl.T.Helper()
