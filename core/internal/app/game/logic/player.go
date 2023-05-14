@@ -2,10 +2,8 @@ package logic
 
 import (
 	"errors"
-	"fmt"
 	"uwwolf/internal/app/game/logic/constants"
 	"uwwolf/internal/app/game/logic/contract"
-	"uwwolf/internal/app/game/logic/role"
 	"uwwolf/internal/app/game/logic/types"
 
 	"github.com/paulmach/orb"
@@ -41,17 +39,17 @@ func NewPlayer(moderator contract.Moderator, id types.PlayerId) contract.Player 
 	}
 }
 
-// ID returns player's ID.
+// Id returns player's ID.
 func (p player) Id() types.PlayerId {
 	return p.id
 }
 
-// MainRoleID returns player's main role id.
+// MainRoleId returns player's main role ID.
 func (p player) MainRoleId() types.RoleId {
 	return p.mainRoleId
 }
 
-// RoleIDs returns player's assigned role ids.
+// RoleIds returns player's assigned role IDs.
 func (p player) RoleIds() []types.RoleId {
 	return maps.Keys(p.roles)
 }
@@ -61,7 +59,7 @@ func (p player) Roles() map[types.RoleId]contract.Role {
 	return p.roles
 }
 
-// FactionID returns player's faction ID.
+// FactionId returns player's faction ID.
 func (p player) FactionId() types.FactionId {
 	return p.factionId
 }
@@ -71,13 +69,14 @@ func (p player) IsDead() bool {
 	return p.isDead
 }
 
+// Position returns the curernt location of the player.
 func (p player) Location() (float64, float64) {
 	// entitiy := p.world.Player(p.Id())
 	// return entitiy.X, entitiy.Y
 	return 1, 1
 }
 
-// SetFactionID assigns this player to the new faction.
+// SetFactionId assigns the player to the new faction.
 func (p *player) SetFactionId(factionID types.FactionId) {
 	p.factionId = factionID
 }
@@ -108,23 +107,23 @@ func (p *player) die(isExited bool) bool {
 		role.OnAfterDeath()
 		role.OnAfterRevoke()
 	}
-	p.moderator.World().Map().RemoveEntity(contract.EntityID(fmt.Sprintf("%v_%v", contract.PlayerEntity, p.Id())))
+	// p.moderator.World().Map().RemoveEntity(contract.EntityID(fmt.Sprintf("%v_%v", contract.PlayerEntity, p.Id())))
 
 	return true
 }
 
-// AssignRole assigns the role to the player, and the faction can
-// be updated based on this role.
+// AssignRole assigns role to the player, and the faction can
+// be updated based on the role.
 func (p *player) AssignRole(roleID types.RoleId) (bool, error) {
 	if slices.Contains(p.RoleIds(), roleID) {
-		return false, fmt.Errorf("This role is already assigned ¯\\_(ツ)_/¯")
+		return false, errors.New("This role is already assigned ¯\\_(ツ)_/¯")
 	}
 
-	if newRole, err := role.NewRole(roleID, p.moderator, p.id); err != nil {
+	if newRole, err := p.moderator.RoleFactory().CreateById(roleID, p.moderator, p.id); err != nil {
 		return false, err
 	} else {
 		p.roles[roleID] = newRole
-		if constants.RoleWeights.BindGet(newRole.Id()) > constants.RoleWeights.BindGet(p.mainRoleId) {
+		if constants.RoleWeights.BlindGet(newRole.Id()) > constants.RoleWeights.BlindGet(p.mainRoleId) {
 			p.mainRoleId = newRole.Id()
 			p.factionId = newRole.FactionId()
 		}
@@ -134,8 +133,8 @@ func (p *player) AssignRole(roleID types.RoleId) (bool, error) {
 	return true, nil
 }
 
-// RevokeRole removes the role from the player, and the faction can
-// be updated based on removed role.
+// RevokeRole removes the role from the player, and updates faction
+// if needed
 func (p *player) RevokeRole(roleID types.RoleId) (bool, error) {
 	if len(p.roles) == 1 {
 		return false, errors.New("Player must player at least one role ヾ(⌐■_■)ノ♪")
@@ -151,7 +150,7 @@ func (p *player) RevokeRole(roleID types.RoleId) (bool, error) {
 
 		for _, role := range p.roles {
 			if newMainRole == nil ||
-				constants.RoleWeights.BindGet(role.Id()) > constants.RoleWeights.BindGet(newMainRole.Id()) {
+				constants.RoleWeights.BlindGet(role.Id()) > constants.RoleWeights.BlindGet(newMainRole.Id()) {
 				newMainRole = role
 			}
 		}
@@ -163,25 +162,23 @@ func (p *player) RevokeRole(roleID types.RoleId) (bool, error) {
 	return true, nil
 }
 
-// ActivateAbility executes one of player's available ability.
-// The executed ability is selected based on the requested
-// action.
-func (p *player) ActivateAbility(req *types.RoleRequest) *types.RoleResponse {
+// UseRole uses one of player's available ability.
+func (p *player) UseRole(req types.RoleRequest) types.RoleResponse {
 	if p.isDead {
-		return &types.RoleResponse{
+		return types.RoleResponse{
 			ActionResponse: types.ActionResponse{
 				Message: "You're died (╥﹏╥)",
 			},
 		}
-	} else if !p.moderator.World().Scheduler().CanPlay(p.id) {
-		return &types.RoleResponse{
+	} else if !p.moderator.Scheduler().CanPlay(p.id) {
+		return types.RoleResponse{
 			ActionResponse: types.ActionResponse{
 				Message: "Wait for your turn, OK??",
 			},
 		}
 	} else {
-		turn := p.moderator.World().Scheduler().TurnSlots()
-		res := p.roles[turn[p.id].RoleId].Use(*req)
+		turn := p.moderator.Scheduler().TurnSlots()
+		res := p.roles[turn[p.id].RoleId].Use(req)
 		// p.records = append(p.records, playerRecord{
 		// 	RoundId:  p.moderator.Scheduler().RoundID(),
 		// 	TurnId:   p.moderator.World().Scheduler().TurnID(),
@@ -189,10 +186,12 @@ func (p *player) ActivateAbility(req *types.RoleRequest) *types.RoleResponse {
 		// 	TargetId: res.TargetId,
 		// })
 
-		return &res
+		return res
 	}
 }
 
+// Move moves the player to the given location.
 func (p *player) Move(position orb.Point) (bool, error) {
-	return p.moderator.World().Map().MoveEntity(contract.EntityID(fmt.Sprintf("%v_%v", contract.PlayerEntity, p.Id())), position)
+	// return p.moderator.World().Map().MoveEntity(contract.EntityID(fmt.Sprintf("%v_%v", contract.PlayerEntity, p.Id())), position)
+	return true, nil
 }

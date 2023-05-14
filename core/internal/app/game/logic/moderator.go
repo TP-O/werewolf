@@ -8,6 +8,7 @@ import (
 
 	"uwwolf/internal/app/game/logic/constants"
 	"uwwolf/internal/app/game/logic/contract"
+	"uwwolf/internal/app/game/logic/role"
 	"uwwolf/internal/app/game/logic/types"
 	"uwwolf/internal/config"
 	"uwwolf/pkg/util"
@@ -34,6 +35,7 @@ type moderator struct {
 	winningFaction      types.FactionId
 	onPhaseChanged      func(mod contract.Moderator)
 	actionRegistrations []types.ExecuteActionRegistration
+	roleFactory         *role.RoleFactory
 }
 
 func NewModerator(config config.Game, reg *types.GameRegistration) contract.Moderator {
@@ -48,6 +50,7 @@ func NewModerator(config config.Game, reg *types.GameRegistration) contract.Mode
 		discussionDuration:  reg.DiscussionDuration,
 		scheduler:           NewScheduler(constants.NightPhaseId),
 		actionRegistrations: make([]types.ExecuteActionRegistration, 0),
+		roleFactory:         new(role.RoleFactory),
 	}
 	m.world = NewWorld(m, &types.GameInitialization{
 		RoleIds:          reg.RoleIds,
@@ -73,6 +76,10 @@ func (m moderator) GameID() types.GameID {
 
 func (m moderator) Scheduler() contract.Scheduler {
 	return m.scheduler
+}
+
+func (m moderator) RoleFactory() contract.RoleFactory {
+	return m.roleFactory
 }
 
 func (m moderator) World() contract.World {
@@ -261,7 +268,7 @@ func (m *moderator) RequestPlay(
 		}
 	}
 
-	res := player.ActivateAbility(req)
+	res := player.UseRole(*req)
 	if res.Ok {
 		m.playedPlayerID = append(m.playedPlayerID, playerID)
 
@@ -282,5 +289,5 @@ func (m *moderator) RequestPlay(
 		// )
 	}
 
-	return res
+	return &res
 }

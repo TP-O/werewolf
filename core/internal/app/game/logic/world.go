@@ -4,7 +4,6 @@ import (
 	"time"
 	"uwwolf/internal/app/game/logic/constants"
 	"uwwolf/internal/app/game/logic/contract"
-	"uwwolf/internal/app/game/logic/role"
 	"uwwolf/internal/app/game/logic/types"
 	"uwwolf/pkg/util"
 
@@ -141,11 +140,11 @@ func (w world) AlivePlayerIdsWithoutFactionId(factionId types.FactionId) []types
 // Note: Don't work with unlimited set.
 func (w *world) selectRoleID(werewolfCounter *int, nonWerewolfCounter *int, roleID types.RoleId) bool {
 	isWerewolf := slices.Contains(
-		constants.FactionId2RoleIds.BindGet(constants.WerewolfFactionId),
+		constants.FactionId2RoleIds.BlindGet(constants.WerewolfFactionId),
 		roleID,
 	)
 
-	for i := 0; i < int(constants.RoleSets.BindGet(roleID)); i++ {
+	for i := 0; i < int(constants.RoleSets.BlindGet(roleID)); i++ {
 		isMissingWerewolf := *werewolfCounter < int(w.numberWerewolves)
 		isMissingNonWerewolf := *nonWerewolfCounter < len(w.players)-int(w.numberWerewolves)
 
@@ -219,7 +218,7 @@ func (w *world) assignRoles() {
 		// Assign default role
 		player.AssignRole(constants.VillagerRoleId) // nolint: errcheck
 
-		selectedRole, _ := role.NewRole(selectedRoleID, w.moderator, player.Id())
+		selectedRole, _ := w.moderator.RoleFactory().CreateById(selectedRoleID, w.moderator, player.Id())
 		if selectedRole == nil {
 			continue
 		}
