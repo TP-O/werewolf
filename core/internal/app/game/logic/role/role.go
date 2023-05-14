@@ -68,18 +68,20 @@ func (r role) ActiveTimes(index int) types.Times {
 
 // OnAssign is triggered when the role is assigned to a player.
 func (r *role) OnAfterAssign() {
-	r.moderator.Scheduler().AddSlot(types.NewTurnSlot{
-		PhaseId:    r.phaseId,
-		Turn:       r.turn,
-		BeginRound: r.beginRound,
-		PlayerId:   r.playerId,
-		RoleId:     r.id,
+	r.moderator.Scheduler().AddSlot(types.AddTurnSlot{
+		PhaseId:  r.phaseId,
+		Turn:     r.turn,
+		PlayerId: r.playerId,
+		TurnSlot: types.TurnSlot{
+			BeginRound: r.beginRound,
+			RoleId:     r.id,
+		},
 	})
 }
 
 // OnRevoke is triggered when the role is removed from a player.
 func (r *role) OnAfterRevoke() {
-	r.moderator.Scheduler().RemoveSlot(types.RemovedTurnSlot{
+	r.moderator.Scheduler().RemoveSlot(types.RemoveTurnSlot{
 		PhaseId:  r.phaseId,
 		RoleId:   r.id,
 		PlayerId: r.playerId,
@@ -164,7 +166,7 @@ func (r *role) Use(req types.RoleRequest) types.RoleResponse {
 
 		// Remove the player turn if the limit is reached
 		if r.ActiveTimes(-1) == constants.OutOfTimes {
-			r.moderator.Scheduler().RemoveSlot(types.RemovedTurnSlot{
+			r.moderator.Scheduler().RemoveSlot(types.RemoveTurnSlot{
 				PhaseId:  r.phaseId,
 				RoleId:   r.id,
 				PlayerId: r.playerId,

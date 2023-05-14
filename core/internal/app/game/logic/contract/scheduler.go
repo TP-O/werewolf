@@ -4,43 +4,43 @@ import "uwwolf/internal/app/game/logic/types"
 
 // Scheduler manages game's turns.
 type Scheduler interface {
-	// RoundID returns the latest round ID.
+	// Round returns the current round.
 	Round() types.Round
 
 	// PhaseID returns the current phase ID.
 	PhaseId() types.PhaseId
 
 	// Phase returns the current phase.
-	Phase() map[types.Turn]types.TurnRecords
-
-	// TurnID returns the current turn ID.
-	Turn() types.Turn
+	Phase() map[types.Turn]types.TurnSlots
 
 	// Turn returns the current turn.
-	TurnRecords() types.TurnRecords
+	Turn() types.Turn
 
-	// CanPlay checks if the given playerID can play in the
+	// TurnSlots returns all slots of the current turn.
+	TurnSlots() types.TurnSlots
+
+	// CanPlay checks if the given player ID can play in the
 	// current turn.
-	CanPlay(playerID types.PlayerId) bool
+	CanPlay(playerId types.PlayerId) bool
 
-	// PlayablePlayerIDs returns playable player ID list in
+	// PlayablePlayerIds returns playable player ID list in
 	// the current turn.
-	PlayablePlayerIDs() []types.PlayerId
+	PlayablePlayerIds() []types.PlayerId
 
-	// IsEmptyPhase check if specific phase is empty.
-	// Check if scheduler is empty if `phaseID` is 0.
-	IsEmptyPhase(phaseId types.PhaseId) bool
+	// IsEmpty check if specific phase is empty.
+	// Check if scheduler is empty if `phaseId` is 0.
+	IsEmpty(phaseId types.PhaseId) bool
 
 	// AddSlot adds new player turn to the scheduler.
-	AddSlot(newSlot types.NewTurnSlot) bool
+	AddSlot(newSlot types.AddTurnSlot) bool
 
 	// RemoveSlot removes a player turn from the scheduler
 	// by `TurnID` or `RoleID`.
 	//
-	// If `TurnID` is filled, ignore `RoleID`.
+	// If `Turn` is provided, ignore `RoleId`.
 	//
-	// If `PhaseID` is 0, removes all of turns of that player.
-	RemoveSlot(removedSlot types.RemovedTurnSlot) bool
+	// If `PhaseId` is 0, removes all of turns of that player.
+	RemoveSlot(removeSlot types.RemoveTurnSlot) bool
 
 	// FreezeSlot blocks slot N times.
 	FreezeSlot(frozenSlot types.FreezeTurnSlot) bool

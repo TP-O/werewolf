@@ -180,7 +180,7 @@ func (p *player) ActivateAbility(req *types.RoleRequest) *types.RoleResponse {
 			},
 		}
 	} else {
-		turn := p.moderator.World().Scheduler().TurnRecords()
+		turn := p.moderator.World().Scheduler().TurnSlots()
 		res := p.roles[turn[p.id].RoleId].Use(*req)
 		// p.records = append(p.records, playerRecord{
 		// 	RoundId:  p.moderator.Scheduler().RoundID(),

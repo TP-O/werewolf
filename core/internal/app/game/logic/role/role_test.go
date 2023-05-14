@@ -80,12 +80,14 @@ func (rs RoleSuite) TestOnAfterAssign() {
 		turn:       constants.PostTurn,
 	}
 
-	scheduler.EXPECT().AddSlot(types.NewTurnSlot{
-		PhaseId:    r.phaseId,
-		Turn:       r.turn,
-		BeginRound: r.beginRound,
-		PlayerId:   rs.playerId,
-		RoleId:     r.Id(),
+	scheduler.EXPECT().AddSlot(types.AddTurnSlot{
+		PhaseId:  r.phaseId,
+		Turn:     r.turn,
+		PlayerId: rs.playerId,
+		TurnSlot: types.TurnSlot{
+			BeginRound: r.beginRound,
+			RoleId:     r.Id(),
+		},
 	})
 
 	r.OnAfterAssign()
@@ -106,7 +108,7 @@ func (rs RoleSuite) TestOnAfterRevoke() {
 		playerId:  rs.playerId,
 	}
 
-	scheduler.EXPECT().RemoveSlot(types.RemovedTurnSlot{
+	scheduler.EXPECT().RemoveSlot(types.RemoveTurnSlot{
 		PhaseId:  r.phaseId,
 		PlayerId: rs.playerId,
 		RoleId:   r.Id(),
@@ -368,7 +370,7 @@ func (rs RoleSuite) TestUse() {
 						Ok: true,
 					}).
 					Times(1)
-				ms.EXPECT().RemoveSlot(types.RemovedTurnSlot{
+				ms.EXPECT().RemoveSlot(types.RemoveTurnSlot{
 					PhaseId:  role.phaseId,
 					RoleId:   role.id,
 					PlayerId: role.playerId,

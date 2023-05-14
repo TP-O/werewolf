@@ -50,11 +50,13 @@ func (h *hunter) OnAfterDeath() {
 	}
 
 	// This turn can be only played in the current round
-	slot := types.NewTurnSlot{
-		PhaseId:     h.phaseId,
-		PlayerId:    h.playerId,
-		RoleId:      h.id,
-		PlayedRound: h.moderator.Scheduler().Round(),
+	slot := types.AddTurnSlot{
+		PhaseId:  h.phaseId,
+		PlayerId: h.playerId,
+		TurnSlot: types.TurnSlot{
+			RoleId:      h.id,
+			PlayedRound: h.moderator.Scheduler().Round(),
+		},
 	}
 
 	if diedAtPhaseId == h.phaseId {

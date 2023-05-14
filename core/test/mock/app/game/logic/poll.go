@@ -6,7 +6,6 @@ package mock_game_logic
 
 import (
 	reflect "reflect"
-	contract "uwwolf/internal/app/game/logic/contract"
 	types "uwwolf/internal/app/game/logic/types"
 
 	gomock "github.com/golang/mock/gomock"
@@ -36,50 +35,50 @@ func (m *MockPoll) EXPECT() *MockPollMockRecorder {
 }
 
 // AddCandidates mocks base method.
-func (m *MockPoll) AddCandidates(candidateIDs ...types.PlayerId) {
+func (m *MockPoll) AddCandidates(candidateIds ...types.PlayerId) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{}
-	for _, a := range candidateIDs {
+	for _, a := range candidateIds {
 		varargs = append(varargs, a)
 	}
 	m.ctrl.Call(m, "AddCandidates", varargs...)
 }
 
 // AddCandidates indicates an expected call of AddCandidates.
-func (mr *MockPollMockRecorder) AddCandidates(candidateIDs ...interface{}) *gomock.Call {
+func (mr *MockPollMockRecorder) AddCandidates(candidateIds ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddCandidates", reflect.TypeOf((*MockPoll)(nil).AddCandidates), candidateIDs...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddCandidates", reflect.TypeOf((*MockPoll)(nil).AddCandidates), candidateIds...)
 }
 
 // AddElectors mocks base method.
-func (m *MockPoll) AddElectors(electorIDs ...types.PlayerId) {
+func (m *MockPoll) AddElectors(electorIds ...types.PlayerId) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{}
-	for _, a := range electorIDs {
+	for _, a := range electorIds {
 		varargs = append(varargs, a)
 	}
 	m.ctrl.Call(m, "AddElectors", varargs...)
 }
 
 // AddElectors indicates an expected call of AddElectors.
-func (mr *MockPollMockRecorder) AddElectors(electorIDs ...interface{}) *gomock.Call {
+func (mr *MockPollMockRecorder) AddElectors(electorIds ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddElectors", reflect.TypeOf((*MockPoll)(nil).AddElectors), electorIDs...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddElectors", reflect.TypeOf((*MockPoll)(nil).AddElectors), electorIds...)
 }
 
 // CanVote mocks base method.
-func (m *MockPoll) CanVote(electorID types.PlayerId) (bool, error) {
+func (m *MockPoll) CanVote(electorId types.PlayerId) (bool, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CanVote", electorID)
+	ret := m.ctrl.Call(m, "CanVote", electorId)
 	ret0, _ := ret[0].(bool)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CanVote indicates an expected call of CanVote.
-func (mr *MockPollMockRecorder) CanVote(electorID interface{}) *gomock.Call {
+func (mr *MockPollMockRecorder) CanVote(electorId interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CanVote", reflect.TypeOf((*MockPoll)(nil).CanVote), electorID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CanVote", reflect.TypeOf((*MockPoll)(nil).CanVote), electorId)
 }
 
 // Close mocks base method.
@@ -126,10 +125,10 @@ func (mr *MockPollMockRecorder) Open() *gomock.Call {
 }
 
 // Record mocks base method.
-func (m *MockPoll) Record(round types.Round) contract.PollRecord {
+func (m *MockPoll) Record(round types.Round) *types.PollRecord {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Record", round)
-	ret0, _ := ret[0].(contract.PollRecord)
+	ret0, _ := ret[0].(*types.PollRecord)
 	return ret0
 }
 
@@ -140,58 +139,58 @@ func (mr *MockPollMockRecorder) Record(round interface{}) *gomock.Call {
 }
 
 // RemoveCandidate mocks base method.
-func (m *MockPoll) RemoveCandidate(candidateID types.PlayerId) bool {
+func (m *MockPoll) RemoveCandidate(candidateId types.PlayerId) bool {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RemoveCandidate", candidateID)
+	ret := m.ctrl.Call(m, "RemoveCandidate", candidateId)
 	ret0, _ := ret[0].(bool)
 	return ret0
 }
 
 // RemoveCandidate indicates an expected call of RemoveCandidate.
-func (mr *MockPollMockRecorder) RemoveCandidate(candidateID interface{}) *gomock.Call {
+func (mr *MockPollMockRecorder) RemoveCandidate(candidateId interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveCandidate", reflect.TypeOf((*MockPoll)(nil).RemoveCandidate), candidateID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveCandidate", reflect.TypeOf((*MockPoll)(nil).RemoveCandidate), candidateId)
 }
 
 // RemoveElector mocks base method.
-func (m *MockPoll) RemoveElector(electorID types.PlayerId) bool {
+func (m *MockPoll) RemoveElector(electorId types.PlayerId) bool {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RemoveElector", electorID)
+	ret := m.ctrl.Call(m, "RemoveElector", electorId)
 	ret0, _ := ret[0].(bool)
 	return ret0
 }
 
 // RemoveElector indicates an expected call of RemoveElector.
-func (mr *MockPollMockRecorder) RemoveElector(electorID interface{}) *gomock.Call {
+func (mr *MockPollMockRecorder) RemoveElector(electorId interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveElector", reflect.TypeOf((*MockPoll)(nil).RemoveElector), electorID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveElector", reflect.TypeOf((*MockPoll)(nil).RemoveElector), electorId)
 }
 
 // SetWeight mocks base method.
-func (m *MockPoll) SetWeight(electorID types.PlayerId, weight uint) bool {
+func (m *MockPoll) SetWeight(electorId types.PlayerId, weight uint) bool {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SetWeight", electorID, weight)
+	ret := m.ctrl.Call(m, "SetWeight", electorId, weight)
 	ret0, _ := ret[0].(bool)
 	return ret0
 }
 
 // SetWeight indicates an expected call of SetWeight.
-func (mr *MockPollMockRecorder) SetWeight(electorID, weight interface{}) *gomock.Call {
+func (mr *MockPollMockRecorder) SetWeight(electorId, weight interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetWeight", reflect.TypeOf((*MockPoll)(nil).SetWeight), electorID, weight)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetWeight", reflect.TypeOf((*MockPoll)(nil).SetWeight), electorId, weight)
 }
 
 // Vote mocks base method.
-func (m *MockPoll) Vote(electorID, candidateID types.PlayerId) (bool, error) {
+func (m *MockPoll) Vote(electorId, candidateId types.PlayerId) (bool, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Vote", electorID, candidateID)
+	ret := m.ctrl.Call(m, "Vote", electorId, candidateId)
 	ret0, _ := ret[0].(bool)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Vote indicates an expected call of Vote.
-func (mr *MockPollMockRecorder) Vote(electorID, candidateID interface{}) *gomock.Call {
+func (mr *MockPollMockRecorder) Vote(electorId, candidateId interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Vote", reflect.TypeOf((*MockPoll)(nil).Vote), electorID, candidateID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Vote", reflect.TypeOf((*MockPoll)(nil).Vote), electorId, candidateId)
 }

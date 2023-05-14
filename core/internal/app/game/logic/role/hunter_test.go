@@ -76,12 +76,14 @@ func (hs HunterSuite) TestOnAfterDeath() {
 				mm.EXPECT().Scheduler().Return(ms).Times(4)
 				ms.EXPECT().PhaseId().Return(constants.NightPhaseId)
 				ms.EXPECT().Round().Return(constants.SecondRound).Times(2)
-				ms.EXPECT().AddSlot(types.NewTurnSlot{
-					PhaseId:     h.phaseId,
-					RoleId:      h.id,
-					PlayedRound: constants.SecondRound,
-					PlayerId:    hs.playerId,
-					Turn:        h.turn,
+				ms.EXPECT().AddSlot(types.AddTurnSlot{
+					PhaseId:  h.phaseId,
+					PlayerId: hs.playerId,
+					Turn:     h.turn,
+					TurnSlot: types.TurnSlot{
+						RoleId:      h.id,
+						PlayedRound: constants.SecondRound,
+					},
 				})
 			},
 		},
@@ -93,12 +95,14 @@ func (hs HunterSuite) TestOnAfterDeath() {
 				ms.EXPECT().PhaseId().Return(constants.DayPhaseId)
 				ms.EXPECT().Turn().Return(constants.MidTurn)
 				ms.EXPECT().Round().Return(constants.SecondRound).Times(2)
-				ms.EXPECT().AddSlot(types.NewTurnSlot{
-					PhaseId:     h.phaseId,
-					RoleId:      h.id,
-					PlayedRound: constants.SecondRound,
-					PlayerId:    hs.playerId,
-					Turn:        constants.MidTurn + 1,
+				ms.EXPECT().AddSlot(types.AddTurnSlot{
+					PhaseId:  h.phaseId,
+					PlayerId: hs.playerId,
+					Turn:     constants.MidTurn + 1,
+					TurnSlot: types.TurnSlot{
+						RoleId:      h.id,
+						PlayedRound: constants.SecondRound,
+					},
 				})
 			},
 		},

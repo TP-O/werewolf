@@ -107,12 +107,14 @@ func (ws WerewolfSuite) TestAfterOnAssign() {
 	moderator.EXPECT().World().Return(world)
 	world.EXPECT().Poll(constants.WerewolfFactionId).Return(poll)
 	poll.EXPECT().AddElectors(ws.playerId)
-	scheduler.EXPECT().AddSlot(types.NewTurnSlot{
-		PhaseId:    w.(*werewolf).phaseId,
-		Turn:       w.(*werewolf).turn,
-		BeginRound: w.(*werewolf).beginRound,
-		PlayerId:   ws.playerId,
-		RoleId:     w.Id(),
+	scheduler.EXPECT().AddSlot(types.AddTurnSlot{
+		PhaseId:  w.(*werewolf).phaseId,
+		Turn:     w.(*werewolf).turn,
+		PlayerId: ws.playerId,
+		TurnSlot: types.TurnSlot{
+			RoleId:     w.Id(),
+			BeginRound: w.(*werewolf).beginRound,
+		},
 	})
 
 	w.OnAfterAssign()
@@ -138,7 +140,7 @@ func (ws WerewolfSuite) TestOnAfterRevoke() {
 	moderator.EXPECT().Scheduler().Return(scheduler)
 	world.EXPECT().Poll(constants.WerewolfFactionId).Return(poll)
 	poll.EXPECT().RemoveElector(ws.playerId)
-	scheduler.EXPECT().RemoveSlot(types.RemovedTurnSlot{
+	scheduler.EXPECT().RemoveSlot(types.RemoveTurnSlot{
 		PhaseId:  w.(*werewolf).phaseId,
 		PlayerId: ws.playerId,
 		RoleId:   w.Id(),

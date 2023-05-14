@@ -110,12 +110,14 @@ func (vs VillagerSuite) TestOnAssign() {
 	poll.EXPECT().AddCandidates(vs.playerId)
 	world.EXPECT().Poll(constants.WerewolfFactionId).Return(poll)
 	poll.EXPECT().AddCandidates(vs.playerId)
-	scheduler.EXPECT().AddSlot(types.NewTurnSlot{
-		PhaseId:    v.(*villager).phaseId,
-		Turn:       v.(*villager).turn,
-		BeginRound: v.(*villager).beginRound,
-		PlayerId:   vs.playerId,
-		RoleId:     v.Id(),
+	scheduler.EXPECT().AddSlot(types.AddTurnSlot{
+		PhaseId:  v.(*villager).phaseId,
+		Turn:     v.(*villager).turn,
+		PlayerId: vs.playerId,
+		TurnSlot: types.TurnSlot{
+			BeginRound: v.(*villager).beginRound,
+			RoleId:     v.Id(),
+		},
 	})
 
 	v.OnAfterAssign()
@@ -144,7 +146,7 @@ func (vs VillagerSuite) TestOnAfterRevoke() {
 	poll.EXPECT().RemoveCandidate(vs.playerId)
 	world.EXPECT().Poll(constants.WerewolfFactionId).Return(poll)
 	poll.EXPECT().RemoveCandidate(vs.playerId)
-	scheduler.EXPECT().RemoveSlot(types.RemovedTurnSlot{
+	scheduler.EXPECT().RemoveSlot(types.RemoveTurnSlot{
 		PhaseId:  v.(*villager).phaseId,
 		PlayerId: vs.playerId,
 		RoleId:   v.Id(),

@@ -1,807 +1,815 @@
 package logic
 
-// import (
-// 	"testing"
-// 	"uwwolf/internal/app/game/logic/types"
-// 	"uwwolf/game/vars"
+import (
+	"testing"
+	"uwwolf/internal/app/game/logic/constants"
+	"uwwolf/internal/app/game/logic/types"
+	"uwwolf/pkg/util"
 
-// 	"github.com/stretchr/testify/suite"
-// )
+	"github.com/stretchr/testify/suite"
+)
 
-// type SchudulerSuite struct {
-// 	suite.Suite
-// 	beginPhaseID types.PhaseID
-// 	player1ID    types.PlayerId
-// 	player2ID    types.PlayerId
-// 	player3ID    types.PlayerId
-// }
+type SchedulerSuite struct {
+	suite.Suite
+	beginPhaseId types.PhaseId
+	player1Id    types.PlayerId
+	player2Id    types.PlayerId
+	player3Id    types.PlayerId
+}
 
-// func TestSchudulerSuite(t *testing.T) {
-// 	suite.Run(t, new(SchudulerSuite))
-// }
+func TestSchedulerSuite(t *testing.T) {
+	suite.Run(t, new(SchedulerSuite))
+}
 
-// func (ss *SchudulerSuite) SetupSuite() {
-// 	ss.beginPhaseID = vars.NightPhaseID
-// 	ss.player1ID = types.PlayerId("1")
-// 	ss.player2ID = types.PlayerId("2")
-// 	ss.player3ID = types.PlayerId("3")
-// }
+func (ss *SchedulerSuite) SetupSuite() {
+	ss.beginPhaseId = constants.NightPhaseId
+	ss.player1Id = types.PlayerId("1")
+	ss.player2Id = types.PlayerId("2")
+	ss.player3Id = types.PlayerId("3")
+}
 
-// func (ss SchudulerSuite) TestNewScheduler() {
-// 	s := NewScheduler(ss.beginPhaseID)
+func (ss SchedulerSuite) TestNewScheduler() {
+	s := NewScheduler(ss.beginPhaseId)
 
-// 	ss.NotNil(s)
-// 	ss.Equal(vars.ZeroRound, s.(*scheduler).roundID)
-// 	ss.Equal(vars.PreTurn, s.(*scheduler).turnID)
-// 	ss.Equal(ss.beginPhaseID, s.(*scheduler).beginPhaseID)
-// 	ss.Equal(ss.beginPhaseID, s.(*scheduler).phaseID)
-// 	ss.NotNil(s.(*scheduler).phases)
-// 	ss.Len(s.(*scheduler).phases, 3)
-// 	for _, phase := range s.(*scheduler).phases {
-// 		ss.Len(phase, 3)
-// 	}
-// }
+	ss.NotNil(s)
+	ss.Equal(constants.ZeroRound, s.(*scheduler).round)
+	ss.Equal(constants.PreTurn, s.(*scheduler).turn)
+	ss.Equal(ss.beginPhaseId, s.(*scheduler).beginPhaseId)
+	ss.Equal(ss.beginPhaseId, s.(*scheduler).phaseId)
+	ss.NotNil(s.(*scheduler).phases)
+	ss.Len(s.(*scheduler).phases, 3)
+	for _, phase := range s.(*scheduler).phases {
+		ss.Len(phase, 3)
+	}
+}
 
-// func (ss SchudulerSuite) TestRoundID() {
-// 	s := NewScheduler(ss.beginPhaseID)
+func (ss SchedulerSuite) TestRound() {
+	s := NewScheduler(ss.beginPhaseId)
 
-// 	expectedRoundID := vars.SecondRound
-// 	s.(*scheduler).roundID = expectedRoundID
+	expectedRoundId := constants.SecondRound
+	s.(*scheduler).round = expectedRoundId
 
-// 	ss.Equal(expectedRoundID, s.RoundID())
-// }
+	ss.Equal(expectedRoundId, s.Round())
+}
 
-// func (ss SchudulerSuite) TestPhaseID() {
-// 	s := NewScheduler(ss.beginPhaseID)
+func (ss SchedulerSuite) TestPhaseId() {
+	s := NewScheduler(ss.beginPhaseId)
 
-// 	ss.Equal(ss.beginPhaseID, s.PhaseID())
-// }
+	ss.Equal(ss.beginPhaseId, s.PhaseId())
+}
 
-// func (ss SchudulerSuite) TestPhase() {
-// 	s := NewScheduler(ss.beginPhaseID)
+func (ss SchedulerSuite) TestPhase() {
+	s := NewScheduler(ss.beginPhaseId)
 
-// 	expectedTurn := types.Turn(
-// 		map[types.PlayerId]*types.TurnSlot{
-// 			ss.player1ID: {
-// 				RoleID: types.RoleID(99),
-// 			},
-// 		})
-// 	s.(*scheduler).phases[ss.beginPhaseID][vars.PreTurn] = expectedTurn
+	expectedTurnSlots := types.TurnSlots(
+		map[types.PlayerId]*types.TurnSlot{
+			ss.player1Id: {
+				RoleId: types.RoleId(99),
+			},
+		})
+	s.(*scheduler).phases[ss.beginPhaseId][constants.PreTurn] = expectedTurnSlots
 
-// 	ss.Equal(expectedTurn, s.Phase()[vars.PreTurn])
-// }
+	ss.Equal(expectedTurnSlots, s.Phase()[constants.PreTurn])
+}
 
-// func (ss SchudulerSuite) TestTurnID() {
-// 	s := NewScheduler(ss.beginPhaseID)
-// 	s.(*scheduler).turnID = vars.PostTurn
+func (ss SchedulerSuite) TestTurn() {
+	s := NewScheduler(ss.beginPhaseId)
+	s.(*scheduler).turn = constants.PostTurn
 
-// 	ss.Equal(vars.PostTurn, s.TurnID())
-// }
+	ss.Equal(constants.PostTurn, s.Turn())
+}
 
-// func (ss SchudulerSuite) TestTurn() {
-// 	tests := []struct {
-// 		name         string
-// 		expectedTurn types.Turn
-// 		setup        func(*scheduler)
-// 	}{
-// 		{
-// 			name:         "Nil (Current phase is empty)",
-// 			expectedTurn: nil,
-// 			setup: func(s *scheduler) {
-// 				s.phases[ss.beginPhaseID] = make(map[types.TurnID]types.Turn)
-// 			},
-// 		},
-// 		{
-// 			name: "Ok",
-// 			expectedTurn: types.Turn(
-// 				map[types.PlayerId]*types.TurnSlot{
-// 					ss.player1ID: {
-// 						RoleID: types.RoleID(99),
-// 					},
-// 				}),
-// 			setup: func(s *scheduler) {
-// 				s.phases[ss.beginPhaseID][vars.PreTurn] = types.Turn(
-// 					map[types.PlayerId]*types.TurnSlot{
-// 						ss.player1ID: {
-// 							RoleID: types.RoleID(99),
-// 						},
-// 					})
-// 			},
-// 		},
-// 	}
+func (ss SchedulerSuite) TestTurnSlots() {
+	tests := []struct {
+		name              string
+		expectedTurnSlots types.TurnSlots
+		setup             func(*scheduler)
+	}{
+		{
+			name:              "Nil (Current phase is empty)",
+			expectedTurnSlots: nil,
+			setup: func(s *scheduler) {
+				s.phases[ss.beginPhaseId] = make(map[types.Turn]types.TurnSlots)
+			},
+		},
+		{
+			name: "Ok",
+			expectedTurnSlots: types.TurnSlots(
+				map[types.PlayerId]*types.TurnSlot{
+					ss.player1Id: {
+						RoleId: types.RoleId(99),
+					},
+				}),
+			setup: func(s *scheduler) {
+				s.phases[ss.beginPhaseId][constants.PreTurn] = types.TurnSlots(
+					map[types.PlayerId]*types.TurnSlot{
+						ss.player1Id: {
+							RoleId: types.RoleId(99),
+						},
+					})
+			},
+		},
+	}
 
-// 	for _, test := range tests {
-// 		ss.Run(test.name, func() {
-// 			s := NewScheduler(ss.beginPhaseID)
-// 			test.setup(s.(*scheduler))
+	for _, test := range tests {
+		ss.Run(test.name, func() {
+			s := NewScheduler(ss.beginPhaseId)
+			test.setup(s.(*scheduler))
 
-// 			turn := s.Turn()
+			turnSlots := s.TurnSlots()
 
-// 			ss.Equal(test.expectedTurn, turn)
-// 		})
-// 	}
-// }
+			ss.Equal(test.expectedTurnSlots, turnSlots)
+		})
+	}
+}
 
-// func (ss SchudulerSuite) TestCanPlay() {
-// 	tests := []struct {
-// 		name           string
-// 		turn           types.Turn
-// 		expectedStatus bool
-// 		setup          func(*scheduler)
-// 	}{
-// 		{
-// 			name: "False (Late begin round slot)",
-// 			turn: types.Turn(
-// 				map[types.PlayerId]*types.TurnSlot{
-// 					ss.player1ID: {
-// 						BeginRoundID: vars.SecondRound,
-// 					},
-// 				}),
-// 			expectedStatus: false,
-// 			setup: func(s *scheduler) {
-// 				s.roundID = vars.FirstRound
-// 			},
-// 		}, {
-// 			name: "False (zero begin round slot)",
-// 			turn: types.Turn(
-// 				map[types.PlayerId]*types.TurnSlot{
-// 					ss.player1ID: {
-// 						BeginRoundID: vars.ZeroRound,
-// 					},
-// 				}),
-// 			expectedStatus: false,
-// 			setup: func(s *scheduler) {
-// 				s.roundID = vars.SecondRound
-// 			},
-// 		},
-// 		{
-// 			name: "True (One-round slot)",
-// 			turn: types.Turn(
-// 				map[types.PlayerId]*types.TurnSlot{
-// 					ss.player1ID: {
-// 						PlayedRoundID: vars.SecondRound,
-// 					},
-// 				}),
-// 			expectedStatus: true,
-// 			setup: func(s *scheduler) {
-// 				s.roundID = vars.SecondRound
-// 			},
-// 		},
-// 		{
-// 			name: "False (frozen slot)",
-// 			turn: types.Turn(
-// 				map[types.PlayerId]*types.TurnSlot{
-// 					ss.player1ID: {
-// 						BeginRoundID: vars.SecondRound,
-// 						FrozenTimes:  vars.Once,
-// 					},
-// 				}),
-// 			expectedStatus: false,
-// 			setup: func(s *scheduler) {
-// 				s.roundID = vars.SecondRound
-// 			},
-// 		},
-// 	}
+func (ss SchedulerSuite) TestCanPlay() {
+	tests := []struct {
+		name           string
+		turnSlots      types.TurnSlots
+		expectedStatus bool
+		setup          func(*scheduler)
+	}{
+		{
+			name: "False (Late begin round slot)",
+			turnSlots: types.TurnSlots(
+				map[types.PlayerId]*types.TurnSlot{
+					ss.player1Id: {
+						BeginRound: constants.SecondRound,
+					},
+				}),
+			expectedStatus: false,
+			setup: func(s *scheduler) {
+				s.round = constants.FirstRound
+			},
+		}, {
+			name: "False (zero begin round slot)",
+			turnSlots: types.TurnSlots(
+				map[types.PlayerId]*types.TurnSlot{
+					ss.player1Id: {
+						BeginRound: constants.ZeroRound,
+					},
+				}),
+			expectedStatus: false,
+			setup: func(s *scheduler) {
+				s.round = constants.SecondRound
+			},
+		},
+		{
+			name: "True (One-round slot)",
+			turnSlots: types.TurnSlots(
+				map[types.PlayerId]*types.TurnSlot{
+					ss.player1Id: {
+						PlayedRound: constants.SecondRound,
+					},
+				}),
+			expectedStatus: true,
+			setup: func(s *scheduler) {
+				s.round = constants.SecondRound
+			},
+		},
+		{
+			name: "False (frozen slot)",
+			turnSlots: types.TurnSlots(
+				map[types.PlayerId]*types.TurnSlot{
+					ss.player1Id: {
+						BeginRound:  constants.SecondRound,
+						FrozenTimes: constants.Once,
+					},
+				}),
+			expectedStatus: false,
+			setup: func(s *scheduler) {
+				s.round = constants.SecondRound
+			},
+		},
+	}
 
-// 	for _, test := range tests {
-// 		ss.Run(test.name, func() {
-// 			s := NewScheduler(ss.beginPhaseID)
+	for _, test := range tests {
+		ss.Run(test.name, func() {
+			s := NewScheduler(ss.beginPhaseId)
 
-// 			test.setup(s.(*scheduler))
-// 			s.(*scheduler).phases[ss.beginPhaseID][vars.PreTurn] = test.turn
+			test.setup(s.(*scheduler))
+			s.(*scheduler).phases[ss.beginPhaseId][constants.PreTurn] = test.turnSlots
 
-// 			ss.Equal(test.expectedStatus, s.CanPlay(ss.player1ID))
-// 		})
-// 	}
-// }
+			ss.Equal(test.expectedStatus, s.CanPlay(ss.player1Id))
+		})
+	}
+}
 
-// func (ss SchudulerSuite) TestPlayablePlayerIDs() {
-// 	tests := []struct {
-// 		name              string
-// 		turn              types.Turn
-// 		expectedPlayerIDs []types.PlayerId
-// 		setup             func(*scheduler)
-// 	}{
-// 		{
-// 			name: "Ignore late begin round slot",
-// 			turn: types.Turn(
-// 				map[types.PlayerId]*types.TurnSlot{
-// 					ss.player1ID: {
-// 						BeginRoundID: vars.FirstRound,
-// 					},
-// 					ss.player2ID: {
-// 						BeginRoundID: vars.SecondRound,
-// 					},
-// 					ss.player3ID: {
-// 						BeginRoundID: types.RoundID(3),
-// 					},
-// 				}),
-// 			expectedPlayerIDs: []types.PlayerId{
-// 				ss.player1ID,
-// 				ss.player2ID,
-// 			},
-// 			setup: func(s *scheduler) {
-// 				s.roundID = vars.SecondRound
-// 			},
-// 		}, {
-// 			name: "Ignore zero begin round slot",
-// 			turn: types.Turn(
-// 				map[types.PlayerId]*types.TurnSlot{
-// 					ss.player1ID: {
-// 						BeginRoundID: vars.FirstRound,
-// 					},
-// 					ss.player2ID: {
-// 						BeginRoundID: vars.SecondRound,
-// 					},
-// 					ss.player3ID: {
-// 						BeginRoundID: vars.ZeroRound,
-// 					},
-// 				}),
-// 			expectedPlayerIDs: []types.PlayerId{
-// 				ss.player1ID,
-// 				ss.player2ID,
-// 			},
-// 			setup: func(s *scheduler) {
-// 				s.roundID = vars.SecondRound
-// 			},
-// 		},
-// 		{
-// 			name: "Include one-round slot",
-// 			turn: types.Turn(
-// 				map[types.PlayerId]*types.TurnSlot{
-// 					ss.player1ID: {
-// 						BeginRoundID: vars.FirstRound,
-// 					},
-// 					ss.player2ID: {
-// 						PlayedRoundID: vars.SecondRound,
-// 					},
-// 					ss.player3ID: {
-// 						PlayedRoundID: types.RoundID(3),
-// 					},
-// 				}),
-// 			expectedPlayerIDs: []types.PlayerId{
-// 				ss.player1ID,
-// 				ss.player2ID,
-// 			},
-// 			setup: func(s *scheduler) {
-// 				s.roundID = vars.SecondRound
-// 			},
-// 		},
-// 		{
-// 			name: "Ignore frozen slot",
-// 			turn: types.Turn(
-// 				map[types.PlayerId]*types.TurnSlot{
-// 					ss.player1ID: {
-// 						BeginRoundID: vars.FirstRound,
-// 					},
-// 					ss.player2ID: {
-// 						BeginRoundID: vars.SecondRound,
-// 					},
-// 					ss.player3ID: {
-// 						BeginRoundID: vars.SecondRound,
-// 						FrozenTimes:  vars.Once,
-// 					},
-// 				}),
-// 			expectedPlayerIDs: []types.PlayerId{
-// 				ss.player1ID,
-// 				ss.player2ID,
-// 			},
-// 			setup: func(s *scheduler) {
-// 				s.roundID = vars.SecondRound
-// 			},
-// 		},
-// 	}
+func (ss SchedulerSuite) TestPlayablePlayerIds() {
+	tests := []struct {
+		name              string
+		turnSlots         types.TurnSlots
+		expectedPlayerIds []types.PlayerId
+		setup             func(*scheduler)
+	}{
+		{
+			name: "Ignore late begin round slot",
+			turnSlots: types.TurnSlots(
+				map[types.PlayerId]*types.TurnSlot{
+					ss.player1Id: {
+						BeginRound: constants.FirstRound,
+					},
+					ss.player2Id: {
+						BeginRound: constants.SecondRound,
+					},
+					ss.player3Id: {
+						BeginRound: types.Round(3),
+					},
+				}),
+			expectedPlayerIds: []types.PlayerId{
+				ss.player1Id,
+				ss.player2Id,
+			},
+			setup: func(s *scheduler) {
+				s.round = constants.SecondRound
+			},
+		}, {
+			name: "Ignore zero begin round slot",
+			turnSlots: types.TurnSlots(
+				map[types.PlayerId]*types.TurnSlot{
+					ss.player1Id: {
+						BeginRound: constants.FirstRound,
+					},
+					ss.player2Id: {
+						BeginRound: constants.SecondRound,
+					},
+					ss.player3Id: {
+						BeginRound: constants.ZeroRound,
+					},
+				}),
+			expectedPlayerIds: []types.PlayerId{
+				ss.player1Id,
+				ss.player2Id,
+			},
+			setup: func(s *scheduler) {
+				s.round = constants.SecondRound
+			},
+		},
+		{
+			name: "Include one-round slot",
+			turnSlots: types.TurnSlots(
+				map[types.PlayerId]*types.TurnSlot{
+					ss.player1Id: {
+						BeginRound: constants.FirstRound,
+					},
+					ss.player2Id: {
+						PlayedRound: constants.SecondRound,
+					},
+					ss.player3Id: {
+						PlayedRound: types.Round(3),
+					},
+				}),
+			expectedPlayerIds: []types.PlayerId{
+				ss.player1Id,
+				ss.player2Id,
+			},
+			setup: func(s *scheduler) {
+				s.round = constants.SecondRound
+			},
+		},
+		{
+			name: "Ignore frozen slot",
+			turnSlots: types.TurnSlots(
+				map[types.PlayerId]*types.TurnSlot{
+					ss.player1Id: {
+						BeginRound: constants.FirstRound,
+					},
+					ss.player2Id: {
+						BeginRound: constants.SecondRound,
+					},
+					ss.player3Id: {
+						BeginRound:  constants.SecondRound,
+						FrozenTimes: constants.Once,
+					},
+				}),
+			expectedPlayerIds: []types.PlayerId{
+				ss.player1Id,
+				ss.player2Id,
+			},
+			setup: func(s *scheduler) {
+				s.round = constants.SecondRound
+			},
+		},
+	}
 
-// 	for _, test := range tests {
-// 		ss.Run(test.name, func() {
-// 			s := NewScheduler(ss.beginPhaseID)
+	for _, test := range tests {
+		ss.Run(test.name, func() {
+			s := NewScheduler(ss.beginPhaseId)
 
-// 			test.setup(s.(*scheduler))
-// 			s.(*scheduler).phases[ss.beginPhaseID][vars.PreTurn] = test.turn
+			test.setup(s.(*scheduler))
+			s.(*scheduler).phases[ss.beginPhaseId][constants.PreTurn] = test.turnSlots
 
-// 			ss.ElementsMatch(test.expectedPlayerIDs, s.PlayablePlayerIDs())
-// 		})
-// 	}
-// }
+			ss.ElementsMatch(test.expectedPlayerIds, s.PlayablePlayerIds())
+		})
+	}
+}
 
-// func (ss SchudulerSuite) TestIsEmptyPhase() {
-// 	beginPhaseID := vars.NightPhaseID
-// 	tests := []struct {
-// 		name           string
-// 		phaseID        types.PhaseID
-// 		expectedStatus bool
-// 		setup          func(*scheduler)
-// 	}{
+func (ss SchedulerSuite) TestIsEmpty() {
+	beginPhaseId := constants.NightPhaseId
+	tests := []struct {
+		name           string
+		phaseId        types.PhaseId
+		expectedStatus bool
+		setup          func(*scheduler)
+	}{
 
-// 		{
-// 			name:           "Non-empty (Check specific phase)",
-// 			phaseID:        ss.beginPhaseID,
-// 			expectedStatus: false,
-// 			setup: func(s *scheduler) {
-// 				s.phases[ss.beginPhaseID][vars.PreTurn] = types.Turn(
-// 					map[types.PlayerId]*types.TurnSlot{
-// 						ss.player1ID: {},
-// 					},
-// 				)
-// 			},
-// 		},
-// 		{
-// 			name:           "Empty (Check specific phase)",
-// 			phaseID:        ss.beginPhaseID,
-// 			expectedStatus: true,
-// 			setup: func(s *scheduler) {
-// 				s.phases[ss.beginPhaseID] = make(map[types.TurnID]types.Turn)
-// 			},
-// 		},
-// 		{
-// 			name:           "Non-empty (Check all phases)",
-// 			phaseID:        types.PhaseID(0),
-// 			expectedStatus: false,
-// 			setup: func(s *scheduler) {
-// 				s.phases[vars.NightPhaseID] = make(map[types.TurnID]types.Turn)
-// 				s.phases[vars.DayPhaseID][vars.PreTurn] = types.Turn(
-// 					map[types.PlayerId]*types.TurnSlot{
-// 						ss.player1ID: {},
-// 					},
-// 				)
-// 				s.phases[vars.DuskPhaseID] = make(map[types.TurnID]types.Turn)
-// 			},
-// 		},
-// 		{
-// 			name:           "Empty (Check all phases)",
-// 			phaseID:        types.PhaseID(0),
-// 			expectedStatus: true,
-// 			setup: func(s *scheduler) {
-// 				s.phases[vars.NightPhaseID] = make(map[types.TurnID]types.Turn)
-// 				s.phases[vars.DayPhaseID] = make(map[types.TurnID]types.Turn)
-// 				s.phases[vars.DayPhaseID] = make(map[types.TurnID]types.Turn)
-// 			},
-// 		},
-// 	}
+		{
+			name:           "Non-empty (Check specific phase)",
+			phaseId:        ss.beginPhaseId,
+			expectedStatus: false,
+			setup: func(s *scheduler) {
+				s.phases[ss.beginPhaseId][constants.PreTurn] = types.TurnSlots(
+					map[types.PlayerId]*types.TurnSlot{
+						ss.player1Id: {},
+					},
+				)
+			},
+		},
+		{
+			name:           "Empty (Check specific phase)",
+			phaseId:        ss.beginPhaseId,
+			expectedStatus: true,
+			setup: func(s *scheduler) {
+				s.phases[ss.beginPhaseId] = make(map[types.Turn]types.TurnSlots)
+			},
+		},
+		{
+			name:           "Non-empty (Check all phases)",
+			phaseId:        types.PhaseId(0),
+			expectedStatus: false,
+			setup: func(s *scheduler) {
+				s.phases[constants.NightPhaseId] = make(map[types.Turn]types.TurnSlots)
+				s.phases[constants.DayPhaseId][constants.PreTurn] = types.TurnSlots(
+					map[types.PlayerId]*types.TurnSlot{
+						ss.player1Id: {},
+					},
+				)
+				s.phases[constants.DuskPhaseId] = make(map[types.Turn]types.TurnSlots)
+			},
+		},
+		{
+			name:           "Empty (Check all phases)",
+			phaseId:        types.PhaseId(0),
+			expectedStatus: true,
+			setup: func(s *scheduler) {
+				s.phases[constants.NightPhaseId] = make(map[types.Turn]types.TurnSlots)
+				s.phases[constants.DayPhaseId] = make(map[types.Turn]types.TurnSlots)
+				s.phases[constants.DayPhaseId] = make(map[types.Turn]types.TurnSlots)
+			},
+		},
+	}
 
-// 	for _, test := range tests {
-// 		ss.Run(test.name, func() {
-// 			s := NewScheduler(beginPhaseID)
-// 			test.setup(s.(*scheduler))
+	for _, test := range tests {
+		ss.Run(test.name, func() {
+			s := NewScheduler(beginPhaseId)
+			test.setup(s.(*scheduler))
 
-// 			isEmpty := s.IsEmptyPhase(test.phaseID)
+			isEmpty := s.IsEmpty(test.phaseId)
 
-// 			ss.Equal(test.expectedStatus, isEmpty)
-// 		})
-// 	}
-// }
+			ss.Equal(test.expectedStatus, isEmpty)
+		})
+	}
+}
 
-// func (ss SchudulerSuite) TestAddSlot() {
-// 	tests := []struct {
-// 		name           string
-// 		newSlot        *types.NewTurnSlot
-// 		expectedStatus bool
-// 	}{
-// 		{
-// 			name: "Failure (Invalid phase ID)",
-// 			newSlot: &types.NewTurnSlot{
-// 				PhaseID: types.PhaseID(99),
-// 			},
-// 			expectedStatus: false,
-// 		},
-// 		{
-// 			name: "Ok",
-// 			newSlot: &types.NewTurnSlot{
-// 				PhaseID:      vars.NightPhaseID,
-// 				TurnID:       vars.MidTurn,
-// 				BeginRoundID: vars.SecondRound,
-// 				FrozenTimes:  vars.Once,
-// 				PlayerID:     ss.player1ID,
-// 				RoleID:       vars.SeerRoleID,
-// 			},
-// 			expectedStatus: true,
-// 		},
-// 	}
+func (ss SchedulerSuite) TestAddSlot() {
+	tests := []struct {
+		name           string
+		newSlot        types.AddTurnSlot
+		expectedStatus bool
+	}{
+		{
+			name: "Failure (InvalId phase Id)",
+			newSlot: types.AddTurnSlot{
+				PhaseId: types.PhaseId(99),
+			},
+			expectedStatus: false,
+		},
+		{
+			name: "Ok",
+			newSlot: types.AddTurnSlot{
+				PhaseId:  constants.NightPhaseId,
+				Turn:     constants.MidTurn,
+				PlayerId: ss.player1Id,
+				TurnSlot: types.TurnSlot{
+					BeginRound:  constants.SecondRound,
+					FrozenTimes: constants.Once,
+					RoleId:      constants.SeerRoleId,
+				},
+			},
+			expectedStatus: true,
+		},
+	}
 
-// 	for _, test := range tests {
-// 		ss.Run(test.name, func() {
-// 			s := NewScheduler(ss.beginPhaseID)
+	for _, test := range tests {
+		ss.Run(test.name, func() {
+			s := NewScheduler(ss.beginPhaseId)
 
-// 			ok := s.AddSlot(test.newSlot)
+			ok := s.AddSlot(test.newSlot)
 
-// 			ss.Equal(test.expectedStatus, ok)
-// 			if test.expectedStatus == true {
-// 				ss.Equal(
-// 					test.newSlot.BeginRoundID,
-// 					s.(*scheduler).
-// 						phases[test.newSlot.PhaseID][test.newSlot.TurnID][test.newSlot.PlayerID].BeginRoundID,
-// 				)
-// 				ss.Equal(
-// 					test.newSlot.PlayedRoundID,
-// 					s.(*scheduler).
-// 						phases[test.newSlot.PhaseID][test.newSlot.TurnID][test.newSlot.PlayerID].PlayedRoundID,
-// 				)
-// 				ss.Equal(
-// 					test.newSlot.FrozenTimes,
-// 					s.(*scheduler).
-// 						phases[test.newSlot.PhaseID][test.newSlot.TurnID][test.newSlot.PlayerID].FrozenTimes,
-// 				)
-// 				ss.Equal(
-// 					test.newSlot.RoleID,
-// 					s.(*scheduler).
-// 						phases[test.newSlot.PhaseID][test.newSlot.TurnID][test.newSlot.PlayerID].RoleID,
-// 				)
-// 			}
-// 		})
-// 	}
-// }
+			ss.Equal(test.expectedStatus, ok)
+			if test.expectedStatus == true {
+				ss.Equal(
+					test.newSlot.BeginRound,
+					s.(*scheduler).
+						phases[test.newSlot.PhaseId][test.newSlot.Turn][test.newSlot.PlayerId].BeginRound,
+				)
+				ss.Equal(
+					test.newSlot.PlayedRound,
+					s.(*scheduler).
+						phases[test.newSlot.PhaseId][test.newSlot.Turn][test.newSlot.PlayerId].PlayedRound,
+				)
+				ss.Equal(
+					test.newSlot.FrozenTimes,
+					s.(*scheduler).
+						phases[test.newSlot.PhaseId][test.newSlot.Turn][test.newSlot.PlayerId].FrozenTimes,
+				)
+				ss.Equal(
+					test.newSlot.RoleId,
+					s.(*scheduler).
+						phases[test.newSlot.PhaseId][test.newSlot.Turn][test.newSlot.PlayerId].RoleId,
+				)
+			}
+		})
+	}
+}
 
-// func (ss SchudulerSuite) TestRemoveSlot() {
-// 	tests := []struct {
-// 		name           string
-// 		removedSlot    *types.RemovedTurnSlot
-// 		expectedStatus bool
-// 		setup          func(*scheduler)
-// 		check          func(s *scheduler)
-// 	}{
-// 		{
-// 			name: "Failure (Ignore TurnID and RoleID)",
-// 			removedSlot: &types.RemovedTurnSlot{
-// 				PhaseID: vars.DayPhaseID,
-// 				TurnID:  types.TurnID(0),
-// 				RoleID:  types.RoleID(0),
-// 			},
-// 			expectedStatus: false,
-// 			setup:          func(s *scheduler) {},
-// 			check:          func(s *scheduler) {},
-// 		},
-// 		{
-// 			name: "Ok (Remove all slots)",
-// 			removedSlot: &types.RemovedTurnSlot{
-// 				PhaseID:  types.PhaseID(0),
-// 				PlayerID: ss.player1ID,
-// 			},
-// 			expectedStatus: true,
-// 			setup: func(s *scheduler) {
-// 				s.phases[vars.NightPhaseID][vars.PreTurn][ss.player1ID] = &types.TurnSlot{
-// 					//
-// 				}
-// 				s.phases[vars.DayPhaseID][vars.PreTurn][ss.player1ID] = &types.TurnSlot{
-// 					//
-// 				}
-// 			},
-// 			check: func(s *scheduler) {
-// 				for _, phase := range s.phases {
-// 					for _, turn := range phase {
-// 						ss.Nil(turn[ss.player1ID])
-// 					}
-// 				}
-// 			},
-// 		},
-// 		{
-// 			name: "Failure (Invalid turn ID)",
-// 			removedSlot: &types.RemovedTurnSlot{
-// 				PhaseID:  vars.DayPhaseID,
-// 				PlayerID: ss.player1ID,
-// 				TurnID:   types.TurnID(99),
-// 			},
-// 			expectedStatus: false,
-// 			setup:          func(s *scheduler) {},
-// 			check:          func(s *scheduler) {},
-// 		},
-// 		{
-// 			name: "Ok (Remove by turn ID)",
-// 			removedSlot: &types.RemovedTurnSlot{
-// 				PhaseID:  vars.DayPhaseID,
-// 				PlayerID: ss.player1ID,
-// 				TurnID:   vars.PreTurn,
-// 			},
-// 			expectedStatus: true,
-// 			setup: func(s *scheduler) {
-// 				s.phases[vars.NightPhaseID][vars.PreTurn][ss.player1ID] = &types.TurnSlot{
-// 					//
-// 				}
-// 				s.phases[vars.DayPhaseID][vars.PreTurn][ss.player1ID] = &types.TurnSlot{
-// 					//
-// 				}
-// 			},
-// 			check: func(s *scheduler) {
-// 				ss.Nil(s.phases[vars.DayPhaseID][vars.PreTurn][ss.player1ID])
-// 				ss.NotNil(s.phases[vars.NightPhaseID][vars.PreTurn][ss.player1ID])
-// 			},
-// 		},
-// 		{
-// 			name: "Ok (Remove by role ID)",
-// 			removedSlot: &types.RemovedTurnSlot{
-// 				PhaseID:  vars.DayPhaseID,
-// 				PlayerID: ss.player1ID,
-// 				RoleID:   vars.HunterRoleID,
-// 			},
-// 			expectedStatus: true,
-// 			setup: func(s *scheduler) {
-// 				s.phases[vars.NightPhaseID][vars.PreTurn][ss.player1ID] = &types.TurnSlot{
-// 					RoleID: vars.HunterRoleID,
-// 				}
-// 				s.phases[vars.DayPhaseID][vars.PreTurn][ss.player1ID] = &types.TurnSlot{
-// 					RoleID: vars.HunterRoleID,
-// 				}
-// 			},
-// 			check: func(s *scheduler) {
-// 				ss.Nil(s.phases[vars.DayPhaseID][vars.PreTurn][ss.player1ID])
-// 				ss.NotNil(s.phases[vars.NightPhaseID][vars.PreTurn][ss.player1ID])
-// 			},
-// 		},
-// 	}
+func (ss SchedulerSuite) TestRemoveSlot() {
+	tests := []struct {
+		name           string
+		removeSlot     types.RemoveTurnSlot
+		expectedStatus bool
+		setup          func(*scheduler)
+		check          func(s *scheduler)
+	}{
+		{
+			name: "Failure (Ignore TurnId and RoleId)",
+			removeSlot: types.RemoveTurnSlot{
+				PhaseId: constants.DayPhaseId,
+				Turn:    types.Turn(0),
+				RoleId:  types.RoleId(0),
+			},
+			expectedStatus: false,
+			setup:          func(s *scheduler) {},
+			check:          func(s *scheduler) {},
+		},
+		{
+			name: "Ok (Remove all slots)",
+			removeSlot: types.RemoveTurnSlot{
+				PhaseId:  types.PhaseId(0),
+				PlayerId: ss.player1Id,
+			},
+			expectedStatus: true,
+			setup: func(s *scheduler) {
+				s.phases[constants.NightPhaseId][constants.PreTurn][ss.player1Id] = &types.TurnSlot{
+					//
+				}
+				s.phases[constants.DayPhaseId][constants.PreTurn][ss.player1Id] = &types.TurnSlot{
+					//
+				}
+			},
+			check: func(s *scheduler) {
+				for _, phase := range s.phases {
+					for _, turn := range phase {
+						ss.Nil(turn[ss.player1Id])
+					}
+				}
+			},
+		},
+		{
+			name: "Failure (InvalId turn Id)",
+			removeSlot: types.RemoveTurnSlot{
+				PhaseId:  constants.DayPhaseId,
+				PlayerId: ss.player1Id,
+				Turn:     types.Turn(99),
+			},
+			expectedStatus: false,
+			setup:          func(s *scheduler) {},
+			check:          func(s *scheduler) {},
+		},
+		{
+			name: "Ok (Remove by turn Id)",
+			removeSlot: types.RemoveTurnSlot{
+				PhaseId:  constants.DayPhaseId,
+				PlayerId: ss.player1Id,
+				Turn:     constants.PreTurn,
+			},
+			expectedStatus: true,
+			setup: func(s *scheduler) {
+				s.phases[constants.NightPhaseId][constants.PreTurn][ss.player1Id] = &types.TurnSlot{
+					//
+				}
+				s.phases[constants.DayPhaseId][constants.PreTurn][ss.player1Id] = &types.TurnSlot{
+					//
+				}
+			},
+			check: func(s *scheduler) {
+				ss.Nil(s.phases[constants.DayPhaseId][constants.PreTurn][ss.player1Id])
+				ss.NotNil(s.phases[constants.NightPhaseId][constants.PreTurn][ss.player1Id])
+			},
+		},
+		{
+			name: "Ok (Remove by role Id)",
+			removeSlot: types.RemoveTurnSlot{
+				PhaseId:  constants.DayPhaseId,
+				PlayerId: ss.player1Id,
+				RoleId:   constants.HunterRoleId,
+			},
+			expectedStatus: true,
+			setup: func(s *scheduler) {
+				s.phases[constants.NightPhaseId][constants.PreTurn][ss.player1Id] = &types.TurnSlot{
+					RoleId: constants.HunterRoleId,
+				}
+				s.phases[constants.DayPhaseId][constants.PreTurn][ss.player1Id] = &types.TurnSlot{
+					RoleId: constants.HunterRoleId,
+				}
+			},
+			check: func(s *scheduler) {
+				ss.Nil(s.phases[constants.DayPhaseId][constants.PreTurn][ss.player1Id])
+				ss.NotNil(s.phases[constants.NightPhaseId][constants.PreTurn][ss.player1Id])
+			},
+		},
+	}
 
-// 	for _, test := range tests {
-// 		ss.Run(test.name, func() {
-// 			s := NewScheduler(ss.beginPhaseID)
+	for _, test := range tests {
+		ss.Run(test.name, func() {
+			s := NewScheduler(ss.beginPhaseId)
 
-// 			test.setup(s.(*scheduler))
-// 			ok := s.RemoveSlot(test.removedSlot)
+			test.setup(s.(*scheduler))
+			ok := s.RemoveSlot(test.removeSlot)
 
-// 			ss.Equal(test.expectedStatus, ok)
-// 			test.check(s.(*scheduler))
-// 		})
-// 	}
-// }
+			ss.Equal(test.expectedStatus, ok)
+			test.check(s.(*scheduler))
+		})
+	}
+}
 
-// func (ss SchudulerSuite) TestFreezeSlot() {
-// 	tests := []struct {
-// 		name           string
-// 		frozenSlot     *types.FreezeTurnSlot
-// 		expectedStatus bool
-// 		setup          func(*scheduler)
-// 	}{
-// 		{
-// 			name: "Failure (Ignore TurnID and RoleID)",
-// 			frozenSlot: &types.FreezeTurnSlot{
-// 				PhaseID:     vars.DayPhaseID,
-// 				TurnID:      types.TurnID(0),
-// 				RoleID:      types.RoleID(0),
-// 				FrozenTimes: vars.Twice,
-// 			},
-// 			expectedStatus: false,
-// 			setup:          func(s *scheduler) {},
-// 		},
-// 		{
-// 			name: "Failure (Invalid turn ID)",
-// 			frozenSlot: &types.FreezeTurnSlot{
-// 				PhaseID:     vars.DayPhaseID,
-// 				PlayerID:    ss.player1ID,
-// 				TurnID:      types.TurnID(99),
-// 				FrozenTimes: vars.Twice,
-// 			},
-// 			expectedStatus: false,
-// 			setup:          func(s *scheduler) {},
-// 		},
-// 		{
-// 			name: "Ok (Remove by turn ID)",
-// 			frozenSlot: &types.FreezeTurnSlot{
-// 				PhaseID:     vars.DayPhaseID,
-// 				PlayerID:    ss.player1ID,
-// 				TurnID:      vars.PreTurn,
-// 				FrozenTimes: vars.Twice,
-// 			},
-// 			expectedStatus: true,
-// 			setup: func(s *scheduler) {
-// 				s.phases[vars.DayPhaseID][vars.PreTurn][ss.player1ID] = &types.TurnSlot{
-// 					//
-// 				}
-// 			},
-// 		},
-// 		{
-// 			name: "Ok (Remove by role ID)",
-// 			frozenSlot: &types.FreezeTurnSlot{
-// 				PhaseID:     vars.DayPhaseID,
-// 				PlayerID:    ss.player1ID,
-// 				RoleID:      vars.HunterRoleID,
-// 				FrozenTimes: vars.Twice,
-// 			},
-// 			expectedStatus: true,
-// 			setup: func(s *scheduler) {
-// 				s.phases[vars.DayPhaseID][vars.PreTurn][ss.player1ID] = &types.TurnSlot{
-// 					RoleID: vars.HunterRoleID,
-// 				}
-// 			},
-// 		},
-// 	}
+func (ss SchedulerSuite) TestFreezeSlot() {
+	tests := []struct {
+		name           string
+		frozenSlot     types.FreezeTurnSlot
+		expectedStatus bool
+		setup          func(*scheduler)
+	}{
+		{
+			name: "Failure (Ignore TurnId and RoleId)",
+			frozenSlot: types.FreezeTurnSlot{
+				PhaseId:     constants.DayPhaseId,
+				Turn:        types.Turn(0),
+				RoleId:      types.RoleId(0),
+				FrozenTimes: constants.Twice,
+			},
+			expectedStatus: false,
+			setup:          func(s *scheduler) {},
+		},
+		{
+			name: "Failure (InvalId turn Id)",
+			frozenSlot: types.FreezeTurnSlot{
+				PhaseId:     constants.DayPhaseId,
+				PlayerId:    ss.player1Id,
+				Turn:        types.Turn(99),
+				FrozenTimes: constants.Twice,
+			},
+			expectedStatus: false,
+			setup:          func(s *scheduler) {},
+		},
+		{
+			name: "Ok (Remove by turn Id)",
+			frozenSlot: types.FreezeTurnSlot{
+				PhaseId:     constants.DayPhaseId,
+				PlayerId:    ss.player1Id,
+				Turn:        constants.PreTurn,
+				FrozenTimes: constants.Twice,
+			},
+			expectedStatus: true,
+			setup: func(s *scheduler) {
+				s.phases[constants.DayPhaseId][constants.PreTurn][ss.player1Id] = &types.TurnSlot{
+					//
+				}
+			},
+		},
+		{
+			name: "Ok (Remove by role Id)",
+			frozenSlot: types.FreezeTurnSlot{
+				PhaseId:     constants.DayPhaseId,
+				PlayerId:    ss.player1Id,
+				RoleId:      constants.HunterRoleId,
+				FrozenTimes: constants.Twice,
+			},
+			expectedStatus: true,
+			setup: func(s *scheduler) {
+				s.phases[constants.DayPhaseId][constants.PreTurn][ss.player1Id] = &types.TurnSlot{
+					RoleId: constants.HunterRoleId,
+				}
+			},
+		},
+	}
 
-// 	for _, test := range tests {
-// 		ss.Run(test.name, func() {
-// 			s := NewScheduler(ss.beginPhaseID)
+	for _, test := range tests {
+		ss.Run(test.name, func() {
+			s := NewScheduler(ss.beginPhaseId)
 
-// 			test.setup(s.(*scheduler))
-// 			ok := s.FreezeSlot(test.frozenSlot)
+			test.setup(s.(*scheduler))
+			ok := s.FreezeSlot(test.frozenSlot)
 
-// 			ss.Equal(test.expectedStatus, ok)
-// 			if test.expectedStatus == true {
-// 				ss.Equal(
-// 					test.frozenSlot.FrozenTimes,
-// 					s.(*scheduler).phases[vars.DayPhaseID][vars.PreTurn][ss.player1ID].FrozenTimes,
-// 				)
-// 			}
-// 		})
-// 	}
-// }
+			ss.Equal(test.expectedStatus, ok)
+			if test.expectedStatus == true {
+				ss.Equal(
+					test.frozenSlot.FrozenTimes,
+					s.(*scheduler).phases[constants.DayPhaseId][constants.PreTurn][ss.player1Id].FrozenTimes,
+				)
+			}
+		})
+	}
+}
 
-// func (ss SchudulerSuite) TestNextTurn() {
-// 	tests := []struct {
-// 		name            string
-// 		expectedStatus  bool
-// 		expectedRoundID types.RoundID
-// 		expectedPhaseID types.PhaseID
-// 		expectedTurnID  types.TurnID
-// 		setup           func(*scheduler)
-// 		check           func(*scheduler)
-// 	}{
-// 		{
-// 			name:           "Failure (Empty scheduler)",
-// 			expectedStatus: false,
-// 			setup:          func(s *scheduler) {},
-// 			check:          func(s *scheduler) {},
-// 		},
-// 		{
-// 			name:            "Ok (First call)",
-// 			expectedStatus:  true,
-// 			expectedRoundID: vars.FirstRound,
-// 			expectedPhaseID: ss.beginPhaseID,
-// 			expectedTurnID:  vars.PreTurn,
-// 			setup: func(s *scheduler) {
-// 				s.phases[ss.beginPhaseID][vars.PreTurn][ss.player1ID] = &types.TurnSlot{
-// 					BeginRoundID: vars.FirstRound,
-// 				}
-// 			},
-// 			check: func(s *scheduler) {},
-// 		},
-// 		{
-// 			name:            "Ok (Increase TurnID)",
-// 			expectedStatus:  true,
-// 			expectedRoundID: vars.FirstRound,
-// 			expectedPhaseID: ss.beginPhaseID,
-// 			expectedTurnID:  vars.MidTurn,
-// 			setup: func(s *scheduler) {
-// 				s.roundID = vars.FirstRound
-// 				s.phases[ss.beginPhaseID][vars.PreTurn][ss.player1ID] = &types.TurnSlot{
-// 					BeginRoundID: vars.FirstRound,
-// 				}
-// 				s.phases[ss.beginPhaseID][vars.MidTurn][ss.player2ID] = &types.TurnSlot{
-// 					BeginRoundID: vars.FirstRound,
-// 				}
-// 			},
-// 			check: func(s *scheduler) {},
-// 		},
-// 		{
-// 			name:            "Ok (Increase PhaseID)",
-// 			expectedStatus:  true,
-// 			expectedRoundID: vars.FirstRound,
-// 			expectedPhaseID: ss.beginPhaseID.NextPhasePhaseID(vars.DuskPhaseID),
-// 			expectedTurnID:  vars.PreTurn,
-// 			setup: func(s *scheduler) {
-// 				s.roundID = vars.FirstRound
-// 				s.phases[ss.beginPhaseID][vars.PreTurn][ss.player1ID] = &types.TurnSlot{
-// 					BeginRoundID: vars.FirstRound,
-// 				}
-// 				s.phases[ss.beginPhaseID.NextPhasePhaseID(vars.DuskPhaseID)][vars.PreTurn][ss.player2ID] =
-// 					&types.TurnSlot{
-// 						BeginRoundID: vars.FirstRound,
-// 					}
-// 			},
-// 			check: func(s *scheduler) {},
-// 		},
-// 		{
-// 			name:            "Ok (Increase RoundID)",
-// 			expectedStatus:  true,
-// 			expectedRoundID: vars.SecondRound,
-// 			expectedPhaseID: ss.beginPhaseID,
-// 			expectedTurnID:  vars.PreTurn,
-// 			setup: func(s *scheduler) {
-// 				s.roundID = vars.FirstRound
-// 				s.phases[ss.beginPhaseID][vars.PreTurn][ss.player1ID] = &types.TurnSlot{
-// 					BeginRoundID: vars.FirstRound,
-// 				}
-// 			},
-// 			check: func(s *scheduler) {},
-// 		},
-// 		// {
-// 		// 	name:            "Ok (Skip empty turn by BeginRoundID)",
-// 		// 	expectedStatus:  true,
-// 		// 	expectedRoundID: vars.FirstRound,
-// 		// 	expectedPhaseID: ss.beginPhaseID,
-// 		// 	expectedTurnID:  vars.MidTurn,
-// 		// 	setup: func(s *scheduler) {
-// 		// 		s.roundID = vars.FirstRound
-// 		// 		s.phases[ss.beginPhaseID][vars.PreTurn][ss.player1ID] = &types.TurnSlot{
-// 		// 			BeginRoundID: vars.SecondRound,
-// 		// 		}
-// 		// 		s.phases[ss.beginPhaseID][vars.MidTurn][ss.player2ID] = &types.TurnSlot{
-// 		// 			BeginRoundID: vars.FirstRound,
-// 		// 		}
-// 		// 	},
-// 		// },
-// 		// {
-// 		// 	name:            "Ok (Skip empty turn by PlayedRoundID)",
-// 		// 	expectedStatus:  true,
-// 		// 	expectedRoundID: vars.FirstRound,
-// 		// 	expectedPhaseID: ss.beginPhaseID,
-// 		// 	expectedTurnID:  vars.MidTurn,
-// 		// 	setup: func(s *scheduler) {
-// 		// 		s.roundID = vars.FirstRound
-// 		// 		s.phases[ss.beginPhaseID][vars.PreTurn][ss.player1ID] = &types.TurnSlot{
-// 		// 			PlayedRoundID: vars.SecondRound,
-// 		// 		}
-// 		// 		s.phases[ss.beginPhaseID][vars.MidTurn][ss.player2ID] = &types.TurnSlot{
-// 		// 			BeginRoundID: vars.FirstRound,
-// 		// 		}
-// 		// 	},
-// 		// },
-// 		// {
-// 		// 	name:            "Ok (Skip empty turn by FrozenTimes)",
-// 		// 	expectedStatus:  true,
-// 		// 	expectedRoundID: vars.FirstRound,
-// 		// 	expectedPhaseID: ss.beginPhaseID,
-// 		// 	expectedTurnID:  vars.PreTurn,
-// 		// 	setup: func(s *scheduler) {
-// 		// 		s.roundID = vars.FirstRound
-// 		// 		s.phases[ss.beginPhaseID][vars.PreTurn][ss.player1ID] = &types.TurnSlot{
-// 		// 			PlayedRoundID: vars.SecondRound,
-// 		// 		}
-// 		// 		s.phases[ss.beginPhaseID][vars.MidTurn][ss.player2ID] = &types.TurnSlot{
-// 		// 			BeginRoundID: vars.FirstRound,
-// 		// 			FrozenTimes:  vars.Once,
-// 		// 		}
-// 		// 	},
-// 		// },
-// 		{
-// 			name:            "Ok (Defrost slots)",
-// 			expectedStatus:  true,
-// 			expectedRoundID: vars.FirstRound,
-// 			expectedPhaseID: ss.beginPhaseID,
-// 			expectedTurnID:  vars.MidTurn,
-// 			setup: func(s *scheduler) {
-// 				s.roundID = vars.FirstRound
-// 				s.phases[ss.beginPhaseID][vars.PreTurn][ss.player1ID] = &types.TurnSlot{
-// 					BeginRoundID: vars.FirstRound,
-// 					FrozenTimes:  vars.Once,
-// 				}
-// 				s.phases[ss.beginPhaseID][vars.MidTurn][ss.player2ID] = &types.TurnSlot{
-// 					BeginRoundID: vars.FirstRound,
-// 				}
-// 			},
-// 			check: func(s *scheduler) {
-// 				ss.Empty(s.phases[ss.beginPhaseID][vars.PreTurn][ss.player1ID].FrozenTimes)
-// 			},
-// 		},
-// 		{
-// 			name:            "Ok (Remove one-round slot)",
-// 			expectedStatus:  true,
-// 			expectedRoundID: vars.SecondRound,
-// 			expectedPhaseID: ss.beginPhaseID,
-// 			expectedTurnID:  vars.MidTurn,
-// 			setup: func(s *scheduler) {
-// 				s.roundID = vars.FirstRound
-// 				s.phases[ss.beginPhaseID][vars.PreTurn][ss.player1ID] = &types.TurnSlot{
-// 					PlayedRoundID: vars.FirstRound,
-// 				}
-// 				s.phases[ss.beginPhaseID][vars.MidTurn][ss.player2ID] = &types.TurnSlot{
-// 					BeginRoundID: vars.FirstRound,
-// 				}
+func (ss SchedulerSuite) TestNextTurn() {
+	tests := []struct {
+		name            string
+		expectedStatus  bool
+		expectedRound   types.Round
+		expectedPhaseId types.PhaseId
+		expectedTurn    types.Turn
+		setup           func(*scheduler)
+		check           func(*scheduler)
+	}{
+		{
+			name:           "Failure (Empty scheduler)",
+			expectedStatus: false,
+			setup:          func(s *scheduler) {},
+			check:          func(s *scheduler) {},
+		},
+		{
+			name:            "Ok (First call)",
+			expectedStatus:  true,
+			expectedRound:   constants.FirstRound,
+			expectedPhaseId: ss.beginPhaseId,
+			expectedTurn:    constants.PreTurn,
+			setup: func(s *scheduler) {
+				s.phases[ss.beginPhaseId][constants.PreTurn][ss.player1Id] = &types.TurnSlot{
+					BeginRound: constants.FirstRound,
+				}
+			},
+			check: func(s *scheduler) {},
+		},
+		{
+			name:            "Ok (Increase TurnId)",
+			expectedStatus:  true,
+			expectedRound:   constants.FirstRound,
+			expectedPhaseId: ss.beginPhaseId,
+			expectedTurn:    constants.MidTurn,
+			setup: func(s *scheduler) {
+				s.round = constants.FirstRound
+				s.phases[ss.beginPhaseId][constants.PreTurn][ss.player1Id] = &types.TurnSlot{
+					BeginRound: constants.FirstRound,
+				}
+				s.phases[ss.beginPhaseId][constants.MidTurn][ss.player2Id] = &types.TurnSlot{
+					BeginRound: constants.FirstRound,
+				}
+			},
+			check: func(s *scheduler) {},
+		},
+		{
+			name:            "Ok (Increase PhaseId)",
+			expectedStatus:  true,
+			expectedRound:   constants.FirstRound,
+			expectedPhaseId: util.NextPhasePhaseID(ss.beginPhaseId),
+			expectedTurn:    constants.PreTurn,
+			setup: func(s *scheduler) {
+				s.round = constants.FirstRound
+				s.phases[ss.beginPhaseId][constants.PreTurn][ss.player1Id] = &types.TurnSlot{
+					BeginRound: constants.FirstRound,
+				}
+				s.phases[util.NextPhasePhaseID(ss.beginPhaseId)][constants.PreTurn][ss.player2Id] =
+					&types.TurnSlot{
+						BeginRound: constants.FirstRound,
+					}
+			},
+			check: func(s *scheduler) {},
+		},
+		{
+			name:            "Ok (Increase RoundId)",
+			expectedStatus:  true,
+			expectedRound:   constants.SecondRound,
+			expectedPhaseId: ss.beginPhaseId,
+			expectedTurn:    constants.PreTurn,
+			setup: func(s *scheduler) {
+				s.round = constants.FirstRound
+				s.phases[ss.beginPhaseId][constants.PreTurn][ss.player1Id] = &types.TurnSlot{
+					BeginRound: constants.FirstRound,
+				}
+			},
+			check: func(s *scheduler) {},
+		},
+		// 3 test cases below is for skipping turn if no play in that turn can play,
+		// but it isn't implemented yet.
+		// {
+		// 	name:            "Ok (Skip empty turn by BeginRound)",
+		// 	expectedStatus:  true,
+		// 	expectedRound:   constants.FirstRound,
+		// 	expectedPhaseId: ss.beginPhaseId,
+		// 	expectedTurn:    constants.MidTurn,
+		// 	setup: func(s *scheduler) {
+		// 		s.round = constants.FirstRound
+		// 		s.phases[ss.beginPhaseId][constants.PreTurn][ss.player1Id] = &types.TurnSlot{
+		// 			BeginRound: constants.SecondRound,
+		// 		}
+		// 		s.phases[ss.beginPhaseId][constants.MidTurn][ss.player2Id] = &types.TurnSlot{
+		// 			BeginRound: constants.FirstRound,
+		// 		}
+		// 	},
+		//     check: func(s *scheduler) {},
+		// },
+		// {
+		// 	name:            "Ok (Skip empty turn by PlayedRoundId)",
+		// 	expectedStatus:  true,
+		// 	expectedRound:   constants.FirstRound,
+		// 	expectedPhaseId: ss.beginPhaseId,
+		// 	expectedTurn:    constants.MidTurn,
+		// 	setup: func(s *scheduler) {
+		// 		s.round = constants.FirstRound
+		// 		s.phases[ss.beginPhaseId][constants.PreTurn][ss.player1Id] = &types.TurnSlot{
+		// 			PlayedRound: constants.SecondRound,
+		// 		}
+		// 		s.phases[ss.beginPhaseId][constants.MidTurn][ss.player2Id] = &types.TurnSlot{
+		// 			BeginRound: constants.FirstRound,
+		// 		}
+		// 	},
+		//     check: func(s *scheduler) {},
+		// },
+		// {
+		// 	name:            "Ok (Skip empty turn by FrozenTimes)",
+		// 	expectedStatus:  true,
+		// 	expectedRound:   constants.FirstRound,
+		// 	expectedPhaseId: ss.beginPhaseId,
+		// 	expectedTurn:    constants.PreTurn,
+		// 	setup: func(s *scheduler) {
+		// 		s.round = constants.FirstRound
+		// 		s.phases[ss.beginPhaseId][constants.PreTurn][ss.player1Id] = &types.TurnSlot{
+		// 			PlayedRound: constants.SecondRound,
+		// 		}
+		// 		s.phases[ss.beginPhaseId][constants.MidTurn][ss.player2Id] = &types.TurnSlot{
+		// 			BeginRound:  constants.FirstRound,
+		// 			FrozenTimes: constants.Once,
+		// 		}
+		// 	},
+		// 	check: func(s *scheduler) {},
+		// },
+		{
+			name:            "Ok (Defrost slots)",
+			expectedStatus:  true,
+			expectedRound:   constants.FirstRound,
+			expectedPhaseId: ss.beginPhaseId,
+			expectedTurn:    constants.MidTurn,
+			setup: func(s *scheduler) {
+				s.round = constants.FirstRound
+				s.phases[ss.beginPhaseId][constants.PreTurn][ss.player1Id] = &types.TurnSlot{
+					BeginRound:  constants.FirstRound,
+					FrozenTimes: constants.Once,
+				}
+				s.phases[ss.beginPhaseId][constants.MidTurn][ss.player2Id] = &types.TurnSlot{
+					BeginRound: constants.FirstRound,
+				}
+			},
+			check: func(s *scheduler) {
+				ss.Empty(s.phases[ss.beginPhaseId][constants.PreTurn][ss.player1Id].FrozenTimes)
+			},
+		},
+		{
+			name:            "Ok (Remove one-round slot)",
+			expectedStatus:  true,
+			expectedRound:   constants.SecondRound,
+			expectedPhaseId: ss.beginPhaseId,
+			expectedTurn:    constants.MidTurn,
+			setup: func(s *scheduler) {
+				s.round = constants.FirstRound
+				s.phases[ss.beginPhaseId][constants.PreTurn][ss.player1Id] = &types.TurnSlot{
+					PlayedRound: constants.FirstRound,
+				}
+				s.phases[ss.beginPhaseId][constants.MidTurn][ss.player2Id] = &types.TurnSlot{
+					BeginRound: constants.FirstRound,
+				}
 
-// 				s.NextTurn()
-// 			},
-// 			check: func(s *scheduler) {},
-// 		},
-// 	}
+				s.NextTurn()
+			},
+			check: func(s *scheduler) {},
+		},
+	}
 
-// 	for _, test := range tests {
-// 		ss.Run(test.name, func() {
-// 			s := NewScheduler(ss.beginPhaseID)
-// 			test.setup(s.(*scheduler))
+	for _, test := range tests {
+		ss.Run(test.name, func() {
+			s := NewScheduler(ss.beginPhaseId)
+			test.setup(s.(*scheduler))
 
-// 			ok := s.NextTurn()
+			ok := s.NextTurn()
 
-// 			ss.Equal(test.expectedStatus, ok)
-// 			test.check(s.(*scheduler))
-// 			if test.expectedStatus == true {
-// 				ss.Equal(test.expectedRoundID, s.RoundID())
-// 				ss.Equal(test.expectedPhaseID, s.PhaseID())
-// 				ss.Equal(test.expectedTurnID, s.TurnID())
-// 			}
-// 		})
-// 	}
-// }
+			ss.Equal(test.expectedStatus, ok)
+			test.check(s.(*scheduler))
+			if test.expectedStatus == true {
+				ss.Equal(test.expectedRound, s.Round())
+				ss.Equal(test.expectedPhaseId, s.PhaseId())
+				ss.Equal(test.expectedTurn, s.Turn())
+			}
+		})
+	}
+}

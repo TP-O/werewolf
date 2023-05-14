@@ -35,7 +35,7 @@ func (m *MockScheduler) EXPECT() *MockSchedulerMockRecorder {
 }
 
 // AddSlot mocks base method.
-func (m *MockScheduler) AddSlot(newSlot types.NewTurnSlot) bool {
+func (m *MockScheduler) AddSlot(newSlot types.AddTurnSlot) bool {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AddSlot", newSlot)
 	ret0, _ := ret[0].(bool)
@@ -49,17 +49,17 @@ func (mr *MockSchedulerMockRecorder) AddSlot(newSlot interface{}) *gomock.Call {
 }
 
 // CanPlay mocks base method.
-func (m *MockScheduler) CanPlay(playerID types.PlayerId) bool {
+func (m *MockScheduler) CanPlay(playerId types.PlayerId) bool {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CanPlay", playerID)
+	ret := m.ctrl.Call(m, "CanPlay", playerId)
 	ret0, _ := ret[0].(bool)
 	return ret0
 }
 
 // CanPlay indicates an expected call of CanPlay.
-func (mr *MockSchedulerMockRecorder) CanPlay(playerID interface{}) *gomock.Call {
+func (mr *MockSchedulerMockRecorder) CanPlay(playerId interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CanPlay", reflect.TypeOf((*MockScheduler)(nil).CanPlay), playerID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CanPlay", reflect.TypeOf((*MockScheduler)(nil).CanPlay), playerId)
 }
 
 // FreezeSlot mocks base method.
@@ -76,18 +76,18 @@ func (mr *MockSchedulerMockRecorder) FreezeSlot(frozenSlot interface{}) *gomock.
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FreezeSlot", reflect.TypeOf((*MockScheduler)(nil).FreezeSlot), frozenSlot)
 }
 
-// IsEmptyPhase mocks base method.
-func (m *MockScheduler) IsEmptyPhase(phaseId types.PhaseId) bool {
+// IsEmpty mocks base method.
+func (m *MockScheduler) IsEmpty(phaseId types.PhaseId) bool {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "IsEmptyPhase", phaseId)
+	ret := m.ctrl.Call(m, "IsEmpty", phaseId)
 	ret0, _ := ret[0].(bool)
 	return ret0
 }
 
-// IsEmptyPhase indicates an expected call of IsEmptyPhase.
-func (mr *MockSchedulerMockRecorder) IsEmptyPhase(phaseId interface{}) *gomock.Call {
+// IsEmpty indicates an expected call of IsEmpty.
+func (mr *MockSchedulerMockRecorder) IsEmpty(phaseId interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsEmptyPhase", reflect.TypeOf((*MockScheduler)(nil).IsEmptyPhase), phaseId)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsEmpty", reflect.TypeOf((*MockScheduler)(nil).IsEmpty), phaseId)
 }
 
 // NextTurn mocks base method.
@@ -105,10 +105,10 @@ func (mr *MockSchedulerMockRecorder) NextTurn() *gomock.Call {
 }
 
 // Phase mocks base method.
-func (m *MockScheduler) Phase() map[types.Turn]types.TurnRecords {
+func (m *MockScheduler) Phase() map[types.Turn]types.TurnSlots {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Phase")
-	ret0, _ := ret[0].(map[types.Turn]types.TurnRecords)
+	ret0, _ := ret[0].(map[types.Turn]types.TurnSlots)
 	return ret0
 }
 
@@ -132,32 +132,32 @@ func (mr *MockSchedulerMockRecorder) PhaseId() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PhaseId", reflect.TypeOf((*MockScheduler)(nil).PhaseId))
 }
 
-// PlayablePlayerIDs mocks base method.
-func (m *MockScheduler) PlayablePlayerIDs() []types.PlayerId {
+// PlayablePlayerIds mocks base method.
+func (m *MockScheduler) PlayablePlayerIds() []types.PlayerId {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "PlayablePlayerIDs")
+	ret := m.ctrl.Call(m, "PlayablePlayerIds")
 	ret0, _ := ret[0].([]types.PlayerId)
 	return ret0
 }
 
-// PlayablePlayerIDs indicates an expected call of PlayablePlayerIDs.
-func (mr *MockSchedulerMockRecorder) PlayablePlayerIDs() *gomock.Call {
+// PlayablePlayerIds indicates an expected call of PlayablePlayerIds.
+func (mr *MockSchedulerMockRecorder) PlayablePlayerIds() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PlayablePlayerIDs", reflect.TypeOf((*MockScheduler)(nil).PlayablePlayerIDs))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PlayablePlayerIds", reflect.TypeOf((*MockScheduler)(nil).PlayablePlayerIds))
 }
 
 // RemoveSlot mocks base method.
-func (m *MockScheduler) RemoveSlot(removedSlot types.RemovedTurnSlot) bool {
+func (m *MockScheduler) RemoveSlot(removeSlot types.RemoveTurnSlot) bool {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RemoveSlot", removedSlot)
+	ret := m.ctrl.Call(m, "RemoveSlot", removeSlot)
 	ret0, _ := ret[0].(bool)
 	return ret0
 }
 
 // RemoveSlot indicates an expected call of RemoveSlot.
-func (mr *MockSchedulerMockRecorder) RemoveSlot(removedSlot interface{}) *gomock.Call {
+func (mr *MockSchedulerMockRecorder) RemoveSlot(removeSlot interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveSlot", reflect.TypeOf((*MockScheduler)(nil).RemoveSlot), removedSlot)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveSlot", reflect.TypeOf((*MockScheduler)(nil).RemoveSlot), removeSlot)
 }
 
 // Round mocks base method.
@@ -188,16 +188,16 @@ func (mr *MockSchedulerMockRecorder) Turn() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Turn", reflect.TypeOf((*MockScheduler)(nil).Turn))
 }
 
-// TurnRecords mocks base method.
-func (m *MockScheduler) TurnRecords() types.TurnRecords {
+// TurnSlots mocks base method.
+func (m *MockScheduler) TurnSlots() types.TurnSlots {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "TurnRecords")
-	ret0, _ := ret[0].(types.TurnRecords)
+	ret := m.ctrl.Call(m, "TurnSlots")
+	ret0, _ := ret[0].(types.TurnSlots)
 	return ret0
 }
 
-// TurnRecords indicates an expected call of TurnRecords.
-func (mr *MockSchedulerMockRecorder) TurnRecords() *gomock.Call {
+// TurnSlots indicates an expected call of TurnSlots.
+func (mr *MockSchedulerMockRecorder) TurnSlots() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TurnRecords", reflect.TypeOf((*MockScheduler)(nil).TurnRecords))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TurnSlots", reflect.TypeOf((*MockScheduler)(nil).TurnSlots))
 }
