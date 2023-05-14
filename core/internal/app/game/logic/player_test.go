@@ -104,6 +104,28 @@ func (ps PlayerSuite) TestRoles() {
 	ps.Equal(roles, p.Roles())
 }
 
+func (ps PlayerSuite) TestPlayRecords() {
+	records := []types.PlayerRecord{
+		{
+			Round: constants.FirstRound,
+			Turn:  constants.MidTurn,
+		},
+		{
+			Round: constants.SecondRound,
+			Turn:  constants.PostTurn,
+		},
+		{
+			Round:     3,
+			IsSkipped: true,
+		},
+	}
+
+	p := NewPlayer(nil, ps.playerId)
+	p.(*player).records = records
+
+	ps.Equal(records, p.PlayRecords())
+}
+
 func (ps *PlayerSuite) TestFactionId() {
 	p := NewPlayer(nil, ps.playerId)
 	p.(*player).factionId = ps.faction1_1Id
@@ -529,10 +551,11 @@ func (ps PlayerSuite) TestRevokeRole() {
 
 func (ps PlayerSuite) TestUseRole() {
 	tests := []struct {
-		name        string
-		req         types.RoleRequest
-		expectedRes types.RoleResponse
-		setup       func(*player, *mock_game_logic.MockScheduler, *mock_game_logic.MockRole)
+		name            string
+		req             types.RoleRequest
+		expectedRes     types.RoleResponse
+		expectedRecords []types.PlayerRecord
+		setup           func(*player, *mock_game_logic.MockScheduler, *mock_game_logic.MockRole)
 	}{
 		{
 			name: "Failure (Dead)",
@@ -562,8 +585,20 @@ func (ps PlayerSuite) TestUseRole() {
 			name: "Ok",
 			req:  types.RoleRequest{},
 			expectedRes: types.RoleResponse{
+				Round:   constants.FirstRound,
+				Turn:    constants.MidTurn,
+				PhaseId: constants.DayPhaseId,
+				RoleId:  ps.role1_1Id,
 				ActionResponse: types.ActionResponse{
 					Ok: true,
+				},
+			},
+			expectedRecords: []types.PlayerRecord{
+				{
+					Round:   constants.FirstRound,
+					Turn:    constants.MidTurn,
+					RoleId:  ps.role1_1Id,
+					PhaseId: constants.DayPhaseId,
 				},
 			},
 			setup: func(p *player, ms *mock_game_logic.MockScheduler, mr *mock_game_logic.MockRole) {
@@ -579,6 +614,10 @@ func (ps PlayerSuite) TestUseRole() {
 				mr.EXPECT().
 					Use(types.RoleRequest{}).
 					Return(types.RoleResponse{
+						Round:   constants.FirstRound,
+						Turn:    constants.MidTurn,
+						PhaseId: constants.DayPhaseId,
+						RoleId:  ps.role1_1Id,
 						ActionResponse: types.ActionResponse{
 							Ok: true,
 						},
@@ -604,6 +643,9 @@ func (ps PlayerSuite) TestUseRole() {
 			res := p.UseRole(test.req)
 
 			ps.Equal(test.expectedRes, res)
+			if test.expectedRes.Ok {
+				ps.Equal(test.expectedRecords, p.PlayRecords())
+			}
 		})
 	}
 }

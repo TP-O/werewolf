@@ -23,6 +23,9 @@ type Player interface {
 	// FactionId returns player's faction ID.
 	FactionId() types.FactionId
 
+	// PlayRecords returns play records of the player.
+	PlayRecords() []types.PlayerRecord
+
 	// IsDead checks if player is dead.
 	IsDead() bool
 

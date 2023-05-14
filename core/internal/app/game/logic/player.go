@@ -11,22 +11,28 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-// type playerRecord struct {
-// 	RoundId  types.RoundID
-// 	TurnId   types.TurnId
-// 	RoleId   types.RoleId
-// 	TargetId types.PlayerId
-// }
-
 // player represents the player in a game.
 type player struct {
-	id         types.PlayerId
-	factionId  types.FactionId
+	// id is the player ID.
+	id types.PlayerId
+
+	// mainRoleId is the role ID of main role.
 	mainRoleId types.RoleId
-	isDead     bool
-	moderator  contract.Moderator
-	roles      map[types.RoleId]contract.Role
-	// records    []playerRecord
+
+	// factionId is the faction ID of the main role.
+	factionId types.FactionId
+
+	// isDead indicates whether player is dead or not.
+	isDead bool
+
+	// moderator is the game moderator.
+	moderator contract.Moderator
+
+	// roles is the assinged roles.
+	roles map[types.RoleId]contract.Role
+
+	// records the the play records.
+	records []types.PlayerRecord
 }
 
 func NewPlayer(moderator contract.Moderator, id types.PlayerId) contract.Player {
@@ -35,7 +41,7 @@ func NewPlayer(moderator contract.Moderator, id types.PlayerId) contract.Player 
 		moderator: moderator,
 		factionId: constants.VillagerFactionId,
 		roles:     make(map[types.RoleId]contract.Role),
-		// records:   make([]playerRecord, 0),
+		records:   make([]types.PlayerRecord, 0),
 	}
 }
 
@@ -57,6 +63,11 @@ func (p player) RoleIds() []types.RoleId {
 // Roles returns player's assigned roles.
 func (p player) Roles() map[types.RoleId]contract.Role {
 	return p.roles
+}
+
+// PlayRecords returns play records of the player.
+func (p player) PlayRecords() []types.PlayerRecord {
+	return p.records
 }
 
 // FactionId returns player's faction ID.
@@ -179,12 +190,15 @@ func (p *player) UseRole(req types.RoleRequest) types.RoleResponse {
 	} else {
 		turn := p.moderator.Scheduler().TurnSlots()
 		res := p.roles[turn[p.id].RoleId].Use(req)
-		// p.records = append(p.records, playerRecord{
-		// 	RoundId:  p.moderator.Scheduler().RoundID(),
-		// 	TurnId:   p.moderator.World().Scheduler().TurnID(),
-		// 	RoleId:   1,
-		// 	TargetId: res.TargetId,
-		// })
+		p.records = append(p.records, types.PlayerRecord{
+			Round:     res.Round,
+			Turn:      res.Turn,
+			PhaseId:   res.PhaseId,
+			RoleId:    res.RoleId,
+			ActionId:  res.ActionId,
+			IsSkipped: res.IsSkipped,
+			TargetId:  res.TargetId,
+		})
 
 		return res
 	}
