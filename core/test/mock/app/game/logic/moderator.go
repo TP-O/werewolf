@@ -129,6 +129,20 @@ func (mr *MockModeratorMockRecorder) RequestPlay(playerID, req interface{}) *gom
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RequestPlay", reflect.TypeOf((*MockModerator)(nil).RequestPlay), playerID, req)
 }
 
+// RoleFactory mocks base method.
+func (m *MockModerator) RoleFactory() contract.RoleFactory {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RoleFactory")
+	ret0, _ := ret[0].(contract.RoleFactory)
+	return ret0
+}
+
+// RoleFactory indicates an expected call of RoleFactory.
+func (mr *MockModeratorMockRecorder) RoleFactory() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RoleFactory", reflect.TypeOf((*MockModerator)(nil).RoleFactory))
+}
+
 // Scheduler mocks base method.
 func (m *MockModerator) Scheduler() contract.Scheduler {
 	m.ctrl.T.Helper()

@@ -36,20 +36,6 @@ func (m *MockPlayer) EXPECT() *MockPlayerMockRecorder {
 	return m.recorder
 }
 
-// ActivateAbility mocks base method.
-func (m *MockPlayer) ActivateAbility(req *types.RoleRequest) *types.RoleResponse {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ActivateAbility", req)
-	ret0, _ := ret[0].(*types.RoleResponse)
-	return ret0
-}
-
-// ActivateAbility indicates an expected call of ActivateAbility.
-func (mr *MockPlayerMockRecorder) ActivateAbility(req interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ActivateAbility", reflect.TypeOf((*MockPlayer)(nil).ActivateAbility), req)
-}
-
 // AssignRole mocks base method.
 func (m *MockPlayer) AssignRole(roleId types.RoleId) (bool, error) {
 	m.ctrl.T.Helper()
@@ -179,6 +165,20 @@ func (mr *MockPlayerMockRecorder) Move(position interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Move", reflect.TypeOf((*MockPlayer)(nil).Move), position)
 }
 
+// PlayRecords mocks base method.
+func (m *MockPlayer) PlayRecords() []types.PlayerRecord {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "PlayRecords")
+	ret0, _ := ret[0].([]types.PlayerRecord)
+	return ret0
+}
+
+// PlayRecords indicates an expected call of PlayRecords.
+func (mr *MockPlayerMockRecorder) PlayRecords() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PlayRecords", reflect.TypeOf((*MockPlayer)(nil).PlayRecords))
+}
+
 // RevokeRole mocks base method.
 func (m *MockPlayer) RevokeRole(roleId types.RoleId) (bool, error) {
 	m.ctrl.T.Helper()
@@ -232,4 +232,18 @@ func (m *MockPlayer) SetFactionId(factionId types.FactionId) {
 func (mr *MockPlayerMockRecorder) SetFactionId(factionId interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetFactionId", reflect.TypeOf((*MockPlayer)(nil).SetFactionId), factionId)
+}
+
+// UseRole mocks base method.
+func (m *MockPlayer) UseRole(req types.RoleRequest) types.RoleResponse {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UseRole", req)
+	ret0, _ := ret[0].(types.RoleResponse)
+	return ret0
+}
+
+// UseRole indicates an expected call of UseRole.
+func (mr *MockPlayerMockRecorder) UseRole(req interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UseRole", reflect.TypeOf((*MockPlayer)(nil).UseRole), req)
 }

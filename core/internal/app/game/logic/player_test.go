@@ -1,564 +1,651 @@
 package logic
 
-// import (
-// 	"fmt"
-// 	"testing"
-// 	"uwwolf/game/contract"
-// 	"uwwolf/internal/app/game/logic/types"
-// 	"uwwolf/game/vars"
-// 	mock_game "uwwolf/mock/game"
+import (
+	"errors"
+	"testing"
+	"uwwolf/internal/app/game/logic/constants"
+	"uwwolf/internal/app/game/logic/contract"
+	"uwwolf/internal/app/game/logic/types"
+	mock_game_logic "uwwolf/test/mock/app/game/logic"
 
-// 	"github.com/golang/mock/gomock"
-// 	"github.com/stretchr/testify/suite"
-// )
+	"github.com/golang/mock/gomock"
+	"github.com/stretchr/testify/suite"
+)
 
-// type PlayerSuite struct {
-// 	suite.Suite
-// 	playerID types.PlayerId
+type PlayerSuite struct {
+	suite.Suite
+	playerId types.PlayerId
 
-// 	// role1_1ID has smallest weight.
-// 	role1_1ID types.RoleID
+	// role1_1Id has smallest weight.
+	role1_1Id types.RoleId
 
-// 	// role1_2ID has same faction ID and larger weight than role1_1ID
-// 	role1_2ID types.RoleID
+	// role1_2Id has same faction Id and larger weight than role1_1Id
+	role1_2Id types.RoleId
 
-// 	// role2ID has difference factionID and larger weight than role1_2ID
-// 	role2ID types.RoleID
+	// role2Id has difference factionId and larger weight than role1_2Id
+	role2Id types.RoleId
 
-// 	faction1_1ID types.FactionID
-// 	faction1_2ID types.FactionID
-// 	faction2ID   types.FactionID
-// }
+	faction1_1Id types.FactionId
+	faction1_2Id types.FactionId
+	faction2Id   types.FactionId
+}
 
-// func (ps *PlayerSuite) SetupSuite() {
-// 	ps.playerID = types.PlayerId("1")
-// 	ps.role1_1ID = vars.VillagerRoleID
-// 	ps.role1_2ID = vars.HunterRoleID
-// 	ps.role2ID = vars.WerewolfRoleID
-// 	ps.faction1_1ID = vars.VillagerFactionID
-// 	ps.faction1_2ID = vars.VillagerFactionID
-// 	ps.faction2ID = vars.WerewolfFactionID
-// }
+func (ps *PlayerSuite) SetupSuite() {
+	ps.playerId = types.PlayerId("1")
+	ps.role1_1Id = constants.VillagerRoleId
+	ps.role1_2Id = constants.HunterRoleId
+	ps.role2Id = constants.WerewolfRoleId
+	ps.faction1_1Id = constants.VillagerFactionId
+	ps.faction1_2Id = constants.VillagerFactionId
+	ps.faction2Id = constants.WerewolfFactionId
+}
 
-// func TestPlayerSuite(t *testing.T) {
-// 	suite.Run(t, new(PlayerSuite))
-// }
+func TestPlayerSuite(t *testing.T) {
+	suite.Run(t, new(PlayerSuite))
+}
 
-// func (ps PlayerSuite) TestNewPlayer() {
-// 	ctrl := gomock.NewController(ps.T())
-// 	defer ctrl.Finish()
-// 	game := mock_game.NewMockGame(ctrl)
+func (ps PlayerSuite) TestNewPlayer() {
+	ctrl := gomock.NewController(ps.T())
+	defer ctrl.Finish()
+	moderator := mock_game_logic.NewMockModerator(ctrl)
 
-// 	p := NewPlayer(game, ps.playerID)
+	p := NewPlayer(moderator, ps.playerId)
 
-// 	ps.Equal(ps.playerID, p.Id())
-// 	ps.Same(game, p.(*player).game)
-// 	ps.Equal(vars.VillagerFactionID, p.FactionID())
-// 	ps.NotNil(p.(*player).roles)
-// 	ps.Empty(p.(*player).roles)
-// }
+	ps.Equal(ps.playerId, p.Id())
+	ps.Same(moderator, p.(*player).moderator)
+	ps.Equal(constants.VillagerFactionId, p.FactionId())
+	ps.NotNil(p.(*player).roles)
+	ps.Empty(p.(*player).roles)
+}
 
-// func (ps PlayerSuite) TestID() {
-// 	ctrl := gomock.NewController(ps.T())
-// 	defer ctrl.Finish()
-// 	game := mock_game.NewMockGame(ctrl)
+func (ps PlayerSuite) TestId() {
+	player := NewPlayer(nil, ps.playerId)
 
-// 	player := NewPlayer(game, ps.playerID)
+	ps.Equal(ps.playerId, player.Id())
+}
 
-// 	ps.Equal(ps.playerID, player.Id())
-// }
+func (ps PlayerSuite) TestMainRoleId() {
+	p := NewPlayer(nil, ps.playerId)
+	p.(*player).mainRoleId = ps.role1_1Id
 
-// func (ps PlayerSuite) TestMainRoleID() {
-// 	ctrl := gomock.NewController(ps.T())
-// 	defer ctrl.Finish()
-// 	game := mock_game.NewMockGame(ctrl)
+	ps.Equal(ps.role1_1Id, p.MainRoleId())
+}
 
-// 	p := NewPlayer(game, ps.playerID)
-// 	p.(*player).mainRoleID = ps.role1_1ID
+func (ps PlayerSuite) TestRoleIds() {
+	ctrl := gomock.NewController(ps.T())
+	defer ctrl.Finish()
+	role1 := mock_game_logic.NewMockRole(ctrl)
+	role2 := mock_game_logic.NewMockRole(ctrl)
 
-// 	ps.Equal(ps.role1_1ID, p.MainRoleID())
-// }
+	p := NewPlayer(nil, ps.playerId)
+	p.(*player).roles = map[types.RoleId]contract.Role{
+		ps.role1_1Id: role1,
+		ps.role2Id:   role2,
+	}
 
-// func (ps PlayerSuite) TestRoleIDs() {
-// 	ctrl := gomock.NewController(ps.T())
-// 	defer ctrl.Finish()
-// 	game := mock_game.NewMockGame(ctrl)
-// 	role1 := mock_game.NewMockRole(ctrl)
-// 	role2 := mock_game.NewMockRole(ctrl)
+	ps.Contains(p.RoleIds(), ps.role1_1Id)
+	ps.Contains(p.RoleIds(), ps.role2Id)
+}
 
-// 	p := NewPlayer(game, ps.playerID)
-// 	p.(*player).roles = map[types.RoleID]contract.Role{
-// 		ps.role1_1ID: role1,
-// 		ps.role2ID:   role2,
-// 	}
+func (ps PlayerSuite) TestRoles() {
+	ctrl := gomock.NewController(ps.T())
+	defer ctrl.Finish()
+	role1 := mock_game_logic.NewMockRole(ctrl)
+	role2 := mock_game_logic.NewMockRole(ctrl)
 
-// 	ps.Contains(p.RoleIDs(), ps.role1_1ID)
-// 	ps.Contains(p.RoleIDs(), ps.role2ID)
-// }
+	roles := map[types.RoleId]contract.Role{
+		ps.role1_1Id: role1,
+		ps.role2Id:   role2,
+	}
 
-// func (ps PlayerSuite) TestRoles() {
-// 	ctrl := gomock.NewController(ps.T())
-// 	defer ctrl.Finish()
-// 	game := mock_game.NewMockGame(ctrl)
-// 	role1 := mock_game.NewMockRole(ctrl)
-// 	role2 := mock_game.NewMockRole(ctrl)
+	p := NewPlayer(nil, ps.playerId)
+	p.(*player).roles = roles
 
-// 	roles := map[types.RoleID]contract.Role{
-// 		ps.role1_1ID: role1,
-// 		ps.role2ID:   role2,
-// 	}
+	ps.Equal(roles, p.Roles())
+}
 
-// 	p := NewPlayer(game, ps.playerID)
-// 	p.(*player).roles = roles
+func (ps PlayerSuite) TestPlayRecords() {
+	records := []types.PlayerRecord{
+		{
+			Round: constants.FirstRound,
+			Turn:  constants.MidTurn,
+		},
+		{
+			Round: constants.SecondRound,
+			Turn:  constants.PostTurn,
+		},
+		{
+			Round:     3,
+			IsSkipped: true,
+		},
+	}
 
-// 	ps.Equal(roles, p.Roles())
-// }
+	p := NewPlayer(nil, ps.playerId)
+	p.(*player).records = records
 
-// func (ps *PlayerSuite) TestFactionID() {
-// 	ctrl := gomock.NewController(ps.T())
-// 	defer ctrl.Finish()
-// 	game := mock_game.NewMockGame(ctrl)
+	ps.Equal(records, p.PlayRecords())
+}
 
-// 	p := NewPlayer(game, ps.playerID)
-// 	p.(*player).factionID = ps.faction1_1ID
+func (ps *PlayerSuite) TestFactionId() {
+	p := NewPlayer(nil, ps.playerId)
+	p.(*player).factionId = ps.faction1_1Id
 
-// 	ps.Equal(ps.faction1_1ID, p.FactionID())
-// }
+	ps.Equal(ps.faction1_1Id, p.FactionId())
+}
 
-// func (ps *PlayerSuite) TestSetFactionID() {
-// 	ctrl := gomock.NewController(ps.T())
-// 	defer ctrl.Finish()
-// 	game := mock_game.NewMockGame(ctrl)
+func (ps *PlayerSuite) TestSetFactionId() {
+	player := NewPlayer(nil, ps.playerId)
+	player.SetFactionId(ps.faction1_1Id)
 
-// 	player := NewPlayer(game, ps.playerID)
-// 	player.SetFactionID(ps.faction1_1ID)
+	ps.Equal(ps.faction1_1Id, player.FactionId())
+}
 
-// 	ps.Equal(ps.faction1_1ID, player.FactionID())
-// }
+func (ps *PlayerSuite) TestIsDead() {
+	tests := []struct {
+		name           string
+		expectedStatus bool
+		setup          func(*player)
+	}{
+		{
+			name:           "Died",
+			expectedStatus: true,
+			setup: func(p *player) {
+				p.isDead = true
+			},
+		},
+		{
+			name:           "Alive",
+			expectedStatus: false,
+			setup: func(p *player) {
+				p.isDead = false
+			},
+		},
+	}
 
-// func (ps *PlayerSuite) TestIsDead() {
-// 	tests := []struct {
-// 		name           string
-// 		expectedStatus bool
-// 		setup          func(*player)
-// 	}{
-// 		{
-// 			name:           "Died",
-// 			expectedStatus: true,
-// 			setup: func(p *player) {
-// 				p.isDead = true
-// 			},
-// 		},
-// 		{
-// 			name:           "Alive",
-// 			expectedStatus: false,
-// 			setup: func(p *player) {
-// 				p.isDead = false
-// 			},
-// 		},
-// 	}
+	for _, test := range tests {
+		ps.Run(test.name, func() {
+			p := NewPlayer(nil, ps.playerId)
+			test.setup(p.(*player))
 
-// 	for _, test := range tests {
-// 		ps.Run(test.name, func() {
-// 			ctrl := gomock.NewController(ps.T())
-// 			defer ctrl.Finish()
-// 			game := mock_game.NewMockGame(ctrl)
+			ps.Equal(test.expectedStatus, p.IsDead())
+		})
+	}
+}
 
-// 			p := NewPlayer(game, ps.playerID)
-// 			test.setup(p.(*player))
+func (ps PlayerSuite) TestDie() {
+	tests := []struct {
+		name           string
+		expectedStatus bool
+		expectedDead   bool
+		setup          func(*player, *mock_game_logic.MockRole)
+	}{
+		{
+			name:           "Already dead",
+			expectedStatus: false,
+			expectedDead:   true,
+			setup: func(p *player, mr *mock_game_logic.MockRole) {
+				p.isDead = true
+			},
+		},
+		{
+			name:           "Alive (Role ability)",
+			expectedStatus: false,
+			expectedDead:   false,
+			setup: func(p *player, mr *mock_game_logic.MockRole) {
+				mr.EXPECT().OnBeforeDeath().Return(false)
+			},
+		},
+		{
+			name:           "Dead (No role protection)",
+			expectedStatus: true,
+			expectedDead:   true,
+			setup: func(p *player, mr *mock_game_logic.MockRole) {
+				mr.EXPECT().OnBeforeDeath().Return(true)
+				mr.EXPECT().OnAfterDeath()
+				mr.EXPECT().OnAfterRevoke()
+			},
+		},
+	}
 
-// 			ps.Equal(test.expectedStatus, p.IsDead())
-// 		})
-// 	}
-// }
+	for _, test := range tests {
+		ps.Run(test.name, func() {
+			ctrl := gomock.NewController(ps.T())
+			defer ctrl.Finish()
+			moderator := mock_game_logic.NewMockModerator(ctrl)
+			role1 := mock_game_logic.NewMockRole(ctrl)
 
-// func (ps PlayerSuite) TestDie() {
-// 	tests := []struct {
-// 		name           string
-// 		isExited       bool
-// 		expectedStatus bool
-// 		expectedDead   bool
-// 		setup          func(*player, *mock_game.MockRole)
-// 	}{
-// 		{
-// 			name:           "Already dead",
-// 			isExited:       false,
-// 			expectedStatus: false,
-// 			expectedDead:   true,
-// 			setup: func(p *player, mr *mock_game.MockRole) {
-// 				p.isDead = true
-// 			},
-// 		},
-// 		{
-// 			name:           "Is protected (Role ability)",
-// 			isExited:       false,
-// 			expectedStatus: false,
-// 			expectedDead:   false,
-// 			setup: func(p *player, mr *mock_game.MockRole) {
-// 				mr.EXPECT().OnBeforeDeath().Return(false)
-// 			},
-// 		},
-// 		{
-// 			name:           "Died (No role protection)",
-// 			isExited:       false,
-// 			expectedStatus: true,
-// 			expectedDead:   true,
-// 			setup: func(p *player, mr *mock_game.MockRole) {
-// 				mr.EXPECT().OnBeforeDeath().Return(true)
-// 				mr.EXPECT().OnAfterDeath()
-// 				mr.EXPECT().OnRevoke()
-// 			},
-// 		},
-// 		{
-// 			name:           "Died (Ignore role protection becauseof player exiting)",
-// 			isExited:       true,
-// 			expectedStatus: true,
-// 			expectedDead:   true,
-// 			setup: func(p *player, mr *mock_game.MockRole) {
-// 				mr.EXPECT().OnBeforeDeath().Return(false)
-// 				mr.EXPECT().OnAfterDeath()
-// 				mr.EXPECT().OnRevoke()
-// 			},
-// 		},
-// 	}
+			p := NewPlayer(moderator, ps.playerId)
 
-// 	for _, test := range tests {
-// 		ps.Run(test.name, func() {
-// 			ctrl := gomock.NewController(ps.T())
-// 			defer ctrl.Finish()
-// 			game := mock_game.NewMockGame(ctrl)
-// 			role1 := mock_game.NewMockRole(ctrl)
+			p.(*player).roles = map[types.RoleId]contract.Role{
+				ps.role1_1Id: role1,
+			}
+			test.setup(p.(*player), role1)
 
-// 			p := NewPlayer(game, ps.playerID)
+			ps.Equal(test.expectedStatus, p.Die())
+			ps.Equal(test.expectedDead, p.IsDead())
+		})
+	}
+}
 
-// 			p.(*player).roles = map[types.RoleID]contract.Role{
-// 				ps.role1_1ID: role1,
-// 			}
-// 			test.setup(p.(*player), role1)
+func (ps PlayerSuite) TestExit() {
+	tests := []struct {
+		name           string
+		expectedStatus bool
+		expectedDead   bool
+		setup          func(*player, *mock_game_logic.MockRole)
+	}{
+		{
+			name:           "Already dead",
+			expectedStatus: false,
+			expectedDead:   true,
+			setup: func(p *player, mr *mock_game_logic.MockRole) {
+				p.isDead = true
+			},
+		},
+		{
+			name:           "Dead (No role protection)",
+			expectedStatus: true,
+			expectedDead:   true,
+			setup: func(p *player, mr *mock_game_logic.MockRole) {
+				mr.EXPECT().OnBeforeDeath().Return(true)
+				mr.EXPECT().OnAfterDeath()
+				mr.EXPECT().OnAfterRevoke()
+			},
+		},
+		{
+			name:           "Dead (Ignore role protection)",
+			expectedStatus: true,
+			expectedDead:   true,
+			setup: func(p *player, mr *mock_game_logic.MockRole) {
+				mr.EXPECT().OnBeforeDeath().Return(false)
+				mr.EXPECT().OnAfterDeath()
+				mr.EXPECT().OnAfterRevoke()
+			},
+		},
+	}
 
-// 			ps.Equal(test.expectedStatus, p.Die(test.isExited))
-// 			ps.Equal(test.expectedDead, p.IsDead())
-// 		})
-// 	}
-// }
+	for _, test := range tests {
+		ps.Run(test.name, func() {
+			ctrl := gomock.NewController(ps.T())
+			defer ctrl.Finish()
+			moderator := mock_game_logic.NewMockModerator(ctrl)
+			role1 := mock_game_logic.NewMockRole(ctrl)
 
-// func (ps PlayerSuite) TestAssignRole() {
-// 	tests := []struct {
-// 		name               string
-// 		roleID             types.RoleID
-// 		expectedStatus     bool
-// 		expectedErr        error
-// 		expectedMainRoleID types.RoleID
-// 		expectedFactionID  types.FactionID
-// 		setup              func(*player)
-// 	}{
-// 		{
-// 			name:               "Failure (Assigned roleID)",
-// 			roleID:             ps.role1_1ID,
-// 			expectedStatus:     false,
-// 			expectedErr:        fmt.Errorf("This role is already assigned ¯\\_(ツ)_/¯"),
-// 			expectedMainRoleID: ps.role1_1ID,
-// 			expectedFactionID:  ps.faction1_1ID,
-// 			setup: func(p *player) {
-// 				p.mainRoleID = ps.role1_1ID
-// 				p.factionID = ps.faction1_1ID
-// 				p.roles = map[types.RoleID]contract.Role{
-// 					ps.role1_1ID: nil,
-// 				}
-// 			},
-// 		},
-// 		{
-// 			name:               "Failure (Invalid roleID)",
-// 			roleID:             types.RoleID(0),
-// 			expectedStatus:     false,
-// 			expectedErr:        fmt.Errorf("Non-existent role ¯\\_ಠ_ಠ_/¯"),
-// 			expectedMainRoleID: ps.role1_1ID,
-// 			expectedFactionID:  ps.faction1_1ID,
-// 			setup: func(p *player) {
-// 				p.mainRoleID = ps.role1_1ID
-// 				p.factionID = ps.faction1_1ID
-// 				p.roles = map[types.RoleID]contract.Role{
-// 					ps.role1_1ID: nil,
-// 				}
-// 			},
-// 		},
-// 		{
-// 			name:               "Ok (Don't update mainRoleID and factionID)",
-// 			roleID:             ps.role1_1ID,
-// 			expectedStatus:     true,
-// 			expectedMainRoleID: ps.role1_2ID,
-// 			expectedFactionID:  ps.faction1_2ID,
-// 			setup: func(p *player) {
-// 				p.mainRoleID = ps.role1_2ID
-// 				p.factionID = ps.faction1_2ID
-// 				p.roles = map[types.RoleID]contract.Role{
-// 					ps.role1_2ID: nil,
-// 				}
-// 			},
-// 		},
-// 		{
-// 			name:               "Ok (Update mainRoleID and factionID)",
-// 			roleID:             ps.role2ID,
-// 			expectedStatus:     true,
-// 			expectedMainRoleID: ps.role2ID,
-// 			expectedFactionID:  ps.faction2ID,
-// 			setup: func(p *player) {
-// 				p.mainRoleID = ps.role1_1ID
-// 				p.factionID = ps.faction1_1ID
-// 				p.roles = map[types.RoleID]contract.Role{
-// 					ps.role1_1ID: nil,
-// 				}
-// 			},
-// 		},
-// 	}
+			p := NewPlayer(moderator, ps.playerId)
 
-// 	for _, test := range tests {
-// 		ps.Run(test.name, func() {
-// 			ctrl := gomock.NewController(ps.T())
-// 			defer ctrl.Finish()
-// 			game := mock_game.NewMockGame(ctrl)
-// 			poll := mock_game.NewMockPoll(ctrl)
-// 			mplayer := mock_game.NewMockPlayer(ctrl)
-// 			schduler := mock_game.NewMockScheduler(ctrl)
+			p.(*player).roles = map[types.RoleId]contract.Role{
+				ps.role1_1Id: role1,
+			}
+			test.setup(p.(*player), role1)
 
-// 			// Mock for role creation
-// 			game.EXPECT().Player(ps.playerID).Return(mplayer).AnyTimes()
-// 			mplayer.EXPECT().Id().Return(ps.playerID).AnyTimes()
-// 			game.EXPECT().Poll(gomock.Any()).Return(poll).AnyTimes()
-// 			poll.EXPECT().AddElectors(gomock.Any()).AnyTimes()
-// 			poll.EXPECT().SetWeight(gomock.Any(), gomock.Any()).AnyTimes()
+			ps.Equal(test.expectedStatus, p.Exit())
+			ps.Equal(test.expectedDead, p.IsDead())
+		})
+	}
+}
 
-// 			// Make sure that assinged role register it turn in scheduler
-// 			if test.expectedStatus == true {
-// 				game.EXPECT().Scheduler().Return(schduler)
-// 				schduler.EXPECT().AddSlot(gomock.Any()).Return(true)
+func (ps PlayerSuite) TestAssignRole() {
+	tests := []struct {
+		name               string
+		roleId             types.RoleId
+		expectedStatus     bool
+		expectedErr        error
+		expectedMainRoleId types.RoleId
+		expectedFactionId  types.FactionId
+		setup              func(
+			*player,
+			*mock_game_logic.MockModerator,
+			*mock_game_logic.MockRoleFactory,
+			*mock_game_logic.MockRole,
+		)
+	}{
+		{
+			name:               "Failure (Assigned roleId)",
+			roleId:             ps.role1_1Id,
+			expectedStatus:     false,
+			expectedErr:        errors.New("This role is already assigned ¯\\_(ツ)_/¯"),
+			expectedMainRoleId: ps.role1_1Id,
+			expectedFactionId:  ps.faction1_1Id,
+			setup: func(
+				p *player,
+				mm *mock_game_logic.MockModerator,
+				mf *mock_game_logic.MockRoleFactory,
+				mr *mock_game_logic.MockRole,
+			) {
+				p.mainRoleId = ps.role1_1Id
+				p.factionId = ps.faction1_1Id
+				p.roles = map[types.RoleId]contract.Role{
+					ps.role1_1Id: nil,
+				}
+			},
+		},
+		{
+			name:               "Failure (Invalid roleId)",
+			roleId:             types.RoleId(0),
+			expectedStatus:     false,
+			expectedErr:        errors.New("Non-existent role ¯\\_ಠ_ಠ_/¯"),
+			expectedMainRoleId: ps.role1_1Id,
+			expectedFactionId:  ps.faction1_1Id,
+			setup: func(
+				p *player,
+				mm *mock_game_logic.MockModerator,
+				mf *mock_game_logic.MockRoleFactory,
+				mr *mock_game_logic.MockRole,
+			) {
+				p.mainRoleId = ps.role1_1Id
+				p.factionId = ps.faction1_1Id
+				p.roles = map[types.RoleId]contract.Role{
+					ps.role1_1Id: nil,
+				}
 
-// 				if test.roleID == vars.VillagerRoleID {
-// 					// Mock for villager role registration
-// 					poll.EXPECT().AddCandidates(ps.playerID).Times(2)
-// 				} else if test.roleID == vars.WerewolfRoleID {
-// 					// Mock for werewolf role registration
-// 					poll.EXPECT().AddCandidates(ps.playerID)
-// 				}
-// 			}
+				mm.EXPECT().RoleFactory().Return(mf)
+				mf.EXPECT().CreateById(types.RoleId(0), mm, ps.playerId).
+					Return(nil, errors.New("Non-existent role ¯\\_ಠ_ಠ_/¯"))
+			},
+		},
+		{
+			name:               "Ok (Don't update mainRoleId and factionId)",
+			roleId:             ps.role1_1Id,
+			expectedStatus:     true,
+			expectedMainRoleId: ps.role1_2Id,
+			expectedFactionId:  ps.faction1_2Id,
+			setup: func(
+				p *player,
+				mm *mock_game_logic.MockModerator,
+				mf *mock_game_logic.MockRoleFactory,
+				mr *mock_game_logic.MockRole,
+			) {
+				p.mainRoleId = ps.role1_2Id
+				p.factionId = ps.faction1_2Id
+				p.roles = map[types.RoleId]contract.Role{
+					ps.role1_2Id: nil,
+				}
 
-// 			p := NewPlayer(game, ps.playerID)
-// 			test.setup(p.(*player))
+				mm.EXPECT().RoleFactory().Return(mf)
+				mf.EXPECT().CreateById(ps.role1_1Id, mm, ps.playerId).
+					Return(mr, nil)
+				mr.EXPECT().Id().Return(ps.role1_1Id)
+				mr.EXPECT().OnAfterAssign()
+			},
+		},
+		{
+			name:               "Ok (Update mainRoleId and factionId)",
+			roleId:             ps.role2Id,
+			expectedStatus:     true,
+			expectedMainRoleId: ps.role2Id,
+			expectedFactionId:  ps.faction2Id,
+			setup: func(
+				p *player,
+				mm *mock_game_logic.MockModerator,
+				mf *mock_game_logic.MockRoleFactory,
+				mr *mock_game_logic.MockRole,
+			) {
+				p.mainRoleId = ps.role1_1Id
+				p.factionId = ps.faction1_1Id
+				p.roles = map[types.RoleId]contract.Role{
+					ps.role1_1Id: nil,
+				}
 
-// 			ok, err := p.AssignRole(test.roleID)
+				mm.EXPECT().RoleFactory().Return(mf)
+				mf.EXPECT().CreateById(ps.role2Id, mm, ps.playerId).
+					Return(mr, nil)
+				mr.EXPECT().Id().Return(ps.role2Id).Times(2)
+				mr.EXPECT().FactionId().Return(ps.faction2Id)
+				mr.EXPECT().OnAfterAssign()
+			},
+		},
+	}
 
-// 			ps.Equal(test.expectedStatus, ok)
-// 			ps.Equal(test.expectedMainRoleID, p.MainRoleID())
-// 			ps.Equal(test.expectedFactionID, p.FactionID())
+	for _, test := range tests {
+		ps.Run(test.name, func() {
+			ctrl := gomock.NewController(ps.T())
+			defer ctrl.Finish()
+			moderator := mock_game_logic.NewMockModerator(ctrl)
+			factory := mock_game_logic.NewMockRoleFactory(ctrl)
+			role := mock_game_logic.NewMockRole(ctrl)
 
-// 			if test.expectedStatus == true {
-// 				ps.Contains(p.RoleIDs(), test.roleID)
-// 				ps.Nil(err)
-// 			} else {
-// 				ps.Equal(test.expectedErr, err)
-// 			}
-// 		})
-// 	}
-// }
+			p := NewPlayer(moderator, ps.playerId)
+			test.setup(p.(*player), moderator, factory, role)
 
-// func (ps PlayerSuite) TestRevokeRole() {
-// 	tests := []struct {
-// 		name               string
-// 		roleID             types.RoleID
-// 		expectedStatus     bool
-// 		expectedErr        error
-// 		expectedMainRoleID types.RoleID
-// 		expectedFactionID  types.FactionID
-// 		setup              func(*player, *mock_game.MockRole, *mock_game.MockRole)
-// 	}{
-// 		{
-// 			name:               "Failure (Must have at least one role)",
-// 			roleID:             ps.role1_1ID,
-// 			expectedStatus:     false,
-// 			expectedErr:        fmt.Errorf("Player must player at least one role ヾ(⌐■_■)ノ♪"),
-// 			expectedMainRoleID: ps.role1_1ID,
-// 			expectedFactionID:  ps.faction1_1ID,
-// 			setup: func(p *player, mr1 *mock_game.MockRole, mr2 *mock_game.MockRole) {
-// 				p.mainRoleID = ps.role1_1ID
-// 				p.factionID = ps.faction1_1ID
-// 				p.roles = map[types.RoleID]contract.Role{
-// 					ps.role1_1ID: mr1,
-// 				}
-// 			},
-// 		},
-// 		{
-// 			name:               "Failure (Non-existent role)",
-// 			roleID:             types.RoleID(0),
-// 			expectedStatus:     false,
-// 			expectedErr:        fmt.Errorf("Non-existent role ID  ¯\\_(ツ)_/¯"),
-// 			expectedMainRoleID: ps.role1_1ID,
-// 			expectedFactionID:  ps.faction1_1ID,
-// 			setup: func(p *player, mr1 *mock_game.MockRole, mr2 *mock_game.MockRole) {
-// 				p.mainRoleID = ps.role1_1ID
-// 				p.factionID = ps.faction1_1ID
-// 				p.roles = map[types.RoleID]contract.Role{
-// 					ps.role1_1ID: mr1,
-// 					ps.role1_2ID: mr2,
-// 				}
-// 			},
-// 		},
-// 		{
-// 			name:               "Ok (Don't update mainRoleID and factionID)",
-// 			roleID:             ps.role1_1ID,
-// 			expectedStatus:     true,
-// 			expectedMainRoleID: ps.role2ID,
-// 			expectedFactionID:  ps.faction2ID,
-// 			setup: func(p *player, mr1 *mock_game.MockRole, mr2 *mock_game.MockRole) {
-// 				p.mainRoleID = ps.role2ID
-// 				p.factionID = ps.faction2ID
-// 				p.roles = map[types.RoleID]contract.Role{
-// 					ps.role1_1ID: mr1, // Prevent nil checking
-// 					ps.role2ID:   mr1,
-// 				}
+			ok, err := p.AssignRole(test.roleId)
 
-// 				mr1.EXPECT().OnRevoke()
-// 			},
-// 		},
-// 		{
-// 			name:               "Ok (Update mainRoleID and factionID)",
-// 			roleID:             ps.role2ID,
-// 			expectedStatus:     true,
-// 			expectedMainRoleID: ps.role1_1ID,
-// 			expectedFactionID:  ps.faction1_1ID,
-// 			setup: func(p *player, mr1 *mock_game.MockRole, mr2 *mock_game.MockRole) {
-// 				p.mainRoleID = ps.role2ID
-// 				p.factionID = ps.faction2ID
-// 				p.roles = map[types.RoleID]contract.Role{
-// 					ps.role1_1ID: mr1,
-// 					ps.role2ID:   mr1, // Prevent nil checking
-// 				}
+			ps.Equal(test.expectedStatus, ok)
+			ps.Equal(test.expectedMainRoleId, p.MainRoleId())
+			ps.Equal(test.expectedFactionId, p.FactionId())
 
-// 				mr1.EXPECT().OnRevoke()
-// 				mr1.EXPECT().Id().Return(ps.role1_1ID)
-// 				mr1.EXPECT().FactionID().Return(ps.faction1_1ID)
-// 			},
-// 		},
-// 		{
-// 			name:               "Ok (Update mainRoleID and factionID)",
-// 			roleID:             ps.role2ID,
-// 			expectedStatus:     true,
-// 			expectedMainRoleID: ps.role1_2ID,
-// 			expectedFactionID:  ps.faction1_2ID,
-// 			setup: func(p *player, mr1 *mock_game.MockRole, mr2 *mock_game.MockRole) {
-// 				p.mainRoleID = ps.role2ID
-// 				p.factionID = ps.faction2ID
-// 				p.roles = map[types.RoleID]contract.Role{
-// 					ps.role1_1ID: mr1,
-// 					ps.role1_2ID: mr2,
-// 					ps.role2ID:   mr1, // Prevent nil checking
-// 				}
+			if test.expectedStatus == true {
+				ps.Contains(p.RoleIds(), test.roleId)
+				ps.Nil(err)
+			} else {
+				ps.Equal(test.expectedErr, err)
+			}
+		})
+	}
+}
 
-// 				mr1.EXPECT().OnRevoke()
-// 				mr1.EXPECT().Id().Return(ps.role1_1ID).MaxTimes(2)
-// 				mr1.EXPECT().FactionID().Return(ps.faction1_1ID).MaxTimes(1)
-// 				mr2.EXPECT().Id().Return(ps.role1_2ID).MaxTimes(2)
-// 				mr2.EXPECT().FactionID().Return(ps.faction1_2ID).MaxTimes(1)
-// 			},
-// 		},
-// 	}
+func (ps PlayerSuite) TestRevokeRole() {
+	tests := []struct {
+		name               string
+		roleId             types.RoleId
+		expectedStatus     bool
+		expectedErr        error
+		expectedMainRoleId types.RoleId
+		expectedFactionId  types.FactionId
+		setup              func(*player, *mock_game_logic.MockRole, *mock_game_logic.MockRole)
+	}{
+		{
+			name:               "Failure (Must have at least one role)",
+			roleId:             ps.role1_1Id,
+			expectedStatus:     false,
+			expectedErr:        errors.New("Player must player at least one role ヾ(⌐■_■)ノ♪"),
+			expectedMainRoleId: ps.role1_1Id,
+			expectedFactionId:  ps.faction1_1Id,
+			setup: func(p *player, mr1 *mock_game_logic.MockRole, mr2 *mock_game_logic.MockRole) {
+				p.mainRoleId = ps.role1_1Id
+				p.factionId = ps.faction1_1Id
+				p.roles = map[types.RoleId]contract.Role{
+					ps.role1_1Id: mr1,
+				}
+			},
+		},
+		{
+			name:               "Failure (Non-existent role)",
+			roleId:             types.RoleId(0),
+			expectedStatus:     false,
+			expectedErr:        errors.New("Non-existent role ID  ¯\\_(ツ)_/¯"),
+			expectedMainRoleId: ps.role1_1Id,
+			expectedFactionId:  ps.faction1_1Id,
+			setup: func(p *player, mr1 *mock_game_logic.MockRole, mr2 *mock_game_logic.MockRole) {
+				p.mainRoleId = ps.role1_1Id
+				p.factionId = ps.faction1_1Id
+				p.roles = map[types.RoleId]contract.Role{
+					ps.role1_1Id: mr1,
+					ps.role1_2Id: mr2,
+				}
+			},
+		},
+		{
+			name:               "Ok (Don't update mainRoleId and factionId)",
+			roleId:             ps.role1_1Id,
+			expectedStatus:     true,
+			expectedMainRoleId: ps.role2Id,
+			expectedFactionId:  ps.faction2Id,
+			setup: func(p *player, mr1 *mock_game_logic.MockRole, mr2 *mock_game_logic.MockRole) {
+				p.mainRoleId = ps.role2Id
+				p.factionId = ps.faction2Id
+				p.roles = map[types.RoleId]contract.Role{
+					ps.role1_1Id: mr1, // Prevent nil checking
+					ps.role2Id:   mr1,
+				}
 
-// 	for _, test := range tests {
-// 		ps.Run(test.name, func() {
-// 			ctrl := gomock.NewController(ps.T())
-// 			defer ctrl.Finish()
-// 			game := mock_game.NewMockGame(ctrl)
-// 			role1 := mock_game.NewMockRole(ctrl)
-// 			role2 := mock_game.NewMockRole(ctrl)
+				mr1.EXPECT().OnAfterRevoke()
+			},
+		},
+		{
+			name:               "Ok (Update mainRoleId and factionId)",
+			roleId:             ps.role2Id,
+			expectedStatus:     true,
+			expectedMainRoleId: ps.role1_1Id,
+			expectedFactionId:  ps.faction1_1Id,
+			setup: func(p *player, mr1 *mock_game_logic.MockRole, mr2 *mock_game_logic.MockRole) {
+				p.mainRoleId = ps.role2Id
+				p.factionId = ps.faction2Id
+				p.roles = map[types.RoleId]contract.Role{
+					ps.role1_1Id: mr1,
+					ps.role2Id:   mr1, // Prevent nil checking
+				}
 
-// 			p := NewPlayer(game, ps.playerID)
-// 			test.setup(p.(*player), role1, role2)
-// 			ok, err := p.RevokeRole(test.roleID)
+				mr1.EXPECT().OnAfterRevoke()
+				mr1.EXPECT().Id().Return(ps.role1_1Id)
+				mr1.EXPECT().FactionId().Return(ps.faction1_1Id)
+			},
+		},
+		{
+			name:               "Ok (Update mainRoleId and factionId)",
+			roleId:             ps.role2Id,
+			expectedStatus:     true,
+			expectedMainRoleId: ps.role1_2Id,
+			expectedFactionId:  ps.faction1_2Id,
+			setup: func(p *player, mr1 *mock_game_logic.MockRole, mr2 *mock_game_logic.MockRole) {
+				p.mainRoleId = ps.role2Id
+				p.factionId = ps.faction2Id
+				p.roles = map[types.RoleId]contract.Role{
+					ps.role1_1Id: mr1,
+					ps.role1_2Id: mr2,
+					ps.role2Id:   mr1, // Prevent nil checking
+				}
 
-// 			ps.Equal(test.expectedStatus, ok)
-// 			ps.Equal(test.expectedMainRoleID, p.MainRoleID())
-// 			ps.Equal(test.expectedFactionID, p.FactionID())
+				mr1.EXPECT().OnAfterRevoke()
+				mr1.EXPECT().Id().Return(ps.role1_1Id).MaxTimes(2)
+				mr1.EXPECT().FactionId().Return(ps.faction1_1Id).MaxTimes(1)
+				mr2.EXPECT().Id().Return(ps.role1_2Id).MaxTimes(2)
+				mr2.EXPECT().FactionId().Return(ps.faction1_2Id).MaxTimes(1)
+			},
+		},
+	}
 
-// 			if test.expectedStatus == true {
-// 				ps.NotContains(p.RoleIDs(), test.roleID)
-// 				ps.Nil(err)
-// 			} else {
-// 				ps.Equal(test.expectedErr, err)
-// 			}
-// 		})
-// 	}
-// }
+	for _, test := range tests {
+		ps.Run(test.name, func() {
+			ctrl := gomock.NewController(ps.T())
+			defer ctrl.Finish()
+			role1 := mock_game_logic.NewMockRole(ctrl)
+			role2 := mock_game_logic.NewMockRole(ctrl)
 
-// func (ps PlayerSuite) TestActivateAbility() {
-// 	tests := []struct {
-// 		name        string
-// 		req         *types.ActivateAbilityRequest
-// 		expectedRes *types.ActionResponse
-// 		setup       func(*player, *mock_game.MockScheduler, *mock_game.MockRole)
-// 	}{
-// 		{
-// 			name: "Failure (Dead)",
-// 			req:  &types.ActivateAbilityRequest{},
-// 			expectedRes: &types.ActionResponse{
-// 				Ok:      false,
-// 				Message: "You're died (╥﹏╥)",
-// 			},
-// 			setup: func(p *player, ms *mock_game.MockScheduler, mr *mock_game.MockRole) {
-// 				p.isDead = true
-// 			},
-// 		},
-// 		{
-// 			name: "Failure (Not in turn)",
-// 			req:  &types.ActivateAbilityRequest{},
-// 			expectedRes: &types.ActionResponse{
-// 				Ok:      false,
-// 				Message: "Wait for your turn, OK??",
-// 			},
-// 			setup: func(p *player, ms *mock_game.MockScheduler, mr *mock_game.MockRole) {
-// 				ms.EXPECT().CanPlay(ps.playerID).Return(false)
-// 			},
-// 		},
-// 		{
-// 			name: "Ok",
-// 			req:  &types.ActivateAbilityRequest{},
-// 			expectedRes: &types.ActionResponse{
-// 				Ok: true,
-// 			},
-// 			setup: func(p *player, ms *mock_game.MockScheduler, mr *mock_game.MockRole) {
-// 				turn := types.Turn(map[types.PlayerId]*types.TurnSlot{
-// 					ps.playerID: {
-// 						RoleID: ps.role1_1ID,
-// 					},
-// 				})
-// 				p.roles[ps.role1_1ID] = mr
+			p := NewPlayer(nil, ps.playerId)
+			test.setup(p.(*player), role1, role2)
+			ok, err := p.RevokeRole(test.roleId)
 
-// 				ms.EXPECT().Turn().Return(turn)
-// 				ms.EXPECT().CanPlay(ps.playerID).Return(true)
-// 				mr.EXPECT().
-// 					ActivateAbility(&types.ActivateAbilityRequest{}).
-// 					Return(&types.ActionResponse{
-// 						Ok: true,
-// 					}).
-// 					Times(1)
-// 			},
-// 		},
-// 	}
+			ps.Equal(test.expectedStatus, ok)
+			ps.Equal(test.expectedMainRoleId, p.MainRoleId())
+			ps.Equal(test.expectedFactionId, p.FactionId())
 
-// 	for _, test := range tests {
-// 		ps.Run(test.name, func() {
-// 			ctrl := gomock.NewController(ps.T())
-// 			defer ctrl.Finish()
-// 			game := mock_game.NewMockGame(ctrl)
-// 			scheduler := mock_game.NewMockScheduler(ctrl)
-// 			role1_1 := mock_game.NewMockRole(ctrl)
+			if test.expectedStatus == true {
+				ps.NotContains(p.RoleIds(), test.roleId)
+				ps.Nil(err)
+			} else {
+				ps.Equal(test.expectedErr, err)
+			}
+		})
+	}
+}
 
-// 			game.EXPECT().Scheduler().Return(scheduler).MaxTimes(2)
+func (ps PlayerSuite) TestUseRole() {
+	tests := []struct {
+		name            string
+		req             types.RoleRequest
+		expectedRes     types.RoleResponse
+		expectedRecords []types.PlayerRecord
+		setup           func(*player, *mock_game_logic.MockScheduler, *mock_game_logic.MockRole)
+	}{
+		{
+			name: "Failure (Dead)",
+			req:  types.RoleRequest{},
+			expectedRes: types.RoleResponse{
+				ActionResponse: types.ActionResponse{
+					Message: "You're died (╥﹏╥)",
+				},
+			},
+			setup: func(p *player, ms *mock_game_logic.MockScheduler, mr *mock_game_logic.MockRole) {
+				p.isDead = true
+			},
+		},
+		{
+			name: "Failure (Not in turn)",
+			req:  types.RoleRequest{},
+			expectedRes: types.RoleResponse{
+				ActionResponse: types.ActionResponse{
+					Message: "Wait for your turn, OK??",
+				},
+			},
+			setup: func(p *player, ms *mock_game_logic.MockScheduler, mr *mock_game_logic.MockRole) {
+				ms.EXPECT().CanPlay(ps.playerId).Return(false)
+			},
+		},
+		{
+			name: "Ok",
+			req:  types.RoleRequest{},
+			expectedRes: types.RoleResponse{
+				Round:   constants.FirstRound,
+				Turn:    constants.MidTurn,
+				PhaseId: constants.DayPhaseId,
+				RoleId:  ps.role1_1Id,
+				ActionResponse: types.ActionResponse{
+					Ok: true,
+				},
+			},
+			expectedRecords: []types.PlayerRecord{
+				{
+					Round:   constants.FirstRound,
+					Turn:    constants.MidTurn,
+					RoleId:  ps.role1_1Id,
+					PhaseId: constants.DayPhaseId,
+				},
+			},
+			setup: func(p *player, ms *mock_game_logic.MockScheduler, mr *mock_game_logic.MockRole) {
+				turnSlots := types.TurnSlots(map[types.PlayerId]*types.TurnSlot{
+					ps.playerId: {
+						RoleId: ps.role1_1Id,
+					},
+				})
+				p.roles[ps.role1_1Id] = mr
 
-// 			p := NewPlayer(game, ps.playerID)
-// 			test.setup(p.(*player), scheduler, role1_1)
+				ms.EXPECT().TurnSlots().Return(turnSlots)
+				ms.EXPECT().CanPlay(ps.playerId).Return(true)
+				mr.EXPECT().
+					Use(types.RoleRequest{}).
+					Return(types.RoleResponse{
+						Round:   constants.FirstRound,
+						Turn:    constants.MidTurn,
+						PhaseId: constants.DayPhaseId,
+						RoleId:  ps.role1_1Id,
+						ActionResponse: types.ActionResponse{
+							Ok: true,
+						},
+					}).
+					Times(1)
+			},
+		},
+	}
 
-// 			res := p.ActivateAbility(test.req)
+	for _, test := range tests {
+		ps.Run(test.name, func() {
+			ctrl := gomock.NewController(ps.T())
+			defer ctrl.Finish()
+			moderator := mock_game_logic.NewMockModerator(ctrl)
+			scheduler := mock_game_logic.NewMockScheduler(ctrl)
+			role1_1 := mock_game_logic.NewMockRole(ctrl)
 
-// 			ps.Equal(test.expectedRes, res)
-// 		})
-// 	}
-// }
+			moderator.EXPECT().Scheduler().Return(scheduler).MaxTimes(2)
+
+			p := NewPlayer(moderator, ps.playerId)
+			test.setup(p.(*player), scheduler, role1_1)
+
+			res := p.UseRole(test.req)
+
+			ps.Equal(test.expectedRes, res)
+			if test.expectedRes.Ok {
+				ps.Equal(test.expectedRecords, p.PlayRecords())
+			}
+		})
+	}
+}

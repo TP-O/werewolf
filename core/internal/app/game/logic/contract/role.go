@@ -4,13 +4,10 @@ import "uwwolf/internal/app/game/logic/types"
 
 // Role represents a specific role in a game.
 type Role interface {
-	// ID returns role's ID.
+	// Id returns role's ID.
 	Id() types.RoleId
 
-	// PhaseID returns role's active phase ID.
-	// PhaseID() types.PhaseID
-
-	// FactionID returns role's faction ID.
+	// FactionId returns role's faction ID.
 	FactionId() types.FactionId
 
 	// ActiveTimes returns remaining times this role can use the specific ability.
@@ -32,4 +29,10 @@ type Role interface {
 
 	// ActivateAbility executes the action corresponding to the required ability.
 	Use(req types.RoleRequest) types.RoleResponse
+}
+
+// RoleFactory creates role instance.
+type RoleFactory interface {
+	// CreateById creates a role with the given ID.
+	CreateById(id types.RoleId, moderator Moderator, playerID types.PlayerId) (Role, error)
 }

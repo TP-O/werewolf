@@ -11,6 +11,8 @@ type Moderator interface {
 
 	World() World
 
+	RoleFactory() RoleFactory
+
 	// StartGame starts the game.
 	StartGame() int64
 

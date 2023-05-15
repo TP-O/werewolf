@@ -20,7 +20,7 @@ func (i immutableMap[K, V]) Get(key K) (V, bool) {
 	return clone.Slowly(v).(V), ok
 }
 
-func (i immutableMap[K, V]) BindGet(key K) V {
+func (i immutableMap[K, V]) BlindGet(key K) V {
 	return clone.Slowly(i.m[key]).(V)
 }
 

@@ -6,6 +6,7 @@ package mock_game_logic
 
 import (
 	reflect "reflect"
+	contract "uwwolf/internal/app/game/logic/contract"
 	types "uwwolf/internal/app/game/logic/types"
 
 	gomock "github.com/golang/mock/gomock"
@@ -138,4 +139,42 @@ func (m *MockRole) Use(req types.RoleRequest) types.RoleResponse {
 func (mr *MockRoleMockRecorder) Use(req interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Use", reflect.TypeOf((*MockRole)(nil).Use), req)
+}
+
+// MockRoleFactory is a mock of RoleFactory interface.
+type MockRoleFactory struct {
+	ctrl     *gomock.Controller
+	recorder *MockRoleFactoryMockRecorder
+}
+
+// MockRoleFactoryMockRecorder is the mock recorder for MockRoleFactory.
+type MockRoleFactoryMockRecorder struct {
+	mock *MockRoleFactory
+}
+
+// NewMockRoleFactory creates a new mock instance.
+func NewMockRoleFactory(ctrl *gomock.Controller) *MockRoleFactory {
+	mock := &MockRoleFactory{ctrl: ctrl}
+	mock.recorder = &MockRoleFactoryMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockRoleFactory) EXPECT() *MockRoleFactoryMockRecorder {
+	return m.recorder
+}
+
+// CreateById mocks base method.
+func (m *MockRoleFactory) CreateById(id types.RoleId, moderator contract.Moderator, playerID types.PlayerId) (contract.Role, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateById", id, moderator, playerID)
+	ret0, _ := ret[0].(contract.Role)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateById indicates an expected call of CreateById.
+func (mr *MockRoleFactoryMockRecorder) CreateById(id, moderator, playerID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateById", reflect.TypeOf((*MockRoleFactory)(nil).CreateById), id, moderator, playerID)
 }
