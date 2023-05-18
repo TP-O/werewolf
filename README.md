@@ -2,7 +2,7 @@
 
 <p align="center">
 <a href="https://tp-o.itch.io/werewolf" target="_blank">
-    <img src="./assets/play-btn.gif" width="200" height="200" />
+    <img src="./docs/assets/play-btn.gif" width="200" height="200" />
 </a>
 <h2 align="center">Click to play</h2>
 </p>
@@ -21,11 +21,7 @@ There are 2 types of turn: private and public. In private turn, only roles playe
 
 In the moring, Villager gathers together and finds the Werewolf. The special roles do their job at dusk, and Werewolf and the rest do their job at night.
 
-# Technical
-
-## Challenge
-
-...
+# Technology
 
 ## Platform & Tool
 
@@ -35,10 +31,21 @@ In the moring, Villager gathers together and finds the Werewolf. The special rol
 - Redis cluster
 - PostgreSQL
 
+## Architecture
+
+[Communication Server](https://github.com/game-upgrader/werewolf/tree/main/communication)
+
+![Communication Server Structure](https://raw.githubusercontent.com/game-upgrader/werewolf/main/communication/docs/img/architecture.jpg)
+
+[Core Server](https://github.com/game-upgrader/werewolf/tree/main/core)
+![Core Server Structure](https://raw.githubusercontent.com/game-upgrader/werewolf/main/core/docs/img/architecture.jpg)
+
 # Demo
 
-Click [here](https://tp-o.itch.io/werewolf).
+Click [here](https://tp-o.itch.io/werewolf)
 
 # License
 
-...
+This project is distributed under the [MIT License](LICENSE)
+
+Copyright of [@TP-O](https://github.com/TP-O), 2023
