@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"uwwolf/pkg/util"
 
 	_ "github.com/lib/pq"
 )
@@ -55,9 +54,9 @@ func main() {
 
 	// log.Println("Exited")
 
-	var a map[string]map[string]any
+	// var a map[string]map[string]any
 	// a["a"] = make(map[string]any)
-	fmt.Println(util.IsZero(a[""][""]))
+	fmt.Println(1)
 }
 
 // type Server struct {

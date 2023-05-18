@@ -13,49 +13,65 @@ import (
 	"github.com/samber/lo"
 )
 
-type MapData struct {
+type mapData struct {
 	TileWidth     int
 	TileHeight    int
 	TilePositions []orb.Point
 	Obstacles     []orb.Bound
 }
 
-var mapData = MapData{
-	TileWidth:     64,
-	TileHeight:    64,
-	TilePositions: []orb.Point{},
-	Obstacles:     []orb.Bound{},
-}
-
+// gameMap is the instance managing entities position of the game.
 type gameMap struct {
-	tree             *quadtree.Quadtree
-	entityPositions  map[contract.EntityID]*orb.Point
+	// tree is the quad tree to manage object positions.
+	tree *quadtree.Quadtree
+
+	// data is the map data.
+	data mapData
+
+	// entityPositions is the position of all entities in the map.
+	entityPositions map[contract.EntityID]*orb.Point
+
+	// entityByPosition is entity at all stored positions in the map.
 	entityByPosition map[*orb.Point]*contract.Entity
-	timePerEachMove  time.Duration
-	searchExpansion  float64
+
+	// timePerEachMove is the max time to move from the current position to the new one.
+	timePerEachMove time.Duration
+
+	// searchExpansion is the added area bounding around the searched area to make sure
+	// all objects in it are detected. We need this because the quad tree only stores
+	// the coordinator of object's top left corner, so the expansion will help us to reach
+	// that point.
+	searchExpansion float64
 }
 
 func NewMap() contract.Map {
+	data := mapData{
+		TileWidth:     64,
+		TileHeight:    64,
+		TilePositions: []orb.Point{},
+		Obstacles:     []orb.Bound{},
+	}
 	m := &gameMap{
 		tree: quadtree.New(orb.Bound{
 			Min: orb.Point{0, 0},
-			Max: orb.Point{float64(mapData.TileWidth), float64(mapData.TileHeight)},
+			Max: orb.Point{float64(data.TileWidth), float64(data.TileHeight)},
 		}),
+		data:             data,
 		entityPositions:  make(map[contract.EntityID]*orb.Point),
 		entityByPosition: make(map[*orb.Point]*contract.Entity),
 		timePerEachMove:  500 * time.Microsecond,
 	}
-	for i, tile := range mapData.TilePositions {
+	for i, tile := range data.TilePositions {
 		m.AddEntity(fmt.Sprintf("%d", i), contract.EntitySettings{
 			Type:    contract.ObstacleEntity,
 			X:       tile.X(),
 			Y:       tile.Y(),
-			Width:   mapData.TileWidth,
-			Height:  mapData.TileHeight,
+			Width:   data.TileWidth,
+			Height:  data.TileHeight,
 			IsSolid: true,
 		})
 	}
-	for i, obstacle := range mapData.Obstacles {
+	for i, obstacle := range data.Obstacles {
 		m.AddEntity(fmt.Sprintf("%d", i), contract.EntitySettings{
 			Type:    contract.TileEntity,
 			X:       obstacle.Left(),
