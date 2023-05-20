@@ -14,6 +14,7 @@ import Inspector from 'vite-plugin-vue-inspector'
 import LinkAttributes from 'markdown-it-link-attributes'
 import Unocss from 'unocss/vite'
 import Shiki from 'markdown-it-shiki'
+import { quasar, transformAssetUrls } from '@quasar/vite-plugin'
 
 // @ts-expect-error failed to resolve types
 import VueMacros from 'unplugin-vue-macros/vite'
@@ -31,8 +32,13 @@ export default defineConfig({
       plugins: {
         vue: Vue({
           include: [/\.vue$/, /\.md$/],
+          template: { transformAssetUrls },
         }),
       },
+    }),
+
+    quasar({
+      sassVariables: 'src/quasar-variables.sass',
     }),
 
     // https://github.com/hannoeru/vite-plugin-pages
