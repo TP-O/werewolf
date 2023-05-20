@@ -90,6 +90,7 @@ declare global {
   const signIn: typeof import('./composables/firebase')['signIn']
   const signInWithGoogle: typeof import('./composables/firebase')['signInWithGoogle']
   const signOut: typeof import('./composables/firebase')['signOut']
+  const signUp: typeof import('./composables/firebase')['signUp']
   const syncRef: typeof import('@vueuse/core')['syncRef']
   const syncRefs: typeof import('@vueuse/core')['syncRefs']
   const templateRef: typeof import('@vueuse/core')['templateRef']
@@ -385,6 +386,7 @@ declare module 'vue' {
     readonly signIn: UnwrapRef<typeof import('./composables/firebase')['signIn']>
     readonly signInWithGoogle: UnwrapRef<typeof import('./composables/firebase')['signInWithGoogle']>
     readonly signOut: UnwrapRef<typeof import('./composables/firebase')['signOut']>
+    readonly signUp: UnwrapRef<typeof import('./composables/firebase')['signUp']>
     readonly syncRef: UnwrapRef<typeof import('@vueuse/core')['syncRef']>
     readonly syncRefs: UnwrapRef<typeof import('@vueuse/core')['syncRefs']>
     readonly templateRef: UnwrapRef<typeof import('@vueuse/core')['templateRef']>

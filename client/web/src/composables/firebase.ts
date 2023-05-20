@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app'
-import { GoogleAuthProvider, signOut as fSignOut, getAuth, signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth'
+import { GoogleAuthProvider, createUserWithEmailAndPassword, signOut as fSignOut, getAuth, signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth'
 
 const firebaseConfig = {
   apiKey: 'AIzaSyBDEGHwraskC2U96zUEy5HwN3LFBlZNPDE',
@@ -18,15 +18,27 @@ firebaseAuth.useDeviceLanguage()
 const provider = new GoogleAuthProvider()
 provider.addScope('https://www.googleapis.com/auth/contacts.readonly')
 
+export async function signUp(email: string, password: string) {
+  try {
+    await createUserWithEmailAndPassword(firebaseAuth, email, password)
+  }
+  catch (err: any) {
+    if (err.code === 'auth/email-already-in-use')
+      throw new Error('Email is already in use')
+    else
+      throw err
+  }
+}
+
 export async function signIn(email: string, password: string) {
   try {
     await signInWithEmailAndPassword(firebaseAuth, email, password)
   }
   catch (err: any) {
-    if (err.code === 'auth/user-not-found')
-      throw new Error('Email or password is incorrect.')
+    if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password')
+      throw new Error('Email or password is incorrect')
     else
-      throw new Error('Unkown error.')
+      throw err
   }
 }
 

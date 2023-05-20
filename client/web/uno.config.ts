@@ -35,4 +35,9 @@ export default defineConfig({
     transformerVariantGroup(),
   ],
   safelist: 'prose m-auto text-left'.split(' '),
+  theme: {
+    colors: {
+      error: '#C10015',
+    },
+  },
 })

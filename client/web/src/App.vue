@@ -41,7 +41,7 @@ onErrorCaptured((err) => {
   <q-dialog v-model="errorAlert.error">
     <q-card w-screen md="min-w-md">
       <q-card-section>
-        <div class="text-h6">
+        <div text-xl font-bold color="error">
           Error!!!
         </div>
       </q-card-section>

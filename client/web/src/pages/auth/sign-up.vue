@@ -5,6 +5,7 @@ import { email, helpers, minLength, required } from '@vuelidate/validators'
 const data = reactive({
   email: '',
   password: '',
+  confirmPassword: '',
 })
 const schema = {
   email: {
@@ -16,14 +17,17 @@ const schema = {
     minLength: helpers.withMessage(({ $params }) =>
      `Password must be at least ${$params.min} characters`, minLength(8)),
   },
+  confirmPassword: {
+    sameAsPassword: helpers.withMessage('Password does not match', v => v === data.password),
+  },
 }
 const form = useVuelidate(schema, data)
 
 async function onSubmit() {
-  if (form.value.$invalid)
+  if (!await form.value.$validate())
     return
 
-  await signIn(data.email, data.password)
+  await signUp(data.email, data.password)
 }
 </script>
 
@@ -32,7 +36,7 @@ async function onSubmit() {
     <div md="w-2xl">
       <div mb-8>
         <div text="2xl" font-bold>
-          Join to player with your friends
+          Create new account
         </div>
       </div>
 
@@ -54,9 +58,18 @@ async function onSubmit() {
           :error="form.password.$error"
           :error-message="form.password.$errors[0]?.$message.toString()"
         />
+        <q-input
+          v-model="form.confirmPassword.$model"
+          :debounce="200"
+          outlined
+          type="password"
+          label="Confirm password"
+          :error="form.confirmPassword.$error"
+          :error-message="form.confirmPassword.$errors[0]?.$message.toString()"
+        />
         <div flex="~ justify-between items-center">
-          <router-link to="sign-up" color="blue" font-bold>
-            Create account
+          <router-link to="sign-in" color="blue" font-bold>
+            Sign in instead
           </router-link>
           <q-btn color="blue" label="Go!" type="submit" px-8 py-2 capitalize />
         </div>
