@@ -6,7 +6,6 @@ interface Player {
 
 export const usePlayerStore = defineStore('player', () => {
   const player = ref<Player | null>(null)
-  const p = computed(() => player)
 
   firebaseAuth.onAuthStateChanged((user) => {
     if (user) {
@@ -19,8 +18,20 @@ export const usePlayerStore = defineStore('player', () => {
     }
   })
 
+  let isLoaded = false
+  function waitForLoadingPlayer() {
+    return new Promise<void>((resolve) => {
+      if (isLoaded)
+        return resolve()
+
+      isLoaded = true
+      firebaseAuth.onAuthStateChanged(() => resolve())
+    })
+  }
+
   return {
-    player: p,
+    player,
+    waitForLoadingPlayer,
   }
 })
 

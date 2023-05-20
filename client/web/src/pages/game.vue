@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { Game, Scene } from 'phaser'
 
+defineOptions({
+  name: 'GamePage',
+})
+
 class Example extends Scene {
   preload() {
     this.load.html('nameform', 'assets/text/loginform.html')

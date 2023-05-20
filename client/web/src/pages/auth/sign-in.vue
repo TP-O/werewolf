@@ -2,6 +2,10 @@
 import { useVuelidate } from '@vuelidate/core'
 import { email, helpers, minLength, required } from '@vuelidate/validators'
 
+defineOptions({
+  name: 'SignInPage',
+})
+
 const data = reactive({
   email: '',
   password: '',
@@ -18,12 +22,14 @@ const schema = {
   },
 }
 const form = useVuelidate(schema, data)
+const router = useRouter()
 
 async function onSubmit() {
   if (form.value.$invalid)
     return
 
   await signIn(data.email, data.password)
+  router.push('/')
 }
 </script>
 
@@ -82,3 +88,8 @@ async function onSubmit() {
     </div>
   </div>
 </template>
+
+<route lang="yaml">
+meta:
+  layout: guest
+  </route>
