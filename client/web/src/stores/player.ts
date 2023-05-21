@@ -7,7 +7,7 @@ interface Player {
 export const usePlayerStore = defineStore('player', () => {
   const player = ref<Player | null>(null)
 
-  firebaseAuth.onAuthStateChanged((user) => {
+  auth.raw.onAuthStateChanged((user) => {
     if (user) {
       player.value = {
         username: user.uid,
@@ -18,22 +18,12 @@ export const usePlayerStore = defineStore('player', () => {
     }
   })
 
-  let isLoaded = false
-  function waitForLoadingPlayer() {
-    return new Promise<void>((resolve) => {
-      if (isLoaded)
-        return resolve()
-
-      isLoaded = true
-      firebaseAuth.onAuthStateChanged(() => resolve())
-    })
-  }
-
   return {
     player,
-    waitForLoadingPlayer,
   }
 })
 
-if (import.meta.hot)
-  import.meta.hot.accept(acceptHMRUpdate(usePlayerStore as any, import.meta.hot))
+if (import.meta.hot) {
+  import.meta.hot.accept(
+    acceptHMRUpdate(usePlayerStore as any, import.meta.hot))
+}

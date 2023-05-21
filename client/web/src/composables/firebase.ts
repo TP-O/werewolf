@@ -1,58 +1,102 @@
 import { initializeApp } from 'firebase/app'
-import { GoogleAuthProvider, createUserWithEmailAndPassword, signOut as fSignOut, getAuth, signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth'
+import {
+  GoogleAuthProvider,
+  createUserWithEmailAndPassword,
+  signOut as fSignOut, getAuth,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+} from 'firebase/auth'
+import log from 'loglevel'
 
-const firebaseConfig = {
-  apiKey: 'AIzaSyBDEGHwraskC2U96zUEy5HwN3LFBlZNPDE',
-  authDomain: 'werewolf-fdac9.firebaseapp.com',
-  projectId: 'werewolf-fdac9',
-  storageBucket: 'werewolf-fdac9.appspot.com',
-  messagingSenderId: '244960264403',
-  appId: '1:244960264403:web:a2a0fe9dd6b00495481426',
-  measurementId: 'G-94F5EE6YCY',
-}
-
+const firebaseConfig = JSON.parse(import.meta.env.VITE_FIREBASE_CONFIG)
 const app = initializeApp(firebaseConfig)
 const firebaseAuth = getAuth(app)
 firebaseAuth.useDeviceLanguage()
 
-const provider = new GoogleAuthProvider()
-provider.addScope('https://www.googleapis.com/auth/contacts.readonly')
+const ggProvider = new GoogleAuthProvider()
+ggProvider.addScope('https://www.googleapis.com/auth/contacts.readonly')
 
-export async function signUp(email: string, password: string) {
+let isAuthStateChanged = false
+
+/**
+ * Use to wait for firebase authetication at the time
+ * the app is launched.
+ */
+function waitForAuthState(): Promise<void> {
+  return new Promise<void>((resolve) => {
+    if (isAuthStateChanged)
+      return resolve()
+
+    isAuthStateChanged = true
+    firebaseAuth.onAuthStateChanged(() => resolve())
+  })
+}
+
+async function getIdToken(): Promise<string | undefined> {
+  await waitForAuthState()
+  return firebaseAuth.currentUser?.getIdToken()
+}
+
+async function signUp(email: string, password: string): Promise<void> {
   try {
     await createUserWithEmailAndPassword(firebaseAuth, email, password)
   }
   catch (err: any) {
-    if (err.code === 'auth/email-already-in-use')
-      throw new Error('Email is already in use')
-    else
-      throw err
+    switch (err.code) {
+      case 'auth/email-already-in-use':
+        throw new Error('Email is already in use')
+
+      default:
+        log.warn('Sign-up error:', err.message)
+        throw new Error('Please try again')
+    }
   }
 }
 
-export async function signIn(email: string, password: string) {
+async function signIn(email: string, password: string): Promise<void> {
   try {
     await signInWithEmailAndPassword(firebaseAuth, email, password)
   }
   catch (err: any) {
-    if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password')
-      throw new Error('Email or password is incorrect')
-    else
-      throw err
+    switch (err.code) {
+      case 'auth/user-not-found':
+      case 'auth/wrong-password':
+        throw new Error('Email or password is incorrect')
+
+      default:
+        log.warn('Sign-in error:', err.message)
+        throw new Error('Something went wrong')
+    }
   }
 }
 
-export async function signInWithGoogle() {
+async function signInWithGoogle(): Promise<void> {
   try {
-    await signInWithPopup(firebaseAuth, provider)
+    await signInWithPopup(firebaseAuth, ggProvider)
   }
-  catch (err) {
-    console.error(err)
+  catch (err: any) {
+    log.warn('Sign-in error:', err.message)
+    throw new Error('Please try another way to sign in')
   }
 }
 
-export async function signOut() {
-  await fSignOut(firebaseAuth)
+async function signOut(): Promise<void> {
+  try {
+    await waitForAuthState()
+    await fSignOut(firebaseAuth)
+  }
+  catch (err: any) {
+    log.warn('Sign-out error:', err.message)
+    throw new Error('Unable to sign out')
+  }
 }
 
-export { firebaseAuth }
+export const auth = {
+  waitForAuthState,
+  getIdToken,
+  signUp,
+  signIn,
+  signInWithGoogle,
+  signOut,
+  raw: firebaseAuth,
+}

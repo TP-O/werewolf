@@ -28,7 +28,7 @@ async function onSubmit() {
   if (form.value.$invalid)
     return
 
-  await signIn(data.email, data.password)
+  await auth.signIn(data.email, data.password)
   router.push('/')
 }
 </script>
@@ -75,11 +75,11 @@ async function onSubmit() {
           Or join with
         </div>
         <div flex="~ justify-around">
-          <q-btn capitalize @click="signInWithGoogle">
+          <q-btn capitalize @click="auth.signInWithGoogle">
             <div i-devicon-google mr-2 />
             Google
           </q-btn>
-          <q-btn capitalize @click="signInWithGoogle">
+          <q-btn capitalize @click="auth.signInWithGoogle">
             <div i-devicon-facebook mr-2 />
             Facebook
           </q-btn>

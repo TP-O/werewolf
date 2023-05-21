@@ -3,7 +3,7 @@ const store = usePlayerStore()
 const router = useRouter()
 
 onMounted(async () => {
-  await store.waitForLoadingPlayer()
+  await auth.waitForAuthState()
 
   if (store.player)
     router.push('/')

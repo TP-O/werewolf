@@ -9,7 +9,7 @@ const communicationClient = axios.create({
 
 communicationClient.interceptors.request.use(
   async (config) => {
-    const token = await firebaseAuth.currentUser?.getIdToken()
+    const token = await auth.getIdToken()
     if (token)
       config.headers!.Authorization = `Bearer ${token}`
 

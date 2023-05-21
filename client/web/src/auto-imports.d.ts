@@ -7,6 +7,7 @@ declare global {
   const EffectScope: typeof import('vue')['EffectScope']
   const RoomChangeType: typeof import('./composables/socketio')['RoomChangeType']
   const asyncComputed: typeof import('@vueuse/core')['asyncComputed']
+  const auth: typeof import('./composables/firebase')['auth']
   const autoResetRef: typeof import('@vueuse/core')['autoResetRef']
   const communicationClient: typeof import('./composables/axios')['communicationClient']
   const communicationSocket: typeof import('./composables/socketio')['communicationSocket']
@@ -35,7 +36,6 @@ declare global {
   const eagerComputed: typeof import('@vueuse/core')['eagerComputed']
   const effectScope: typeof import('vue')['effectScope']
   const extendRef: typeof import('@vueuse/core')['extendRef']
-  const firebaseAuth: typeof import('./composables/firebase')['firebaseAuth']
   const getCurrentInstance: typeof import('vue')['getCurrentInstance']
   const getCurrentScope: typeof import('vue')['getCurrentScope']
   const h: typeof import('vue')['h']
@@ -91,10 +91,6 @@ declare global {
   const shallowReactive: typeof import('vue')['shallowReactive']
   const shallowReadonly: typeof import('vue')['shallowReadonly']
   const shallowRef: typeof import('vue')['shallowRef']
-  const signIn: typeof import('./composables/firebase')['signIn']
-  const signInWithGoogle: typeof import('./composables/firebase')['signInWithGoogle']
-  const signOut: typeof import('./composables/firebase')['signOut']
-  const signUp: typeof import('./composables/firebase')['signUp']
   const syncRef: typeof import('@vueuse/core')['syncRef']
   const syncRefs: typeof import('@vueuse/core')['syncRefs']
   const templateRef: typeof import('@vueuse/core')['templateRef']
@@ -309,6 +305,7 @@ declare module 'vue' {
     readonly EffectScope: UnwrapRef<typeof import('vue')['EffectScope']>
     readonly RoomChangeType: UnwrapRef<typeof import('./composables/socketio')['RoomChangeType']>
     readonly asyncComputed: UnwrapRef<typeof import('@vueuse/core')['asyncComputed']>
+    readonly auth: UnwrapRef<typeof import('./composables/firebase')['auth']>
     readonly autoResetRef: UnwrapRef<typeof import('@vueuse/core')['autoResetRef']>
     readonly communicationClient: UnwrapRef<typeof import('./composables/axios')['communicationClient']>
     readonly communicationSocket: UnwrapRef<typeof import('./composables/socketio')['communicationSocket']>
@@ -337,7 +334,6 @@ declare module 'vue' {
     readonly eagerComputed: UnwrapRef<typeof import('@vueuse/core')['eagerComputed']>
     readonly effectScope: UnwrapRef<typeof import('vue')['effectScope']>
     readonly extendRef: UnwrapRef<typeof import('@vueuse/core')['extendRef']>
-    readonly firebaseAuth: UnwrapRef<typeof import('./composables/firebase')['firebaseAuth']>
     readonly getCurrentInstance: UnwrapRef<typeof import('vue')['getCurrentInstance']>
     readonly getCurrentScope: UnwrapRef<typeof import('vue')['getCurrentScope']>
     readonly h: UnwrapRef<typeof import('vue')['h']>
@@ -393,10 +389,6 @@ declare module 'vue' {
     readonly shallowReactive: UnwrapRef<typeof import('vue')['shallowReactive']>
     readonly shallowReadonly: UnwrapRef<typeof import('vue')['shallowReadonly']>
     readonly shallowRef: UnwrapRef<typeof import('vue')['shallowRef']>
-    readonly signIn: UnwrapRef<typeof import('./composables/firebase')['signIn']>
-    readonly signInWithGoogle: UnwrapRef<typeof import('./composables/firebase')['signInWithGoogle']>
-    readonly signOut: UnwrapRef<typeof import('./composables/firebase')['signOut']>
-    readonly signUp: UnwrapRef<typeof import('./composables/firebase')['signUp']>
     readonly syncRef: UnwrapRef<typeof import('@vueuse/core')['syncRef']>
     readonly syncRefs: UnwrapRef<typeof import('@vueuse/core')['syncRefs']>
     readonly templateRef: UnwrapRef<typeof import('@vueuse/core')['templateRef']>

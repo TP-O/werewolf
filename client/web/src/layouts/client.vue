@@ -3,7 +3,7 @@ const playerStore = usePlayerStore()
 const router = useRouter()
 
 onMounted(async () => {
-  await playerStore.waitForLoadingPlayer()
+  await auth.waitForAuthState()
 
   if (!playerStore.player)
     return router.push('/auth/sign-in')

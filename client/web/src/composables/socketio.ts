@@ -12,6 +12,12 @@ enum ListenEvent {
   RoomChange = 'room_change',
 }
 
+enum BuiltInEvent {
+  Connect = 'connect',
+  ConnectError = 'connect_error',
+  Disconnect = 'disconnect',
+}
+
 export enum RoomChangeType {
   Join,
   Leave,
@@ -48,19 +54,32 @@ interface RoomData {
   room: Pick<WaitingRoom, 'id'> & Partial<WaitingRoom>
 }
 
+export interface ListenEventMap {
+  [ListenEvent.Error]: (response: any) => void
+  [ListenEvent.Success]: (response: SuccessResponse) => void
+  [ListenEvent.FriendStatus]: (data: FriendStatusData) => void
+  [ListenEvent.PrivateMessage]: (data: PrivateMessageData) => void
+  [ListenEvent.RoomMessage]: (data: RoomMessageData) => void
+  [ListenEvent.RoomChange]: (data: RoomData) => void
+}
+
 const roomStore = useRoomStore()
 const messageStore = useMessageStore()
 // eslint-disable-next-line import/no-mutable-exports
-let communicationSocket: Socket
+let communicationSocket: Socket<ListenEventMap>
 
 export async function connectCommunicationServer() {
-  const token = await firebaseAuth.currentUser?.getIdToken()
+  const token = await auth.getIdToken()
   communicationSocket = io('http://127.0.0.1:8079/', {
     extraHeaders: {
       authorization: `Bearer ${token}`,
     },
+
   })
 
+  communicationSocket.on(BuiltInEvent.ConnectError, () => {
+    throw new Error('CCC')
+  })
   communicationSocket.on(ListenEvent.Error, onError)
   communicationSocket.on(ListenEvent.Success, onSuccess)
   communicationSocket.on(ListenEvent.FriendStatus, onFriendStatus)

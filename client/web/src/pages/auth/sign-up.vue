@@ -22,7 +22,8 @@ const schema = {
      `Password must be at least ${$params.min} characters`, minLength(8)),
   },
   confirmPassword: {
-    sameAsPassword: helpers.withMessage('Password does not match', v => v === data.password),
+    sameAsPassword: helpers.withMessage(
+      'Password does not match', v => v === data.password),
   },
 }
 const form = useVuelidate(schema, data)
@@ -32,7 +33,7 @@ async function onSubmit() {
   if (!await form.value.$validate())
     return
 
-  await signUp(data.email, data.password)
+  await auth.signUp(data.email, data.password)
   router.push('/')
 }
 </script>
@@ -88,11 +89,11 @@ async function onSubmit() {
           Or join with
         </div>
         <div flex="~ justify-around">
-          <q-btn capitalize @click="signInWithGoogle">
+          <q-btn capitalize @click="auth.signInWithGoogle">
             <div i-devicon-google mr-2 />
             Google
           </q-btn>
-          <q-btn capitalize @click="signInWithGoogle">
+          <q-btn capitalize @click="auth.signInWithGoogle">
             <div i-devicon-facebook mr-2 />
             Facebook
           </q-btn>
