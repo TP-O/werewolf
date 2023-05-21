@@ -5,14 +5,14 @@ export const useRoomStore = defineStore('room', () => {
   const waitingRoom = ref<WaitingRoom | null>(null)
 
   async function bookRoom() {
-    const res = await communicationClient.post('/rooms/book', {
+    const res = await commApi.post('/rooms/book', {
       password: '12345',
     })
     waitingRoom.value = res.data.data
   }
 
   async function joinRoom(id: string) {
-    const res = await communicationClient.post('/rooms/join', {
+    const res = await commApi.post('/rooms/join', {
       id,
       password: '12345',
     })

@@ -20,20 +20,11 @@ useHead({
   ],
 })
 
-interface ErrorAlert {
-  error: boolean
-  message?: string
-}
-
-const errorAlert = ref<ErrorAlert>({
-  error: false,
-})
+const dialogStore = useDialogStore()
+const dialog = computed(() => dialogStore.errorDialog)
 
 onErrorCaptured((err) => {
-  errorAlert.value = {
-    error: true,
-    message: err.message,
-  }
+  dialogStore.openErrorDialog(err.message)
   return false
 })
 </script>
@@ -42,7 +33,7 @@ onErrorCaptured((err) => {
   <RouterView />
 
   <Teleport to="#dialog">
-    <q-dialog v-model="errorAlert.error">
+    <q-dialog v-model="dialog.error">
       <q-card w-screen md="min-w-md">
         <q-card-section>
           <div text-xl font-bold color="error">
@@ -51,7 +42,7 @@ onErrorCaptured((err) => {
         </q-card-section>
 
         <q-card-section class="q-pt-none">
-          {{ errorAlert.message }}
+          {{ dialog.message }}
         </q-card-section>
 
         <q-card-actions align="right">

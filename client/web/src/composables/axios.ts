@@ -1,13 +1,13 @@
 import axios from 'axios'
 
-const communicationClient = axios.create({
-  baseURL: 'http://127.0.0.1:8079/api/v1',
+const commApi = axios.create({
+  baseURL: `${import.meta.env.VITE_COMMUNICATION_SERVER}/api/v1`,
   headers: {
     'Content-Type': 'application/json',
   },
 })
 
-communicationClient.interceptors.request.use(
+commApi.interceptors.request.use(
   async (config) => {
     const token = await auth.getIdToken()
     if (token)
@@ -17,4 +17,4 @@ communicationClient.interceptors.request.use(
   },
 )
 
-export { communicationClient }
+export { commApi }

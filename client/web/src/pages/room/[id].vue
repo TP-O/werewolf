@@ -9,7 +9,7 @@ const { player } = usePlayerStore()
 const content = ref('')
 
 function send() {
-  messageStore.sendRoomMessage({
+  commSocket.sendRoomMessage({
     roomId,
     content: content.value,
   })
@@ -45,7 +45,8 @@ onBeforeMount(async () => {
               <q-chat-message
                 v-for="message, i in messages"
                 :key="i"
-                :name="message.senderId === player?.username ? 'me' : message.senderId"
+                :name="message.senderId === player?.username
+                  ? 'me' : message.senderId"
                 :text="[`${message.content}`]"
                 :sent="message.senderId === player?.username"
               />

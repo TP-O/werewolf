@@ -8,7 +8,7 @@ onMounted(async () => {
   if (!playerStore.player)
     return router.push('/auth/sign-in')
 
-  await connectCommunicationServer()
+  await commSocket.connect()
 })
 </script>
 
