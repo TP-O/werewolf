@@ -24,6 +24,7 @@
     "@vueuse/head": "^1.1.26",
     "axios": "^1.4.0",
     "firebase": "^9.22.0",
+    "just-merge": "^3.2.0",
     "nprogress": "^0.2.0",
     "phaser": "^3.60.0",
     "pinia": "^2.0.36",

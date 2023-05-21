@@ -6489,6 +6489,11 @@ jsprim@^2.0.2:
     json-schema "0.4.0"
     verror "1.10.0"
 
+just-merge@^3.2.0:
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/just-merge/-/just-merge-3.2.0.tgz#b330d190ae301e0bf280d7d45deae335b2408820"
+  integrity sha512-cNh5FWt44hx4SpQS1xZU8Tzr/fQA69pqCdjbwxmaYYIOuRfA8EIg+dn1bGmIW03ZUtR2vkMOCjWKc+jIbpauSw==
+
 kind-of@^6.0.0, kind-of@^6.0.2:
   version "6.0.3"
   resolved "https://registry.yarnpkg.com/kind-of/-/kind-of-6.0.3.tgz#07c05034a6c349fa06e24fa35aa76db4580ce4dd"
