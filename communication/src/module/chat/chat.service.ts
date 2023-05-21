@@ -103,7 +103,7 @@ export class ChatService {
   ): Promise<Player> {
     const token = String(headerAuthorization).replace('Bearer ', '');
     if (!token) {
-      throw new UnauthorizedException('Invalid token!');
+      throw new UnauthorizedException('Missing access token!');
     }
 
     const player = await this.authService.getPlayer(token);

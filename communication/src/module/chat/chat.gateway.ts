@@ -32,6 +32,10 @@ import { EmitEventMap } from './chat.type';
 )
 @WebSocketGateway<GatewayMetadata>({
   namespace: '/',
+  cors: {
+    methods: '*',
+    credentials: true,
+  },
 })
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
