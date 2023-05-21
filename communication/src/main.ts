@@ -25,8 +25,7 @@ async function bootstrap() {
   app.useLogger(logger);
   app.enableCors({
     origin: config.cors.origins,
-    methods: ['GET', 'POST'],
-    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH'],
   });
 
   const redisService = app.get(RedisService);
