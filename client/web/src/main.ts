@@ -12,7 +12,8 @@ import './styles/main.css'
 import 'uno.css'
 
 const routes = setupLayouts(generatedRoutes)
-log.setLevel('trace')
+
+import.meta.env.DEV ? log.setLevel('trace') : log.setLevel('silent')
 
 // https://github.com/antfu/vite-ssg
 export const createApp = ViteSSG(

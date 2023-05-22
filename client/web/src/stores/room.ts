@@ -6,7 +6,7 @@ export const useRoomStore = defineStore('room', () => {
 
   async function bookRoom() {
     const res = await commApi.post('/rooms/book', {
-      password: '12345',
+      password: 'default_password',
     })
     waitingRoom.value = res.data.data
   }
@@ -14,7 +14,7 @@ export const useRoomStore = defineStore('room', () => {
   async function joinRoom(id: string) {
     const res = await commApi.post('/rooms/join', {
       id,
-      password: '12345',
+      password: 'default_password',
     })
     waitingRoom.value = res.data.data
   }

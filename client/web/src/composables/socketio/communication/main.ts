@@ -1,7 +1,7 @@
 import type { Socket } from 'socket.io-client'
 import { io } from 'socket.io-client'
 import merge from 'just-merge'
-import log from 'loglevel'
+import { error, info } from 'loglevel'
 import type {
   EmitEventMap,
   ErrorResponse,
@@ -51,12 +51,12 @@ export async function connect(reconnect = false) {
 }
 
 function onConnect() {
-  log.debug('Connected to communication server')
+  info('Connected to communication server')
   clientStore.setIsCommServerConnected(true)
 }
 
 function onDisconnect() {
-  log.info('Disconnected from communication server')
+  info('Disconnected from communication server')
   clientStore.setIsCommServerConnected(false)
 }
 
@@ -65,35 +65,35 @@ function onConnectError() {
 }
 
 function onError(res: ErrorResponse) {
-  log.info(`Data from event ${ListenEvent.Error}:`, res)
+  error(`Data from event ${ListenEvent.Error}:`, res)
   dialogStore.openErrorDialog(String(res.message))
 }
 
 function onSuccess(res: SuccessResponse) {
-  log.info(`Data from event ${ListenEvent.Success}:`, res)
+  info(`Data from event ${ListenEvent.Success}:`, res)
 }
 
 function onFriendStatus(data: FriendStatusData) {
-  log.info(`Data from event ${ListenEvent.FriendStatus}:`, data)
+  info(`Data from event ${ListenEvent.FriendStatus}:`, data)
 }
 
 function onRoomChange(data: RoomData) {
-  log.info(`Data from event ${ListenEvent.RoomChange}:`, data)
+  info(`Data from event ${ListenEvent.RoomChange}:`, data)
 
   if (roomStore.waitingRoom)
     merge(roomStore.waitingRoom, data.room)
 }
 
 function onPrivateMessage(data: PrivateMessageData) {
-  log.info(`Data from event ${ListenEvent.PrivateMessage}:`, data)
+  info(`Data from event ${ListenEvent.PrivateMessage}:`, data)
 }
 
 function onRoomMessage(data: RoomMessageData) {
-  log.info(`Data from event ${ListenEvent.RoomMessage}:`, data)
+  info(`Data from event ${ListenEvent.RoomMessage}:`, data)
   messageStore.addRoomMessage(data)
 }
 
 export function sendRoomMessage(data: SendRoomMessage) {
-  log.info(`Send event ${EmitEvent.RoomMessage}:`, data)
+  info(`Send event ${EmitEvent.RoomMessage}:`, data)
   commSocket.emit(EmitEvent.RoomMessage, data)
 }

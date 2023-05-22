@@ -6,7 +6,7 @@ import {
   signInWithEmailAndPassword,
   signInWithPopup,
 } from 'firebase/auth'
-import log from 'loglevel'
+import { error } from 'loglevel'
 
 const firebaseConfig = JSON.parse(import.meta.env.VITE_FIREBASE_CONFIG)
 const app = initializeApp(firebaseConfig)
@@ -47,7 +47,7 @@ async function signUp(email: string, password: string): Promise<void> {
         throw new Error('Email is already in use')
 
       default:
-        log.warn('Sign-up error:', err.message)
+        error('Sign-up error:', err.message)
         throw new Error('Please try again')
     }
   }
@@ -64,7 +64,7 @@ async function signIn(email: string, password: string): Promise<void> {
         throw new Error('Email or password is incorrect')
 
       default:
-        log.warn('Sign-in error:', err.message)
+        error('Sign-in error:', err.message)
         throw new Error('Something went wrong')
     }
   }
@@ -75,7 +75,7 @@ async function signInWithGoogle(): Promise<void> {
     await signInWithPopup(firebaseAuth, ggProvider)
   }
   catch (err: any) {
-    log.warn('Sign-in error:', err.message)
+    error('Sign-in error:', err.message)
     throw new Error('Please try another way to sign in')
   }
 }
@@ -86,7 +86,7 @@ async function signOut(): Promise<void> {
     await fSignOut(firebaseAuth)
   }
   catch (err: any) {
-    log.warn('Sign-out error:', err.message)
+    error('Sign-out error:', err.message)
     throw new Error('Unable to sign out')
   }
 }
