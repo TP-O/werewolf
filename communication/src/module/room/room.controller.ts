@@ -12,7 +12,7 @@ import {
 import { FastifyReply } from 'fastify';
 import {
   AddRoomMembersDto,
-  CreateEmptyRoomDto,
+  BookRoomDto,
   ForceCreateRoomsDto,
   JoinRoomDto,
   KickOutOfRoomDto,
@@ -39,6 +39,33 @@ export class RoomController {
     private readonly playerService: PlayerService,
     private readonly chatGateway: ChatGateway,
   ) {}
+
+  /**
+   * Book a room for the player.
+   *
+   * @param payload
+   * @param player
+   * @param response
+   */
+  @Post('/book')
+  @UseGuards(TokenGuard, RequireActiveGuard)
+  async bookRoom(
+    @Body() payload: BookRoomDto,
+    @HttpPlayer() player: OnlinePlayer,
+    @Res() response: FastifyReply,
+  ): Promise<void> {
+    const room = await this.roomService.create({
+      ownerId: player.id,
+      password: payload.password,
+      isMuted: false,
+      memberIds: [player.id],
+    });
+    this.chatGateway.server.to(player.sid).socketsJoin(room.id);
+
+    response.code(HttpStatus.CREATED).send({
+      data: room,
+    });
+  }
 
   /**
    * Force create the rooms.
@@ -122,135 +149,6 @@ export class RoomController {
   }
 
   /**
-   * Add the members to the room.
-   *
-   * @param payload
-   * @param response
-   */
-  @Post('/members')
-  @UseGuards(HmacGuard)
-  async addMembersToRoom(
-    @Body() payload: AddRoomMembersDto,
-    @Res() response: FastifyReply,
-  ): Promise<void> {
-    const room = await this.roomService.forceAddMembers(
-      payload.id,
-      payload.memberIds,
-    );
-    const id2Sid = this.playerService.getSocketIds(payload.memberIds);
-    const sids = payload.memberIds
-      .map((mid) => id2Sid[mid])
-      .filter((sid) => !!sid) as SocketId[];
-
-    this.chatGateway.server.to(room.id).emit(EmitEvent.RoomChange, {
-      changeType: RoomChangeType.Join,
-      room: {
-        id: room.id,
-        memberIds: room.memberIds,
-      },
-    });
-    this.chatGateway.server.to(sids).emit(EmitEvent.RoomChange, {
-      changeType: RoomChangeType.Join,
-      room,
-    });
-    this.chatGateway.server.to(sids).socketsJoin(room.id);
-
-    response.code(HttpStatus.OK).send({
-      data: room,
-    });
-  }
-
-  /**
-   * Remove the member from the rooms.
-   *
-   * @param payload
-   * @param response
-   */
-  @Delete('/members')
-  @UseGuards(HmacGuard)
-  async removeMemberFromRooms(
-    @Body() payload: RemoveMemberRoomsDto,
-    @Res() response: FastifyReply,
-  ): Promise<void> {
-    const rooms = await this.roomService.removeFromRooms(
-      payload.ids ?? [],
-      payload.memberId,
-    );
-    const sid = await this.playerService.getSocketId(payload.memberId);
-
-    rooms.forEach((room) => {
-      this.chatGateway.server.to(room.id).emit(EmitEvent.RoomChange, {
-        changeType: RoomChangeType.Leave,
-        room: {
-          id: room.id,
-          memberIds: room.memberIds,
-        },
-      });
-
-      if (sid) {
-        this.chatGateway.server.to(sid).socketsLeave(room.id);
-      }
-    });
-
-    response.code(HttpStatus.OK).send({
-      data: rooms,
-    });
-  }
-
-  /**
-   * Mute or unmute the room.
-   *
-   * @param payload
-   * @param response
-   */
-  @Post('/mute')
-  @UseGuards(HmacGuard)
-  async muteRoom(
-    @Body() payload: MuteRoomDto,
-    @Res() response: FastifyReply,
-  ): Promise<void> {
-    const room = await this.roomService.mute(payload.id, payload.isMuted);
-    this.chatGateway.server.to(room.id).emit(EmitEvent.RoomChange, {
-      changeType: RoomChangeType.Setting,
-      room: {
-        id: room.id,
-        isMuted: room.isMuted,
-      },
-    });
-
-    response.code(HttpStatus.OK).send({
-      data: room,
-    });
-  }
-
-  /**
-   * Create an empty room.
-   *
-   * @param payload
-   * @param player
-   * @param response
-   */
-  @Post('/book')
-  @UseGuards(TokenGuard, RequireActiveGuard)
-  async bookRoom(
-    @Body() payload: CreateEmptyRoomDto,
-    @HttpPlayer() player: OnlinePlayer,
-    @Res() response: FastifyReply,
-  ): Promise<void> {
-    const room = await this.roomService.create({
-      ownerId: player.id,
-      password: payload.password,
-      isMuted: false,
-      memberIds: [player.id],
-    });
-    this.chatGateway.server.to(player.sid).socketsJoin(room.id);
-
-    response.code(HttpStatus.CREATED).send({
-      data: room,
-    });
-  }
-
-  /**
    * Join the room.
    *
    * @param payload
@@ -283,6 +181,45 @@ export class RoomController {
       room: room,
     });
     this.chatGateway.server.to(player.sid).socketsJoin(room.id);
+
+    response.code(HttpStatus.OK).send({
+      data: room,
+    });
+  }
+
+  /**
+   * Add the members to the room.
+   *
+   * @param payload
+   * @param response
+   */
+  @Post('/members')
+  @UseGuards(HmacGuard)
+  async addMembersToRoom(
+    @Body() payload: AddRoomMembersDto,
+    @Res() response: FastifyReply,
+  ): Promise<void> {
+    const room = await this.roomService.forceAddMembers(
+      payload.id,
+      payload.memberIds,
+    );
+    const id2Sid = this.playerService.getSocketIds(payload.memberIds);
+    const sids = payload.memberIds
+      .map((mid) => id2Sid[mid])
+      .filter((sid) => !!sid) as SocketId[];
+
+    this.chatGateway.server.to(room.id).emit(EmitEvent.RoomChange, {
+      changeType: RoomChangeType.Join,
+      room: {
+        id: room.id,
+        memberIds: room.memberIds,
+      },
+    });
+    this.chatGateway.server.to(sids).emit(EmitEvent.RoomChange, {
+      changeType: RoomChangeType.Join,
+      room,
+    });
+    this.chatGateway.server.to(sids).socketsJoin(room.id);
 
     response.code(HttpStatus.OK).send({
       data: room,
@@ -352,6 +289,69 @@ export class RoomController {
     if (sid) {
       this.chatGateway.server.to(player.sid).socketsLeave(room.id);
     }
+
+    response.code(HttpStatus.OK).send({
+      data: room,
+    });
+  }
+
+  /**
+   * Remove the member from the rooms.
+   *
+   * @param payload
+   * @param response
+   */
+  @Delete('/members')
+  @UseGuards(HmacGuard)
+  async removeMemberFromRooms(
+    @Body() payload: RemoveMemberRoomsDto,
+    @Res() response: FastifyReply,
+  ): Promise<void> {
+    const rooms = await this.roomService.removeFromRooms(
+      payload.ids ?? [],
+      payload.memberId,
+    );
+    const sid = await this.playerService.getSocketId(payload.memberId);
+
+    rooms.forEach((room) => {
+      this.chatGateway.server.to(room.id).emit(EmitEvent.RoomChange, {
+        changeType: RoomChangeType.Leave,
+        room: {
+          id: room.id,
+          memberIds: room.memberIds,
+        },
+      });
+
+      if (sid) {
+        this.chatGateway.server.to(sid).socketsLeave(room.id);
+      }
+    });
+
+    response.code(HttpStatus.OK).send({
+      data: rooms,
+    });
+  }
+
+  /**
+   * Mute or unmute the room.
+   *
+   * @param payload
+   * @param response
+   */
+  @Post('/mute')
+  @UseGuards(HmacGuard)
+  async muteRoom(
+    @Body() payload: MuteRoomDto,
+    @Res() response: FastifyReply,
+  ): Promise<void> {
+    const room = await this.roomService.mute(payload.id, payload.isMuted);
+    this.chatGateway.server.to(room.id).emit(EmitEvent.RoomChange, {
+      changeType: RoomChangeType.Setting,
+      room: {
+        id: room.id,
+        isMuted: room.isMuted,
+      },
+    });
 
     response.code(HttpStatus.OK).send({
       data: room,
