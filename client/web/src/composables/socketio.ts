@@ -1,1 +1,1 @@
-export * as commSocket from './socketio/communication/main'
+export * from './socketio/communication/main'

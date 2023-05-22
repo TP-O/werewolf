@@ -9,7 +9,6 @@ declare global {
   const auth: typeof import('./composables/firebase')['auth']
   const autoResetRef: typeof import('@vueuse/core')['autoResetRef']
   const commApi: typeof import('./composables/axios')['commApi']
-  const commSocket: typeof import('./composables/socketio')['commSocket']
   const computed: typeof import('vue')['computed']
   const computedAsync: typeof import('@vueuse/core')['computedAsync']
   const computedEager: typeof import('@vueuse/core')['computedEager']
@@ -136,6 +135,7 @@ declare global {
   const useClipboard: typeof import('@vueuse/core')['useClipboard']
   const useCloned: typeof import('@vueuse/core')['useCloned']
   const useColorMode: typeof import('@vueuse/core')['useColorMode']
+  const useCommSocket: typeof import('./composables/socketio/communication/main')['useCommSocket']
   const useConfirmDialog: typeof import('@vueuse/core')['useConfirmDialog']
   const useCounter: typeof import('@vueuse/core')['useCounter']
   const useCssModule: typeof import('vue')['useCssModule']
@@ -307,7 +307,6 @@ declare module 'vue' {
     readonly auth: UnwrapRef<typeof import('./composables/firebase')['auth']>
     readonly autoResetRef: UnwrapRef<typeof import('@vueuse/core')['autoResetRef']>
     readonly commApi: UnwrapRef<typeof import('./composables/axios')['commApi']>
-    readonly commSocket: UnwrapRef<typeof import('./composables/socketio')['commSocket']>
     readonly computed: UnwrapRef<typeof import('vue')['computed']>
     readonly computedAsync: UnwrapRef<typeof import('@vueuse/core')['computedAsync']>
     readonly computedEager: UnwrapRef<typeof import('@vueuse/core')['computedEager']>
@@ -434,6 +433,7 @@ declare module 'vue' {
     readonly useClipboard: UnwrapRef<typeof import('@vueuse/core')['useClipboard']>
     readonly useCloned: UnwrapRef<typeof import('@vueuse/core')['useCloned']>
     readonly useColorMode: UnwrapRef<typeof import('@vueuse/core')['useColorMode']>
+    readonly useCommSocket: UnwrapRef<typeof import('./composables/socketio/communication/main')['useCommSocket']>
     readonly useConfirmDialog: UnwrapRef<typeof import('@vueuse/core')['useConfirmDialog']>
     readonly useCounter: UnwrapRef<typeof import('@vueuse/core')['useCounter']>
     readonly useCssModule: UnwrapRef<typeof import('vue')['useCssModule']>

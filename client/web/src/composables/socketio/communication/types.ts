@@ -45,7 +45,6 @@ export type RoomMessageData = PrivateMessageData & {
 
 export interface RoomData {
   changeType: RoomChangeType
-  changerId?: PlayerId
   room: Pick<WaitingRoom, 'id'> & Partial<WaitingRoom>
 }
 

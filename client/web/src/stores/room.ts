@@ -5,7 +5,7 @@ export const useRoomStore = defineStore('room', () => {
   const waitingRoom = ref<WaitingRoom | null>(null)
 
   async function bookRoom() {
-    const res = await commApi.post('/rooms/book', {
+    const res = await commApi.post('/rooms', {
       password: 'default_password',
     })
     waitingRoom.value = res.data.data
@@ -19,6 +19,13 @@ export const useRoomStore = defineStore('room', () => {
     waitingRoom.value = res.data.data
   }
 
+  async function leaveRoom(id: string) {
+    await commApi.post('/rooms/leave', {
+      id,
+    })
+    waitingRoom.value = null
+  }
+
   async function addMember(memberId: string) {
     if (waitingRoom.value)
       waitingRoom.value.memberIds.push(memberId)
@@ -29,6 +36,7 @@ export const useRoomStore = defineStore('room', () => {
     bookRoom,
     addMember,
     joinRoom,
+    leaveRoom,
   }
 })
 

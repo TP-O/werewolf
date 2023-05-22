@@ -10,10 +10,12 @@ import type {
   PrivateMessageData,
   RoomData,
   RoomMessageData,
-  SendRoomMessage,
   SuccessResponse,
 } from './types'
-import { EmitEvent, ListenEvent } from './types'
+import {
+  ListenEvent,
+  RoomChangeType,
+} from './types'
 import { useClientStore } from '~/stores/client'
 
 const roomStore = useRoomStore()
@@ -21,33 +23,48 @@ const messageStore = useMessageStore()
 const dialogStore = useDialogStore()
 const clientStore = useClientStore()
 
-let commSocket: Socket<ListenEventMap, EmitEventMap>
+let socket: Socket<ListenEventMap, EmitEventMap>
+
+/**
+ * Use this to make sure socket client is always ready.
+ *
+ * @param cb The callback function.
+ */
+export async function useCommSocket(
+  cb?: (socket: Socket<ListenEventMap, EmitEventMap>) => void,
+) {
+  if (!socket || !socket.connected)
+    await connect()
+
+  if (cb)
+    cb(socket)
+}
 
 /**
  * Connect to the server.
  *
  * @param reconnect Force reconnect to the server.
  */
-export async function connect(reconnect = false) {
-  if (commSocket?.connected && !reconnect)
+async function connect(reconnect = false) {
+  if (socket?.connected && !reconnect)
     return
 
   const token = await auth.getIdToken()
-  commSocket = io(import.meta.env.VITE_COMMUNICATION_SERVER, {
+  socket = io(import.meta.env.VITE_COMMUNICATION_SERVER, {
     extraHeaders: {
       authorization: `Bearer ${token}`,
     },
   })
 
-  commSocket.on('connect', onConnect)
-  commSocket.on('connect_error', onConnectError)
-  commSocket.on('disconnect', onDisconnect)
-  commSocket.on(ListenEvent.Error, onError)
-  commSocket.on(ListenEvent.Success, onSuccess)
-  commSocket.on(ListenEvent.FriendStatus, onFriendStatus)
-  commSocket.on(ListenEvent.RoomChange, onRoomChange)
-  commSocket.on(ListenEvent.PrivateMessage, onPrivateMessage)
-  commSocket.on(ListenEvent.RoomMessage, onRoomMessage)
+  socket.on('connect', onConnect)
+  socket.on('connect_error', onConnectError)
+  socket.on('disconnect', onDisconnect)
+  socket.on(ListenEvent.Error, onError)
+  socket.on(ListenEvent.Success, onSuccess)
+  socket.on(ListenEvent.FriendStatus, onFriendStatus)
+  socket.on(ListenEvent.RoomChange, onRoomChange)
+  socket.on(ListenEvent.PrivateMessage, onPrivateMessage)
+  socket.on(ListenEvent.RoomMessage, onRoomMessage)
 }
 
 function onConnect() {
@@ -80,8 +97,32 @@ function onFriendStatus(data: FriendStatusData) {
 function onRoomChange(data: RoomData) {
   info(`Data from event ${ListenEvent.RoomChange}:`, data)
 
-  if (roomStore.waitingRoom)
+  if (roomStore.waitingRoom?.id === data.room.id) {
     merge(roomStore.waitingRoom, data.room)
+
+    if (data.changeType === RoomChangeType.Join) {
+      data.room.memberIds?.forEach((mId) => {
+        messageStore.addRoomMessage({
+          roomId: data.room.id,
+          content: `${mId} has joined`,
+          senderId: '',
+        })
+      })
+    }
+    else if (data.changeType === RoomChangeType.Leave) {
+      data.room.memberIds?.forEach((mId) => {
+        if (mId === '') {
+          // Kicked =))
+        }
+
+        messageStore.addRoomMessage({
+          roomId: data.room.id,
+          content: `${mId} has leaved`,
+          senderId: '',
+        })
+      })
+    }
+  }
 }
 
 function onPrivateMessage(data: PrivateMessageData) {
@@ -91,9 +132,4 @@ function onPrivateMessage(data: PrivateMessageData) {
 function onRoomMessage(data: RoomMessageData) {
   info(`Data from event ${ListenEvent.RoomMessage}:`, data)
   messageStore.addRoomMessage(data)
-}
-
-export function sendRoomMessage(data: SendRoomMessage) {
-  info(`Send event ${EmitEvent.RoomMessage}:`, data)
-  commSocket.emit(EmitEvent.RoomMessage, data)
 }

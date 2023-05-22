@@ -23,13 +23,10 @@ commApi.interceptors.request.use(
 commApi.interceptors.response.use(undefined, (err: AxiosError<any>) => {
   error(`Communication API error [${err.request.responseURL}]`, err.response)
 
-  switch (err.response?.status) {
-    case 400:
-      return Promise.reject(new Error(err.response.data.message))
+  if (err.response?.data.message)
+    return Promise.reject(new Error(err.response.data.message))
 
-    default:
-      return Promise.reject(new Error('Something went wrong'))
-  }
+  return Promise.reject(new Error('Something went wrong'))
 })
 
 export { commApi }

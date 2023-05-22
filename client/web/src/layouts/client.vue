@@ -11,13 +11,13 @@ onMounted(async () => {
   if (!playerStore.player)
     return router.push('/auth/sign-in')
 
-  await commSocket.connect()
+  await useCommSocket()
 })
 </script>
 
 <template>
   <main
-    h-screen p-4
+    h-screen p-2
     text="center gray-700 dark:gray-200"
   >
     <div
