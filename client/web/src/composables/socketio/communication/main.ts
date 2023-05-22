@@ -52,12 +52,12 @@ export async function connect(reconnect = false) {
 
 function onConnect() {
   log.debug('Connected to communication server')
-  clientStore.setConnectedToCommunication(true)
+  clientStore.setIsCommServerConnected(true)
 }
 
 function onDisconnect() {
   log.info('Disconnected from communication server')
-  clientStore.setConnectedToCommunication(false)
+  clientStore.setIsCommServerConnected(false)
 }
 
 function onConnectError() {

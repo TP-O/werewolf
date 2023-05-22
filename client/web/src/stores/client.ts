@@ -1,15 +1,15 @@
 import { acceptHMRUpdate, defineStore } from 'pinia'
 
 export const useClientStore = defineStore('client', () => {
-  const connectedToCommunication = ref(false)
+  const isCommServerConnected = ref(false)
 
-  function setConnectedToCommunication(isConneced: boolean) {
-    connectedToCommunication.value = isConneced
+  function setIsCommServerConnected(isConneced: boolean) {
+    isCommServerConnected.value = isConneced
   }
 
   return {
-    connectedToCommunication,
-    setConnectedToCommunication,
+    isCommServerConnected,
+    setIsCommServerConnected,
   }
 })
 
