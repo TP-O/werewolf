@@ -24,7 +24,6 @@ type RoomMessageData = PrivateMessageData & {
 
 type RoomData = {
   changeType: RoomChangeType;
-  changerId?: PlayerId;
   room: Pick<Room, 'id'> & Partial<Room>;
 };
 

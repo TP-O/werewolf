@@ -47,7 +47,7 @@ export class RoomController {
    * @param player
    * @param response
    */
-  @Post('/book')
+  @Post('/')
   @UseGuards(TokenGuard, RequireActiveGuard)
   async bookRoom(
     @Body() payload: BookRoomDto,
@@ -73,7 +73,7 @@ export class RoomController {
    * @param payload
    * @param response
    */
-  @Post('/')
+  @Post('/many')
   @UseGuards(HmacGuard)
   async foreceCreateRooms(
     @Body() payload: ForceCreateRoomsDto,
@@ -169,16 +169,10 @@ export class RoomController {
     );
     this.chatGateway.server.to(room.id).emit(EmitEvent.RoomChange, {
       changeType: RoomChangeType.Join,
-      changerId: player.id,
       room: {
         id: room.id,
-        memberIds: room.memberIds,
+        memberIds: [player.id],
       },
-    });
-    this.chatGateway.server.to(player.sid).emit(EmitEvent.RoomChange, {
-      changeType: RoomChangeType.Join,
-      changerId: player.id,
-      room: room,
     });
     this.chatGateway.server.to(player.sid).socketsJoin(room.id);
 
@@ -212,7 +206,7 @@ export class RoomController {
       changeType: RoomChangeType.Join,
       room: {
         id: room.id,
-        memberIds: room.memberIds,
+        memberIds: payload.memberIds,
       },
     });
     this.chatGateway.server.to(sids).emit(EmitEvent.RoomChange, {
@@ -241,15 +235,14 @@ export class RoomController {
     @Res() response: FastifyReply,
   ): Promise<void> {
     const room = await this.roomService.removeMembers(payload.id, [player.id]);
+    this.chatGateway.server.to(player.sid).socketsLeave(room.id);
     this.chatGateway.server.to(room.id).emit(EmitEvent.RoomChange, {
       changeType: RoomChangeType.Leave,
-      changerId: player.id,
       room: {
         id: room.id,
-        memberIds: room.memberIds,
+        memberIds: [player.id],
       },
     });
-    this.chatGateway.server.to(player.sid).socketsLeave(room.id);
 
     response.code(HttpStatus.OK).send({
       data: room,
@@ -279,10 +272,9 @@ export class RoomController {
 
     this.chatGateway.server.to(room.id).emit(EmitEvent.RoomChange, {
       changeType: RoomChangeType.Leave,
-      changerId: player.id,
       room: {
         id: room.id,
-        memberIds: room.memberIds,
+        memberIds: [payload.memberId],
       },
     });
 
@@ -318,7 +310,7 @@ export class RoomController {
         changeType: RoomChangeType.Leave,
         room: {
           id: room.id,
-          memberIds: room.memberIds,
+          memberIds: [payload.memberId],
         },
       });
 
@@ -379,7 +371,6 @@ export class RoomController {
     );
     this.chatGateway.server.to(room.id).emit(EmitEvent.RoomChange, {
       changeType: RoomChangeType.Owner,
-      changerId: player.id,
       room: {
         id: room.id,
         ownerId: room.ownerId,

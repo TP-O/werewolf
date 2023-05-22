@@ -254,6 +254,10 @@ export class RoomService {
     room: Room,
     memberIds: PlayerId[],
   ): ChainableCommander {
+    if (!memberIds.some((mid) => memberIds.includes(mid))) {
+      return pipe;
+    }
+
     memberIds.forEach((mid) => {
       const removedMemberIndex = room.memberIds.indexOf(mid);
       if (removedMemberIndex === -1) {
