@@ -68,12 +68,13 @@ export const useWaitingRoomStore = defineStore('waiting_room', () => {
         cancel: true,
         persistent: true,
       }).onOk((password) => {
-        join(id, password)
+        join(id, password).then(() =>
+          router.push(`/room/${id}`))
       })
       return null
     }
 
-    room.value = res.data
+    room.value = res.data.data
     messages.value = [] // For sure :D
 
     return null
