@@ -22,11 +22,7 @@ commApi.interceptors.request.use(
 
 commApi.interceptors.response.use(undefined, (err: AxiosError<any>) => {
   error(`Communication API error [${err.request.responseURL}]`, err.response)
-
-  if (err.response?.data.message)
-    return Promise.reject(new Error(err.response.data.message))
-
-  return Promise.reject(new Error('Something went wrong'))
+  return err.response?.data
 })
 
 export { commApi }

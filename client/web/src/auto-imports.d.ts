@@ -152,7 +152,6 @@ declare global {
   const useDeviceOrientation: typeof import('@vueuse/core')['useDeviceOrientation']
   const useDevicePixelRatio: typeof import('@vueuse/core')['useDevicePixelRatio']
   const useDevicesList: typeof import('@vueuse/core')['useDevicesList']
-  const useDialogStore: typeof import('./stores/dialog')['useDialogStore']
   const useDisplayMedia: typeof import('@vueuse/core')['useDisplayMedia']
   const useDocumentVisibility: typeof import('@vueuse/core')['useDocumentVisibility']
   const useDraggable: typeof import('@vueuse/core')['useDraggable']
@@ -194,7 +193,6 @@ declare global {
   const useMediaQuery: typeof import('@vueuse/core')['useMediaQuery']
   const useMemoize: typeof import('@vueuse/core')['useMemoize']
   const useMemory: typeof import('@vueuse/core')['useMemory']
-  const useMessageStore: typeof import('./stores/message')['useMessageStore']
   const useMounted: typeof import('@vueuse/core')['useMounted']
   const useMouse: typeof import('@vueuse/core')['useMouse']
   const useMouseInElement: typeof import('@vueuse/core')['useMouseInElement']
@@ -224,7 +222,6 @@ declare global {
   const useRafFn: typeof import('@vueuse/core')['useRafFn']
   const useRefHistory: typeof import('@vueuse/core')['useRefHistory']
   const useResizeObserver: typeof import('@vueuse/core')['useResizeObserver']
-  const useRoomStore: typeof import('./stores/room')['useRoomStore']
   const useRoute: typeof import('vue-router')['useRoute']
   const useRouter: typeof import('vue-router')['useRouter']
   const useScreenOrientation: typeof import('@vueuse/core')['useScreenOrientation']
@@ -268,6 +265,7 @@ declare global {
   const useVModels: typeof import('@vueuse/core')['useVModels']
   const useVibrate: typeof import('@vueuse/core')['useVibrate']
   const useVirtualList: typeof import('@vueuse/core')['useVirtualList']
+  const useWaitingRoomStore: typeof import('./stores/waiting-room')['useWaitingRoomStore']
   const useWakeLock: typeof import('@vueuse/core')['useWakeLock']
   const useWebNotification: typeof import('@vueuse/core')['useWebNotification']
   const useWebSocket: typeof import('@vueuse/core')['useWebSocket']
@@ -450,7 +448,6 @@ declare module 'vue' {
     readonly useDeviceOrientation: UnwrapRef<typeof import('@vueuse/core')['useDeviceOrientation']>
     readonly useDevicePixelRatio: UnwrapRef<typeof import('@vueuse/core')['useDevicePixelRatio']>
     readonly useDevicesList: UnwrapRef<typeof import('@vueuse/core')['useDevicesList']>
-    readonly useDialogStore: UnwrapRef<typeof import('./stores/dialog')['useDialogStore']>
     readonly useDisplayMedia: UnwrapRef<typeof import('@vueuse/core')['useDisplayMedia']>
     readonly useDocumentVisibility: UnwrapRef<typeof import('@vueuse/core')['useDocumentVisibility']>
     readonly useDraggable: UnwrapRef<typeof import('@vueuse/core')['useDraggable']>
@@ -492,7 +489,6 @@ declare module 'vue' {
     readonly useMediaQuery: UnwrapRef<typeof import('@vueuse/core')['useMediaQuery']>
     readonly useMemoize: UnwrapRef<typeof import('@vueuse/core')['useMemoize']>
     readonly useMemory: UnwrapRef<typeof import('@vueuse/core')['useMemory']>
-    readonly useMessageStore: UnwrapRef<typeof import('./stores/message')['useMessageStore']>
     readonly useMounted: UnwrapRef<typeof import('@vueuse/core')['useMounted']>
     readonly useMouse: UnwrapRef<typeof import('@vueuse/core')['useMouse']>
     readonly useMouseInElement: UnwrapRef<typeof import('@vueuse/core')['useMouseInElement']>
@@ -522,7 +518,6 @@ declare module 'vue' {
     readonly useRafFn: UnwrapRef<typeof import('@vueuse/core')['useRafFn']>
     readonly useRefHistory: UnwrapRef<typeof import('@vueuse/core')['useRefHistory']>
     readonly useResizeObserver: UnwrapRef<typeof import('@vueuse/core')['useResizeObserver']>
-    readonly useRoomStore: UnwrapRef<typeof import('./stores/room')['useRoomStore']>
     readonly useRoute: UnwrapRef<typeof import('vue-router')['useRoute']>
     readonly useRouter: UnwrapRef<typeof import('vue-router')['useRouter']>
     readonly useScreenOrientation: UnwrapRef<typeof import('@vueuse/core')['useScreenOrientation']>
@@ -566,6 +561,7 @@ declare module 'vue' {
     readonly useVModels: UnwrapRef<typeof import('@vueuse/core')['useVModels']>
     readonly useVibrate: UnwrapRef<typeof import('@vueuse/core')['useVibrate']>
     readonly useVirtualList: UnwrapRef<typeof import('@vueuse/core')['useVirtualList']>
+    readonly useWaitingRoomStore: UnwrapRef<typeof import('./stores/waiting-room')['useWaitingRoomStore']>
     readonly useWakeLock: UnwrapRef<typeof import('@vueuse/core')['useWakeLock']>
     readonly useWebNotification: UnwrapRef<typeof import('@vueuse/core')['useWebNotification']>
     readonly useWebSocket: UnwrapRef<typeof import('@vueuse/core')['useWebSocket']>

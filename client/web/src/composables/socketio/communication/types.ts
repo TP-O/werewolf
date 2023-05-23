@@ -1,4 +1,5 @@
-import type { PlayerId, PlayerStatus, RoomId, WaitingRoom } from '~/types'
+import type { WaitingRoom } from '~/stores/waiting-room'
+import type { PlayerId, PlayerStatus, RoomId } from '~/types'
 
 export enum ListenEvent {
   Error = 'error',

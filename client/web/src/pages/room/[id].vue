@@ -1,15 +1,14 @@
 <script setup lang="ts">
 import { info } from 'loglevel'
+import { storeToRefs } from 'pinia'
 import { EmitEvent } from '~/composables/socketio/communication/types'
 
 const route = useRoute()
 const router = useRouter()
-const roomStore = useRoomStore()
-const room = computed(() => roomStore.waitingRoom)
+const { player } = storeToRefs(usePlayerStore())
+const { room, messages } = storeToRefs(useWaitingRoomStore())
+const { join, leave, kick } = useWaitingRoomStore()
 const roomId = String(route.params.id)
-const messageStore = useMessageStore()
-const messages = computed(() => messageStore.roomMessages[roomId])
-const { player } = usePlayerStore()
 const messageInput = ref('')
 const boxChat = ref<HTMLDivElement>()
 
@@ -25,7 +24,7 @@ function sendMessage() {
 }
 
 function leaveRoom() {
-  roomStore.leaveRoom(roomId)
+  leave(roomId)
   router.push('/')
 }
 
@@ -35,8 +34,8 @@ watch(messages.value, () => {
 })
 
 onBeforeMount(async () => {
-  if (!room.value || room.value.id !== roomId)
-    await roomStore.joinRoom(roomId)
+  if (!room.value || room.value?.id !== roomId)
+    await join(roomId)
 })
 </script>
 
@@ -52,11 +51,42 @@ onBeforeMount(async () => {
 
     <div h="11/12" flex gap-1>
       <div flex="~ col" gap-1 w="1/3">
-        <div h="1/2" overflow-x-hidden overflow-y-scroll border rounded p-2>
-          <div>Joined players</div>
+        <div
+          h="1/2" overflow-x-hidden overflow-y-scroll border rounded p-2
+        >
+          <div mb-2>
+            Joined players
+          </div>
 
-          <div v-for="memberId, i of room?.memberIds" :key="i" p-2>
-            Player {{ memberId }}
+          <div
+            v-for="memberId, i of room?.memberIds" :key="i"
+            flex="~  justify-between"
+            my-2 gap-2 border p-2
+          >
+            <p
+              flex="~ items-center"
+              overflow-hidden text-ellipsis whitespace-nowrap
+            >
+              {{ memberId }}
+            </p>
+            <q-btn>
+              <div i="carbon-overflow-menu-horizontal" />
+              <q-menu min-w="100px" dense>
+                <q-list>
+                  <q-item
+                    v-if="room?.ownerId === player?.username"
+                    v-close-popup clickable @click="kick(memberId)"
+                  >
+                    <q-item-section>Kick</q-item-section>
+                  </q-item>
+                  <q-item
+                    v-close-popup clickable
+                  >
+                    <q-item-section>Profile</q-item-section>
+                  </q-item>
+                </q-list>
+              </q-menu>
+            </q-btn>
           </div>
         </div>
 
@@ -82,7 +112,7 @@ onBeforeMount(async () => {
           <div absolute bottom-0 left-0 w-full bg-white p-2>
             <q-input
               v-model="messageInput"
-              autogrow dense outlined
+              dense autogrow outlined
               h="max-[200px]"
               @keydown.enter.prevent="sendMessage"
             />

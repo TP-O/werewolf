@@ -1,9 +1,9 @@
 <script setup lang="ts">
-const playerStore = usePlayerStore()
-const router = useRouter()
+import { storeToRefs } from 'pinia'
 
-const clientStore = useClientStore()
-const isCommServerConnected = computed(() => clientStore.isCommServerConnected)
+const router = useRouter()
+const playerStore = usePlayerStore()
+const { isCommServerConnected } = storeToRefs(useClientStore())
 
 onMounted(async () => {
   await auth.waitForAuthState()

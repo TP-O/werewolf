@@ -1,6 +1,5 @@
 import type { Socket } from 'socket.io-client'
 import { io } from 'socket.io-client'
-import merge from 'just-merge'
 import { error, info } from 'loglevel'
 import type {
   EmitEventMap,
@@ -8,20 +7,11 @@ import type {
   FriendStatusData,
   ListenEventMap,
   PrivateMessageData,
-  RoomData,
-  RoomMessageData,
   SuccessResponse,
 } from './types'
 import {
   ListenEvent,
-  RoomChangeType,
 } from './types'
-import { useClientStore } from '~/stores/client'
-
-const roomStore = useRoomStore()
-const messageStore = useMessageStore()
-const dialogStore = useDialogStore()
-const clientStore = useClientStore()
 
 let socket: Socket<ListenEventMap, EmitEventMap>
 
@@ -56,80 +46,49 @@ async function connect(reconnect = false) {
     },
   })
 
-  socket.on('connect', onConnect)
-  socket.on('connect_error', onConnectError)
-  socket.on('disconnect', onDisconnect)
-  socket.on(ListenEvent.Error, onError)
-  socket.on(ListenEvent.Success, onSuccess)
-  socket.on(ListenEvent.FriendStatus, onFriendStatus)
-  socket.on(ListenEvent.RoomChange, onRoomChange)
-  socket.on(ListenEvent.PrivateMessage, onPrivateMessage)
-  socket.on(ListenEvent.RoomMessage, onRoomMessage)
-}
+  const roomStore = useWaitingRoomStore()
+  const clientStore = useClientStore()
 
-function onConnect() {
-  info('Connected to communication server')
-  clientStore.setIsCommServerConnected(true)
-}
+  socket.on('connect', () => {
+    info('Connected to communication server')
+    clientStore.onConnectComm()
+  })
 
-function onDisconnect() {
-  info('Disconnected from communication server')
-  clientStore.setIsCommServerConnected(false)
-}
+  socket.on('connect_error', () => {
+    error('Unable to connect to communication server')
+    clientStore.onErroConnectComm()
+  })
 
-function onConnectError() {
-  dialogStore.openErrorDialog('Unable to connect to server')
-}
+  socket.on('disconnect', () => {
+    error('Disconnected from communication server')
+    clientStore.onDisconnectComm()
+  })
 
-function onError(res: ErrorResponse) {
-  error(`Data from event ${ListenEvent.Error}:`, res)
-  dialogStore.openErrorDialog(String(res.message))
-}
+  socket.on(ListenEvent.Error, (event: ErrorResponse) => {
+    error(`Data from event ${ListenEvent.Error}:`, event)
+    clientStore.onCommError(event)
+  })
 
-function onSuccess(res: SuccessResponse) {
-  info(`Data from event ${ListenEvent.Success}:`, res)
-}
+  socket.on(ListenEvent.Success, (event: SuccessResponse) => {
+    info(`Data from event ${ListenEvent.Success}:`, event)
+    clientStore.onCommSuccess(event)
+  })
 
-function onFriendStatus(data: FriendStatusData) {
-  info(`Data from event ${ListenEvent.FriendStatus}:`, data)
-}
+  socket.on(ListenEvent.FriendStatus, (event: FriendStatusData) => {
+    info(`Data from event ${ListenEvent.FriendStatus}:`, event)
+  })
 
-function onRoomChange(data: RoomData) {
-  info(`Data from event ${ListenEvent.RoomChange}:`, data)
+  socket.on(ListenEvent.RoomChange, (event) => {
+    info(`Data from event ${ListenEvent.RoomChange}:`, event)
+    roomStore.onRoomChange(event)
+  })
 
-  if (roomStore.waitingRoom?.id === data.room.id) {
-    merge(roomStore.waitingRoom, data.room)
+  socket.on(ListenEvent.PrivateMessage, (event: PrivateMessageData) => {
+    info(`Data from event ${ListenEvent.PrivateMessage}:`, event)
+  })
 
-    if (data.changeType === RoomChangeType.Join) {
-      data.room.memberIds?.forEach((mId) => {
-        messageStore.addRoomMessage({
-          roomId: data.room.id,
-          content: `${mId} has joined`,
-          senderId: '',
-        })
-      })
-    }
-    else if (data.changeType === RoomChangeType.Leave) {
-      data.room.memberIds?.forEach((mId) => {
-        if (mId === '') {
-          // Kicked =))
-        }
-
-        messageStore.addRoomMessage({
-          roomId: data.room.id,
-          content: `${mId} has leaved`,
-          senderId: '',
-        })
-      })
-    }
-  }
-}
-
-function onPrivateMessage(data: PrivateMessageData) {
-  info(`Data from event ${ListenEvent.PrivateMessage}:`, data)
-}
-
-function onRoomMessage(data: RoomMessageData) {
-  info(`Data from event ${ListenEvent.RoomMessage}:`, data)
-  messageStore.addRoomMessage(data)
+  socket.on(ListenEvent.RoomMessage, (event) => {
+    info(`Data from event ${ListenEvent.RoomMessage}:`, event)
+    roomStore.onRoomMessage(event)
+  })
 }

@@ -3,20 +3,21 @@ defineOptions({
   name: 'HomePage',
 })
 const playerStore = usePlayerStore()
-const roomStore = useRoomStore()
+const { book, join } = useWaitingRoomStore()
 const router = useRouter()
 
 async function bookRoom() {
-  await roomStore.bookRoom()
-  router.push(`/room/${roomStore.waitingRoom?.id}`)
+  const room = await book()
+  router.push(`/room/${room.id}`)
 }
 
 async function joinRoom() {
   const id = prompt('Enter room ID:')
 
   if (id) {
-    await roomStore.joinRoom(id)
-    router.push(`/room/${roomStore.waitingRoom?.id}`)
+    const room = await join(id)
+    if (room)
+      router.push(`/room/${room.id}`)
   }
 }
 </script>

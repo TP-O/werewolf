@@ -1,6 +1,5 @@
 import { ViteSSG } from 'vite-ssg'
 import { setupLayouts } from 'virtual:generated-layouts'
-import log from 'loglevel'
 
 // import Previewer from 'virtual:vue-component-preview'
 import App from './App.vue'
@@ -12,8 +11,6 @@ import './styles/main.css'
 import 'uno.css'
 
 const routes = setupLayouts(generatedRoutes)
-
-import.meta.env.DEV ? log.setLevel('trace') : log.setLevel('silent')
 
 // https://github.com/antfu/vite-ssg
 export const createApp = ViteSSG(
