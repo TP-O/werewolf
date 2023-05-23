@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, Length } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, Length } from 'class-validator';
 import { RoomId } from '../room.type';
 
 export class JoinRoomDto {
@@ -8,5 +8,6 @@ export class JoinRoomDto {
 
   @IsString()
   @Length(5, 25)
+  @IsOptional()
   password?: string;
 }
