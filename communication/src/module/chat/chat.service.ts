@@ -140,7 +140,7 @@ export class ChatService {
             changeType: RoomChangeType.Leave,
             room: {
               id: room.id,
-              memberIds: room.memberIds,
+              memberIds: [client.data.id || ''],
             },
           });
           client.leave(room.id);
