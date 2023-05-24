@@ -1,7 +1,6 @@
 # Overview
 
-A template supports the most basic things for user - user, and user - group communicate in **game client**. The differences of this template from a normal chat platform are that room state is lost if all the users connected to it have left and group messages are not archived anywhere. To enable these mechanisms, you can create a persistent room.
-
+A server supports the most basic things for player - player, and player - group communication in **game client**.
 # Features
 
 - [x] Firebase Authentication
@@ -13,26 +12,19 @@ A template supports the most basic things for user - user, and user - group comm
 - [x] Room
   - [x] Leave room
   - [x] Notify room changes
-  - [x] Temporary room (user functionality)
+  - [x] Room
     - [x] Book room
     - [x] Join room
     - [x] Kick out of room
     - [x] Transfer ownership
-    - [x] Invite to room
-    - [x] Respond to room invitation
-  - [x] Persistent room (via API)
     - [x] Create rooms
-      - [x] Temporary room
-      - [x] Persistent room
     - [x] Mute room
     - [x] Remove rooms
     - [x] Add members
     - [x] Remove members
-    - [x] Store message
 - [x] Message
   - [x] Send private message
-  - [x] Send room message (only persistent room)
-  - [x] Delete old messages automatically
+  - [x] Send room message
 - [ ] Others
   - [x] Logging
   - [x] Scalable
@@ -57,36 +49,26 @@ A template supports the most basic things for user - user, and user - group comm
 
 ## Architecture
 
-![Communication Server Structure](https://raw.githubusercontent.com/TP-OG/communication-server/main/docs/img/architecture.jpg)
+![Communication Server Structure](./docs/img/architecture.jpg)
 
 ## Database Design
 
-![Communication Server Database Design](https://raw.githubusercontent.com/TP-OG/communication-server/main/docs/img/database.jpg)
+![Communication Server Database Design](./docs/img/database.jpg)
 
 ## Documentaions
 
-RESTful API [here](https://tp-og.github.io/communication-server/api-docs).
+RESTful API [here](https://game-upgrader.github.io/werewolf/communication/docs/api)
 
-Event-Driven API [here](https://tp-og.github.io/communication-server/event-driven-docs).
-
-Application [here](https://tp-og.github.io/communication-server/app-docs).
+Event-Driven API [here](https://game-upgrader.github.io/werewolf/communication/docs/event)
 
 # Setup
 
-Fill in the `.env` file.
-
 ```bash
-$ git clone git@github.com:TP-OG/communication-server.git
+$ git clone git@github.com:game-upgrader/werewolf.git
 
-$ cd communication-server
+$ cd werewolf/communication
 
-$ cp .env.example .env
-```
-
-Export encrypted API key.
-
-```bash
-$ node encrypt-api-key.js
+$ cp config.example.yaml config.yaml
 ```
 
 ## Development
@@ -97,15 +79,8 @@ $ docker-compose up -d
 $ docker-compose exec app npx prisma migrate dev
 ```
 
-## Demo
-
-```bash
-$ docker-compose -f docker-compose.demo.yml up -d
-
-$ docker-compose -f docker-compose.demo.yml exec app npx prisma migrate deploy
-```
-
 # License
 
-- ##### This project is distributed under the [MIT License](LICENSE).
-- ##### Copyright of [@TP-O](https://github.com/TP-O), 2022.
+This project is distributed under the [MIT License](LICENSE)
+
+Copyright of [@TP-O](https://github.com/TP-O), 2023

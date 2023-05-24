@@ -1,4 +1,4 @@
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   ArrayMinSize,
   IsArray,
@@ -16,7 +16,9 @@ import { AppEnv } from 'src/common/enum';
 class CorsOptions {
   @IsArray()
   @ArrayMinSize(1)
-  @IsString({ each: true })
+  @Transform(({ value }) => value.map((v: string) => new RegExp(v)), {
+    toClassOnly: true,
+  })
   public readonly origins!: string[];
 }
 

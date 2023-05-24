@@ -22,6 +22,9 @@ import { SendRoomMessageDto, SendPrivateMessageDto } from './dto';
 import { ChatService } from './chat.service';
 import { ListenEvent } from './chat.enum';
 import { EmitEventMap } from './chat.type';
+import { loadConfig } from 'src/utils/load-config';
+
+const appConfig = loadConfig().app;
 
 @Injectable()
 @UseFilters(AllExceptionFilter, WsExceptionFilter)
@@ -32,6 +35,10 @@ import { EmitEventMap } from './chat.type';
 )
 @WebSocketGateway<GatewayMetadata>({
   namespace: '/',
+  cors: {
+    origin: appConfig.cors.origins.map((v) => new RegExp(v)),
+    methods: ['GET', 'POST'],
+  },
 })
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
