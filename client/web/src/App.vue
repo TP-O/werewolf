@@ -3,9 +3,12 @@ import log from 'loglevel'
 import { useQuasar } from 'quasar'
 
 useHead({
-  title: 'Vitesse',
+  title: 'Werewolf',
   meta: [
-    { name: 'description', content: 'Opinionated Vite Starter Template' },
+    {
+      name: 'description',
+      content: 'Role-playing game inspired by Werewolf Board Game.',
+    },
     {
       name: 'theme-color',
       content: () => (isDark.value ? '#00aba9' : '#ffffff'),
