@@ -60,15 +60,18 @@ function joinRoom(password?: string) {
   )
 }
 
-watch(messages.value, () => {
-  if (boxChat.value) {
-    boxChat.value.scrollTop = boxChat.value.scrollHeight
-  }
-})
-
 onBeforeMount(async () => {
   if (!room.value || room.value?.id !== roomId) {
     await joinRoom()
+  }
+})
+
+onMounted(() => {
+  if (boxChat.value) {
+    const observer = new MutationObserver(() => {
+      boxChat.value!.scrollTop = boxChat.value!.scrollHeight
+    })
+    observer.observe(boxChat.value, { childList: true })
   }
 })
 </script>
