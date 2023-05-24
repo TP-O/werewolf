@@ -12,7 +12,12 @@ import log from 'loglevel'
 const firebaseConfig = JSON.parse(import.meta.env.VITE_FIREBASE_CONFIG)
 const app = initializeApp(firebaseConfig)
 const firebaseAuth = getAuth(app)
-firebaseAuth.useDeviceLanguage()
+
+try {
+  firebaseAuth.useDeviceLanguage()
+} catch {
+  log.error('Firebase can not use device language')
+}
 
 const ggProvider = new GoogleAuthProvider()
 ggProvider.addScope('https://www.googleapis.com/auth/contacts.readonly')
