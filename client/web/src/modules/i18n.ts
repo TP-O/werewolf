@@ -13,8 +13,9 @@ const i18n = createI18n({
 })
 
 const localesMap = Object.fromEntries(
-  Object.entries(import.meta.glob('../../locales/*.yml'))
-    .map(([path, loadLocale]) => [path.match(/([\w-]*)\.yml$/)?.[1], loadLocale]),
+  Object.entries(import.meta.glob('../../locales/*.yml')).map(
+    ([path, loadLocale]) => [path.match(/([\w-]*)\.yml$/)?.[1], loadLocale]
+  )
 ) as Record<Locale, () => Promise<{ default: Record<string, string> }>>
 
 export const availableLocales = Object.keys(localesMap)
@@ -30,12 +31,14 @@ function setI18nLanguage(lang: Locale) {
 
 export async function loadLanguageAsync(lang: string): Promise<Locale> {
   // If the same language
-  if (i18n.global.locale.value === lang)
+  if (i18n.global.locale.value === lang) {
     return setI18nLanguage(lang)
+  }
 
   // If the language was already loaded
-  if (loadedLanguages.includes(lang))
+  if (loadedLanguages.includes(lang)) {
     return setI18nLanguage(lang)
+  }
 
   // If the language hasn't been loaded yet
   const messages = await localesMap[lang]()

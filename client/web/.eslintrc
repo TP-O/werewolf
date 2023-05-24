@@ -1,17 +1,7 @@
 {
   "extends": [
     "@antfu",
-    "@unocss"
-  ],
-  "rules": {
-    "max-len": [
-      "error",
-      {
-        "code": 80,
-        "tabWidth": 2,
-        "ignoreComments": true,
-        "ignoreUrls": true
-      }
-    ]
-  }
+    "@unocss",
+    "plugin:prettier/recommended"
+  ]
 }

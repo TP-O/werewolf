@@ -2,11 +2,12 @@ import { initializeApp } from 'firebase/app'
 import {
   GoogleAuthProvider,
   createUserWithEmailAndPassword,
-  signOut as fSignOut, getAuth,
+  signOut as fSignOut,
+  getAuth,
   signInWithEmailAndPassword,
   signInWithPopup,
 } from 'firebase/auth'
-import { error } from 'loglevel'
+import log from 'loglevel'
 
 const firebaseConfig = JSON.parse(import.meta.env.VITE_FIREBASE_CONFIG)
 const app = initializeApp(firebaseConfig)
@@ -24,8 +25,9 @@ let isAuthStateChanged = false
  */
 function waitForAuthState(): Promise<void> {
   return new Promise<void>((resolve) => {
-    if (isAuthStateChanged)
+    if (isAuthStateChanged) {
       return resolve()
+    }
 
     isAuthStateChanged = true
     firebaseAuth.onAuthStateChanged(() => resolve())
@@ -40,14 +42,13 @@ async function getIdToken(): Promise<string | undefined> {
 async function signUp(email: string, password: string): Promise<void> {
   try {
     await createUserWithEmailAndPassword(firebaseAuth, email, password)
-  }
-  catch (err: any) {
+  } catch (err: any) {
     switch (err.code) {
       case 'auth/email-already-in-use':
         throw new Error('Email is already in use')
 
       default:
-        error('Sign-up error:', err.message)
+        log.error('Sign-up error:', err.message)
         throw new Error('Please try again')
     }
   }
@@ -56,15 +57,14 @@ async function signUp(email: string, password: string): Promise<void> {
 async function signIn(email: string, password: string): Promise<void> {
   try {
     await signInWithEmailAndPassword(firebaseAuth, email, password)
-  }
-  catch (err: any) {
+  } catch (err: any) {
     switch (err.code) {
       case 'auth/user-not-found':
       case 'auth/wrong-password':
         throw new Error('Email or password is incorrect')
 
       default:
-        error('Sign-in error:', err.message)
+        log.error('Sign-in error:', err.message)
         throw new Error('Something went wrong')
     }
   }
@@ -73,9 +73,8 @@ async function signIn(email: string, password: string): Promise<void> {
 async function signInWithGoogle(): Promise<void> {
   try {
     await signInWithPopup(firebaseAuth, ggProvider)
-  }
-  catch (err: any) {
-    error('Sign-in error:', err.message)
+  } catch (err: any) {
+    log.error('Sign-in error:', err.message)
     throw new Error('Please try another way to sign in')
   }
 }
@@ -84,9 +83,8 @@ async function signOut(): Promise<void> {
   try {
     await waitForAuthState()
     await fSignOut(firebaseAuth)
-  }
-  catch (err: any) {
-    error('Sign-out error:', err.message)
+  } catch (err: any) {
+    log.error('Sign-out error:', err.message)
     throw new Error('Unable to sign out')
   }
 }

@@ -1,9 +1,6 @@
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { useQuasar } from 'quasar'
-import type {
-  ErrorResponse,
-  SuccessResponse,
-} from '~/composables/socketio/communication/types'
+import type { ErrorResponse, SuccessResponse } from '~/types'
 
 export const useClientStore = defineStore('client', () => {
   const $q = useQuasar()
@@ -28,25 +25,26 @@ export const useClientStore = defineStore('client', () => {
     })
   }
 
-  function onCommError(event: ErrorResponse) {
-    if (typeof event.message === 'string') {
+  function onCommError(res: ErrorResponse) {
+    if (typeof res.message === 'string') {
       $q.notify({
         color: 'red',
-        message: event.message,
+        message: res.message,
       })
-    }
-    else {
-      event.message.forEach(m => $q.notify({
-        color: 'red',
-        message: m,
-      }))
+    } else {
+      res.message.forEach((m) =>
+        $q.notify({
+          color: 'red',
+          message: m,
+        })
+      )
     }
   }
 
-  function onCommSuccess(event: SuccessResponse) {
+  function onCommSuccess(res: SuccessResponse) {
     $q.notify({
       color: 'green',
-      message: event.message,
+      message: res.message,
     })
   }
 
@@ -62,5 +60,6 @@ export const useClientStore = defineStore('client', () => {
 
 if (import.meta.hot) {
   import.meta.hot.accept(
-    acceptHMRUpdate(useClientStore as any, import.meta.hot))
+    acceptHMRUpdate(useClientStore as any, import.meta.hot)
+  )
 }

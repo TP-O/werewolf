@@ -1,6 +1,6 @@
 import type { AxiosError } from 'axios'
 import axios from 'axios'
-import { error, info } from 'loglevel'
+import log from 'loglevel'
 
 const commApi = axios.create({
   baseURL: `${import.meta.env.VITE_COMMUNICATION_SERVER}/api/v1`,
@@ -9,20 +9,22 @@ const commApi = axios.create({
   },
 })
 
-commApi.interceptors.request.use(
-  async (request) => {
-    const token = await auth.getIdToken()
-    if (token)
-      request.headers!.Authorization = `Bearer ${token}`
+commApi.interceptors.request.use(async (request) => {
+  const token = await auth.getIdToken()
+  if (token) {
+    request.headers!.Authorization = `Bearer ${token}`
+  }
 
-    info(`Communication API request [${request.url}]:`, request)
-    return request
-  },
-)
+  log.info(`Communication API request [${request.url}]:`, request)
+  return request
+})
 
 commApi.interceptors.response.use(undefined, (err: AxiosError<any>) => {
-  error(`Communication API error [${err.request.responseURL}]`, err.response)
-  return err.response?.data
+  log.error(
+    `Communication API error [${err.request.responseURL}]`,
+    err.response
+  )
+  return Promise.reject(err.response)
 })
 
 export { commApi }

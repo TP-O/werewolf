@@ -2,39 +2,53 @@
 defineOptions({
   name: 'HomePage',
 })
-const playerStore = usePlayerStore()
-const { book, join } = useWaitingRoomStore()
+
+const { player } = usePlayerStore()
+const { book } = useWaitingRoomStore()
 const router = useRouter()
 
-async function bookRoom() {
-  const room = await book()
-  router.push(`/room/${room.id}`)
+function bookRoom() {
+  book()
+    .then(({ id }) => router.push(`/room/${id}`))
+    .catch(() => {
+      throw new Error('Unable to create room')
+    })
 }
 
 async function joinRoom() {
   const id = prompt('Enter room ID:')
-
   if (id) {
-    const room = await join(id)
-    if (room)
-      router.push(`/room/${room.id}`)
+    router.push(`/room/${id}`)
   }
 }
 </script>
 
 <template>
-  <div>
-    Hello {{ playerStore.player?.username }}
-  </div>
+  <div>Hello {{ player?.username }}</div>
 
   <q-btn
-    color="blue" label="Sign out!" px-8 py-2 capitalize @click="auth.signOut"
+    color="blue"
+    label="Sign out!"
+    px-8
+    py-2
+    capitalize
+    @click="auth.signOut"
   />
   <q-btn
-    color="blue" label="Create room" px-8 py-2 capitalize @click="bookRoom"
+    color="blue"
+    label="Create room"
+    px-8
+    py-2
+    capitalize
+    @click="bookRoom"
   />
   <q-btn
-    color="blue" label="Join room" px-8 py-2 capitalize @click="joinRoom"
+    color="blue"
+    label="Join room"
+    px-8
+    py-2
+    capitalize
+    @click="joinRoom"
   />
 </template>
 

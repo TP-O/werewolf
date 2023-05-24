@@ -1,10 +1,17 @@
 <script setup lang="ts">
-import { info } from 'loglevel'
+import log from 'loglevel'
 import { storeToRefs } from 'pinia'
-import { EmitEvent } from '~/composables/socketio/communication/types'
+import { useQuasar } from 'quasar'
+import { CommEmitEvent } from '~/enums'
+import type { ResponseError } from '~/types'
+
+defineOptions({
+  name: 'WaitingRoomPage',
+})
 
 const route = useRoute()
 const router = useRouter()
+const $q = useQuasar()
 const { player } = storeToRefs(usePlayerStore())
 const { room, messages } = storeToRefs(useWaitingRoomStore())
 const { join, leave, kick } = useWaitingRoomStore()
@@ -19,23 +26,50 @@ function sendMessage() {
   }
 
   messageInput.value = ''
-  info(`Send event ${EmitEvent.RoomMessage}:`, data)
-  useCommSocket(socket => socket.emit(EmitEvent.RoomMessage, data))
+  log.info(`Send event ${CommEmitEvent.RoomMessage}:`, data)
+  useCommSocket((socket) => socket.emit(CommEmitEvent.RoomMessage, data))
 }
 
-function leaveRoom() {
-  leave(roomId)
-  router.push('/')
+async function leaveRoom() {
+  await leave(roomId)
+}
+
+function joinRoom(password?: string) {
+  return join(roomId, password).catch(
+    ({ data: { statusCode } }: ResponseError) => {
+      if (statusCode === 400) {
+        $q.dialog({
+          title: 'Enter room password',
+          prompt: {
+            model: '',
+            type: 'text',
+          },
+          cancel: true,
+          persistent: true,
+        }).onOk((password: string) => joinRoom(password))
+      } else {
+        router.push('/')
+
+        if (statusCode === 404) {
+          throw new Error('Room does not exist')
+        } else {
+          throw new Error('Unable to join this room')
+        }
+      }
+    }
+  )
 }
 
 watch(messages.value, () => {
-  if (boxChat.value)
+  if (boxChat.value) {
     boxChat.value.scrollTop = boxChat.value.scrollHeight
+  }
 })
 
 onBeforeMount(async () => {
-  if (!room.value || room.value?.id !== roomId)
-    await join(roomId)
+  if (!room.value || room.value?.id !== roomId) {
+    await joinRoom()
+  }
 })
 </script>
 
@@ -51,21 +85,23 @@ onBeforeMount(async () => {
 
     <div h="11/12" flex gap-1>
       <div flex="~ col" gap-1 w="1/3">
-        <div
-          h="1/2" overflow-x-hidden overflow-y-scroll border rounded p-2
-        >
-          <div mb-2>
-            Joined players
-          </div>
+        <div h="1/2" overflow-x-hidden overflow-y-scroll border rounded p-2>
+          <div mb-2>Joined players</div>
 
           <div
-            v-for="memberId, i of room?.memberIds" :key="i"
+            v-for="(memberId, i) of room?.memberIds"
+            :key="i"
             flex="~  justify-between"
-            my-2 gap-2 border p-2
+            my-2
+            gap-2
+            border
+            p-2
           >
             <p
               flex="~ items-center"
-              overflow-hidden text-ellipsis whitespace-nowrap
+              overflow-hidden
+              text-ellipsis
+              whitespace-nowrap
             >
               {{ memberId }}
             </p>
@@ -75,13 +111,13 @@ onBeforeMount(async () => {
                 <q-list>
                   <q-item
                     v-if="room?.ownerId === player?.username"
-                    v-close-popup clickable @click="kick(memberId)"
+                    v-close-popup
+                    clickable
+                    @click="kick(memberId)"
                   >
                     <q-item-section>Kick</q-item-section>
                   </q-item>
-                  <q-item
-                    v-close-popup clickable
-                  >
+                  <q-item v-close-popup clickable>
                     <q-item-section>Profile</q-item-section>
                   </q-item>
                 </q-list>
@@ -93,14 +129,19 @@ onBeforeMount(async () => {
         <div h="1/2" relative border rounded p-2>
           <div
             ref="boxChat"
-            h="10/12" overflow-x-hidden overflow-y-scroll px-1 text-left
+            h="10/12"
+            overflow-x-hidden
+            overflow-y-scroll
+            px-1
+            text-left
           >
-            <div v-for="message, i in messages" :key="i">
+            <div v-for="(message, i) in messages" :key="i">
               <p mb-2 break-words>
                 <b
                   v-if="message.senderId"
-                  :class="message.senderId === player?.username
-                    ? 'text-blue' : ''"
+                  :class="
+                    message.senderId === player?.username ? 'text-blue' : ''
+                  "
                 >
                   {{ `${message.senderId}:` }}
                 </b>
@@ -112,7 +153,9 @@ onBeforeMount(async () => {
           <div absolute bottom-0 left-0 w-full bg-white p-2>
             <q-input
               v-model="messageInput"
-              dense autogrow outlined
+              dense
+              autogrow
+              outlined
               h="max-[200px]"
               @keydown.enter.prevent="sendMessage"
             />
@@ -120,20 +163,16 @@ onBeforeMount(async () => {
         </div>
       </div>
 
-      <div border rounded p-1 w="1/3">
-        Selected role
-      </div>
+      <div border rounded p-1 w="1/3">Selected role</div>
 
-      <div border rounded p-1 w="1/3">
-        Settings
-      </div>
+      <div border rounded p-1 w="1/3">Settings</div>
     </div>
   </div>
 </template>
 
 <style>
 textarea {
-  @apply max-h-[100px];
+  max-height: 100px;
 }
 </style>
 

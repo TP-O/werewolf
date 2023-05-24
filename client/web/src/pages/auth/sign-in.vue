@@ -17,16 +17,19 @@ const schema = {
   },
   password: {
     required: helpers.withMessage('Password is required', required),
-    minLength: helpers.withMessage(({ $params }) =>
-     `Password must be at least ${$params.min} characters`, minLength(8)),
+    minLength: helpers.withMessage(
+      ({ $params }) => `Password must be at least ${$params.min} characters`,
+      minLength(8)
+    ),
   },
 }
 const form = useVuelidate(schema, data)
 const router = useRouter()
 
 async function onSubmit() {
-  if (form.value.$invalid)
+  if (form.value.$invalid) {
     return
+  }
 
   await auth.signIn(data.email, data.password)
   router.push('/')
@@ -37,16 +40,15 @@ async function onSubmit() {
   <div flex="~ justify-center items-center" h-full>
     <div md="w-2xl">
       <div mb-8>
-        <div text="2xl" font-bold>
-          Join to player with your friends
-        </div>
+        <div text="2xl" font-bold>Join to player with your friends</div>
       </div>
 
       <form flex="~ col justify-between" gap-4 px-4 @submit.prevent="onSubmit">
         <q-input
           v-model="form.email.$model"
           :debounce="200"
-          outlined type="email"
+          outlined
+          type="email"
           label="Email"
           :error="form.email.$error"
           :error-message="form.email.$errors[0]?.$message.toString()"
@@ -71,9 +73,7 @@ async function onSubmit() {
       <q-separator my-6 />
 
       <div>
-        <div mb-4>
-          Or join with
-        </div>
+        <div mb-4>Or join with</div>
         <div flex="~ justify-around">
           <q-btn capitalize @click="auth.signInWithGoogle">
             <div i-devicon-google mr-2 />
@@ -92,4 +92,4 @@ async function onSubmit() {
 <route lang="yaml">
 meta:
   layout: guest
-  </route>
+</route>

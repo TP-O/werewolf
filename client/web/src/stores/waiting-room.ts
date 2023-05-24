@@ -1,23 +1,13 @@
-import { info } from 'loglevel'
+import log from 'loglevel'
 import { acceptHMRUpdate, defineStore } from 'pinia'
-import { useQuasar } from 'quasar'
+import { CommEmitEvent, RoomChangeType } from '~/enums'
 import type {
-  RoomData,
-  RoomMessageData,
-} from '~/composables/socketio/communication/types'
-import {
-  EmitEvent,
-  RoomChangeType,
-} from '~/composables/socketio/communication/types'
-import type { PlayerId, RoomId } from '~/types'
-
-export interface WaitingRoom {
-  id: RoomId
-  isMuted: boolean
-  password?: string
-  ownerId: PlayerId
-  memberIds: PlayerId[]
-}
+  PlayerId,
+  ResponseData,
+  RoomEvent,
+  RoomMessageEvent,
+  WaitingRoom,
+} from '~/types'
 
 interface WaitingRoomMessage {
   senderId?: PlayerId
@@ -28,61 +18,37 @@ export const useWaitingRoomStore = defineStore('waiting_room', () => {
   const room = ref<WaitingRoom | null>(null)
   const messages = ref<WaitingRoomMessage[]>([])
   const player = usePlayerStore()
-  const router = useRouter()
-  const $q = useQuasar()
 
   async function book() {
-    const { data: { data } } = await commApi.post('/rooms', {
+    const {
+      data: { data },
+    } = await commApi.post<ResponseData<WaitingRoom>>('/rooms', {
       password: '12345',
     })
     room.value = data
-
     return data
   }
 
   async function join(id: string, password?: string) {
-    if (room.value)
+    if (room.value) {
       return
+    }
 
-    const res = await commApi.post('/rooms/join', {
+    const {
+      data: { data },
+    } = await commApi.post<ResponseData<WaitingRoom>>('/rooms/join', {
       id,
       password,
     })
-
-    if (res.statusCode === 404) {
-      router.push('/')
-      $q.notify({
-        color: 'error',
-        message: 'Room does not exist',
-      })
-      return null
-    }
-    else if (res.statusCode === 400) {
-      router.push('/')
-      $q.dialog({
-        title: 'Enter room password',
-        prompt: {
-          model: '',
-          type: 'text',
-        },
-        cancel: true,
-        persistent: true,
-      }).onOk((password) => {
-        join(id, password).then(() =>
-          router.push(`/room/${id}`))
-      })
-      return null
-    }
-
-    room.value = res.data.data
-    messages.value = [] // For sure :D
-
-    return null
+    room.value = data
+    messages.value = []
+    return data
   }
 
   async function leave(id: string) {
-    if (!room.value)
+    if (!room.value) {
       return
+    }
 
     await commApi.post('/rooms/leave', {
       id,
@@ -92,8 +58,9 @@ export const useWaitingRoomStore = defineStore('waiting_room', () => {
   }
 
   async function kick(memberId: PlayerId) {
-    if (!room.value)
+    if (!room.value) {
       return
+    }
 
     await commApi.post('/rooms/kick', {
       id: room.value.id,
@@ -102,49 +69,46 @@ export const useWaitingRoomStore = defineStore('waiting_room', () => {
   }
 
   function sendMessage(content: string) {
-    if (!room.value)
+    if (!room.value) {
       return
+    }
 
     const data = {
       roomId: room.value.id,
       content,
     }
-    info(`Send event ${EmitEvent.RoomMessage}:`, data)
-    useCommSocket(socket => socket.emit(EmitEvent.RoomMessage, data))
+    log.info(`Send event ${CommEmitEvent.RoomMessage}:`, data)
+    useCommSocket((socket) => socket.emit(CommEmitEvent.RoomMessage, data))
   }
 
-  function onRoomChange(event: RoomData) {
+  function onRoomChange(event: RoomEvent) {
     if (room.value && event.changeType === RoomChangeType.Leave) {
       if (event.room.memberIds?.includes(player.player?.username || '')) {
         room.value = null
         messages.value = []
-        router.push('/')
-        $q.notify('You left the room')
-      }
-      else {
+      } else {
         removeMember(...(event.room.memberIds || []))
       }
-    }
-    else if (event.changeType === RoomChangeType.Join) {
+    } else if (event.changeType === RoomChangeType.Join) {
       if (room.value) {
         addMember(...(event.room.memberIds || []))
-      }
-      else {
+      } else {
         room.value = event.room as WaitingRoom
         messages.value = []
-        router.push(`/room/${room.value.id}`)
       }
     }
   }
 
   function removeMember(...memberId: PlayerId[]) {
-    if (!room.value)
+    if (!room.value) {
       return
+    }
 
     memberId.forEach((mId) => {
       const i = room.value!.memberIds.indexOf(mId)
-      if (i === -1)
+      if (i === -1) {
         return
+      }
 
       room.value!.memberIds.splice(i, 1)
       messages.value.push({
@@ -154,8 +118,9 @@ export const useWaitingRoomStore = defineStore('waiting_room', () => {
   }
 
   function addMember(...memberId: PlayerId[]) {
-    if (!room.value)
+    if (!room.value) {
       return
+    }
 
     memberId.forEach((mId) => {
       if (!room.value!.memberIds.includes(mId)) {
@@ -167,8 +132,8 @@ export const useWaitingRoomStore = defineStore('waiting_room', () => {
     })
   }
 
-  function onRoomMessage(data: RoomMessageData) {
-    messages.value.push(data)
+  function onRoomMessage(event: RoomMessageEvent) {
+    messages.value.push(event)
   }
 
   return {
@@ -186,5 +151,6 @@ export const useWaitingRoomStore = defineStore('waiting_room', () => {
 
 if (import.meta.hot) {
   import.meta.hot.accept(
-    acceptHMRUpdate(useWaitingRoomStore as any, import.meta.hot))
+    acceptHMRUpdate(useWaitingRoomStore as any, import.meta.hot)
+  )
 }

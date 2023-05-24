@@ -1,6 +1,8 @@
 import { acceptHMRUpdate, defineStore } from 'pinia'
+import type { PlayerId } from '~/types'
 
 interface Player {
+  id: PlayerId
   username: string
 }
 
@@ -10,10 +12,10 @@ export const usePlayerStore = defineStore('player', () => {
   auth.raw.onAuthStateChanged((user) => {
     if (user) {
       player.value = {
+        id: user.uid,
         username: user.uid,
       }
-    }
-    else {
+    } else {
       player.value = null
     }
   })
@@ -25,5 +27,6 @@ export const usePlayerStore = defineStore('player', () => {
 
 if (import.meta.hot) {
   import.meta.hot.accept(
-    acceptHMRUpdate(usePlayerStore as any, import.meta.hot))
+    acceptHMRUpdate(usePlayerStore as any, import.meta.hot)
+  )
 }
