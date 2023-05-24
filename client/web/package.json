@@ -2,7 +2,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "build": "vite-ssg build",
+    "build": "./build.sh",
     "dev": "vite --port 3333 --open",
     "lint": "eslint .",
     "preview": "vite preview",
