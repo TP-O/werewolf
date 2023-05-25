@@ -7,7 +7,7 @@ interface Player {
 }
 
 export const usePlayerStore = defineStore('player', () => {
-  const player = ref<Player | null | undefined>(undefined)
+  const player = ref<Player | null | undefined>()
   const isAuthChecked = new Promise<boolean>((resolve) => {
     const stop = watch(player, () => {
       stop()

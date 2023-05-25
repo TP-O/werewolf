@@ -27,6 +27,11 @@ const $q = useQuasar()
 
 onErrorCaptured((err) => {
   log.error('Uncaught error:', err)
+
+  if ($q.loading.isActive) {
+    $q.loading.hide()
+  }
+
   $q.notify({
     color: 'red',
     message: err?.message ? err.message : 'Unknown error',

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useVuelidate } from '@vuelidate/core'
 import { email, helpers, minLength, required } from '@vuelidate/validators'
+import { useQuasar } from 'quasar'
 
 defineOptions({
   name: 'SignInPage',
@@ -25,14 +26,28 @@ const schema = {
 }
 const form = useVuelidate(schema, data)
 const router = useRouter()
+const $q = useQuasar()
 
 async function onSubmit() {
   if (form.value.$invalid) {
     return
   }
 
+  $q.loading.show({
+    message: 'Accessing...',
+  })
   await auth.signIn(data.email, data.password)
+  $q.loading.hide()
+
   router.push('/')
+}
+
+async function signInWithGoogle() {
+  $q.loading.show({
+    message: 'Accessing...',
+  })
+  await auth.signInWithGoogle()
+  $q.loading.hide()
 }
 </script>
 
@@ -75,11 +90,11 @@ async function onSubmit() {
       <div>
         <div mb-4>Or join with</div>
         <div flex="~ justify-around">
-          <q-btn capitalize @click="auth.signInWithGoogle">
+          <q-btn capitalize @click="signInWithGoogle">
             <div i-devicon-google mr-2 />
             Google
           </q-btn>
-          <q-btn capitalize @click="auth.signInWithGoogle">
+          <q-btn capitalize @click="signInWithGoogle">
             <div i-devicon-facebook mr-2 />
             Facebook
           </q-btn>

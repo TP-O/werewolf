@@ -1,5 +1,5 @@
-import type { QNotifyCreateOptions } from 'quasar'
-import { Dialog, Notify, Quasar } from 'quasar'
+import type { QLoadingShowOptions, QNotifyCreateOptions } from 'quasar'
+import { Dialog, Loading, Notify, QSpinnerBall, Quasar } from 'quasar'
 import type { UserModule } from '~/types'
 
 import '@quasar/extras/material-icons/material-icons.css'
@@ -10,6 +10,7 @@ export const install: UserModule = ({ app }) => {
     plugins: {
       Dialog,
       Notify,
+      Loading,
     },
     config: {
       notify: {
@@ -19,6 +20,13 @@ export const install: UserModule = ({ app }) => {
         progress: true,
         actions: [{ icon: 'close', color: 'white' }],
       } as QNotifyCreateOptions,
+      loading: {
+        spinner: QSpinnerBall,
+        backgroundColor: 'white',
+        spinnerColor: 'primary',
+        messageColor: 'black',
+        customClass: 'text-body1',
+      } as QLoadingShowOptions,
     },
   })
 }
