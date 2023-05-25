@@ -18,7 +18,7 @@ export async function useCommSocket(
     await connect()
   }
 
-  if (cb) {
+  if (socket?.connected && cb) {
     cb(socket)
   }
 }
@@ -38,7 +38,11 @@ async function connect(reconnect = false) {
     socket.close()
   }
 
-  const token = await auth.getIdToken()
+  const token = await auth.raw.currentUser?.getIdToken()
+  if (!token) {
+    return
+  }
+
   socket = io(import.meta.env.VITE_COMMUNICATION_SERVER, {
     extraHeaders: {
       authorization: `Bearer ${token}`,

@@ -10,7 +10,7 @@ const commApi = axios.create({
 })
 
 commApi.interceptors.request.use(async (request) => {
-  const token = await auth.getIdToken()
+  const token = await auth.raw.currentUser?.getIdToken()
   if (token) {
     request.headers!.Authorization = `Bearer ${token}`
   }

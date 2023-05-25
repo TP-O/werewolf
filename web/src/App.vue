@@ -26,7 +26,7 @@ useHead({
 const $q = useQuasar()
 
 onErrorCaptured((err) => {
-  log.error(err)
+  log.error('Uncaught error:', err)
   $q.notify({
     color: 'red',
     message: err?.message ? err.message : 'Unknown error',

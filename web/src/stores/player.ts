@@ -7,7 +7,13 @@ interface Player {
 }
 
 export const usePlayerStore = defineStore('player', () => {
-  const player = ref<Player | null>(null)
+  const player = ref<Player | null | undefined>(undefined)
+  const isAuthChecked = new Promise<boolean>((resolve) => {
+    const stop = watch(player, () => {
+      stop()
+      resolve(true)
+    })
+  })
 
   auth.raw.onAuthStateChanged((user) => {
     if (user) {
@@ -20,8 +26,20 @@ export const usePlayerStore = defineStore('player', () => {
     }
   })
 
+  /**
+   * Wait until the frist time auth state is changed.
+   *
+   * @returns True if the player is authenticated.
+   */
+  async function checkAuth() {
+    if (await isAuthChecked) {
+      return player.value !== null
+    }
+  }
+
   return {
     player,
+    checkAuth,
   }
 })
 

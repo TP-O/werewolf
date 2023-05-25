@@ -12,37 +12,10 @@ import log from 'loglevel'
 const firebaseConfig = JSON.parse(import.meta.env.VITE_FIREBASE_CONFIG)
 const app = initializeApp(firebaseConfig)
 const firebaseAuth = getAuth(app)
-
-try {
-  firebaseAuth.useDeviceLanguage()
-} catch {
-  log.error('Firebase can not use device language')
-}
+firebaseAuth.useDeviceLanguage()
 
 const ggProvider = new GoogleAuthProvider()
 ggProvider.addScope('https://www.googleapis.com/auth/contacts.readonly')
-
-let isAuthStateChanged = false
-
-/**
- * Use to wait for firebase authetication at the time
- * the app is launched.
- */
-function waitForAuthState(): Promise<void> {
-  return new Promise<void>((resolve) => {
-    if (isAuthStateChanged) {
-      return resolve()
-    }
-
-    isAuthStateChanged = true
-    firebaseAuth.onAuthStateChanged(() => resolve())
-  })
-}
-
-async function getIdToken(): Promise<string | undefined> {
-  await waitForAuthState()
-  return firebaseAuth.currentUser?.getIdToken()
-}
 
 async function signUp(email: string, password: string): Promise<void> {
   try {
@@ -86,7 +59,6 @@ async function signInWithGoogle(): Promise<void> {
 
 async function signOut(): Promise<void> {
   try {
-    await waitForAuthState()
     await fSignOut(firebaseAuth)
   } catch (err: any) {
     log.error('Sign-out error:', err.message)
@@ -95,8 +67,6 @@ async function signOut(): Promise<void> {
 }
 
 export const auth = {
-  waitForAuthState,
-  getIdToken,
   signUp,
   signIn,
   signInWithGoogle,

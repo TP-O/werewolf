@@ -4,9 +4,17 @@ import { useQuasar } from 'quasar'
 
 const router = useRouter()
 const $q = useQuasar()
-const { player } = usePlayerStore()
+const { player } = storeToRefs(usePlayerStore())
+const { checkAuth } = usePlayerStore()
 const { room } = storeToRefs(useWaitingRoomStore())
 const { isCommServerConnected } = storeToRefs(useClientStore())
+
+/**
+ * Add delay time for player observation.
+ */
+function deplayNavigate() {
+  setTimeout(() => router.push('/auth/sign-in'), 1000)
+}
 
 watch(room, () => {
   if (!room.value) {
@@ -17,27 +25,30 @@ watch(room, () => {
   }
 })
 
-onMounted(async () => {
-  await auth.waitForAuthState()
+watch(player, async () => {
+  if (!(await checkAuth())) {
+    // router.push('/auth/sign-in')
+    deplayNavigate()
+  }
+})
 
-  if (!player) {
-    return router.push('/auth/sign-in')
-  } else {
+onMounted(async () => {
+  if (await checkAuth()) {
     await useCommSocket()
+  } else {
+    // router.push('/auth/sign-in')
+    deplayNavigate()
   }
 })
 </script>
 
 <template>
   <main h-screen p-2 text="center gray-700 dark:gray-200">
-    <div
-      v-if="!isCommServerConnected"
-      h-full
-      flex="~ col justify-center items-center"
+    <LoadingContainer
+      :loading="!isCommServerConnected"
+      message="Connecting to communication server..."
     >
-      <q-spinner-ball color="primary" size="6em" mb-6 />
-      <div text-xl>Connecting...</div>
-    </div>
-    <RouterView v-else />
+      <RouterView />
+    </LoadingContainer>
   </main>
 </template>
