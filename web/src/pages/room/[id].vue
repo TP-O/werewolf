@@ -15,20 +15,10 @@ const $q = useQuasar()
 const { player } = storeToRefs(usePlayerStore())
 const { room, messages } = storeToRefs(useWaitingRoomStore())
 const { join, leave, kick } = useWaitingRoomStore()
+
 const roomId = String(route.params.id)
 const messageInput = ref('')
 const boxChat = ref<HTMLDivElement>()
-
-function sendMessage() {
-  const data = {
-    roomId,
-    content: messageInput.value,
-  }
-
-  messageInput.value = ''
-  log.info(`Send event ${CommEmitEvent.RoomMessage}:`, data)
-  useCommSocket((socket) => socket.emit(CommEmitEvent.RoomMessage, data))
-}
 
 async function leaveRoom() {
   await leave(roomId)
@@ -60,10 +50,27 @@ function joinRoom(password?: string) {
   )
 }
 
+function sendMessage() {
+  const data = {
+    roomId,
+    content: messageInput.value,
+  }
+
+  messageInput.value = ''
+  log.info(`Send event ${CommEmitEvent.RoomMessage}:`, data)
+  useCommSocket((socket) => socket.emit(CommEmitEvent.RoomMessage, data))
+}
+
 onBeforeMount(async () => {
+  $q.loading.show({
+    message: 'Loading room...',
+  })
+
   if (!room.value || room.value?.id !== roomId) {
     await joinRoom()
   }
+
+  $q.loading.hide()
 })
 
 onMounted(() => {

@@ -9,6 +9,32 @@ const { checkAuth } = usePlayerStore()
 const { room } = storeToRefs(useWaitingRoomStore())
 const { isCommServerConnected } = storeToRefs(useClientStore())
 
+watch(
+  isCommServerConnected,
+  () => {
+    if (isCommServerConnected.value) {
+      $q.loading.hide()
+    } else {
+      $q.loading.show({
+        message: 'Connecting to communication server...',
+      })
+    }
+  },
+  { immediate: true }
+)
+
+watch(
+  player,
+  async () => {
+    if (!(await checkAuth())) {
+      setTimeout(() => router.push('/auth/sign-in'), 1000)
+    }
+  },
+  {
+    immediate: true,
+  }
+)
+
 watch(room, () => {
   if (!room.value) {
     router.push('/')
@@ -18,27 +44,9 @@ watch(room, () => {
   }
 })
 
-watchEffect(() => {
-  if (isCommServerConnected.value) {
-    $q.loading.hide()
-  } else {
-    $q.loading.show({
-      message: 'Connecting to communication server...',
-    })
-  }
-})
-
-watch(player, async () => {
-  if (!(await checkAuth())) {
-    setTimeout(() => router.push('/auth/sign-in'), 1000)
-  }
-})
-
-onMounted(async () => {
+onBeforeMount(async () => {
   if (await checkAuth()) {
     await useCommSocket()
-  } else {
-    setTimeout(() => router.push('/auth/sign-in'), 1000)
   }
 })
 

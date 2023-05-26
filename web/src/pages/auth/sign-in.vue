@@ -47,7 +47,6 @@ async function signInWithGoogle() {
     message: 'Accessing...',
   })
   await auth.signInWithGoogle()
-  $q.loading.hide()
 }
 </script>
 

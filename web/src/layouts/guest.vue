@@ -7,20 +7,28 @@ const $q = useQuasar()
 const { player } = storeToRefs(usePlayerStore())
 const { checkAuth } = usePlayerStore()
 
-watch(player, async () => {
-  if (await checkAuth()) {
-    setTimeout(() => router.push('/'), 1000)
+watch(
+  player,
+  async () => {
+    if (await checkAuth()) {
+      setTimeout(() => router.push('/'), 1000)
+    } else {
+      $q.loading.hide()
+    }
+  },
+  {
+    immediate: true,
   }
-})
+)
 
-onMounted(async () => {
+onBeforeMount(() => {
   $q.loading.show({
     message: 'Checking authentication...',
   })
+})
 
-  if (await checkAuth()) {
-    setTimeout(() => router.push('/'), 1000)
-  } else {
+onUnmounted(() => {
+  if ($q.loading.isActive) {
     $q.loading.hide()
   }
 })
