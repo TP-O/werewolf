@@ -279,7 +279,7 @@ export class RoomController {
     });
 
     if (sid) {
-      this.chatGateway.server.to(player.sid).socketsLeave(room.id);
+      this.chatGateway.server.to(payload.memberId).socketsLeave(room.id);
     }
 
     response.code(HttpStatus.OK).send({
