@@ -17,10 +17,12 @@ const { room, messages } = storeToRefs(useWaitingRoomStore())
 const { join, leave, kick } = useWaitingRoomStore()
 
 const roomId = String(route.params.id)
-const messageInput = ref('')
-const boxChat = ref<HTMLDivElement>()
+const isOwner = computed(() => room.value?.ownerId === player.value?.id)
 
 async function leaveRoom() {
+  $q.loading.show({
+    message: 'Leaving...',
+  })
   await leave(roomId)
 }
 
@@ -50,6 +52,7 @@ function joinRoom(password?: string) {
   )
 }
 
+const messageInput = ref('')
 function sendMessage() {
   const data = {
     roomId,
@@ -59,6 +62,16 @@ function sendMessage() {
   messageInput.value = ''
   log.info(`Send event ${CommEmitEvent.RoomMessage}:`, data)
   useCommSocket((socket) => socket.emit(CommEmitEvent.RoomMessage, data))
+}
+
+const isRoleSelectionShowed = ref(false)
+function showRoleSelection() {
+  isRoleSelectionShowed.value = true
+}
+
+const isRoleDetailsShowed = ref(false)
+function showRoleDetails() {
+  isRoleDetailsShowed.value = true
 }
 
 onBeforeMount(async () => {
@@ -73,12 +86,19 @@ onBeforeMount(async () => {
   $q.loading.hide()
 })
 
+const boxChat = ref<HTMLDivElement>()
 onMounted(() => {
   if (boxChat.value) {
     const observer = new MutationObserver(() => {
       boxChat.value!.scrollTop = boxChat.value!.scrollHeight
     })
     observer.observe(boxChat.value, { childList: true })
+  }
+})
+
+onUnmounted(() => {
+  if ($q.loading.isActive) {
+    $q.loading.hide()
   }
 })
 </script>
@@ -166,6 +186,7 @@ onMounted(() => {
               dense
               autogrow
               outlined
+              placeholder="Say something..."
               h="max-[200px]"
               @keydown.enter.prevent="sendMessage"
             />
@@ -173,11 +194,158 @@ onMounted(() => {
         </div>
       </div>
 
-      <div border rounded p-1 w="1/3">Selected role</div>
+      <div border rounded p-2 w="1/3" flex="~ col">
+        <div mb-2>Settings</div>
 
-      <div border rounded p-1 w="1/3">Settings</div>
+        <div grid="~ cols-2" mb-4 gap-4>
+          <q-input
+            outlined
+            model-value="dsds"
+            :disable="!isOwner"
+            label="Password"
+          />
+          <q-input
+            outlined
+            :model-value="1"
+            type="number"
+            min="5"
+            max="20"
+            :disable="!isOwner"
+            label="Capacity"
+          />
+          <q-input
+            outlined
+            :model-value="1"
+            type="number"
+            min="20"
+            max="60"
+            :disable="!isOwner"
+            label="Turn duration"
+          />
+          <q-input
+            outlined
+            :model-value="1"
+            type="number"
+            min="40"
+            max="360"
+            :disable="!isOwner"
+            label="Discussion duration"
+          />
+        </div>
+
+        <q-btn
+          color="secondary"
+          :label="isOwner ? 'Add role' : 'View roles'"
+          mb-4
+          w-full
+          outline
+          @click="showRoleSelection"
+        />
+
+        <div grid="~ cols-1" gap-4 overflow-y-scroll>
+          <q-card v-for="i in 10" :key="i" class="my-card" flat bordered>
+            <q-card-section horizontal justify-between>
+              <q-item>
+                <q-item-section avatar>
+                  <q-avatar>
+                    <img src="https://cdn.quasar.dev/img/avatar2.jpg" />
+                  </q-avatar>
+                </q-item-section>
+
+                <q-item-section>
+                  <q-item-label>Title</q-item-label>
+                  <q-item-label caption>Subhead</q-item-label>
+                </q-item-section>
+              </q-item>
+
+              <q-card-actions>
+                <q-btn flat round color="red" icon="favorite" />
+                <q-btn flat round color="red" icon="favorite" />
+              </q-card-actions>
+            </q-card-section>
+          </q-card>
+        </div>
+      </div>
+
+      <div w="1/3" flex="~ col" border rounded p-1>
+        <div mb-2>Map</div>
+
+        <q-card>
+          <q-img src="https://cdn.quasar.dev/img/parallax2.jpg">
+            <div class="absolute-bottom">
+              <div class="text-h6">Our Changing Planet</div>
+              <div class="text-subtitle2">by John Doe</div>
+            </div>
+          </q-img>
+        </q-card>
+
+        <div mt-8 grid="~ cols-2" gap-4 overflow-y-scroll>
+          <q-avatar v-for="i in 10" :key="i" square h-auto w-full>
+            <img src="https://cdn.quasar.dev/img/parallax2.jpg" />
+          </q-avatar>
+        </div>
+      </div>
     </div>
   </div>
+
+  <q-dialog
+    v-model="isRoleSelectionShowed"
+    transition-show="rotate"
+    transition-hide="rotate"
+    full-height
+  >
+    <q-card w="700px" max-w="80vw">
+      <q-card-section>
+        <div class="text-h6">Roles</div>
+      </q-card-section>
+
+      <q-card-section flex="~ col" gap-4 pt-0>
+        <q-card
+          v-for="i in 10"
+          :key="i"
+          class="my-card"
+          flat
+          bordered
+          cursor-pointer
+          @click="showRoleDetails"
+        >
+          <q-card-section horizontal justify-between>
+            <q-item>
+              <q-item-section avatar>
+                <q-avatar>
+                  <img src="https://cdn.quasar.dev/img/avatar2.jpg" />
+                </q-avatar>
+              </q-item-section>
+
+              <q-item-section>
+                <q-item-label>Title</q-item-label>
+                <q-item-label caption>Subhead</q-item-label>
+              </q-item-section>
+            </q-item>
+
+            <q-card-actions>
+              <q-btn flat round color="red" icon="favorite" />
+            </q-card-actions>
+          </q-card-section>
+        </q-card>
+      </q-card-section>
+    </q-card>
+  </q-dialog>
+
+  <q-dialog
+    v-model="isRoleDetailsShowed"
+    transition-show="rotate"
+    transition-hide="rotate"
+  >
+    <q-card w="700px" max-w="80vw" h="500px" max-h="80vh">
+      <q-img src="https://cdn.quasar.dev/img/parallax2.jpg" fit="contain" />
+
+      <q-card-section>
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+        tempor incididunt ut labore et dolore magna aliqua.
+      </q-card-section>
+    </q-card>
+  </q-dialog>
 </template>
 
 <style>
