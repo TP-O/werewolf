@@ -56,7 +56,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <main h-screen text="center gray-700 dark:gray-200">
+  <main h-screen text="gray-700 dark:gray-200">
     <q-splitter :model-value="80" h-full>
       <template #before>
         <div h-full p-2>

@@ -9,7 +9,8 @@ export {}
 
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
-    LoadingContainer: typeof import('./components/LoadingContainer.vue')['default']
+    RoleCard: typeof import('./components/RoleCard.vue')['default']
+    RoleSummaryCard: typeof import('./components/RoleSummaryCard.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
   }

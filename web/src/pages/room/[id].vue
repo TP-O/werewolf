@@ -2,7 +2,8 @@
 import log from 'loglevel'
 import { storeToRefs } from 'pinia'
 import { useQuasar } from 'quasar'
-import { CommEmitEvent } from '~/enums'
+import { roles } from '~/constants'
+import { CommEmitEvent, RoleId } from '~/enums'
 import type { ResponseError } from '~/types'
 
 defineOptions({
@@ -70,8 +71,51 @@ function showRoleSelection() {
 }
 
 const isRoleDetailsShowed = ref(false)
-function showRoleDetails() {
+const exploredRoleId = ref<RoleId>(1)
+function showRoleDetails(id: number) {
+  exploredRoleId.value = id
   isRoleDetailsShowed.value = true
+}
+
+interface GameSettings {
+  roleIds: RoleId[]
+  requiredRoleIds: RoleId[]
+  turnDuration: number
+  discussionDuration: number
+}
+
+const gameSettings = reactive<GameSettings>({
+  roleIds: [RoleId.Villager, RoleId.Werewolf],
+  requiredRoleIds: [RoleId.Villager, RoleId.Werewolf],
+  turnDuration: 30,
+  discussionDuration: 60,
+})
+
+function pickRole(id: number) {
+  const i = gameSettings.roleIds.indexOf(id)
+  if (i === -1) {
+    gameSettings.roleIds.unshift(id)
+  } else {
+    gameSettings.roleIds.splice(i, 1)
+
+    const j = gameSettings.requiredRoleIds.indexOf(id)
+    if (j !== -1) {
+      gameSettings.requiredRoleIds.splice(j, 1)
+    }
+  }
+}
+
+function pickRequiredRole(id: number) {
+  const i = gameSettings.requiredRoleIds.indexOf(id)
+  if (i === -1) {
+    gameSettings.requiredRoleIds.unshift(id)
+
+    if (!gameSettings.roleIds.includes(id)) {
+      gameSettings.roleIds.unshift(id)
+    }
+  } else {
+    gameSettings.requiredRoleIds.splice(i, 1)
+  }
 }
 
 onBeforeMount(async () => {
@@ -108,7 +152,7 @@ onUnmounted(() => {
     <div h="1/12" grid="~ cols-[0.5fr_11fr_0.5fr]" py-4>
       <q-btn color="negative" label="Exit" @click="leaveRoom" />
 
-      <p text-xl>
+      <p text="xl center">
         Room: <b>{{ roomId }}</b>
       </p>
     </div>
@@ -243,27 +287,16 @@ onUnmounted(() => {
         />
 
         <div grid="~ cols-1" gap-4 overflow-y-scroll>
-          <q-card v-for="i in 10" :key="i" class="my-card" flat bordered>
-            <q-card-section horizontal justify-between>
-              <q-item>
-                <q-item-section avatar>
-                  <q-avatar>
-                    <img src="https://cdn.quasar.dev/img/avatar2.jpg" />
-                  </q-avatar>
-                </q-item-section>
-
-                <q-item-section>
-                  <q-item-label>Title</q-item-label>
-                  <q-item-label caption>Subhead</q-item-label>
-                </q-item-section>
-              </q-item>
-
-              <q-card-actions>
-                <q-btn flat round color="red" icon="favorite" />
-                <q-btn flat round color="red" icon="favorite" />
-              </q-card-actions>
-            </q-card-section>
-          </q-card>
+          <RoleSummaryCard
+            v-for="(role, i) of gameSettings.roleIds.map((id) => roles[id])"
+            :key="i"
+            :role="role"
+            :picked="gameSettings.roleIds.includes(role.id)"
+            :required="gameSettings.requiredRoleIds.includes(role.id)"
+            :pick="pickRole"
+            :mark-as-required="pickRequiredRole"
+            @click="showRoleDetails"
+          />
         </div>
       </div>
 
@@ -300,34 +333,16 @@ onUnmounted(() => {
       </q-card-section>
 
       <q-card-section flex="~ col" gap-4 pt-0>
-        <q-card
-          v-for="i in 10"
+        <RoleSummaryCard
+          v-for="(role, i) of roles"
           :key="i"
-          class="my-card"
-          flat
-          bordered
-          cursor-pointer
-          @click="showRoleDetails"
-        >
-          <q-card-section horizontal justify-between>
-            <q-item>
-              <q-item-section avatar>
-                <q-avatar>
-                  <img src="https://cdn.quasar.dev/img/avatar2.jpg" />
-                </q-avatar>
-              </q-item-section>
-
-              <q-item-section>
-                <q-item-label>Title</q-item-label>
-                <q-item-label caption>Subhead</q-item-label>
-              </q-item-section>
-            </q-item>
-
-            <q-card-actions>
-              <q-btn flat round color="red" icon="favorite" />
-            </q-card-actions>
-          </q-card-section>
-        </q-card>
+          :role="role"
+          :picked="gameSettings.roleIds.includes(role.id)"
+          :required="gameSettings.requiredRoleIds.includes(role.id)"
+          :pick="pickRole"
+          :mark-as-required="pickRequiredRole"
+          @click="showRoleDetails(role.id)"
+        />
       </q-card-section>
     </q-card>
   </q-dialog>
@@ -337,14 +352,7 @@ onUnmounted(() => {
     transition-show="rotate"
     transition-hide="rotate"
   >
-    <q-card w="700px" max-w="80vw" h="500px" max-h="80vh">
-      <q-img src="https://cdn.quasar.dev/img/parallax2.jpg" fit="contain" />
-
-      <q-card-section>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-        tempor incididunt ut labore et dolore magna aliqua.
-      </q-card-section>
-    </q-card>
+    <RoleCard :role="roles[exploredRoleId]" />
   </q-dialog>
 </template>
 
