@@ -26,6 +26,10 @@ html.dark {
   height: 2px;
 }
 
+.chatbox textarea {
+  max-height: 100px;
+}
+
 /* width */
 ::-webkit-scrollbar {
   width: 5px;

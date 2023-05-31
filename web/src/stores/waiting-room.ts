@@ -1,6 +1,6 @@
 import log from 'loglevel'
 import { acceptHMRUpdate, defineStore } from 'pinia'
-import { CommEmitEvent, RoomChangeType } from '~/enums'
+import { CommEmitEvent, RoleId, RoomChangeType } from '~/enums'
 import type {
   PlayerId,
   ResponseData,
@@ -14,8 +14,30 @@ interface WaitingRoomMessage {
   content: string
 }
 
+interface WaitingRoomSettings {
+  password?: string
+  capacity?: number
+  gameSettings: {
+    roleIds: RoleId[]
+    requiredRoleIds: RoleId[]
+    turnDuration: number
+    discussionDuration: number
+    mapId: number
+  }
+}
+
 export const useWaitingRoomStore = defineStore('waiting_room', () => {
   const room = ref<WaitingRoom | null>(null)
+  const settings = ref<WaitingRoomSettings>({
+    capacity: 5,
+    gameSettings: {
+      roleIds: [RoleId.Villager, RoleId.Werewolf],
+      requiredRoleIds: [RoleId.Villager, RoleId.Werewolf],
+      turnDuration: 30,
+      discussionDuration: 60,
+      mapId: 1,
+    },
+  })
   const messages = ref<WaitingRoomMessage[]>([])
   const player = usePlayerStore()
 
@@ -138,6 +160,7 @@ export const useWaitingRoomStore = defineStore('waiting_room', () => {
 
   return {
     room,
+    settings,
     messages,
     book,
     join,

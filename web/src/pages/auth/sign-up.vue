@@ -48,13 +48,6 @@ async function onSubmit() {
 
   router.push('/')
 }
-
-async function signInWithGoogle() {
-  $q.loading.show({
-    message: 'Accessing...',
-  })
-  await auth.signInWithGoogle()
-}
 </script>
 
 <template>
@@ -69,7 +62,7 @@ async function signInWithGoogle() {
           v-model="form.email.$model"
           :debounce="200"
           outlined
-          type="email"
+          type="text"
           label="Email"
           :error="form.email.$error"
           :error-message="form.email.$errors[0]?.$message.toString()"
@@ -102,19 +95,7 @@ async function signInWithGoogle() {
 
       <q-separator my-6 />
 
-      <div>
-        <div mb-4>Or join with</div>
-        <div flex="~ justify-around">
-          <q-btn capitalize @click="signInWithGoogle">
-            <div i-devicon-google mr-2 />
-            Google
-          </q-btn>
-          <q-btn capitalize @click="signInWithGoogle">
-            <div i-devicon-facebook mr-2 />
-            Facebook
-          </q-btn>
-        </div>
-      </div>
+      <OAuth />
     </div>
   </div>
 </template>
