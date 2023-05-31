@@ -73,6 +73,7 @@ interface RoomSettings {
     requiredRoleIds: RoleId[]
     turnDuration: number
     discussionDuration: number
+    mapId: number
   }
 }
 
@@ -83,6 +84,7 @@ const roomSettings = reactive<RoomSettings>({
     requiredRoleIds: [RoleId.Villager, RoleId.Werewolf],
     turnDuration: 30,
     discussionDuration: 60,
+    mapId: 1,
   },
 })
 
@@ -314,14 +316,30 @@ onUnmounted(() => {
           />
         </div>
 
-        <q-card>
-          <q-img src="https://cdn.quasar.dev/img/parallax2.jpg">
-            <div class="absolute-bottom">
-              <div class="text-h6">Our Changing Planet</div>
-              <div class="text-subtitle2">by John Doe</div>
-            </div>
-          </q-img>
-        </q-card>
+        <q-carousel
+          v-model="roomSettings.gameSettings.mapId"
+          animated
+          arrows
+          navigation
+          infinite
+        >
+          <q-carousel-slide
+            :name="1"
+            img-src="https://cdn.quasar.dev/img/mountains.jpg"
+          />
+          <q-carousel-slide
+            :name="2"
+            img-src="https://cdn.quasar.dev/img/parallax1.jpg"
+          />
+          <q-carousel-slide
+            :name="3"
+            img-src="https://cdn.quasar.dev/img/parallax2.jpg"
+          />
+          <q-carousel-slide
+            :name="4"
+            img-src="https://cdn.quasar.dev/img/quasar.jpg"
+          />
+        </q-carousel>
 
         <div absolute bottom-0 left-0 w-full p-2>
           <q-btn color="secondary" label="Save" w-full outline />
