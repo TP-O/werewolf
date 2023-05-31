@@ -65,6 +65,27 @@ function sendMessage() {
   useCommSocket((socket) => socket.emit(CommEmitEvent.RoomMessage, data))
 }
 
+interface RoomSettings {
+  password?: string
+  capacity?: number
+  gameSettings: {
+    roleIds: RoleId[]
+    requiredRoleIds: RoleId[]
+    turnDuration: number
+    discussionDuration: number
+  }
+}
+
+const roomSettings = reactive<RoomSettings>({
+  capacity: 5,
+  gameSettings: {
+    roleIds: [RoleId.Villager, RoleId.Werewolf],
+    requiredRoleIds: [RoleId.Villager, RoleId.Werewolf],
+    turnDuration: 30,
+    discussionDuration: 60,
+  },
+})
+
 const isRoleSelectionShowed = ref(false)
 function showRoleSelection() {
   isRoleSelectionShowed.value = true
@@ -77,44 +98,30 @@ function showRoleDetails(id: number) {
   isRoleDetailsShowed.value = true
 }
 
-interface GameSettings {
-  roleIds: RoleId[]
-  requiredRoleIds: RoleId[]
-  turnDuration: number
-  discussionDuration: number
-}
-
-const gameSettings = reactive<GameSettings>({
-  roleIds: [RoleId.Villager, RoleId.Werewolf],
-  requiredRoleIds: [RoleId.Villager, RoleId.Werewolf],
-  turnDuration: 30,
-  discussionDuration: 60,
-})
-
 function pickRole(id: number) {
-  const i = gameSettings.roleIds.indexOf(id)
+  const i = roomSettings.gameSettings.roleIds.indexOf(id)
   if (i === -1) {
-    gameSettings.roleIds.unshift(id)
+    roomSettings.gameSettings.roleIds.unshift(id)
   } else {
-    gameSettings.roleIds.splice(i, 1)
+    roomSettings.gameSettings.roleIds.splice(i, 1)
 
-    const j = gameSettings.requiredRoleIds.indexOf(id)
+    const j = roomSettings.gameSettings.requiredRoleIds.indexOf(id)
     if (j !== -1) {
-      gameSettings.requiredRoleIds.splice(j, 1)
+      roomSettings.gameSettings.requiredRoleIds.splice(j, 1)
     }
   }
 }
 
 function pickRequiredRole(id: number) {
-  const i = gameSettings.requiredRoleIds.indexOf(id)
+  const i = roomSettings.gameSettings.requiredRoleIds.indexOf(id)
   if (i === -1) {
-    gameSettings.requiredRoleIds.unshift(id)
+    roomSettings.gameSettings.requiredRoleIds.unshift(id)
 
-    if (!gameSettings.roleIds.includes(id)) {
-      gameSettings.roleIds.unshift(id)
+    if (!roomSettings.gameSettings.roleIds.includes(id)) {
+      roomSettings.gameSettings.roleIds.unshift(id)
     }
   } else {
-    gameSettings.requiredRoleIds.splice(i, 1)
+    roomSettings.gameSettings.requiredRoleIds.splice(i, 1)
   }
 }
 
@@ -239,43 +246,7 @@ onUnmounted(() => {
       </div>
 
       <div border rounded p-2 w="1/3" flex="~ col">
-        <div mb-2>Settings</div>
-
-        <div grid="~ cols-2" mb-4 gap-4>
-          <q-input
-            outlined
-            model-value="dsds"
-            :disable="!isOwner"
-            label="Password"
-          />
-          <q-input
-            outlined
-            :model-value="1"
-            type="number"
-            min="5"
-            max="20"
-            :disable="!isOwner"
-            label="Capacity"
-          />
-          <q-input
-            outlined
-            :model-value="1"
-            type="number"
-            min="20"
-            max="60"
-            :disable="!isOwner"
-            label="Turn duration"
-          />
-          <q-input
-            outlined
-            :model-value="1"
-            type="number"
-            min="40"
-            max="360"
-            :disable="!isOwner"
-            label="Discussion duration"
-          />
-        </div>
+        <div mb-2>Picked roles</div>
 
         <q-btn
           color="secondary"
@@ -288,20 +259,60 @@ onUnmounted(() => {
 
         <div grid="~ cols-1" gap-4 overflow-y-scroll>
           <RoleSummaryCard
-            v-for="(role, i) of gameSettings.roleIds.map((id) => roles[id])"
+            v-for="(role, i) of roomSettings.gameSettings.roleIds.map(
+              (id) => roles[id]
+            )"
             :key="i"
             :role="role"
-            :picked="gameSettings.roleIds.includes(role.id)"
-            :required="gameSettings.requiredRoleIds.includes(role.id)"
+            :picked="roomSettings.gameSettings.roleIds.includes(role.id)"
+            :required="
+              roomSettings.gameSettings.requiredRoleIds.includes(role.id)
+            "
             :pick="pickRole"
             :mark-as-required="pickRequiredRole"
-            @click="showRoleDetails"
+            @click="showRoleDetails(role.id)"
           />
         </div>
       </div>
 
-      <div w="1/3" flex="~ col" border rounded p-1>
-        <div mb-2>Map</div>
+      <div w="1/3" flex="~ col" relative border rounded p-1>
+        <div mb-2>Settings</div>
+
+        <div grid="~ cols-2" mb-4 gap-4>
+          <q-input
+            v-model="roomSettings.password"
+            outlined
+            :disable="!isOwner"
+            label="Password"
+          />
+          <q-input
+            v-model="roomSettings.capacity"
+            outlined
+            type="number"
+            min="5"
+            max="20"
+            :disable="!isOwner"
+            label="Capacity"
+          />
+          <q-input
+            v-model="roomSettings.gameSettings.turnDuration"
+            outlined
+            type="number"
+            min="20"
+            max="60"
+            :disable="!isOwner"
+            label="Turn duration"
+          />
+          <q-input
+            v-model="roomSettings.gameSettings.discussionDuration"
+            outlined
+            type="number"
+            min="40"
+            max="360"
+            :disable="!isOwner"
+            label="Discussion duration"
+          />
+        </div>
 
         <q-card>
           <q-img src="https://cdn.quasar.dev/img/parallax2.jpg">
@@ -312,10 +323,8 @@ onUnmounted(() => {
           </q-img>
         </q-card>
 
-        <div mt-8 grid="~ cols-2" gap-4 overflow-y-scroll>
-          <q-avatar v-for="i in 10" :key="i" square h-auto w-full>
-            <img src="https://cdn.quasar.dev/img/parallax2.jpg" />
-          </q-avatar>
+        <div absolute bottom-0 left-0 w-full p-2>
+          <q-btn color="secondary" label="Save" w-full outline />
         </div>
       </div>
     </div>
@@ -337,8 +346,10 @@ onUnmounted(() => {
           v-for="(role, i) of roles"
           :key="i"
           :role="role"
-          :picked="gameSettings.roleIds.includes(role.id)"
-          :required="gameSettings.requiredRoleIds.includes(role.id)"
+          :picked="roomSettings.gameSettings.roleIds.includes(role.id)"
+          :required="
+            roomSettings.gameSettings.requiredRoleIds.includes(role.id)
+          "
           :pick="pickRole"
           :mark-as-required="pickRequiredRole"
           @click="showRoleDetails(role.id)"
