@@ -5,7 +5,6 @@ export type RoomId = string
 export interface WaitingRoom {
   id: RoomId
   isMuted: boolean
-  password?: string
   ownerId: PlayerId
   memberIds: PlayerId[]
 }
