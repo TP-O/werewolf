@@ -78,14 +78,14 @@ onUnmounted(() => {
     </div>
 
     <div h="11/12" flex gap-1>
-      <div flex="~ col" gap-1 w="1/3">
-        <JoinedPlayerList h="1/2" />
-        <RoomChatBox :id="room?.id || ''" h="1/2" />
-      </div>
+      <JoinedPlayerList w="1/3" />
 
       <PickedRoleList w="1/3" />
 
-      <RoomSettings w="1/3" />
+      <div flex="~ col" gap-1 w="1/3">
+        <RoomSettings h="1/2" />
+        <RoomChatBox :id="room?.id || ''" h="1/2" />
+      </div>
     </div>
   </div>
 </template>

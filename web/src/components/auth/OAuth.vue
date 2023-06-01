@@ -14,12 +14,14 @@ async function signInWithGoogle() {
 
 <template>
   <div>
-    <div mb-4>Or join with</div>
+    <div mb-4>Sign in with</div>
+
     <div flex="~ justify-around">
       <q-btn capitalize @click="signInWithGoogle">
         <div i-devicon-google mr-2 />
         Google
       </q-btn>
+
       <q-btn capitalize @click="signInWithGoogle">
         <div i-devicon-facebook mr-2 />
         Facebook

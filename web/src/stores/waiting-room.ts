@@ -16,13 +16,12 @@ interface WaitingRoomMessage {
 
 interface WaitingRoomSettings {
   capacity: number
-  password: string
+  password?: string
   gameSettings: {
     roleIds: RoleId[]
     requiredRoleIds: RoleId[]
     turnDuration: number
     discussionDuration: number
-    mapId: number
   }
 }
 
@@ -30,13 +29,11 @@ export const useWaitingRoomStore = defineStore('waiting_room', () => {
   const room = ref<WaitingRoom | null>(null)
   const settings = ref<WaitingRoomSettings>({
     capacity: 5,
-    password: '',
     gameSettings: {
       roleIds: [RoleId.Villager, RoleId.Werewolf],
       requiredRoleIds: [RoleId.Villager, RoleId.Werewolf],
       turnDuration: 30,
       discussionDuration: 60,
-      mapId: 1,
     },
   })
   const messages = ref<WaitingRoomMessage[]>([])

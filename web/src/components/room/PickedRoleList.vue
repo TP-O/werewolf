@@ -49,16 +49,14 @@ function pickRequiredRole(id: number) {
 
 <template>
   <div flex="~ col" border rounded p-2>
-    <div mb-2>Picked roles</div>
+    <div flex="~ row" justify-between>
+      <div flex items-center>Picked roles</div>
 
-    <q-btn
-      color="secondary"
-      :label="isOwner ? 'Add role' : 'View roles'"
-      mb-4
-      w-full
-      outline
-      @click="showRoleSelection"
-    />
+      <q-btn unelevated @click="showRoleSelection">
+        <div v-if="isOwner" i="carbon-add-alt"></div>
+        <div v-else i="carbon-view"></div>
+      </q-btn>
+    </div>
 
     <div grid="~ cols-1" gap-4 overflow-y-scroll>
       <RoleSummaryCard

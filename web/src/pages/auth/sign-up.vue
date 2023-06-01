@@ -1,53 +1,46 @@
 <script setup lang="ts">
-import { useVuelidate } from '@vuelidate/core'
-import { email, helpers, minLength, required } from '@vuelidate/validators'
+import { Field, useForm } from 'vee-validate'
+import { toTypedSchema } from '@vee-validate/zod'
+import * as zod from 'zod'
 import { useQuasar } from 'quasar'
 
 defineOptions({
   name: 'SignUpPage',
 })
 
-const data = reactive({
-  email: '',
-  password: '',
-  confirmPassword: '',
-})
-const schema = {
-  email: {
-    required: helpers.withMessage('Email is required', required),
-    email: helpers.withMessage('Invalid email', email),
-  },
-  password: {
-    required: helpers.withMessage('Password is required', required),
-    minLength: helpers.withMessage(
-      ({ $params }) => `Password must be at least ${$params.min} characters`,
-      minLength(8)
-    ),
-  },
-  confirmPassword: {
-    sameAsPassword: helpers.withMessage(
-      'Password does not match',
-      (v) => v === data.password
-    ),
-  },
-}
-const form = useVuelidate(schema, data)
 const router = useRouter()
 const $q = useQuasar()
 
-async function onSubmit() {
-  if (!(await form.value.$validate())) {
-    return
-  }
+const schema = zod
+  .object({
+    email: zod.string().email().default(''),
+    password: zod
+      .string()
+      .nonempty('Password is required')
+      .min(8, { message: 'Password must have at least 8 characters' })
+      .default(''),
+    confirmPassword: zod
+      .string()
+      .nonempty('Confirm password is required')
+      .default(''),
+  })
+  .refine(({ password, confirmPassword }) => password === confirmPassword, {
+    message: 'Password does not match',
+    path: ['confirmPassword'],
+  })
+const { handleSubmit, useFieldModel } = useForm({
+  validationSchema: toTypedSchema(schema),
+})
 
+const onSubmit = handleSubmit(async (values: zod.infer<typeof schema>) => {
   $q.loading.show({
     message: 'Creating account...',
   })
-  await auth.signUp(data.email, data.password)
+  await auth.signUp(values.email, values.password)
   $q.loading.hide()
 
   router.push('/')
-}
+})
 </script>
 
 <template>
@@ -57,34 +50,40 @@ async function onSubmit() {
         <div text="2xl" font-bold>Create new account</div>
       </div>
 
-      <form flex="~ col justify-between" gap-4 px-4 @submit.prevent="onSubmit">
-        <q-input
-          v-model="form.email.$model"
-          :debounce="200"
-          outlined
-          type="text"
-          label="Email"
-          :error="form.email.$error"
-          :error-message="form.email.$errors[0]?.$message.toString()"
-        />
-        <q-input
-          v-model="form.password.$model"
-          :debounce="200"
-          outlined
-          type="password"
-          label="Password"
-          :error="form.password.$error"
-          :error-message="form.password.$errors[0]?.$message.toString()"
-        />
-        <q-input
-          v-model="form.confirmPassword.$model"
-          :debounce="200"
-          outlined
-          type="password"
-          label="Confirm password"
-          :error="form.confirmPassword.$error"
-          :error-message="form.confirmPassword.$errors[0]?.$message.toString()"
-        />
+      <form flex="~ col justify-between" gap-4 px-4 @submit="onSubmit">
+        <Field v-slot="{ errorMessage }" name="email">
+          <q-input
+            v-model="useFieldModel('email').value"
+            outlined
+            type="text"
+            label="Email"
+            :error="!!errorMessage"
+            :error-message="errorMessage"
+          />
+        </Field>
+
+        <Field v-slot="{ errorMessage }" name="password">
+          <q-input
+            v-model="useFieldModel('password').value"
+            outlined
+            type="password"
+            label="Password"
+            :error="!!errorMessage"
+            :error-message="errorMessage"
+          />
+        </Field>
+
+        <Field v-slot="{ errorMessage }" name="confirmPassword">
+          <q-input
+            v-model="useFieldModel('confirmPassword').value"
+            outlined
+            type="password"
+            label="Confirm password"
+            :error="!!errorMessage"
+            :error-message="errorMessage"
+          />
+        </Field>
+
         <div flex="~ justify-between items-center">
           <router-link to="sign-in" color="blue" font-bold>
             Sign in instead
