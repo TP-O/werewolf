@@ -5,8 +5,12 @@ defineProps<{ role: Role }>()
 </script>
 
 <template>
-  <q-card w="700px" max-w="80vw" h="500px" max-h="80vh" flex="~ col" gap-4 p-4>
-    <q-img src="https://cdn.quasar.dev/img/parallax2.jpg" fit="contain" />
+  <q-card w="400px" h="500px" flex="~ col" gap-4 p-4>
+    <q-img
+      :src="`https://picsum.photos/seed/${Math.random()}/200/200`"
+      fit="contain"
+      h="1/2"
+    />
 
     <q-card-section p-0>{{ role.description }} </q-card-section>
   </q-card>

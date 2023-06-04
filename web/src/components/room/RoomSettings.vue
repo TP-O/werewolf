@@ -7,6 +7,28 @@ import { storeToRefs } from 'pinia'
 const { player } = storeToRefs(usePlayerStore())
 const { room, settings } = storeToRefs(useWaitingRoomStore())
 const isOwner = computed(() => room.value?.ownerId === player.value?.id)
+const info = [
+  {
+    label: 'Room ID',
+    value: room.value?.id,
+  },
+  {
+    label: 'Capacity',
+    value: `${settings.value.capacity} players`,
+  },
+  {
+    label: 'Password',
+    value: settings.value.password,
+  },
+  {
+    label: 'Turn duration',
+    value: `${settings.value.gameSettings.turnDuration} seconds`,
+  },
+  {
+    label: 'Discussion duration',
+    value: `${settings.value.gameSettings.discussionDuration} seconds`,
+  },
+]
 
 const schema = zod.object({
   password: zod
@@ -39,53 +61,25 @@ const onSubmit = handleSubmit((d) => {
 </script>
 
 <template>
-  <div flex="~ col" relative border rounded p-2 @submit="onSubmit">
-    <div flex="~ row" justify-between>
-      <div flex items-center>Settings</div>
-
-      <q-btn unelevated @click="showSettings">
+  <div flex="~ col" relative border rounded>
+    <HeaderCard label="settings">
+      <q-btn unelevated text-base @click="showSettings">
         <div i="carbon-settings"></div>
+
+        <q-tooltip text-base> Update settings </q-tooltip>
       </q-btn>
+    </HeaderCard>
+
+    <div overflow-y-scroll p-2>
+      <table>
+        <tbody>
+          <tr v-for="(row, i) of info" :key="i">
+            <td pb-2 font-bold>{{ row.label }}:</td>
+            <td pb-2 pl-4>{{ row.value }}</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
-
-    <q-list>
-      <q-item>
-        <q-item-section avatar>
-          <div i="carbon-user-multiple"></div>
-        </q-item-section>
-
-        <q-item-section>Capacity: {{ settings.capacity }}</q-item-section>
-      </q-item>
-      <q-item>
-        <q-item-section avatar>
-          <div i="carbon-password"></div>
-        </q-item-section>
-
-        <q-item-section>
-          Password: {{ settings.password || 'No' }}
-        </q-item-section>
-      </q-item>
-      <q-item>
-        <q-item-section avatar>
-          <div i="carbon-time"></div>
-        </q-item-section>
-
-        <q-item-section>
-          Turn duration:
-          {{ `${settings.gameSettings.turnDuration} seconds` }}
-        </q-item-section>
-      </q-item>
-      <q-item>
-        <q-item-section avatar>
-          <div i="carbon-password"></div>
-        </q-item-section>
-
-        <q-item-section>
-          Discussion duration:
-          {{ `${settings.gameSettings.discussionDuration} seconds` }}
-        </q-item-section>
-      </q-item>
-    </q-list>
 
     <q-dialog
       v-model="isSettingsShowed"

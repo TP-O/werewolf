@@ -19,6 +19,14 @@ function showRoleDetails(id: number) {
   isRoleDetailsShowed.value = true
 }
 
+function isPickedRole(id: number) {
+  return settings.value.gameSettings.roleIds.includes(id)
+}
+
+function isLockedRole(id: number) {
+  return settings.value.gameSettings.requiredRoleIds.includes(id)
+}
+
 function pickRole(id: number) {
   const i = settings.value.gameSettings.roleIds.indexOf(id)
   if (i === -1) {
@@ -48,26 +56,29 @@ function pickRequiredRole(id: number) {
 </script>
 
 <template>
-  <div flex="~ col" border rounded p-2>
-    <div flex="~ row" justify-between>
-      <div flex items-center>Picked roles</div>
+  <div flex="~ col" border rounded>
+    <HeaderCard label="picked roles">
+      <q-btn unelevated text-base @click="showRoleSelection">
+        <div v-if="isOwner" i="mdi-square-edit-outline"></div>
+        <div v-else i="mdi-information-variant-circle-outline"></div>
 
-      <q-btn unelevated @click="showRoleSelection">
-        <div v-if="isOwner" i="carbon-add-alt"></div>
-        <div v-else i="carbon-view"></div>
+        <q-tooltip text-base>
+          {{ isOwner ? 'Update roles' : 'View all roles' }}
+        </q-tooltip>
       </q-btn>
-    </div>
+    </HeaderCard>
 
-    <div grid="~ cols-1" gap-4 overflow-y-scroll>
-      <RoleSummaryCard
+    <div grid="~ cols-1" gap-4 overflow-y-scroll p-2>
+      <SelectRoleCard
         v-for="(role, i) of settings.gameSettings.roleIds.map(
           (id) => roles[id]
         )"
         :key="i"
         :role="role"
-        :picked="settings.gameSettings.roleIds.includes(role.id)"
-        :required="settings.gameSettings.requiredRoleIds.includes(role.id)"
+        :picked="isPickedRole(role.id)"
+        :locked="isLockedRole(role.id)"
         :pick="pickRole"
+        :disabled="!isOwner"
         :mark-as-required="pickRequiredRole"
         @click="showRoleDetails(role.id)"
       />
@@ -85,14 +96,16 @@ function pickRequiredRole(id: number) {
         </q-card-section>
 
         <q-card-section flex="~ col" gap-4 pt-0>
-          <RoleSummaryCard
+          <SelectRoleCard
             v-for="(role, i) of roles"
             :key="i"
             :role="role"
-            :picked="settings.gameSettings.roleIds.includes(role.id)"
-            :required="settings.gameSettings.requiredRoleIds.includes(role.id)"
+            :picked="isPickedRole(role.id)"
+            :locked="isLockedRole(role.id)"
             :pick="pickRole"
+            :disabled="!isOwner"
             :mark-as-required="pickRequiredRole"
+            :flat="!isPickedRole(role.id)"
             @click="showRoleDetails(role.id)"
           />
         </q-card-section>

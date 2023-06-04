@@ -9,18 +9,17 @@ export {}
 
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
-    ChatBox: typeof import('./components/room/ChatBox.vue')['default']
+    HeaderCard: typeof import('./components/room/HeaderCard.vue')['default']
     JoinedPlayerList: typeof import('./components/room/JoinedPlayerList.vue')['default']
     OAuth: typeof import('./components/auth/OAuth.vue')['default']
     PickedRoleList: typeof import('./components/room/PickedRoleList.vue')['default']
-    Role: typeof import('./components/room/Role.vue')['default']
+    PlayerList: typeof import('./components/room/PlayerList.vue')['default']
     RoleCard: typeof import('./components/RoleCard.vue')['default']
-    RoleList: typeof import('./components/room/RoleList.vue')['default']
-    RoleSummaryCard: typeof import('./components/RoleSummaryCard.vue')['default']
+    RoleSummaryCard: typeof import('./components/room/RoleSummaryCard.vue')['default']
     RoomChatBox: typeof import('./components/room/RoomChatBox.vue')['default']
     RoomSettings: typeof import('./components/room/RoomSettings.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
-    Settings: typeof import('./components/room/Settings.vue')['default']
+    SelectRoleCard: typeof import('./components/room/SelectRoleCard.vue')['default']
   }
 }

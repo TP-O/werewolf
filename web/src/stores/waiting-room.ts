@@ -43,7 +43,7 @@ export const useWaitingRoomStore = defineStore('waiting_room', () => {
     const {
       data: { data },
     } = await commApi.post<ResponseData<WaitingRoom>>('/rooms', {
-      password: '12345',
+      // password: '12345',
     })
     room.value = data
     return data

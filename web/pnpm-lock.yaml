@@ -72,6 +72,9 @@ devDependencies:
   '@iconify-json/devicon':
     specifier: ^1.1.5
     version: 1.1.5
+  '@iconify-json/mdi':
+    specifier: ^1.1.52
+    version: 1.1.52
   '@intlify/unplugin-vue-i18n':
     specifier: ^0.10.0
     version: 0.10.0(rollup@2.79.1)(vue-i18n@9.2.2)
@@ -2321,6 +2324,12 @@ packages:
 
   /@iconify-json/devicon@1.1.5:
     resolution: {integrity: sha512-SRtPmG5yZF+bHZztujcVRhz24we+fP/TQwDXi6adk5y/go0lJ1fAipeTabDYt0Z+eZ6U0UrwOESKd9RzPM+mLA==}
+    dependencies:
+      '@iconify/types': 2.0.0
+    dev: true
+
+  /@iconify-json/mdi@1.1.52:
+    resolution: {integrity: sha512-tLzpFcmoGw1/jHcl+BshUd4bqvP4755OUluaARsuKskTp2aIPIAkRQOhzJGpry9CZ0i82z0alq4HrKrp9uvj4A==}
     dependencies:
       '@iconify/types': 2.0.0
     dev: true
