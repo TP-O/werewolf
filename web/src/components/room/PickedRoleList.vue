@@ -59,8 +59,8 @@ function pickRequiredRole(id: number) {
   <div flex="~ col" border rounded>
     <HeaderCard label="picked roles">
       <q-btn unelevated text-base @click="showRoleSelection">
-        <div v-if="isOwner" i="mdi-square-edit-outline"></div>
-        <div v-else i="mdi-information-variant-circle-outline"></div>
+        <div v-if="isOwner" i-mdi-square-edit-outline></div>
+        <div v-else i-mdi-information-variant-circle-outline></div>
 
         <q-tooltip text-base>
           {{ isOwner ? 'Update roles' : 'View all roles' }}

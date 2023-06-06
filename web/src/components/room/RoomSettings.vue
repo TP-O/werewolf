@@ -64,7 +64,7 @@ const onSubmit = handleSubmit((d) => {
   <div flex="~ col" relative border rounded>
     <HeaderCard label="settings">
       <q-btn unelevated text-base @click="showSettings">
-        <div i="carbon-settings"></div>
+        <div i-mdi-cog-outline></div>
 
         <q-tooltip text-base> Update settings </q-tooltip>
       </q-btn>

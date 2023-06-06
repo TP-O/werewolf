@@ -39,7 +39,6 @@
   },
   "devDependencies": {
     "@antfu/eslint-config": "^0.38.6",
-    "@iconify-json/carbon": "^1.1.16",
     "@iconify-json/devicon": "^1.1.5",
     "@iconify-json/mdi": "^1.1.52",
     "@intlify/unplugin-vue-i18n": "^0.10.0",

@@ -37,7 +37,7 @@ const { kick } = useWaitingRoomStore()
                 <q-item-section avatar>
                   <q-avatar color="black" text-color="white">
                     <q-icon>
-                      <div i="mdi-account-circle-outline" />
+                      <div i-mdi-account-circle-outline />
                     </q-icon>
                   </q-avatar>
                 </q-item-section>
@@ -50,7 +50,7 @@ const { kick } = useWaitingRoomStore()
                 <q-item-section avatar>
                   <q-avatar color="black" text-color="white">
                     <q-icon>
-                      <div i="mdi-account-plus-outline" />
+                      <div i-mdi-account-plus-outline />
                     </q-icon>
                   </q-avatar>
                 </q-item-section>
@@ -68,7 +68,7 @@ const { kick } = useWaitingRoomStore()
                 <q-item-section avatar>
                   <q-avatar color="red" text-color="white">
                     <q-icon>
-                      <div i="mdi-exit-run" />
+                      <div i-mdi-exit-run />
                     </q-icon>
                   </q-avatar>
                 </q-item-section>

@@ -68,27 +68,17 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div h-full>
-    <!-- <div h="1/12" grid="~ cols-[0.5fr_11fr_0.5fr]" py-4>
-      <q-btn color="negative" label="Exit" @click="leaveRoom" />
+  <div h-full flex gap-1>
+    <JoinedPlayerList w="1/3" />
 
-      <p text="xl center">
-        Room: <b>{{ roomId }}</b>
-      </p>
-    </div> -->
+    <PickedRoleList w="1/3" />
 
-    <div h="full" flex gap-1>
-      <JoinedPlayerList w="1/3" />
+    <div flex="~ col" gap-1 w="1/3">
+      <RoomSettings h="1/2" />
+      <RoomChatBox :id="room?.id || ''" h="1/2" />
 
-      <PickedRoleList w="1/3" />
-
-      <div flex="~ col" gap-1 w="1/3">
-        <RoomSettings h="1/2" />
-        <RoomChatBox :id="room?.id || ''" h="1/2" />
-
-        <div p-2>
-          <q-btn color="negative" label="Exit" w-full @click="leaveRoom" />
-        </div>
+      <div p-2>
+        <q-btn color="negative" label="Exit" w-full @click="leaveRoom" />
       </div>
     </div>
   </div>

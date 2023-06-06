@@ -40,8 +40,8 @@ withDefaults(
         v-if="![RoleId.Villager, RoleId.Werewolf].includes(role.id)"
       >
         <q-btn flat :disabled="disabled" @click.stop="markAsRequired(role.id)">
-          <div v-if="locked" i="mdi-lock-outline"></div>
-          <div v-else i="mdi-lock-open-variant-outline"></div>
+          <div v-if="locked" i-mdi-lock-outline></div>
+          <div v-else i-mdi-lock-open-variant-outline></div>
 
           <q-tooltip text-xs>
             {{
@@ -53,8 +53,8 @@ withDefaults(
         </q-btn>
 
         <q-btn flat :disabled="disabled" @click.stop="pick(role.id)">
-          <div v-if="picked" i="mdi-close" />
-          <div v-else i="mdi-plus"></div>
+          <div v-if="picked" i-mdi-close />
+          <div v-else i-mdi-plus></div>
 
           <q-tooltip text-xs>
             {{ picked ? 'Delete role' : 'Add role' }}
