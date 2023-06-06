@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css?family=Creepster&display=swap');
+
 html,
 body,
 #app {
@@ -28,6 +30,19 @@ html.dark {
 
 .chatbox textarea {
   max-height: 100px;
+}
+
+/* Prevent changing input bg color by autofill */
+input:-webkit-autofill {
+  -webkit-animation-name: none !important;
+  -webkit-animation-fill-mode: none !important;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  transition: background-color 9999s ease-in-out 0s;
 }
 
 /* width */

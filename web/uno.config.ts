@@ -21,7 +21,7 @@ export default defineConfig({
     ],
   ],
   presets: [
-    presetUno(),
+    presetUno({}),
     presetAttributify(),
     presetIcons({
       scale: 1.2,
@@ -43,4 +43,22 @@ export default defineConfig({
       error: '#C10015',
     },
   },
+  rules: [
+    [
+      'text-creepy',
+      {
+        'font-family': "'Creepster', sans-serif",
+        'letter-spacing': '0.1rem',
+      },
+    ],
+    [
+      'bg-sign-in',
+      {
+        'background-image': 'url("/public/assets/img/warwick.jpg")',
+        'background-repeat': 'no-repeat',
+        'background-position': 'center',
+        'background-size': 'cover',
+      },
+    ],
+  ],
 })
