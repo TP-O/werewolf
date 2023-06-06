@@ -44,58 +44,77 @@ const onSubmit = handleSubmit(async (values: zod.infer<typeof schema>) => {
 </script>
 
 <template>
-  <div flex="~ justify-center items-center" h-full>
-    <div md="w-2xl">
-      <div mb-8>
-        <div text="2xl" font-bold>Create new account</div>
+  <div h-screen w-screen flex overflow-hidden>
+    <div flex="~ col justify-center" w-full gap-8 px-8 md="px-24" lg="w-xl">
+      <div>
+        <div mb-8>
+          <div text="5xl creepy" font-bold>New account</div>
+        </div>
+
+        <form flex="~ col justify-between" gap-2 @submit="onSubmit">
+          <Field v-slot="{ errorMessage }" name="email">
+            <q-input
+              v-model="useFieldModel('email').value"
+              outlined
+              dense
+              rounded
+              type="text"
+              label="Email"
+              :error="!!errorMessage"
+              :error-message="errorMessage"
+            />
+          </Field>
+
+          <Field v-slot="{ errorMessage }" name="password">
+            <q-input
+              v-model="useFieldModel('password').value"
+              outlined
+              dense
+              rounded
+              type="password"
+              label="Password"
+              :error="!!errorMessage"
+              :error-message="errorMessage"
+            />
+          </Field>
+
+          <Field v-slot="{ errorMessage }" name="confirmPassword">
+            <q-input
+              v-model="useFieldModel('confirmPassword').value"
+              outlined
+              dense
+              rounded
+              type="password"
+              label="Confirm password"
+              :error="!!errorMessage"
+              :error-message="errorMessage"
+            />
+          </Field>
+
+          <div flex="~ justify-end" mb-3>
+            <router-link to="sign-in" color="blue" font-bold>
+              Sign in instead
+            </router-link>
+          </div>
+
+          <q-btn
+            color="blue"
+            label="Go!"
+            type="submit"
+            rounded
+            px-8
+            py-2
+            capitalize
+          />
+        </form>
       </div>
 
-      <form flex="~ col justify-between" gap-4 px-4 @submit="onSubmit">
-        <Field v-slot="{ errorMessage }" name="email">
-          <q-input
-            v-model="useFieldModel('email').value"
-            outlined
-            type="text"
-            label="Email"
-            :error="!!errorMessage"
-            :error-message="errorMessage"
-          />
-        </Field>
-
-        <Field v-slot="{ errorMessage }" name="password">
-          <q-input
-            v-model="useFieldModel('password').value"
-            outlined
-            type="password"
-            label="Password"
-            :error="!!errorMessage"
-            :error-message="errorMessage"
-          />
-        </Field>
-
-        <Field v-slot="{ errorMessage }" name="confirmPassword">
-          <q-input
-            v-model="useFieldModel('confirmPassword').value"
-            outlined
-            type="password"
-            label="Confirm password"
-            :error="!!errorMessage"
-            :error-message="errorMessage"
-          />
-        </Field>
-
-        <div flex="~ justify-between items-center">
-          <router-link to="sign-in" color="blue" font-bold>
-            Sign in instead
-          </router-link>
-          <q-btn color="blue" label="Go!" type="submit" px-8 py-2 capitalize />
-        </div>
-      </form>
-
-      <q-separator my-6 />
+      <q-separator />
 
       <OAuth />
     </div>
+
+    <div lg="block" hidden grow-1 bg-sign-in />
   </div>
 </template>
 

@@ -13,19 +13,15 @@ async function signInWithGoogle() {
 </script>
 
 <template>
-  <div>
-    <div mb-4>Sign in with</div>
+  <div flex="~ col justify-around" gap-4>
+    <q-btn rounded @click="signInWithGoogle">
+      <div i-devicon-google mr-2 />
+      <div>Join with Google</div>
+    </q-btn>
 
-    <div flex="~ justify-around">
-      <q-btn capitalize @click="signInWithGoogle">
-        <div i-devicon-google mr-2 />
-        Google
-      </q-btn>
-
-      <q-btn capitalize @click="signInWithGoogle">
-        <div i-devicon-facebook mr-2 />
-        Facebook
-      </q-btn>
-    </div>
+    <q-btn rounded @click="signInWithGoogle">
+      <div i-devicon-facebook mr-2 />
+      <div>Join with Facebook</div>
+    </q-btn>
   </div>
 </template>
