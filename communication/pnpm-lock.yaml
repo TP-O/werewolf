@@ -1,5 +1,9 @@
 lockfileVersion: '6.0'
 
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
 dependencies:
   '@nestjs/common':
     specifier: ^9.4.0
@@ -68,7 +72,7 @@ dependencies:
 devDependencies:
   '@asyncapi/generator':
     specifier: ^1.9.18
-    version: 1.9.18(@types/node@18.16.0)
+    version: 1.9.18(@types/node@20.3.3)
   '@asyncapi/html-template':
     specifier: 0.28.3
     version: 0.28.3
@@ -97,8 +101,8 @@ devDependencies:
     specifier: 29.5.1
     version: 29.5.1
   '@types/node':
-    specifier: ^18.16.0
-    version: 18.16.0
+    specifier: ^20.3.3
+    version: 20.3.3
   '@types/randomstring':
     specifier: ^1.1.8
     version: 1.1.8
@@ -125,7 +129,7 @@ devDependencies:
     version: 4.17.0
   jest:
     specifier: 28.1.3
-    version: 28.1.3(@types/node@18.16.0)(ts-node@10.9.1)
+    version: 28.1.3(@types/node@20.3.3)(ts-node@10.9.1)
   prettier:
     specifier: ^2.8.8
     version: 2.8.8
@@ -143,7 +147,7 @@ devDependencies:
     version: 9.4.2(typescript@4.9.5)(webpack@5.74.0)
   ts-node:
     specifier: ^10.9.1
-    version: 10.9.1(@types/node@18.16.0)(typescript@4.9.5)
+    version: 10.9.1(@types/node@20.3.3)(typescript@4.9.5)
   tsconfig-paths:
     specifier: 4.1.0
     version: 4.1.0
@@ -273,7 +277,7 @@ packages:
       - supports-color
     dev: true
 
-  /@asyncapi/generator@1.9.18(@types/node@18.16.0):
+  /@asyncapi/generator@1.9.18(@types/node@20.3.3):
     resolution: {integrity: sha512-mxduTRaU1tPVEKDY0cv7ysnYoqGdVFwRhr2V6Q1J1Um8VDpTZWiRdoPMoauyGtRQ4+udlKayJd3B2G14K7Vw1A==}
     engines: {node: '>12.16', npm: '>6.13.7'}
     hasBin: true
@@ -304,7 +308,7 @@ packages:
       semver: 7.5.0
       simple-git: 3.17.0
       source-map-support: 0.5.21
-      ts-node: 10.9.1(@types/node@18.16.0)(typescript@4.9.5)
+      ts-node: 10.9.1(@types/node@20.3.3)(typescript@4.9.5)
       typescript: 4.9.5
     transitivePeerDependencies:
       - '@swc/core'
@@ -3573,6 +3577,10 @@ packages:
   /@types/node@18.16.0:
     resolution: {integrity: sha512-BsAaKhB+7X+H4GnSjGhJG9Qi8Tw+inU9nJDwmD5CgOmBLEI6ArdhikpLX7DjbjDRDTbqZzU2LSQNZg8WGPiSZQ==}
 
+  /@types/node@20.3.3:
+    resolution: {integrity: sha512-wheIYdr4NYML61AjC8MKj/2jrR/kDQri/CIpVoZwldwhnIrD/j9jIU5bJ8yBKuB2VhpFV7Ab6G2XkBjv9r9Zzw==}
+    dev: true
+
   /@types/parse-json@4.0.0:
     resolution: {integrity: sha512-//oorEZjL6sbPcKUaCdIGlIUeH26mgzimjBB77G6XRgnDl/L5wOnpyBGRe/Mmf5CVW3PwEBE1NjiMZ/ssFh4wA==}
     dev: true
@@ -6707,7 +6715,7 @@ packages:
       - supports-color
     dev: true
 
-  /jest-cli@28.1.3(@types/node@18.16.0)(ts-node@10.9.1):
+  /jest-cli@28.1.3(@types/node@20.3.3)(ts-node@10.9.1):
     resolution: {integrity: sha512-roY3kvrv57Azn1yPgdTebPAXvdR2xfezaKKYzVxZ6It/5NCxzJym6tUI5P1zkdWhfUYkxEI9uZWcQdaFLo8mJQ==}
     engines: {node: ^12.13.0 || ^14.15.0 || ^16.10.0 || >=17.0.0}
     hasBin: true
@@ -6724,7 +6732,7 @@ packages:
       exit: 0.1.2
       graceful-fs: 4.2.11
       import-local: 3.1.0
-      jest-config: 28.1.3(@types/node@18.16.0)(ts-node@10.9.1)
+      jest-config: 28.1.3(@types/node@20.3.3)(ts-node@10.9.1)
       jest-util: 28.1.3
       jest-validate: 28.1.3
       prompts: 2.4.2
@@ -6770,7 +6778,47 @@ packages:
       pretty-format: 28.1.3
       slash: 3.0.0
       strip-json-comments: 3.1.1
-      ts-node: 10.9.1(@types/node@18.16.0)(typescript@4.9.5)
+      ts-node: 10.9.1(@types/node@20.3.3)(typescript@4.9.5)
+    transitivePeerDependencies:
+      - supports-color
+    dev: true
+
+  /jest-config@28.1.3(@types/node@20.3.3)(ts-node@10.9.1):
+    resolution: {integrity: sha512-MG3INjByJ0J4AsNBm7T3hsuxKQqFIiRo/AUqb1q9LRKI5UU6Aar9JHbr9Ivn1TVwfUD9KirRoM/T6u8XlcQPHQ==}
+    engines: {node: ^12.13.0 || ^14.15.0 || ^16.10.0 || >=17.0.0}
+    peerDependencies:
+      '@types/node': '*'
+      ts-node: '>=9.0.0'
+    peerDependenciesMeta:
+      '@types/node':
+        optional: true
+      ts-node:
+        optional: true
+    dependencies:
+      '@babel/core': 7.21.4
+      '@jest/test-sequencer': 28.1.3
+      '@jest/types': 28.1.3
+      '@types/node': 20.3.3
+      babel-jest: 28.1.3(@babel/core@7.21.4)
+      chalk: 4.1.2
+      ci-info: 3.8.0
+      deepmerge: 4.3.1
+      glob: 7.2.3
+      graceful-fs: 4.2.11
+      jest-circus: 28.1.3
+      jest-environment-node: 28.1.3
+      jest-get-type: 28.0.2
+      jest-regex-util: 28.0.2
+      jest-resolve: 28.1.3
+      jest-runner: 28.1.3
+      jest-util: 28.1.3
+      jest-validate: 28.1.3
+      micromatch: 4.0.5
+      parse-json: 5.2.0
+      pretty-format: 28.1.3
+      slash: 3.0.0
+      strip-json-comments: 3.1.1
+      ts-node: 10.9.1(@types/node@20.3.3)(typescript@4.9.5)
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -7120,7 +7168,7 @@ packages:
       supports-color: 8.1.1
     dev: true
 
-  /jest@28.1.3(@types/node@18.16.0)(ts-node@10.9.1):
+  /jest@28.1.3(@types/node@20.3.3)(ts-node@10.9.1):
     resolution: {integrity: sha512-N4GT5on8UkZgH0O5LUavMRV1EDEhNTL0KEfRmDIeZHSV7p2XgLoY9t9VDUgL6o+yfdgYHVxuz81G8oB9VG5uyA==}
     engines: {node: ^12.13.0 || ^14.15.0 || ^16.10.0 || >=17.0.0}
     hasBin: true
@@ -7133,7 +7181,7 @@ packages:
       '@jest/core': 28.1.3(ts-node@10.9.1)
       '@jest/types': 28.1.3
       import-local: 3.1.0
-      jest-cli: 28.1.3(@types/node@18.16.0)(ts-node@10.9.1)
+      jest-cli: 28.1.3(@types/node@20.3.3)(ts-node@10.9.1)
     transitivePeerDependencies:
       - '@types/node'
       - supports-color
@@ -9743,7 +9791,7 @@ packages:
       '@babel/core': 7.21.4
       bs-logger: 0.2.6
       fast-json-stable-stringify: 2.1.0
-      jest: 28.1.3(@types/node@18.16.0)(ts-node@10.9.1)
+      jest: 28.1.3(@types/node@20.3.3)(ts-node@10.9.1)
       jest-util: 28.1.3
       json5: 2.2.3
       lodash.memoize: 4.1.2
@@ -9768,7 +9816,7 @@ packages:
       webpack: 5.74.0
     dev: true
 
-  /ts-node@10.9.1(@types/node@18.16.0)(typescript@4.9.5):
+  /ts-node@10.9.1(@types/node@20.3.3)(typescript@4.9.5):
     resolution: {integrity: sha512-NtVysVPkxxrwFGUUxGYhfux8k78pQB3JqYBXlLRZgdGUqTO5wU/UyHop5p70iEbGhB7q5KmiZiU0Y3KlJrScEw==}
     hasBin: true
     peerDependencies:
@@ -9787,7 +9835,7 @@ packages:
       '@tsconfig/node12': 1.0.11
       '@tsconfig/node14': 1.0.3
       '@tsconfig/node16': 1.0.3
-      '@types/node': 18.16.0
+      '@types/node': 20.3.3
       acorn: 8.8.2
       acorn-walk: 8.2.0
       arg: 4.1.3
