@@ -14,7 +14,7 @@ require (
 	github.com/huandu/go-clone v1.6.0
 	github.com/lib/pq v1.10.7
 	github.com/paulmach/orb v0.9.0
-	github.com/redis/go-redis/v9 v9.0.4
+	github.com/redis/go-redis/v9 v9.0.5
 	github.com/samber/lo v1.38.1
 	github.com/spf13/viper v1.12.0
 	github.com/stretchr/testify v1.8.2
