@@ -48,7 +48,7 @@
     "@asyncapi/html-template": "0.28.3",
     "@firebase/app-types": "^0.7.0",
     "@golevelup/ts-jest": "^0.3.5",
-    "@nestjs/cli": "^9.4.2",
+    "@nestjs/cli": "^10.3.0",
     "@nestjs/schematics": "^9.1.0",
     "@nestjs/testing": "^9.4.0",
     "@types/cache-manager": "^4.0.2",
